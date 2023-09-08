@@ -9,7 +9,7 @@ webhooks:
       caBundle: ${webhook_caBundle}
       service:
         name: hera-webhook-server
-        namespace: hera-namespace
+        namespace: ozhera-namespace
         path: /hera-env-v1
     failurePolicy: Ignore
     name: pod.hera.mone.run

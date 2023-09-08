@@ -30,7 +30,7 @@ public class Bootstrap {
 
     private static String webhookConfigYaml;
 
-    private static final String HERA_NAMESPACE = "hera-namespace";
+    private static final String HERA_NAMESPACE = "ozhera-namespace";
 
     public static void main(String[] args) {
         try {

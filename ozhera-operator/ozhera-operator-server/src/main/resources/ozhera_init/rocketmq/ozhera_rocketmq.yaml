@@ -249,7 +249,7 @@ spec:
 
             - name: NAMESRV_ADDR
 
-              value: 'rocketmq-name-server-service.hera-namespace:9876'
+              value: 'rocketmq-name-server-service.ozhera-namespace:9876'
 
             - name: BROKER_MEM
 
@@ -381,7 +381,7 @@ spec:
 
               value: >-
 
-                -Drocketmq.namesrv.addr=rocketmq-name-server-service.hera-namespace:9876
+                -Drocketmq.namesrv.addr=rocketmq-name-server-service.ozhera-namespace:9876
 
                 -Dcom.rocketmq.sendMessageWithVIPChannel=false                
 

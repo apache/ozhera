@@ -273,12 +273,12 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                     String dataId = key.substring(0, key.indexOf("_#_"));
                     String group = key.substring(key.indexOf("_#_") + 3);
                     String body = String.format("type=%s&dataId=%s&group=%s&content=%s", "properties", dataId, group, eContent);
-                    log.warn("create nacos conig file:{}", body);
+                    log.info("create nacos conig file:{}", body);
                     String result = HttpClientV6.post(nacosCfApi, body, headers, 3000);
                     if (!"true".equals(result)) {
                         log.error("create nacos conig file failed:{}", result);
                     } else {
-                        log.error("create nacos conig file success");
+                        log.info("create nacos conig file success");
                     }
 
                     break;
@@ -305,6 +305,13 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
         log.warn("sql scripts execte success");
     }
 
+    /**
+     * Do not appear English semicolons in the SQL file to be executed, otherwise it will be considered as the end symbol
+     * @param scripts
+     * @param url
+     * @param userName
+     * @param pwd
+     */
     private void executeSqlScript(String[] scripts, String url, String userName, String pwd) {
         int retryTimes = 3;
         Connection con = null;

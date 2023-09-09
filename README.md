@@ -42,7 +42,7 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 
 ## User List
 
-If you are using [XiaoMi/mone](https://github.com/w1zirn/mone) and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.
+If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.
 
 |![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
 | :---: | :---: | :---: | :---: |

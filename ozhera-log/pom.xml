@@ -64,6 +64,12 @@
                 <artifactId>hutool-all</artifactId>
                 <version>5.8.20</version>
             </dependency>
+
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>hera-trace</artifactId>
+                <version>1.4.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -258,7 +258,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>hera-trace</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -282,7 +281,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>hera-trace</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

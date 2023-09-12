@@ -22,10 +22,64 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <docean-plugin.common.version>1.4.0</docean-plugin.common.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean</artifactId>
+                <version>1.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-config</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-configuration</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-dubbo</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-db</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-nacos</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es-antlr4</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-mybatis-plus</artifactId>
+                <version>${docean-plugin.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-rocketmq</artifactId>
+                <version>1.4.1</version>
+            </dependency>
+
+
+
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
@@ -64,6 +118,12 @@
                 <artifactId>hutool-all</artifactId>
                 <version>5.8.20</version>
             </dependency>
+
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>hera-trace</artifactId>
+                <version>1.4.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -80,12 +140,6 @@
             <artifactId>lombok</artifactId>
 <!--            <version>1.18.4</version>-->
             <!--            <scope>provided</scope>-->
-        </dependency>
-
-        <dependency>
-            <groupId>run.mone</groupId>
-            <artifactId>docean</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>

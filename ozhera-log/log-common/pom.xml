@@ -40,12 +40,7 @@
             <version>2.5.1</version>
             <scope>compile</scope>
         </dependency>
-        <!--String similarity-->
-        <dependency>
-            <groupId>me.xdrop</groupId>
-            <artifactId>fuzzywuzzy</artifactId>
-            <version>1.4.0</version>
-        </dependency>
+
         <dependency>
             <groupId>com.gliwka.hyperscan</groupId>
             <artifactId>hyperscan</artifactId>

@@ -15,6 +15,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.5</version>
+        </dependency>
+
+        <dependency>
             <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
             <version>1.0.0-SNAPSHOT</version>
@@ -49,6 +55,22 @@
         </resources>
 
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-modules=jdk.incubator.concurrent</arg>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                    <compilerVersion>20</compilerVersion>
+                    <source>20</source>
+                    <target>20</target>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

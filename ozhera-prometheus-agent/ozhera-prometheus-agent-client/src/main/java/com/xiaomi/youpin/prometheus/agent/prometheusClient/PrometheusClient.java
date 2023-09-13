@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -132,18 +133,7 @@ public class PrometheusClient implements Client {
                 }
                 log.info("PrometheusClient start CompareAndReload");
                 PrometheusConfig prometheusConfig = getPrometheusConfig(filePath);
-                if (prometheusConfig == null || prometheusConfig.getScrape_configs().size() == 0 || prometheusConfig.getGlobal() == null) {
-                    // problem with the configuration, end directly
-                    log.error("prometheusConfig null and return");
-                    return;
-                }
-                // Compare and deduplicate the Prometheus data with the data to be reloaded
-                List<Scrape_configs> promScrapeConfig = prometheusConfig.getScrape_configs();
-                HashSet<Scrape_configs> configSet = new HashSet<>(promScrapeConfig);
-                configSet.addAll(localConfigs);
-                ArrayList<Scrape_configs> configList = new ArrayList<>(configSet);
-                log.info("prometheusYMLJobNum: {},dbPEndingJobNum: {},after Deduplication JobNum: {}", promScrapeConfig.size(), localConfigs.size(), configSet.size());
-                // Replace the scrapeConfig part
+                ArrayList<Scrape_configs> configList = mergeDbAndFileJobs(prometheusConfig);
                 prometheusConfig.setScrape_configs(configList);
                 // Generate yaml and overwrite the configuration
                 log.info("PrometheusClient write final config:{}", gson.toJson(prometheusConfig));
@@ -167,6 +157,31 @@ public class PrometheusClient implements Client {
             }
         }, 0, 30, TimeUnit.SECONDS);
 
+    }
+
+    private synchronized ArrayList<Scrape_configs> mergeDbAndFileJobs(PrometheusConfig prometheusConfig) {
+        if (prometheusConfig == null || prometheusConfig.getScrape_configs().size() == 0 || prometheusConfig.getGlobal() == null) {
+            //If the configuration is faulty, end it directly
+            log.error("prometheusConfig null and return");
+            return null;
+        }
+        //Compare the prometheus data with the data to be reloaded
+        List<Scrape_configs> promScrapeConfig = prometheusConfig.getScrape_configs();
+        HashMap<String, Scrape_configs> configMap = new HashMap<>();
+        promScrapeConfig.forEach(item -> {
+            configMap.put(item.getJob_name(), item);
+        });
+        //The job in the file will be overwritten by db. db prevails
+        localConfigs.forEach(item -> {
+            configMap.put(item.getJob_name(), item);
+        });
+        ArrayList<Scrape_configs> configList = new ArrayList<>();
+        configMap.forEach((k, v) -> {
+            configList.add(v);
+        });
+        log.info("prometheusYMLJobNum: {},dbPEndingJobNum: {} after merge JobNum: {}", promScrapeConfig.size(),
+                localConfigs.size(), configList.size());
+        return configList;
     }
 
     private synchronized PrometheusConfig getPrometheusConfig(String path) {

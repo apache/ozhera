@@ -141,8 +141,8 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
                     if (CollectionUtils.isNotEmpty(fileProgressDetails)) {
                         List<UpdateLogProcessCmd.FileProgressDetail> progressDetails = fileProgressDetails.stream()
                                 .filter(fileProgressDetail -> lessThenRation(fileProgressDetail.getCollectPercentage(), progressRation))
-                                .filter(tailLogProcessDTO -> Instant.now().toEpochMilli() - tailLogProcessDTO.getCollectTime() <
-                                        TimeUnit.HOURS.toMillis(MAX_STATIC_INTERRUPT_TIME_HOUR))
+                                .filter(tailLogProcessDTO -> null != tailLogProcessDTO.getCollectTime() &&
+                                        Instant.now().toEpochMilli() - tailLogProcessDTO.getCollectTime() < TimeUnit.HOURS.toMillis(MAX_STATIC_INTERRUPT_TIME_HOUR))
                                 .collect(Collectors.toList());
                         collectDetail.setFileProgressDetails(progressDetails);
                     }

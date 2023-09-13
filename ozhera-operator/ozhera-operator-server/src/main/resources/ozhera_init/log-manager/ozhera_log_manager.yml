@@ -17,11 +17,34 @@ spec:
     spec:
       containers:
       - name: log-manager-container
-        image: herahub/opensource-pub:log-manager-v1-release
+        image: herahub/opensource-pub:log-manager-v1-release-0.2
+        env:
+          - name: MIONE_PROJECT_ENV_NAME
+            value: dev
+          - name: MIONE_PROJECT_ENV_ID
+            value: '12'
+          - name: MIONE_PROJECT_NAME
+            value: 12-log-manager
+        volumeMounts:
+          - name: log-path
+            mountPath: /home/work/log
         resources:
           limits:
             cpu: '500m'
             memory: 2Gi
+
+      - name: log-agent
+        image: herahub/opensource-pub:log-agent-v1-release-0.2
+        volumeMounts:
+          - mountPath: "/home/work/log"
+            name: log-path
+        resources:
+          limits:
+            cpu: '300m'
+            memory: 1Gi
+      volumes:
+        - name: log-path
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -15,6 +15,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <rocketmq-version>4.9.4</rocketmq-version>
     </properties>
 
     <dependencies>
@@ -27,13 +28,13 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-acl</artifactId>
-            <version>4.9.4</version>
+            <version>${rocketmq-version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>4.9.4</version>
+            <version>${rocketmq-version}</version>
             <exclusions>
 
                 <exclusion>
@@ -66,7 +67,13 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-es</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>es</artifactId>
+            <version>1.5-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -79,8 +86,8 @@
                     <groupId>org.apache.httpcomponents</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>run.mone</groupId>
                     <artifactId>nacos-client</artifactId>
-                    <groupId>com.alibaba.nacos</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -106,6 +113,22 @@
                 <exclusion>
                     <artifactId>httpclient</artifactId>
                     <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>rpc</artifactId>
+                    <groupId>com.xiaomi.youpin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>logback-core</artifactId>
+                    <groupId>ch.qos.logback</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -40,6 +40,11 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 
 ---
 
+### User Manual
+[user-manual-document.md](readme/user-manual/user-manual-document.md)
+
+---
+
 ## User List
 
 If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.

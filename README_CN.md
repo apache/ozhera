@@ -40,6 +40,11 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 
 ---
 
+### 用户手册
+[用户手册.md](readme%2Fuser-manual%2Fuser-manual-document_cn.md)
+
+---
+
 ## User List
 
 If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.

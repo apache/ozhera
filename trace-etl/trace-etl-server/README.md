@@ -1,34 +1,51 @@
-# 概述
-# 如何部署
-### 依赖
-（1）MySQL，建表语句同trace-etl-manager
+# Overview
+
+# How to deploy
+
+### Dependency
+
+（1）MySQL, create table statement same as trace-etl-manager.
 
 （2）RocketMQ
 
 （3）Nacos
 
 （4）ES
-### 环境变量
 
-`CONTAINER_S_IP`：本机的ip，如果是k8s部署，则为pod的ip
+### Environment variable
 
-`CONTAINER_S_HOSTNAME`：本机的host name，如果是k8s部署，则为pod的name
+`CONTAINER_S_IP`：The IP of the local machine, if deployed on k8s, is the IP of the pod.
 
-以上两个环境变量，在trace-etl-server中使用`System.getenv()`方法获取，并注册到nacos，以供prometheus-agent拉取。
+`CONTAINER_S_HOSTNAME`：The host name of this machine, if it is deployed in k8s, will be the name of the pod.
 
-### 端口号
+The above two environment variables are obtained using the `System.getenv()` method in trace-etl-server and registered
+to Nacos for Prometheus-agent to pull.
 
-`4446`：4446端口是用于trace-etl-server的`HTTPServer`启动需要，所以不能被占用。
+### Port number
 
-## 使用maven构建
-在项目根目录下（trace-etl）执行：
+`4446`: Port 4446 is used for the `HTTPServer` startup of trace-etl-server, so it cannot be occupied.
+
+## Build using Maven.
+
+Execute in the root directory of the project (trace-etl):
 
 `mvn clean install -U -P opensource -DskipTests`
+`mvn clean compile -P opensource-outer -Dmaven.test.skip=true`
 
-会在trace-etl-server模块下生成target目录，target目录中的trace-etl-server-1.0.0-SNAPSHOT.jar就是运行的jar文件。
-## 运行
-执行：
+It will generate a target directory under the trace-etl-server module, and the trace-etl-server-1.0.0-SNAPSHOT.jar in
+the target directory is the executable jar file.
+
+##Run
+
+Execution:
 
 `java -jar trace-etl-server-1.0.0-SNAPSHOT.jar`
 
-就可以运行trace-etl-server。
+You can run trace-etl-server.
+
+## JVM startup parameters
+--add-opens java.base/java.util=ALL-UNNAMED
+--add-opens java.base/java.lang=ALL-UNNAMED
+
+## Suggestion
+We also recommend that you use zgc when starting. XX:+UseZGC

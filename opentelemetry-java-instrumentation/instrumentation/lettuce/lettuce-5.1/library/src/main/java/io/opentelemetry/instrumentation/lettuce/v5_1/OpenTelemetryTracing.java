@@ -32,6 +32,10 @@ import java.net.SocketAddress;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 final class OpenTelemetryTracing implements Tracing {
@@ -325,7 +329,7 @@ final class OpenTelemetryTracing implements Tracing {
 
     private void finish(Span span) {
       if (name != null) {
-        if (skipHget()) {
+        if (skipEnd()) {
           return;
         }
         String statement = RedisCommandSanitizer.sanitize(name, splitArgs(args));
@@ -334,9 +338,12 @@ final class OpenTelemetryTracing implements Tracing {
       span.end();
     }
 
-    //If the hget is correct, skip it directly.(issue #16)
-    private boolean skipHget() {
-      return name.toLowerCase().equals("hget") && (null == this.error);
+    //The operation quantity of these commands is too large, it needs to be skipped.
+    private final Set<String> skipName = Stream.of("hget", "mget", "mset", "hmget", "hgetall").collect(Collectors.toSet());
+
+    //If it's in skipName and there are no errors, skip it directly.(issue #16)
+    private boolean skipEnd() {
+      return (null != name) && (skipName.contains(name.toLowerCase()) && (null == this.error));
     }
   }
 

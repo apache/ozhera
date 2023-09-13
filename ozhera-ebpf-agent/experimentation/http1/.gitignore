@@ -1,0 +1,5 @@
+bpf_*.o
+bpf_*.go
+.vscode
+.idea
+*.bak

@@ -15,8 +15,8 @@
  */
 package com.xiaomi.mone.log.common;
 
-import com.xiaomi.youpin.docean.common.StringUtils;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;

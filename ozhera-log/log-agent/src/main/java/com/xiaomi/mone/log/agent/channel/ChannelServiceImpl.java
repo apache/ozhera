@@ -216,7 +216,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private void startExportQueueDataThread() {
         scheduledFuture = ExecutorUtil.scheduleAtFixedRate(() -> {
             // If the mq message is not sent for more than 10 seconds, it will be sent asynchronously.
-            if (System.currentTimeMillis() - lastSendTime < 10 * 1000) {
+            if (System.currentTimeMillis() - lastSendTime < 10 * 1000 || CollectionUtils.isEmpty(lineMessageList)) {
                 return;
             }
             synchronized (lock) {
@@ -418,7 +418,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         ReadListener listener = initFileReadListener(mLog, patternCode, usedIp, filePath);
         Map<String, ChannelMemory.FileProgress> fileProgressMap = channelMemory.getFileProgressMap();
-        log.info("fileProgressMap:{}", gson.toJson(fileProgressMap));
+        if (!collectOnce) {
+            log.info("fileProgressMap:{}", gson.toJson(fileProgressMap));
+        }
         LogFile logFile = getLogFile(filePath, listener, fileProgressMap);
         if (null == logFile) {
             log.warn("file:{} marked stop to collect", filePath);

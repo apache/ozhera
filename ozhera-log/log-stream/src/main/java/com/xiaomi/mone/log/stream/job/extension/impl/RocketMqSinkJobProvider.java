@@ -41,7 +41,6 @@ public class RocketMqSinkJobProvider implements SinkJobProvider {
 
     @Override
     public SinkJob getSinkJob(SinkJobConfig sinkJobConfig) {
-        SinkJob sinkJob = null;
         SinkJobEnum jobType = SinkJobEnum.valueOf(sinkJobConfig.getJobType());
 
         MqMessageProduct mqMessageProduct = new RocketMqMessageProduct();
@@ -61,7 +60,7 @@ public class RocketMqSinkJobProvider implements SinkJobProvider {
         RocketmqConfig rocketmqConfig = RocketmqPlugin.buildRocketmqConfig(sinkJobConfig.getAk(), sinkJobConfig.getSk(), sinkJobConfig.getClusterInfo(),
                 sinkJobConfig.getTopic(), sinkJobConfig.getTag(), jobType);
         DefaultMQPushConsumer rocketMqConsumer = RocketmqPlugin.getRocketMqConsumer(rocketmqConfig);
-        sinkJob = new RocketMqSinkJob(rocketmqConfig, rocketMqConsumer, dataTransfer);
+        SinkJob sinkJob = new RocketMqSinkJob(rocketmqConfig, rocketMqConsumer, dataTransfer);
 
         return sinkJob;
     }

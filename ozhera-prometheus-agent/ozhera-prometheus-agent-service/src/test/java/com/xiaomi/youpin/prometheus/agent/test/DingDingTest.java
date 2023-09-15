@@ -1,8 +1,18 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.google.gson.Gson;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
+import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
+import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
+import freemarker.template.TemplateException;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DingDingTest {
     public static final Gson gson = new Gson();
@@ -157,12 +167,37 @@ public class DingDingTest {
             "    \"groupKey\":\"{}/{send_interval\\u003d\\\"5m\\\"}:{alertname\\u003d\\\"k8s_container_cpu_use_rate-2-k8s_container_cpu_use_rate-1678682933270\\\", group_key\\u003d\\\"localhost:5195\\\"}\",\n" +
             "    \"truncatedAlerts\":0\n" +
             "}";
+
     @Test
     public void testFeishuInterfaceAlertCard() {
-        DingDingService dingDingService = new DingDingService();
         try {
+            DingDingService dingDingService = new DingDingService();
             dingDingService.init();
-            dingDingService.sendDingDing();
+            AlertManagerFireResult alertManagerFireResult = gson.fromJson(testInterfaceAlert, AlertManagerFireResult.class);
+            List<Alerts> alerts = alertManagerFireResult.getAlerts();
+            alertManagerFireResult.getAlerts().stream().forEach(alert -> {
+                System.out.println(DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
+                //ai:Convert UTC time to yyyy-mm-dd format using Java code.
+                Map<String, Object> map = new HashMap<>();
+                map.put("title", alertManagerFireResult.getCommonAnnotations().getTitle());
+                map.put("priority", "p0");
+                map.put("alert_op", alert.getLabels().getAlert_op());
+                map.put("alert_value", alert.getLabels().getAlert_value());
+                map.put("application", alert.getLabels().getApplication());
+                map.put("ip", alert.getLabels().getServerIp());
+                map.put("start_time", DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
+                map.put("silence_url", "http://localhost:80");
+                map.put("serviceName", alert.getLabels().getServiceName());
+                map.put("methodName", alert.getLabels().getMethodName());
+                try {
+                    String content = FreeMarkerUtil.getContent("/feishu", "feishuInterfalCart.ftl", map);
+                    dingDingService.sendDingDing(content);
+                } catch (TemplateException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

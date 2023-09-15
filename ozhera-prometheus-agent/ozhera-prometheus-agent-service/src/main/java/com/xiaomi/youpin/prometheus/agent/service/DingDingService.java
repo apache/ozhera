@@ -68,7 +68,7 @@ public class DingDingService {
         }
     }
 
-    public void sendDingDing() {
+    public void sendDingDing(String content) {
         String token = getAccessToken();
         if (token == null) {
             return;
@@ -79,16 +79,16 @@ public class DingDingService {
                 new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions()
                         .setAtUserListJson("[{\"nickName\":\"张校炜\",\"userId\":\"586215596024257467\"}]")
                         .setAtAll(false)
-                        .setReceiverListJson("[{\"userId\":\"k5c_50qdoo07r\"}]");
+                        .setReceiverListJson("[{\"userId\":\"586215596024257467\"}]");
         SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
                 .setCardTemplateId("StandardCard")
                 .setSingleChatReceiver("{\"userId\":\"586215596024257467\"}")
-                .setCardBizId("d0da82de-4640-4cbc-9109-fa02e4697452.schema")
+                .setCardBizId("f0f36bb2-cab9-4b61-9d47-708321618b11.schema")
                 .setRobotCode("dingxdjn8tjriewanmue")
                 .setCardData("{   \"config\": {     \"autoLayout\": true,     \"enableForward\": true   },   " +
-                        "\"header\": {     \"title\": {       \"type\": \"text\",       \"text\": \"钉钉卡片\"     },   " +
+                        "\"header\": {     \"title\": {       \"type\": \"text\",       \"text\": \"Hera报警\"     },   " +
                         " \"logo\": \"@lALPDfJ6V_FPDmvNAfTNAfQ\"   },   \"contents\": [     {       \"type\": \"text\",    " +
-                        " \"text\": \"钉钉正在为各行各业提供专业解决方案，沉淀钉钉1900万企业组织核心业务场景，提供专属钉钉、教育、医疗、新零售等多行业多维度的解决方案。\"," +
+                        " \"text\": \"[P0] hera CPU使用率报警。\"," +
                         "  \"id\": \"text_1658220665485\" } ]}")
                 .setSendOptions(sendOptions)
                 .setPullStrategy(false);

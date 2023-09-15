@@ -566,10 +566,10 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     @Override
     public Result<List<MapDTO<String, String>>> tailRatelimit() {
         ArrayList<MapDTO<String, String>> ret = new ArrayList<>();
-        ret.add(MapDTO.Of("Collect quickly - Collect as soon as possible, taking up a certain amount of resources", RateLimitEnum.RATE_LIMIT_FAST.getRateLimit()));
-        ret.add(MapDTO.Of("Regular collection", RateLimitEnum.RATE_LIMIT_MEDIUM.getRateLimit()));
-        ret.add(MapDTO.Of("Slow collection", RateLimitEnum.RATE_LIMIT_SLOW.getRateLimit()));
-        ret.add(MapDTO.Of("Stop collecting", RateLimitEnum.RATE_LIMIT_NONE.getRateLimit()));
+        ret.add(MapDTO.Of("快速收集-尽快收集，占用一定资源", RateLimitEnum.RATE_LIMIT_FAST.getRateLimit()));
+        ret.add(MapDTO.Of("常规收集", RateLimitEnum.RATE_LIMIT_MEDIUM.getRateLimit()));
+        ret.add(MapDTO.Of("慢速收集", RateLimitEnum.RATE_LIMIT_SLOW.getRateLimit()));
+        ret.add(MapDTO.Of("停止收集", RateLimitEnum.RATE_LIMIT_NONE.getRateLimit()));
         return Result.success(ret);
     }
 

@@ -62,7 +62,7 @@ JVM monitoring charts offer multi-dimensional metrics for user reference, as sho
 
 Custom charts allow users to submit their own Prometheus data and configure their own viewing charts. Users should be familiar with PromQL and Grafana template configurations.
 
-For a more detailed description and usage of custom charts, refer to:
+For a more detailed description and usage of custom charts, refer to: [OzHera Custom Monitoring Documentation](..%2Fcustom-tracking%2Fcustom-tracking.md)
 
 ### 2. Overview of Call Anomalies
 

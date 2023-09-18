@@ -23,6 +23,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.db.RedisCommandSanitizer;
+import io.opentelemetry.instrumentation.api.db.RedisCommandUtil;
 import io.opentelemetry.instrumentation.api.tracer.AttributeSetter;
 import io.opentelemetry.instrumentation.api.tracer.net.NetPeerAttributes;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
@@ -329,7 +330,7 @@ final class OpenTelemetryTracing implements Tracing {
 
     private void finish(Span span) {
       if (name != null) {
-        if (skipEnd()) {
+        if (RedisCommandUtil.skipEnd(name, error)) {
           return;
         }
         String statement = RedisCommandSanitizer.sanitize(name, splitArgs(args));

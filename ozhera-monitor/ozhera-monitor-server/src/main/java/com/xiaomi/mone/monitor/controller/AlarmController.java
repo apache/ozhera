@@ -178,7 +178,7 @@ public class AlarmController {
             user = userConfigService.getAssignUser(user);
             param.setUser(user);
 
-            return appAlarmService.addRulesWithStrategy(param);
+            return appAlarmService.batchAddRulesWithStrategy(param);
 
         } catch (Exception e) {
             log.error("AlarmController.addAlarmRule param : {} ,exception :{}", param.toString(),e.getMessage(),e);
@@ -322,7 +322,7 @@ public class AlarmController {
             AuthUserVo userInfo = UserUtil.getUser();
             if(userInfo == null){
                 log.error("AlarmController.alertTeamQuery request info error no user info found! " +
-                                "param name : {} ",param.toString());
+                        "param name : {} ",param.toString());
                 return Result.fail(ErrorCode.unknownError);
             }
 

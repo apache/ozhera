@@ -78,6 +78,7 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
     @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)
     public static void stopSpan(
         @Advice.Thrown Throwable throwable,
+        @Advice.Argument(0) Protocol.Command command,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
         @Advice.Local("otelScope") Scope scope) {
@@ -86,6 +87,10 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
       }
 
       scope.close();
+
+      if (RedisCommandUtil.skipEnd(command.name(), throwable)) {
+        return;
+      }
       instrumenter().end(context, request, null, throwable);
     }
   }
@@ -117,6 +122,7 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
     @Advice.OnMethodExit(onThrowable = Throwable.class, suppress = Throwable.class)
     public static void stopSpan(
         @Advice.Thrown Throwable throwable,
+        @Advice.Argument(0) Protocol.Command command,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
         @Advice.Local("otelScope") Scope scope) {
@@ -125,6 +131,9 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
       }
 
       scope.close();
+      if (RedisCommandUtil.skipEnd(command.name(), throwable)) {
+        return;
+      }
       instrumenter().end(context, request, null, throwable);
     }
   }

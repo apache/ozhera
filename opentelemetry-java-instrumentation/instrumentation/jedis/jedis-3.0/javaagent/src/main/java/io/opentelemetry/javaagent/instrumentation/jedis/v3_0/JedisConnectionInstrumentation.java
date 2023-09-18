@@ -81,6 +81,11 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
       }
 
       scope.close();
+      if(request != null){
+        if (RedisCommandUtil.skipEnd(new String(request.getCommand().getRaw(), StandardCharsets.UTF_8), throwable)) {
+          return;
+        }
+      }
       instrumenter().end(context, request, null, throwable);
     }
   }

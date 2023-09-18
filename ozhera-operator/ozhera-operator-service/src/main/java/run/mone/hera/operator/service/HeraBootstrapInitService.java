@@ -73,6 +73,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.mariadb.jdbc.Driver;
 /**
  * Initialize the mone family bucket namespace.
  *
@@ -771,7 +772,7 @@ public class HeraBootstrapInitService {
     public void executeSqlScript(File[] sqlFiles, String url, String userName, String pwd) {
         Connection con = null;
         try {
-            DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+            DriverManager.registerDriver(new Driver());
             //Getting the connection
             con = DriverManager.getConnection(url, userName, pwd);
             System.out.println("Connection established......");
@@ -785,7 +786,6 @@ public class HeraBootstrapInitService {
                 sr.runScript(reader);
                 reader.close();
             }
-
 
         } catch (Exception e) {
             log.error("sql execute error", e);

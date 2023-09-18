@@ -36,10 +36,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
@@ -58,14 +58,12 @@ public class MilogConfigListener {
     @Getter
     private JobManager jobManager;
 
-    private ReentrantLock lock = new ReentrantLock();
-
     private Gson gson = new Gson();
     /**
      * It can't be used to judge that this is continuously increasing
      */
-    private Map<Long, LogtailConfig> oldLogTailConfigMap = new HashMap<>();
-    private Map<Long, SinkConfig> oldSinkConfigMap = new HashMap<>();
+    private Map<Long, LogtailConfig> oldLogTailConfigMap = new ConcurrentHashMap<>();
+    private Map<Long, SinkConfig> oldSinkConfigMap = new ConcurrentHashMap<>();
 
     public MilogConfigListener(Long spaceId, String dataId, String group, MilogSpaceData milogSpaceData, NacosConfig nacosConfig) {
         this.spaceId = spaceId;

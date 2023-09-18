@@ -17,7 +17,6 @@ package run.mone.hera.operator.handler;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import com.xiaomi.data.push.client.HttpClientV6;
 import com.xiaomi.youpin.docean.anno.Component;
 import io.fabric8.kubernetes.api.model.*;
@@ -40,6 +39,9 @@ import run.mone.hera.operator.common.K8sUtilBean;
 import run.mone.hera.operator.common.ResourceTypeEnum;
 import run.mone.hera.operator.service.ESService;
 import run.mone.hera.operator.service.RocketMQSerivce;
+
+import org.mariadb.jdbc.Driver;
+
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -315,17 +317,23 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
     private void executeSqlScript(String[] scripts, String url, String userName, String pwd) {
         int retryTimes = 3;
         Connection con = null;
+        ScriptRunner sr = null;
+        try {
+            DriverManager.registerDriver(new Driver());
+        } catch (SQLException e) {
+            log.error("Driver registration failed: {}", e.getMessage());
+            return;
+        }
         while (retryTimes-- > 0) {
             try {
-                DriverManager.registerDriver(new com.mysql.jdbc.Driver());
                 //Getting the connection
-                String mysqlUrl = String.format("jdbc:mysql://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
-                con = DriverManager.getConnection(mysqlUrl, userName, pwd);
-                log.warn("Connection established :{}", mysqlUrl);
+                String mariadbUrl = String.format("jdbc:mariadb://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
+                con = DriverManager.getConnection(mariadbUrl, userName, pwd);
+                log.warn("Connection established :{}", mariadbUrl);
 
                 for (String sqlFile : scripts) {
                     //Initialize the script runner
-                    ScriptRunner sr = new ScriptRunner(con);
+                    sr = new ScriptRunner(con);
                     //Creating a reader object
                     Reader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(sqlFile)));
                     //Running the script
@@ -333,8 +341,8 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                     reader.close();
                 }
                 break;
-            } catch (CommunicationsException e) {
-                log.error("CommunicationsException:{}, retryTimes:{}", e.getMessage(), retryTimes);
+            } catch (SQLException e) {
+                log.error("SQLException:{}, retryTimes:{}", e.getMessage(), retryTimes);
                 try {
                     TimeUnit.SECONDS.sleep(15);
                 } catch (InterruptedException e1) {
@@ -344,7 +352,10 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                 log.error("sql execute error", e);
                 break;
             } finally {
-                if (null != con) {
+                if (sr != null) {
+                    sr.closeConnection();
+                }
+                if (con != null) {
                     try {
                         con.close();
                     } catch (SQLException throwables) {

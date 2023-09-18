@@ -4,13 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>run.mone</groupId>
-        <artifactId>hera-monitor</artifactId>
+        <artifactId>ozhera-monitor</artifactId>
         <version>1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>hera-monitor-server</artifactId>
-    <version>${hera-monitor.release.version}</version>
+    <artifactId>ozhera-monitor-server</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -20,12 +19,12 @@
     <dependencies>
         <dependency>
             <groupId>run.mone</groupId>
-            <artifactId>hera-monitor-service</artifactId>
+            <artifactId>ozhera-monitor-service</artifactId>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
-            <artifactId>hera-monitor-common</artifactId>
+            <artifactId>ozhera-monitor-common</artifactId>
         </dependency>
 
         <dependency>

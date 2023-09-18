@@ -253,10 +253,10 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-                        <configuration>
-                            <executable>gpg</executable>
-                            <keyname>your-gpg-key</keyname>
-                        </configuration>
+<!--                        <configuration>-->
+<!--                            <executable>gpg</executable>-->
+<!--                            <keyname>your-gpg-key</keyname>-->
+<!--                        </configuration>-->
                     </execution>
                 </executions>
             </plugin>

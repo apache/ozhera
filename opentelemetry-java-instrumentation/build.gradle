@@ -17,14 +17,6 @@ plugins {
   id "net.ltgt.nullaway" apply false
 }
 
-release {
-  defaultVersionStrategy = Strategies.SNAPSHOT
-}
-
-nebulaRelease {
-  addReleaseBranchPattern(/v\d+\.\d+\.x/)
-}
-
 nexusPublishing {
   packageGroup = "io.opentelemetry"
 

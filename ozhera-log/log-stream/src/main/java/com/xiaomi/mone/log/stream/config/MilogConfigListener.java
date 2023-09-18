@@ -254,9 +254,9 @@ public class MilogConfigListener {
     }
 
     private static ExecutorService THREAD_POOL = ExecutorBuilder.create()
-            .setCorePoolSize(5)
+            .setCorePoolSize(20)
             .setMaxPoolSize(30)
-            .setWorkQueue(new LinkedBlockingQueue<>(1000))
+            .setWorkQueue(new LinkedBlockingQueue<>(1000000))
             .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("Listen-tail-Pool-").build())
             .build();
 

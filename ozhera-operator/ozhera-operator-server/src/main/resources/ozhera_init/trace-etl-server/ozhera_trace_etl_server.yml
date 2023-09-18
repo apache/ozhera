@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: trace-etl-server-container
-        image: herahub/opensource-pub:trace-etl-server-v1-release
+        image: herahub/opensource-pub:trace-etl-server-v2-1
+        imagePullPolicy: Always
         ports:
         - containerPort: 4446
         resources:

@@ -1,6 +1,7 @@
 package com.xiaomi.hera.trace.etl.consumer;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.xiaomi.hera.trace.etl.api.service.IMetricsParseService;
 import com.xiaomi.hera.trace.etl.config.TraceConfig;
 import com.xiaomi.hera.trace.etl.constant.LockUtil;
 import com.xiaomi.hera.trace.etl.constant.SpanKind;
@@ -24,7 +25,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class MetricsParseService {
+public class MetricsParseService implements IMetricsParseService {
 
     @NacosValue(value = "${query.excludeMethod}", autoRefreshed = true)
     private String excludeMethod;

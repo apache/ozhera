@@ -1,0 +1,60 @@
+{
+  "channelDefine": [
+    {
+      "channelId": 215,
+      "tailName": "测试",
+      "appId": 100,
+      "appName": "test",
+      "ips": [
+        "127.0.0.1"
+      ],
+      "ipDirectoryRel": [
+        {
+          "key": "log-test",
+          "ip": "127.0.0.1"
+        }
+      ],
+      "input": {
+        "type": "APP_LOG_MULTI",
+        "logPattern": "/home/work/log/*.log",
+        "logSplitExpress": "/home/work/log/log-test/*.log",
+        "patternCode": "test_server_log"
+      },
+      "output": {
+        "type": "rocketmq",
+        "ak": "Please delete this line if not have ak",
+        "sk": "Please delete this line if not have sk",
+        "clusterInfo": "http://your-rmq-cluster:9876",
+        "producerGroup": "your producerGroup",
+        "topic": "your topic",
+        "batchExportSize": 600
+      },
+      "filters": [
+        {
+          "code": "RATELIMITCODE0",
+          "name": "RATELIMITER",
+          "type": "REGIONAL",
+          "order": 100,
+          "lifecycle": "",
+          "args": {
+            "permitsPerSecond": 40
+          }
+        }
+      ]
+    }
+  ],
+  "agentDefine": {
+    "filters": [
+      {
+        "code": "RATELIMITCODE6",
+        "name": "RATELIMITER",
+        "type": "GLOBAL",
+        "order": 100,
+        "lifecycle": "",
+        "args": {
+          "permitsPerSecond": 2000
+        }
+      }
+    ]
+  }
+}

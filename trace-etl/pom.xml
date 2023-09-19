@@ -31,6 +31,7 @@
         <module>trace-etl-nginx</module>
         <module>trace-etl-manager</module>
         <module>trace-etl-dao</module>
+        <module>trace-etl-extensions</module>
     </modules>
 
     <properties>

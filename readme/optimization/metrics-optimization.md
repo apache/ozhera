@@ -58,7 +58,7 @@ Due to the absence of effective memory management (the logic to clear memory met
 
 Before the optimization, the trace data from all applications were randomly distributed across 200 instances, meaning metrics from a single application could appear across all 200 instances. Since these data points were dispersedly stored in Prometheus (with internal metric tags, such as the instance tag which combines the IP and port of `trace-etl-server`), a significant amount of aggregation computation was required during queries, leading to exceptionally slow query speeds. Although the pre-aggregation capabilities of VictoriaMetrics were employed to enhance query speeds, this pre-aggregation also consumed substantial resources.
 
-### III. Optimization Objectives
+## III. Optimization Objectives
 
 (1) Reduce the number of service instances. The anticipated goal is to decrease from 200 instances during non-promotional periods to 30 instances.
 
@@ -68,13 +68,13 @@ Before the optimization, the trace data from all applications were randomly dist
 
 (4) Eliminate Out Of Memory (OOM) issues.
 
-### IV. Optimization Strategy
+## IV. Optimization Strategy
 
-#### (1) Migrate Metric Calculation to the Probe
+### (1) Migrate Metric Calculation to the Probe
 
 Remove the centralized metric calculation service (trace-etl-server) and implement the metric calculation logic within the probe (opentelemetry-java-instrumentation). This way, every instance of every business application will expose its own business metrics.
 
-##### Advantages:
+#### Advantages:
 
 1. Address the issues of resource usage, resource wastage, and low throughput in the centralized trace-etl-server metric calculation.
 
@@ -82,7 +82,7 @@ Remove the centralized metric calculation service (trace-etl-server) and impleme
 
 3. The metric service doesn't need to adopt a pull-delete mode, thus calculations in promQL like sum_over_time can be omitted, enhancing chart display speed.
 
-##### Disadvantages:
+#### Disadvantages:
 
 1. Difficulty in adapting to multiple languages. If the metric calculation logic is placed on the business side, it necessitates multi-language adaptation.
 
@@ -90,27 +90,27 @@ Remove the centralized metric calculation service (trace-etl-server) and impleme
 
 3. Slow change rate; changes require business applications to release a new version to update the probe. Consequently, if issues arise, they can't be instantly and comprehensively rolled back; it requires releasing a new version of the business application.
 
-#### (2) Optimize trace-etl-server
+### (2) Optimize trace-etl-server
 
 The optimization of the trace-etl-server primarily focuses on reducing lock contention times, reducing the granularity of locks, enhancing CPU utilization, accelerating consumption rate, and increasing throughput per instance, consequently reducing the number of service instances. Additionally, it's essential to control the number of metrics in memory to prevent memory overflows due to excessive metrics. Also, there's a need to consider reducing the workload of Prometheus in metric aggregation calculations.
 
-##### Advantages:
+#### Advantages:
 
 1. Retains the existing architecture, causing no intrusion or perception from the business side.
 2. Strong adaptability to multiple languages.
 3. Quick change speed, only requiring a release of the trace-etl-server.
 
-##### Disadvantages:
+#### Disadvantages:
 
 1. Necessitates code optimization and refactoring, demanding high standards for concurrent processing code.
 
 **Considering the requirement for multi-language adaptability in open source, the decision was made to proceed with optimizing the trace-etl-server strategy.**
 
-### V. Optimization Process
+## V. Optimization Process
 
-#### (1) Root Cause Analysis
+### (1) Root Cause Analysis
 
-##### 1. Why is the consumption rate slow, throughput low, and too many instances occupied?
+#### 1. Why is the consumption rate slow, throughput low, and too many instances occupied?
 
 (1) Extended lock blocking time
 
@@ -122,27 +122,27 @@ Following this line of thought, the time taken by Prometheus to fetch metrics wa
 
 Although Prometheus requests are sent every 15 seconds, imagine that during peak times, the consumption thread is blocked for 2 seconds every 15 seconds. This will undoubtedly reduce the overall consumption rate and throughput.
 
-##### 2. Why is resource utilization, especially CPU usage, so low?
+#### 2. Why is resource utilization, especially CPU usage, so low?
 
 (1) Choice of consumption model
 
 Firstly, trace-etl-server's consumption internally uses a message queue developed by Xiaomi named Talos (open-sourced as RocketMQ), which is similar to Kafka and employs the concept of partitions. A partition and consumer have either a one-to-one or many-to-one relationship. To avoid concurrency issues, a one-to-one consumption model was previously selected, meaning one trace-etl-server instance could only consume data from one partition. Furthermore, extended lock blocking times, resulting in lower service throughput, means that a single trace-etl-server instance lacks the capability to consume data from multiple partitions.
 
-##### 3. Why is there memory overflow?
+#### 3. Why is there memory overflow?
 
 (1) Excessive number of metrics in memory
 
 Before optimization, there was no filtering or categorization of trace data from applications, leading to the trace data of the same application being consumed by one or a few partition instances. Thus, in theory, every trace-etl-server instance could consume trace data from all applications, converting them into metrics. This meant every trace-etl-server instance held a full set of application metric data, causing the persistent high number of metrics in memory.
 
-##### 4. Why is the metric aggregation pressure on Prometheus so high?
+#### 4. Why is the metric aggregation pressure on Prometheus so high?
 
 (1) Scattered metric data
 
 Before optimization, metric data of an application was dispersed across different trace-etl-server instances (in theory, under extreme conditions, across all instances). When Prometheus fetches metrics, it attaches an instance tag, i.e., the IP and port of the trace-etl-server. This means that even if it's the same metric with the same label, Prometheus views them as different. Currently, almost all business metrics in OzHera require aggregation by application. So, when Grafana queries Prometheus, Prometheus actually has to perform a significant amount of aggregation operations. This not only increases the load on Prometheus but also significantly slows down the query speed for OzHera users, especially when viewing P99 charts.
 
-#### (2) Optimization Steps
+### (2) Optimization Steps
 
-##### 1. Lock Optimization
+#### 1. Lock Optimization
 
 We already know that the long duration taken by Prometheus for fetching leads to extended blockage of the consumption thread. The solution is to reduce the lock blockage duration. Here, two Metrics objects were used to store in-memory metrics. Every 15 seconds, the object currently recording the metrics would be swapped. This means the lock only needs to be applied during the object swapping process, which is essentially the process of changing variable pointers. As a result, the lock blockage time is minimal and can be considered negligible.
 
@@ -221,37 +221,37 @@ public void process(List<MessageAndOffset> messages, MessageCheckpointer message
 
 ```
 
-##### 2. Control the Number of Metrics in Memory
+#### 2. Control the Number of Metrics in Memory
 By controlling the number in `cacheData`, we prevent having too many metrics in memory due to Prometheus not pulling for a long time.
 
-##### 3. Initial Deployment
+#### 3. Initial Deployment
 By controlling the granularity of locks and reducing the lock blockage time, after the first online deployment, the number of `trace-etl-server` instances was reduced from 200 to 100. When it was reduced to 80, OOM began to occur. Analysis revealed that each instance basically stored metric data for all applications, which is a huge amount of data.
 
-##### 4. Categorize Trace Messages by Application Name
+#### 4. Categorize Trace Messages by Application Name
 Following the previous analysis, the data needs to be categorized by application. This means that the trace data of an application is hashed by the application name so that the trace data of the same application is only distributed on two partitions. This significantly reduces the number of metrics on each `trace-etl-server` instance. With this idea in mind, `log-agent` was modified. Using the `partitionKey` feature of Talos (open-sourced as RocketMQ), when constructing the Talos Message object, the `partitionKey` was set to the application name, and random strings were added before and after the application name. In fact, Talos internally will also use the `partitionKey`, hash it based on the current topic partition number, and determine which partition should process the current message.
 
-##### 5. Second Deployment
+#### 5. Second Deployment
 After this change was deployed, there were issues of message accumulation on some partitions with only 200 instances.
 
-##### 6. Identify Hotspot Applications
+#### 6. Identify Hotspot Applications
 A metric exposed by `trace-etl-server` indicates the number of data entries processed by the current instance, which can be grouped by business application. Firstly, on the Talos (open-sourced as RocketMQ) monitor, the `trace-etl-server` corresponding to the partitions with accumulated messages were identified. Then, by querying these `trace-etl-server` instance metrics for application distribution in the Prometheus background, it was found that these instances, coincidentally, had a very high data volume from some "hotspot applications". This suggests that applications with a very high volume of trace data were allocated to these `trace-etl-server` instances, resulting in the `trace-etl-server` not being able to consume them, leading to message accumulation.
 
 ![prometheus-background.png](images%2Fprometheus-background.png)
 
 However, it was also observed that the CPUs of these `trace-etl-server` instances with accumulated messages weren't fully utilized, indicating that they hadn't reached their performance limits.
 
-##### 7. Adjust Talos Parameters and Identify Talos as the Bottleneck
+#### 7. Adjust Talos Parameters and Identify Talos as the Bottleneck
 After noticing the CPUs weren't maxed out, the idea was to adjust Talos's consumer-side parameters to increase the pull volume of individual batch messages and reduce the interval between batches, thus enhancing the consumption capability of `trace-etl-server`. However, it was found that on the consumer side, Talos has restrictions for these parameters. The maximum number of messages per batch is 5000, and the minimum pull interval between batches is 50ms.
 
 From this perspective, each Talos consumer instance should have a maximum message processing rate of 10W QPS. However, due to various overheads, it can't reach this rate.
 
-##### 8. Adjust Hotspot Applications
+#### 8. Adjust Hotspot Applications
 Since adjusting Talos parameters wasn't a solution, the only way was to hash the trace data of these hotspot applications onto more partitions, which requires modification of `log-agent` to configure the partition number for these hotspot applications.
 
-##### 9. Third Deployment
+#### 9. Third Deployment
 By adjusting the partition number for synchronization applications, we successfully reduced the number of `trace-etl-server` instances to 50. At the same time, we were curious about why these applications produced so much trace data.
 
-##### 10. Investigate the Cause of Hotspot Applications
+#### 10. Investigate the Cause of Hotspot Applications
 Firstly, the trace data stored in ES will record the operation name (`operationName`) of this span and which framework produced it. Then, using Kibina's data analytics, we found the operation ratio of these hotspot applications and discovered they were Redis commands, with some applications having Redis spans accounting for 90% of all their spans.
 
 ![ES-visualize.png](images%2FES-visualize.png)
@@ -264,7 +264,7 @@ For Jedis, `opentelemetry-java-instrumentation` directly intercepts the `sendCom
 
 We suspect that on the business side, in the Redis cluster mode, all batch operations are actually sent one by one.
 
-##### 11. Filter Some Redis Command Requests in the Probe
+#### 11. Filter Some Redis Command Requests in the Probe
 
 We examined the links that included these types of Redis requests and found that their link nodes basically looked incomprehensible. For example:
 
@@ -274,11 +274,11 @@ With a screen full of Redis operations, you can't see the exceptions or slow que
 
 Therefore, we modified the Lettuce and Jedis instrumentation in `opentelemetry-java-instrumentation`, filtering out some of the excessive Redis operations in hotspot applications. If this node is not an exception, we will no longer generate a span.
 
-##### 12. Use JDK20
+#### 12. Use JDK20
 
 Coroutines in JDK20 are lighter than Java threads. For I/O intensive services, using coroutines can essentially make the service throughput not limited by threads. ZGC can improve GC efficiency and reduce STW time.
 
-### VI. Suggestions for Further Optimization
+## VI. Suggestions for Further Optimization
 
 1. Since `trace-etl-server` currently consumes in multiple threads, a read-write lock can be used instead of `ReentrantLock`, reducing the lock competition consumption between consumption threads.
 

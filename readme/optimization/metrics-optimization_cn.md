@@ -58,7 +58,7 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 优化前，所有的应用的trace数据都是随机分配给200个实例的，这就是说，一个应用的指标，会出现在这200个实例中。由于这些数据点在Prometheus中是分散存储的（指标内部有instance标签，就是trace-etl-server的实例IP加端口），导致查询时会做大量的合并计算，查询速度异常缓慢。虽然使用了VictoriaMetrics的预聚合指标能力来提高查询速度，但是预聚合的能力也是会占用一定资源。
 
-### 三、优化目标
+## 三、优化目标
 
 （一）、缩减服务实例数，预期目标是由非大促期间200个实例降低到30个。
 
@@ -68,13 +68,13 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 （四）、杜绝OOM。
 
-### 四、优化方案
+## 四、优化方案
 
-#### （一）指标计算移植到探针内
+### （一）指标计算移植到探针内
 
 去除中心化指标计算服务（trace-etl-server），在探针（opentelemetry-java-instrumentation）内部实现指标计算逻辑。这样每个业务应用的每个实例，都会暴露自己的业务指标。
 
-##### 1、优点
+#### 1、优点
 
 （1）解决trace-etl-server中心化指标计算的资源占用、资源浪费、吞吐量过低等问题。
 
@@ -82,7 +82,7 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 （3）指标服务不用使用拉-删模式，图表promQL的sum_over_time计算可以省略，提高图表展示的速度。
 
-##### 2、缺点
+#### 2、缺点
 
 （1）多语言适配困难。指标计算的逻辑如果放在业务侧，需要进行多语言适配。
 
@@ -90,12 +90,12 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 （3）变更速度慢，变更需要业务应用发版以更新探针。相应的，如果出现问题不能第一时间、全量地进行回滚，需要让业务应用发版处理。
 
-#### （二）优化trace-etl-server
+### （二）优化trace-etl-server
 
 对于trace-etl-server的优化，主要体现在缩小锁阻塞的时间上，减小锁粒度，提高CPU使用率，提高消费速率，提高单实例吞吐量，从而降低服务实例数量。同时控制内存中指标的数量，防止指标过多导致的内存溢出。
 同时，需要考虑减少Prometheus的指标聚合计算的工作量。
 
-##### 1、优点
+#### 1、优点
 
 （1）依然保留现有架构，对于业务侧无侵入、无感知。
 
@@ -103,17 +103,17 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 （3）变更速度快，只需要对trace-etl-server进行发布即可。
 
-##### 2、缺点
+#### 2、缺点
 
 （1）需要进行代码优化与重构，对于并发处理的代码要求高。
 
 **基于开源多语言适配性要求，最终选择优化trace-etl-server的方案。**
 
-### 五、优化过程
+## 五、优化过程
 
-#### （一）查找病因
+### （一）查找病因
 
-##### 1、为什么消费速率慢，吞吐量低、占用实例过多
+#### 1、为什么消费速率慢，吞吐量低、占用实例过多
 
 （1）锁阻塞的时间较长
 
@@ -125,28 +125,28 @@ trace-etl-server的IP、端口通过nacos暴露给Prometheus。Prometheus每隔1
 
 虽然Prometheus的请求是15s发送一次，但是试想一下，大促期间每隔15s，消费线程就被阻塞2s，这肯定会拉低整体的消费速率与吞吐量。
 
-##### 2、为什么资源利用率，尤其是CPU占用率很低
+#### 2、为什么资源利用率，尤其是CPU占用率很低
 
 （1）消费模型的选择
 
 首先，要说一下trace-etl-server的消费，内部使用的消息队列，是Xiaomi内部自研的名叫Talos（开源为RocketMQ）的消息队列。它类似于Kafka，存在partition概念，partition与consumer是一对一，或者是多对一的关系。之前为了避免并发安全问题，选择了partition与consumer实例一对一的消费模型。这就导致一个trace-etl-server实例，最多只能消费一个partition的数据。
 又由于锁阻塞时间过长，导致服务吞吐量低的原因，导致一个trace-etl-server没有能力消费多个partition的数据。
 
-##### 3、为什么存在内存溢出
+#### 3、为什么存在内存溢出
 
 （1）内存中指标数量过多
 
 优化前，并没有对应用的trace数据进行过滤、分类，使相同应用的trace数据被一个或几个partition实例消费。这就导致，所有trace-etl-server实例，理论上都能消费到所有应用的trace数据，这样再转换为指标，就是所有trace-etl-server实例上，都有一份全量应用的指标数据。这就导致内存中指标数量的高居不下。
 
-##### 4、为什么对于Prometheus来说，指标合并聚合的压力过大
+#### 4、为什么对于Prometheus来说，指标合并聚合的压力过大
 
 （1）指标数据分散
 
 优化前，一个应用的指标数据分散在不同的trace-etl-server（理论上、极端情况下是所有的trace-etl-server）中。Prometheus拉取指标时，会将指标带上instance标签，也就是trace-etl-server的IP加端口，这就导致虽然是相同的指标，指标里有相同的label，在Prometheus看来，这也是不同的。OzHera目前几乎所有业务指标都是需要按照应用进行聚合，这样Grafana在查询Prometheus时，其实Prometheus需要做大量的聚合操作。这不仅对于Prometheus来说压力倍增，对于OzHera的用户来说，查询的速度（尤其是P99图表）也是相当缓慢。
 
-#### （二）优化步骤
+### （二）优化步骤
 
-##### 1、优化锁
+#### 1、优化锁
 
 我们已经知道是因为Prometheus拉取耗时过长，导致阻塞消费线程的时间也过长，那解决思路就是降低锁的阻塞时间。这里使用了两个Metrics对象来存储内存指标，每隔15s的时间，会将当前记录指标的对象进行更换，这样锁只用加在更换对象的过程，也就是变量更换指针的过程，这样锁的阻塞时间是很低的，可以忽略不计。
 
@@ -219,23 +219,23 @@ Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
     }
 ```
 
-##### 2、控制内存中指标数量
+#### 2、控制内存中指标数量
 
 通过控制cacheData中的数量，防止Prometheus长时间没有拉取，导致内存中指标数量过多。
 
-##### 3、第一次发布
+#### 3、第一次发布
 
 通过对于锁粒度的控制、锁阻塞时间的缩减，第一次发布线上后，能够将trace-etl-server的实例数量由200个下降到100个。当下降到80个时，就开始报OOM。通过分析发现目前每个实例中基本上保存的是所有应用的指标数据，这个数据量是非常大的。
 
-##### 4、将trace消息按应用名进行分类
+#### 4、将trace消息按应用名进行分类
 
 按照之前的分析，需要对应用进行分类，即应用的trace数据按照应用名进行hash，使得相同的应用的trace数据只能散布在两个partition上，这样就会大大缩减每个trace-etl-server实例的指标数量。按照这个想法，改造log-agent，利用Talos partitionKey的特性（开源使用RocketMQ的MessageQueue），构造Talos Message对象时，将partitionKey设置为应用名称，并随机在应用名称前后添加字符串。其实Talos内部也会使用partitionKey，按照当前topic partition数量进行hash，得出当前消息需要被发送到哪个partition去处理。
 
-##### 5、第二次发布
+#### 5、第二次发布
 
 这次改动发布之后，200个实例的时候就已经出现了个别partition消息堆积的问题。
 
-##### 6、发现热点应用
+#### 6、发现热点应用
 
 trace-etl-server上暴露了一个指标，这个指标记录了当前实例处理了多少条数据，可以按业务应用去分组统计。首先，在Talos（开源为RocketMQ）监控上查看有消息堆积的partition对应的trace-etl-server都是哪些。然后，通过在Prometheus后台，去查询这些trace-etl-server实例的指标中的应用分布，发现这些实例无独有偶，都有一些“热点应用”的数据量非常高。这也就说明了，一些trace数据量非常高的应用，被分配到了这些trace-etl-server实例中，导致trace-etl-server消费不过来，产生消息堆积。
 
@@ -243,21 +243,21 @@ trace-etl-server上暴露了一个指标，这个指标记录了当前实例处�
 
 但是，我们同时也发现这些产生消息堆积的trace-etl-server实例中，这些实例的CPU都没有被打满，说明他们并没有达到性能瓶颈。
 
-##### 7、调整Talos参数，发现Talos成为瓶颈
+#### 7、调整Talos参数，发现Talos成为瓶颈
 
 发现CPU没有被打满后，想通过调整Talos的消费端的参数，提高单批消息的拉取量，降低批次之间的拉取间隔，来提高trace-etl-server的消费能力。但是，我们发现，Talos在消费端，对于这些参数都有限制。每批消息数量最大是5000条，批次之间的拉取间隔最低是50ms。
 
 从这个角度看，每个Talos consumer实例最大消息处理速率应该是10W QPS。但是实际上由于各种损耗，消费速率是达不到这个值的。
 
-##### 8、调整热点应用
+#### 8、调整热点应用
 
 Talos调整参数走不通，只能是把这些热点应用的trace数据通过配置的方式，hash到更多的partition上，这就需要改造log-agent，能够配置这些热点应用的partition数量。
 
-##### 9、第三次发布
+#### 9、第三次发布
 
 通过调整同步应用的partition数量，我们将trace-etl-server实例数成功下降到50个。同时，我们很好奇为什么这些应用会产生这么多的trace数据？
 
-##### 10、排查热点应用产生的原因
+#### 10、排查热点应用产生的原因
 
 首先，存储在ES中的trace数据，是会记录这条span的操作名（operationName）是什么，是由哪个框架产生的。然后，我们利用Kibina的数据统计分析，找到这些热点应用的操作占比，发现都是Redis的命令，有一些应用的Redis的span占到这个应用所有span总数的90%。
 
@@ -271,7 +271,7 @@ Talos调整参数走不通，只能是把这些热点应用的trace数据通过�
 
 猜测应该是业务侧在Redis集群模式下，所有的批量操作其实都是单条去发送的。
 
-##### 11、探针中过滤部分Redis Command请求
+#### 11、探针中过滤部分Redis Command请求
 
 我们查看了包含此类Redis请求的链路，发现他们的链路的节点基本上长的没法看，比如说：
 
@@ -281,11 +281,11 @@ Talos调整参数走不通，只能是把这些热点应用的trace数据通过�
 
 于是，我们改造了opentelemetry-java-instrumentation中的Lettuce与Jedis的instrumentation，将一些热点应用中占用过多的Redis进行过滤，如果这个节点不是异常，我们将不再生成span。
 
-##### 12、使用JDK20
+#### 12、使用JDK20
 
 JDK20中的协程相较于Java线程来说更加轻量，对于I\O密集型的服务来说，使用协程基本能够使服务吞吐量不受线程限制。ZGC能够提高GC效率，降低STW耗时。
 
-### 六、继续优化的建议
+## 六、继续优化的建议
 
 1、由于trace-etl-server目前是多线程消费，可以使用读写锁代替ReentrantLock，降低消费线程之间的锁竞争消耗。
 

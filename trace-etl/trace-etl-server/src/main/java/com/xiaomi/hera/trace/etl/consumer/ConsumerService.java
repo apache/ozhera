@@ -1,7 +1,7 @@
 package com.xiaomi.hera.trace.etl.consumer;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.xiaomi.hera.trace.etl.api.service.MqExtension;
+import com.xiaomi.hera.trace.etl.api.service.MQConsumerExtension;
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -36,7 +36,7 @@ public class ConsumerService {
 
     @PostConstruct
     public void takeMessage() throws MQClientException {
-        MqExtension extension = extensions.get("mq");
+        MQConsumerExtension extension = extensions.get("mqConsumer");
         MqConfig config = new MqConfig();
         config.setGroup(group);
         config.setNameSerAddr(nameSerAddr);

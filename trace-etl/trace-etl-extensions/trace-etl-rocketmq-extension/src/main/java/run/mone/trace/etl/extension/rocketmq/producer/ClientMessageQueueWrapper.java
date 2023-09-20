@@ -1,4 +1,4 @@
-package com.xiaomi.hera.trace.etl.mq.rocketmq;
+package run.mone.trace.etl.extension.rocketmq.producer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
@@ -23,13 +23,13 @@ public class ClientMessageQueueWrapper {
 
     private BlockingQueue<MessageExt> clientMessageQueue;
 
-    private RocketMqProducer producer;
+    private RocketMQProducerExtension producer;
 
     private ExecutorService executor;
 
     private boolean running = true;
 
-    public ClientMessageQueueWrapper(MessageQueue rocketMQMessageQueue, BlockingQueue<MessageExt> clientMessageQueue, RocketMqProducer producer) {
+    public ClientMessageQueueWrapper(MessageQueue rocketMQMessageQueue, BlockingQueue<MessageExt> clientMessageQueue, RocketMQProducerExtension producer) {
         this.rocketMQMessageQueue = rocketMQMessageQueue;
         this.clientMessageQueue = clientMessageQueue;
         this.producer = producer;

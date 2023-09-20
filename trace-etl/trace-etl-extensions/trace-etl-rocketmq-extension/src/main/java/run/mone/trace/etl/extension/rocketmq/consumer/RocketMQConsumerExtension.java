@@ -1,10 +1,10 @@
-package run.mone.trace.etl.extension.rocketmq;
+package run.mone.trace.etl.extension.rocketmq.consumer;
 
 import com.xiaomi.hera.trace.etl.api.service.IEnterManager;
 import com.xiaomi.hera.trace.etl.api.service.IMetricsParseService;
-import com.xiaomi.hera.trace.etl.api.service.MqExtension;
+import com.xiaomi.hera.trace.etl.api.service.MQConsumerExtension;
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
-import com.xiaomi.hera.trace.etl.mq.rocketmq.ClientMessageQueue;
+import run.mone.trace.etl.extension.rocketmq.producer.ClientMessageQueue;
 import com.xiaomi.hera.trace.etl.util.ThriftUtil;
 import com.xiaomi.hera.tspandata.TSpanData;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,9 @@ import java.util.List;
  * @author goodjava@qq.com
  * @date 2023/9/19 17:00
  */
-@Service("rocketmq")
+@Service("rocketMQConsumer")
 @Slf4j
-public class RocketmqExtension implements MqExtension {
+public class RocketMQConsumerExtension implements MQConsumerExtension {
 
 
     @Resource
@@ -55,10 +55,10 @@ public class RocketmqExtension implements MqExtension {
             consumer.start();
             log.info("init consumer end ...");
         } catch (Throwable ex) {
+            log.error("init error", ex);
             throw new RuntimeException(ex);
         }
     }
-
 
     private class TraceEtlMessageListener implements MessageListenerConcurrently {
 

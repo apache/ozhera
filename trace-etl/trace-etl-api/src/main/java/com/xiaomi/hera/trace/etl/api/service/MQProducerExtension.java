@@ -2,13 +2,13 @@ package com.xiaomi.hera.trace.etl.api.service;
 
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
 
-/**
- * @author goodjava@qq.com
- * @date 2023/9/19 16:59
- */
-public interface MqExtension {
+import java.util.List;
 
+public interface MQProducerExtension<T> {
 
     void initMq(MqConfig config);
 
+    void send(T message);
+
+    void send(List<T> messages);
 }

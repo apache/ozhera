@@ -1,8 +1,8 @@
 package com.xiaomi.hera.trace.etl.config;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.xiaomi.hera.trace.etl.mq.rocketmq.ClientMessageQueue;
-import com.xiaomi.hera.trace.etl.mq.rocketmq.RocketMqProducer;
+import run.mone.trace.etl.extension.rocketmq.producer.ClientMessageQueue;
+import run.mone.trace.etl.extension.rocketmq.producer.RocketMQProducerExtension;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +31,7 @@ public class RocketMqProducerConfig {
         DefaultMQProducer producer = new DefaultMQProducer(group);
         producer.setNamesrvAddr(nameSrvAddr);
         producer.start();
-        RocketMqProducer rocketMqProducer = new RocketMqProducer(producer, esTopic);
+        RocketMQProducerExtension rocketMqProducer = new RocketMQProducerExtension(producer, esTopic);
         return new ClientMessageQueue(rocketMqProducer);
     }
 }

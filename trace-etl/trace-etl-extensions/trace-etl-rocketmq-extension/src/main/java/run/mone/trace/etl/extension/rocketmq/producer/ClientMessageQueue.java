@@ -4,7 +4,6 @@ import com.xiaomi.hera.trace.etl.common.HashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
  * @Author dingtao
  * @Date 2022/11/6 4:27 下午
  */
-@Service("clientMessageQueue")
 @Slf4j
 public class ClientMessageQueue {
     public List<ClientMessageQueueWrapper> clientMessageQueues = new CopyOnWriteArrayList<>();

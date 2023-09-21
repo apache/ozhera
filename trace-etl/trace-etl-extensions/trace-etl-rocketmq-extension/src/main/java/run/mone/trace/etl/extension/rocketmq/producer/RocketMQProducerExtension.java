@@ -27,6 +27,8 @@ public class RocketMQProducerExtension implements MQProducerExtension<MessageExt
 
     private String topic;
 
+    private ClientMessageQueue clientMessageQueue;
+
     @Override
     public void initMq(MqConfig config) {
         try {
@@ -34,6 +36,13 @@ public class RocketMQProducerExtension implements MQProducerExtension<MessageExt
             producer = new DefaultMQProducer(config.getGroup());
             producer.setNamesrvAddr(config.getNameSerAddr());
             producer.start();
+
+            // init clientMessageQueue
+            clientMessageQueue = new ClientMessageQueue(this);
+            // Before initializing rocketmq consumer,
+            // initialize the local message queue to
+            // ensure that the local message queue is available when messages come in
+            clientMessageQueue.initFetchQueueTask();
         } catch (Throwable ex) {
             log.error("init producer error", ex);
             throw new RuntimeException(ex);
@@ -58,6 +67,11 @@ public class RocketMQProducerExtension implements MQProducerExtension<MessageExt
         } catch (Throwable t) {
             log.error("rocketmq producer send error", t);
         }
+    }
+
+    @Override
+    public void sendByTraceId(String traceId, MessageExt message) {
+        clientMessageQueue.enqueue(traceId, message);
     }
 
     public void send(List<MessageExt> messages, MessageQueue messageQueue) {

@@ -1,6 +1,7 @@
 package com.xiaomi.youpin.prometheus.agent.service;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.alibaba.nacos.common.util.Md5Utils;
 import com.aliyun.dingtalkim_1_0.Client;
 import com.aliyun.dingtalkim_1_0.models.SendRobotInteractiveCardHeaders;
 import com.aliyun.dingtalkim_1_0.models.SendRobotInteractiveCardRequest;
@@ -10,6 +11,7 @@ import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,28 +89,33 @@ public class DingDingService {
         }
     }
 
-    public void sendDingDing(String content) {
+    public void sendDingDing(String content, String[] unionId) {
         String token = getAccessToken();
         if (token == null) {
             log.error("DingDingService sendDingDing token is null");
             return;
         }
-        SendRobotInteractiveCardHeaders sendRobotInteractiveCardHeaders = new SendRobotInteractiveCardHeaders();
-        sendRobotInteractiveCardHeaders.setXAcsDingtalkAccessToken(token);
-        SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions sendOptions =
-                new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions();
-        SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
-                .setCardTemplateId("StandardCard")
-                .setSingleChatReceiver("{\"unionId\":\"xxxxxxx\"}")
-                .setCardBizId(content)
-                .setRobotCode(robotCode)
-                .setCardData(content)
-                .setSendOptions(sendOptions)
-                .setPullStrategy(false);
-        try {
-            dingClient.sendRobotInteractiveCardWithOptions(sendRobotInteractiveCardRequest, sendRobotInteractiveCardHeaders, new RuntimeOptions());
-        } catch (Exception e) {
-            log.error("DingDingService sendDingDing err:{}", e);
+        log.info("DingDingService sendDingDing token:{}", token);
+        //cardBizId随机生成64位字符串
+        String cardBizId = String.valueOf(System.currentTimeMillis());
+        for (String uid : unionId) {
+            SendRobotInteractiveCardHeaders sendRobotInteractiveCardHeaders = new SendRobotInteractiveCardHeaders();
+            sendRobotInteractiveCardHeaders.setXAcsDingtalkAccessToken(token);
+            SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions sendOptions =
+                    new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions();
+            SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
+                    .setCardTemplateId("StandardCard")
+                    .setSingleChatReceiver("{\"unionId\":\"" + uid + "\"}")
+                    .setCardBizId(cardBizId)
+                    .setRobotCode(robotCode)
+                    .setCardData(content)
+                    .setSendOptions(sendOptions)
+                    .setPullStrategy(false);
+            try {
+                dingClient.sendRobotInteractiveCardWithOptions(sendRobotInteractiveCardRequest, sendRobotInteractiveCardHeaders, new RuntimeOptions());
+            } catch (Exception e) {
+                log.error("DingDingService sendDingDing err:{}", e);
+            }
         }
     }
 }

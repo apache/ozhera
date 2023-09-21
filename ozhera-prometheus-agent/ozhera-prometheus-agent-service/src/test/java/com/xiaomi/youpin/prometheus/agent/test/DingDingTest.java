@@ -1,21 +1,46 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.google.gson.Gson;
+import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.CommonLabels;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DingDingTest {
     public static final Gson gson = new Gson();
+
+    Map<String, String> NAME_MAP = new HashMap<String, String>() {
+        {
+            put("application", "应用");
+
+            put("calert", "报警中文名称");
+
+            put("send_interval", "发送间隔");
+
+            put("container", "容器");
+
+            put("namespace", "命名空间");
+
+            put("restartCounts", "重启次数");
+
+            put("alert_key", "关键词");
+        }
+    };
+    String[] ALERT_INVISIBLE_LIST = new String[]{"system", "exceptViewLables", "app_iam_id", "metrics_flag", "group_key", "job", "image"};
 
     public String testInterfaceAlert = "{\n" +
             "    \"receiver\":\"web\\\\.hook\",\n" +
@@ -173,33 +198,90 @@ public class DingDingTest {
         try {
             DingDingService dingDingService = new DingDingService();
             dingDingService.init();
-            AlertManagerFireResult alertManagerFireResult = gson.fromJson(testInterfaceAlert, AlertManagerFireResult.class);
-            List<Alerts> alerts = alertManagerFireResult.getAlerts();
-            alertManagerFireResult.getAlerts().stream().forEach(alert -> {
-                System.out.println(DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
-                //ai:Convert UTC time to yyyy-mm-dd format using Java code.
-                Map<String, Object> map = new HashMap<>();
-                map.put("title", alertManagerFireResult.getCommonAnnotations().getTitle());
-                map.put("priority", "p0");
-                map.put("alert_op", alert.getLabels().getAlert_op());
-                map.put("alert_value", alert.getLabels().getAlert_value());
-                map.put("application", alert.getLabels().getApplication());
-                map.put("ip", alert.getLabels().getServerIp());
-                map.put("start_time", DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
-                map.put("silence_url", "http://localhost:80");
-                map.put("serviceName", alert.getLabels().getServiceName());
-                map.put("methodName", alert.getLabels().getMethodName());
+            AlertManagerFireResult fireResult = gson.fromJson(testInterfaceAlert, AlertManagerFireResult.class);
+            List<Alerts> alerts = fireResult.getAlerts();
+            GroupLabels groupLabels = fireResult.getGroupLabels();
+            String alertName = groupLabels.getAlertname();
+            fireResult.getAlerts().stream().forEach(alert -> {
                 try {
-                    String content = FreeMarkerUtil.getContent("/feishu", "feishuInterfalCart.ftl", map);
-                    dingDingService.sendDingDing(content);
-                } catch (TemplateException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    // query responsible person
+                    int priority = 1;
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("priority", "P" + String.valueOf(priority));
+                    map.put("title", fireResult.getCommonAnnotations().getTitle());
+                    String alertOp = alert.getLabels().getAlert_op();
+                    String alertValue = alert.getLabels().getAlert_value();
+                    if (alertOp == null || alertOp.isEmpty()) {
+                        alertOp = "";
+                        alertValue = "";
+                    }
+                    map.put("alert_op", alertOp);
+                    map.put("alert_value", alertValue);
+                    map.put("application", alert.getLabels().getApplication());
+                    map.put("silence_url", "XXX.com");
+                    CommonLabels commonLabels = fireResult.getCommonLabels();
+                    Class clazz = commonLabels.getClass();
+                    Field[] fields = clazz.getDeclaredFields();
+                    StringBuilder sb = new StringBuilder();
+                    for (Field field : fields) {
+                        // set access rights
+                        field.setAccessible(true);
+                        String fieldName = field.getName();
+                        Object fieldValue = null;
+                        try {
+                            // convert fieldValue to String
+                            fieldValue = field.get(commonLabels); // Get field value
+                            if (fieldValue == null) {
+                                continue;
+                            }
+                            map.put(fieldName, field.get(commonLabels));
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Map<String, Object> finalMap = transferNames(map);
+                    filterName(finalMap);
+                    finalMap.forEach(
+                            (k, v) -> {
+                                sb.append("**").append(k).append("**").append(": ").append(v).append("\n");
+                            });
+
+                    String content = sb.toString();
+                    finalMap.put("content", content);
+                    String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
+                    dingDingService.sendDingDing(freeMarkerRes,new String[]{"a","b"});
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+    }
+
+    Map<String, Object> transferNames(Map<String, Object> map) {
+        List<Map.Entry<String, Object>> entries = new ArrayList<>(map.entrySet());
+        for (Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
+            if (NAME_MAP.containsKey(key)) {
+                Object value = entry.getValue();
+                String newKey = NAME_MAP.get(key);
+                map.remove(key);
+                map.put(newKey, value);
+            }
+        }
+        return map;
+    }
+
+    void filterName(Map<String, Object> map) {
+        List<Map.Entry<String, Object>> entries = new ArrayList<>(map.entrySet());
+        for (Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
+            for (String s : ALERT_INVISIBLE_LIST) {
+                if (StringUtils.containsIgnoreCase(key, s)) {
+                    map.remove(key);
+                }
+            }
         }
     }
 }

@@ -6,13 +6,11 @@ import com.aliyun.dingtalkim_1_0.models.SendRobotInteractiveCardHeaders;
 import com.aliyun.dingtalkim_1_0.models.SendRobotInteractiveCardRequest;
 import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenRequest;
 import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
-import com.aliyun.dingtalkoauth2_1_0.models.GetCorpAccessTokenRequest;
-import com.aliyun.dingtalkoauth2_1_0.models.GetCorpAccessTokenResponse;
-import com.aliyun.tea.TeaException;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
-import com.xiaomi.youpin.feishu.FeiShu;
+import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -27,7 +25,8 @@ public class DingDingService {
     private Client dingClient;
     private Config dingConfig;
 
-    private String accessToken;
+    @Autowired
+    private Cache<String, Object> cache;
 
     private com.aliyun.dingtalkoauth2_1_0.Client dingOauthClient;
 
@@ -36,6 +35,22 @@ public class DingDingService {
 
     @NacosValue(value = "${dingding.appSecret}", autoRefreshed = true)
     private String appSecret;
+
+    @NacosValue(value = "${dingding.robotCode}", autoRefreshed = true)
+    private String robotCode;
+
+    private final String ACCESS_TOKEN = "dingding_access_token";
+
+    private Object getDingDingAccessToken() {
+
+        // 从缓存中获取数据
+        return cache.getIfPresent(ACCESS_TOKEN);
+    }
+
+    private void setDingDingAccessToken(String accessToken) {
+        // 从缓存中获取数据
+        cache.put(ACCESS_TOKEN, accessToken);
+    }
 
     @PostConstruct
     public void init() throws Exception {
@@ -47,13 +62,14 @@ public class DingDingService {
     }
 
     private String getAccessToken() {
+        String accessToken = (String) getDingDingAccessToken();
         if (accessToken != null) {
             return accessToken;
         }
         //TODO:token redis缓存
         GetAccessTokenRequest getAccessTokenRequest = new GetAccessTokenRequest();
-        getAccessTokenRequest.setAppKey("dingxdjn8tjriewanmue");
-        getAccessTokenRequest.setAppSecret("6b9qqtyxfWinOFfxoecrfJy6U3edg81ZcEjLcdvspRuf9cPex6DhHVdV5C5CeetG");
+        getAccessTokenRequest.setAppKey(appKey);
+        getAccessTokenRequest.setAppSecret(appSecret);
         try {
             GetAccessTokenResponse accessTokenRes = dingOauthClient.getAccessToken(getAccessTokenRequest);
             if (accessTokenRes.getBody() == null) {
@@ -61,6 +77,9 @@ public class DingDingService {
             }
             accessToken = accessTokenRes.getBody().getAccessToken();
             log.info("accessToken:{}", accessToken);
+            if (accessToken != null) {
+                setDingDingAccessToken(accessToken);
+            }
             return accessToken;
         } catch (Exception e) {
             log.error("DingDingService getAccessToken err:{}", e);
@@ -71,25 +90,19 @@ public class DingDingService {
     public void sendDingDing(String content) {
         String token = getAccessToken();
         if (token == null) {
+            log.error("DingDingService sendDingDing token is null");
             return;
         }
         SendRobotInteractiveCardHeaders sendRobotInteractiveCardHeaders = new SendRobotInteractiveCardHeaders();
         sendRobotInteractiveCardHeaders.setXAcsDingtalkAccessToken(token);
         SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions sendOptions =
-                new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions()
-                        .setAtUserListJson("[{\"nickName\":\"张校炜\",\"userId\":\"586215596024257467\"}]")
-                        .setAtAll(false)
-                        .setReceiverListJson("[{\"userId\":\"586215596024257467\"}]");
+                new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions();
         SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
                 .setCardTemplateId("StandardCard")
-                .setSingleChatReceiver("{\"userId\":\"586215596024257467\"}")
-                .setCardBizId("f0f36bb2-cab9-4b61-9d47-708321618b11.schema")
-                .setRobotCode("dingxdjn8tjriewanmue")
-                .setCardData("{   \"config\": {     \"autoLayout\": true,     \"enableForward\": true   },   " +
-                        "\"header\": {     \"title\": {       \"type\": \"text\",       \"text\": \"Hera报警\"     },   " +
-                        " \"logo\": \"@lALPDfJ6V_FPDmvNAfTNAfQ\"   },   \"contents\": [     {       \"type\": \"text\",    " +
-                        " \"text\": \"[P0] hera CPU使用率报警。\"," +
-                        "  \"id\": \"text_1658220665485\" } ]}")
+                .setSingleChatReceiver("{\"unionId\":\"xxxxxxx\"}")
+                .setCardBizId(content)
+                .setRobotCode(robotCode)
+                .setCardData(content)
                 .setSendOptions(sendOptions)
                 .setPullStrategy(false);
         try {

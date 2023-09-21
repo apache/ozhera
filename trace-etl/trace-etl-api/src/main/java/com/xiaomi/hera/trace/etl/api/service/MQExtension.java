@@ -4,9 +4,15 @@ import com.xiaomi.hera.trace.etl.bo.MqConfig;
 
 import java.util.List;
 
-public interface MQProducerExtension<T> {
 
-    void initMq(MqConfig config);
+/**
+ * @author goodjava@qq.com
+ * @date 2023/9/19 16:59
+ */
+public interface MQExtension<T> {
+
+
+    void initMq(MqConfig<T> config);
 
     void send(T message);
 

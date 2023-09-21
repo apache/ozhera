@@ -3,13 +3,11 @@ package com.xiaomi.hera.trace.etl.consumer;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.hera.trace.etl.api.service.IEnterManager;
 import com.xiaomi.hera.trace.etl.api.service.IMetricsParseService;
-import com.xiaomi.hera.trace.etl.api.service.MQConsumerExtension;
-import com.xiaomi.hera.trace.etl.api.service.MQProducerExtension;
+import com.xiaomi.hera.trace.etl.api.service.MQExtension;
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
 import com.xiaomi.hera.trace.etl.util.ThriftUtil;
 import com.xiaomi.hera.tspandata.TSpanData;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.thrift.TDeserializer;
@@ -19,7 +17,6 @@ import run.mone.docean.spring.extension.Extensions;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author dingtao
@@ -45,7 +42,6 @@ public class ConsumerService {
     @Value("${mq.rocketmq.es.topic}")
     private String esTopicName;
 
-
     @Resource
     private IEnterManager enterManager;
 
@@ -57,22 +53,17 @@ public class ConsumerService {
 
     @PostConstruct
     public void takeMessage() throws MQClientException {
-        // init MQ Producer
-        MQProducerExtension<MessageExt> producer = extensions.get("mqProducer");
-        MqConfig producerConfig = new MqConfig<>();
-        producerConfig.setGroup(producerGroup);
-        producerConfig.setNameSerAddr(nameSerAddr);
-        producerConfig.setTopicName(esTopicName);
-        producer.initMq(producerConfig);
+        MQExtension<MessageExt> mq = extensions.get("mq");
 
-        // init MQ Consumer
-        MQConsumerExtension consumer = extensions.get("mqConsumer");
-        MqConfig<List<MessageExt>> consumerConfig = new MqConfig<>();
-        consumerConfig.setGroup(consumerGroup);
-        consumerConfig.setNameSerAddr(nameSerAddr);
-        consumerConfig.setTopicName(topicName);
+        MqConfig<MessageExt> config = new MqConfig<>();
+        config.setNameSerAddr(nameSerAddr);
+        config.setProducerGroup(producerGroup);
+        config.setProducerTopicName(esTopicName);
 
-        consumerConfig.setConsumerMethod((list)->{
+        config.setConsumerGroup(consumerGroup);
+        config.setConsumerTopicName(topicName);
+
+        config.setBatchConsumerMethod((list)->{
             enterManager.enter();
             enterManager.getProcessNum().incrementAndGet();
             try {
@@ -86,7 +77,7 @@ public class ConsumerService {
                     } catch (Throwable t) {
                         log.error("consumer message error", t);
                     }
-                    producer.sendByTraceId(traceId, message);
+                    mq.sendByTraceId(traceId, message);
                 }
                 return true;
             } finally {
@@ -94,7 +85,7 @@ public class ConsumerService {
             }
         });
 
-        consumer.initMq(consumerConfig);
+        mq.initMq(config);
     }
 
 

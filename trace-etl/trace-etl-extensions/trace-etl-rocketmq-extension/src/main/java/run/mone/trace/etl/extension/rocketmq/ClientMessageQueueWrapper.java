@@ -1,8 +1,9 @@
-package run.mone.trace.etl.extension.rocketmq.producer;
+package run.mone.trace.etl.extension.rocketmq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
+import run.mone.trace.etl.extension.rocketmq.RocketMQExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,13 @@ public class ClientMessageQueueWrapper {
 
     private BlockingQueue<MessageExt> clientMessageQueue;
 
-    private RocketMQProducerExtension producer;
+    private RocketMQExtension producer;
 
     private ExecutorService executor;
 
     private boolean running = true;
 
-    public ClientMessageQueueWrapper(MessageQueue rocketMQMessageQueue, BlockingQueue<MessageExt> clientMessageQueue, RocketMQProducerExtension producer) {
+    public ClientMessageQueueWrapper(MessageQueue rocketMQMessageQueue, BlockingQueue<MessageExt> clientMessageQueue, RocketMQExtension producer) {
         this.rocketMQMessageQueue = rocketMQMessageQueue;
         this.clientMessageQueue = clientMessageQueue;
         this.producer = producer;

@@ -1,6 +1,5 @@
 package com.xiaomi.youpin.prometheus.agent.service.impl;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import com.xiaomi.youpin.prometheus.agent.Commons;
 import com.xiaomi.youpin.prometheus.agent.api.service.PrometheusScrapeJobService;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;

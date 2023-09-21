@@ -192,7 +192,6 @@ public class RuleAlertService {
 
     //TODO: Create different Feishu cards through different templates
     //TODO: Construct alarm notifications through different types, such as Feishu and email
-    //TODO: 根据不同账号类别进行不同的告警通知
     public Result SendAlert(String body) {
         JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
         log.info("SendAlert jsonObject:{}", gson.toJson(jsonObject));

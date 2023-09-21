@@ -45,12 +45,12 @@ public class DingDingService {
 
     private Object getDingDingAccessToken() {
 
-        // 从缓存中获取数据
+        // Get data from the cache
         return cache.getIfPresent(ACCESS_TOKEN);
     }
 
     private void setDingDingAccessToken(String accessToken) {
-        // 从缓存中获取数据
+        // Get data from the cache
         cache.put(ACCESS_TOKEN, accessToken);
     }
 
@@ -68,7 +68,7 @@ public class DingDingService {
         if (accessToken != null) {
             return accessToken;
         }
-        //TODO:token redis缓存
+        //TODO:token redis cache
         GetAccessTokenRequest getAccessTokenRequest = new GetAccessTokenRequest();
         getAccessTokenRequest.setAppKey(appKey);
         getAccessTokenRequest.setAppSecret(appSecret);
@@ -96,7 +96,6 @@ public class DingDingService {
             return;
         }
         log.info("DingDingService sendDingDing token:{}", token);
-        //cardBizId随机生成64位字符串
         String cardBizId = String.valueOf(System.currentTimeMillis());
         for (String uid : unionId) {
             SendRobotInteractiveCardHeaders sendRobotInteractiveCardHeaders = new SendRobotInteractiveCardHeaders();

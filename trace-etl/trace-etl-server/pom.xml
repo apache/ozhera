@@ -15,6 +15,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.5</version>
+        </dependency>
+
+        <dependency>
             <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
             <version>1.0.0-SNAPSHOT</version>
@@ -25,6 +31,38 @@
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio</artifactId>
             <version>3.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>docean-spring-starter</artifactId>
+            <version>1.4-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>docean</artifactId>
+            <version>1.4-java20-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>docean-plugin-spring</artifactId>
+            <version>1.4-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>trace-etl-rocketmq-extension</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
 
@@ -49,6 +87,22 @@
         </resources>
 
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-modules=jdk.incubator.concurrent</arg>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                    <compilerVersion>20</compilerVersion>
+                    <source>20</source>
+                    <target>20</target>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

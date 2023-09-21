@@ -64,7 +64,7 @@ public class StreamUtils {
         Instance instance = new Instance();
         instance.setEnabled(true);
         instance.setHealthy(true);
-        instance.setIp(getLocalIp());
+        instance.setIp(getIp());
         instance.setPort(Integer.parseInt(Config.ins().get("service_port", DEFAULT_SERVER_PORT)));
         instance.setServiceName(serviceName);
         Map<String, String> metaData = Maps.newHashMap();
@@ -74,6 +74,10 @@ public class StreamUtils {
         SafeRun.run(() -> metaData.put("hostname", InetAddress.getLocalHost().getHostName()));
         instance.setMetadata(metaData);
         return instance;
+    }
+
+    private static String getIp() {
+        return System.getenv(TESLA_HOST_KEY) == null ? NetUtils.getLocalHost() : System.getenv(TESLA_HOST_KEY);
     }
 
 

@@ -16,12 +16,14 @@
 package com.xiaomi.mone.log.agent.bootstrap;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.xiaomi.data.push.bo.ClientInfo;
 import com.xiaomi.data.push.rpc.RpcClient;
 import com.xiaomi.mone.log.agent.common.Version;
 import com.xiaomi.mone.log.agent.rpc.task.PingTask;
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.utils.NetUtil;
+import com.xiaomi.youpin.docean.Aop;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,6 +59,7 @@ public class MiLogAgentBootstrap {
         client.init();
         client.waitStarted();
         log.info("create rpc client finish");
+        Aop.ins().init(Maps.newLinkedHashMap());
         Ioc.ins().putBean(client).init("com.xiaomi.mone.log.agent", "com.xiaomi.youpin.docean");
         //Because the client life cycle is advanced, the processor needs to be re-registered here
         client.registerProcessor();

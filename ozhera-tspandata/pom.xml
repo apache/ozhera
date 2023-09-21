@@ -20,40 +20,8 @@
         </license>
     </licenses>
 
-    <properties>
-        <!-- Replace it with the absolute path of your own hera-demo-client project. -->
-        <maven.jcommonDirectory>~/</maven.jcommonDirectory>
-    </properties>
-
     <build>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-license</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/classes/META-INF</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${maven.jcommonDirectory}</directory>
-                                    <includes>
-                                        <include>LICENSE.txt</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

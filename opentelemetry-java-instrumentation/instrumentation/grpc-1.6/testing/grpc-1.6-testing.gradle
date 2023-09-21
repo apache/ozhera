@@ -11,9 +11,19 @@ protobuf {
   protoc {
     // Download compiler rather than using locally installed version:
     artifact = 'com.google.protobuf:protoc:3.3.0'
+    if (osdetector.os == "osx") {
+      // Always use x86_64 version as ARM binary is not available
+      artifact += ":osx-x86_64"
+    }
   }
   plugins {
-    grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+    grpc {
+      artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+      if (osdetector.os == "osx") {
+        // Always use x86_64 version as ARM binary is not available
+        artifact += ":osx-x86_64"
+      }
+    }
   }
   generateProtoTasks {
     all()*.plugins { grpc {} }

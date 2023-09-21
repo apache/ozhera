@@ -1,6 +1,7 @@
 package com.xiaomi.hera.trace.etl.consumer;
 
 import com.google.common.util.concurrent.Monitor;
+import com.xiaomi.hera.trace.etl.api.service.IEnterManager;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,11 @@ import java.util.function.BooleanSupplier;
  * @date 2023/8/31 13:49
  */
 @Service
-public class EnterManager {
+public class EnterManager implements IEnterManager {
 
     @Getter
     private Monitor monitor = new Monitor();
 
-    @Getter
     private AtomicInteger processNum = new AtomicInteger();
 
     private Monitor.Guard guard = monitor.newGuard(new BooleanSupplier() {
@@ -31,6 +31,11 @@ public class EnterManager {
     public void enter() {
         monitor.enter();
         monitor.leave();
+    }
+
+    @Override
+    public AtomicInteger getProcessNum() {
+        return this.processNum;
     }
 
 }

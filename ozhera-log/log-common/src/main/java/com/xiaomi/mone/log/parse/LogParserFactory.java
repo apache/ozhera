@@ -17,6 +17,9 @@ package com.xiaomi.mone.log.parse;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * @author wtt
  * @version 1.0
@@ -41,29 +44,29 @@ public class LogParserFactory {
                 .tailName(tailName)
                 .mqTag(mqTag)
                 .logStoreName(logStoreName).build();
-        if (LogParserEnum.CUSTOM_PARSE.getCode().equals(parseType)) {
-            return new CustomLogParser(logParserData);
+        switch (LogParserEnum.getByCode(parseType)) {
+            case CUSTOM_PARSE:
+                return new CustomLogParser(logParserData);
+            case REGEX_PARSE:
+                return new RegexLogParser(logParserData);
+            case JSON_PARSE:
+                return new JsonLogParser(logParserData);
+            case NGINX_PARSE:
+                return new NginxLogParser(logParserData);
+            default:
+                return new RawLogParser(logParserData);
         }
-        if (LogParserEnum.REGEX_PARSE.getCode().equals(parseType)) {
-            return new RegexLogParser(logParserData);
-        }
-        if (LogParserEnum.JSON_PARSE.getCode().equals(parseType)) {
-            return new JsonLogParser(logParserData);
-        }
-        if (LogParserEnum.NGINX_PARSE.getCode().equals(parseType)) {
-            return new NginxLogParser(logParserData);
-        }
-        return new SeparatorLogParser(logParserData);
     }
 
     @Getter
     public enum LogParserEnum {
 
-        SEPARATOR_PARSE(2, "Separator Parsing"),
-        CUSTOM_PARSE(5, "Custom scripts Parsing"),
-        REGEX_PARSE(6, "Regular Expression Parsing"),
-        JSON_PARSE(7, "JSON Parsing"),
-        NGINX_PARSE(8, "Nginx Parsing");
+        RAW_LOG_PARSE(1, "原始格式"),
+        SEPARATOR_PARSE(2, "分割符解析"),
+        CUSTOM_PARSE(5, "自定义脚本解析"),
+        REGEX_PARSE(6, "正则表达式"),
+        JSON_PARSE(7, "JSON解析"),
+        NGINX_PARSE(8, "Nginx解析");
 
         private Integer code;
         private String name;
@@ -71,6 +74,15 @@ public class LogParserFactory {
         LogParserEnum(Integer code, String name) {
             this.code = code;
             this.name = name;
+        }
+
+        public static LogParserEnum getByCode(Integer code) {
+            return Arrays.stream(LogParserEnum.values()).filter(logParserEnum -> {
+                if (Objects.equals(logParserEnum.code, code)) {
+                    return true;
+                }
+                return false;
+            }).findFirst().orElse(null);
         }
     }
 }

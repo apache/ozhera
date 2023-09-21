@@ -4,6 +4,8 @@ ENV APP_HOME /opt/app
 
 RUN mkdir -p ${APP_HOME}
 
+RUN echo 'Asia/Shanghai' >/etc/timezone
+
 COPY target/log-agent-server-1.0-SNAPSHOT.jar ${APP_HOME}
 
 WORKDIR ${APP_HOME}

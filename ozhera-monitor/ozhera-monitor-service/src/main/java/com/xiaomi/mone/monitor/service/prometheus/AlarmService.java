@@ -1333,12 +1333,12 @@ public class AlarmService {
         if(rule.getMetricType() == AlarmRuleMetricType.customer_promql.getCode()){
 
             String ruleExpr = ruleData.getExpr();
-            int a = ruleExpr.lastIndexOf(">") > 0 ? ruleExpr.lastIndexOf(">") :
-                    ruleExpr.lastIndexOf("<") > 0 ? ruleExpr.lastIndexOf("<") :
-                    ruleExpr.lastIndexOf("=") > 0 ? ruleExpr.lastIndexOf("=") :
-                    ruleExpr.lastIndexOf(">=") > 0 ? ruleExpr.lastIndexOf(">=") :
+            int a = ruleExpr.lastIndexOf(">=") > 0 ? ruleExpr.lastIndexOf(">=") :
                     ruleExpr.lastIndexOf("<=") > 0 ? ruleExpr.lastIndexOf("<=") :
                     ruleExpr.lastIndexOf("!=") > 0 ? ruleExpr.lastIndexOf("!=") :
+                    ruleExpr.lastIndexOf(">") > 0 ? ruleExpr.lastIndexOf(">") :
+                    ruleExpr.lastIndexOf("<") > 0 ? ruleExpr.lastIndexOf("<") :
+                    ruleExpr.lastIndexOf("=") > 0 ? ruleExpr.lastIndexOf("=") :
                     -1;
             log.info("add customer_promql ruleExpr :{},a:{}",ruleExpr,a);
 

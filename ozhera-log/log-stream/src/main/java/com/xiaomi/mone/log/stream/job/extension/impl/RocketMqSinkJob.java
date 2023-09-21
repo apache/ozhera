@@ -70,7 +70,7 @@ public class RocketMqSinkJob implements SinkJob {
             });
             consumer.start();
             return true;
-        } catch (MQClientException e) {
+        } catch (Throwable e) {
             log.error(String.format("[RmqSinkJob.start] logStream rockerMq start error,topic:%s,tag:%s", topicName, tag), e);
             throw new StreamException("[RmqSinkJob.start] job subscribed topic error,topic: " + topicName + " tag: " + tag + " err: ", e);
         }

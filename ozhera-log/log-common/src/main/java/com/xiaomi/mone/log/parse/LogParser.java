@@ -90,13 +90,13 @@ public interface LogParser {
     default void wrapMap(Map<String, Object> ret, LogParserData parserData, String ip,
                          Long lineNum, String fileName, Long collectStamp) {
         ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? getTimestampFromString("", collectStamp) : collectStamp);
-        ret.putIfAbsent(esKeyMap_topic, parserData.getTopicName());
-        ret.putIfAbsent(esKeyMap_tag, parserData.getMqTag());
-        ret.putIfAbsent(esKeyMap_logstoreName, parserData.getLogStoreName());
-        ret.putIfAbsent(esKeyMap_tail, parserData.getTailName());
-        ret.putIfAbsent(esKeyMap_logip, ip);
-        ret.putIfAbsent(esKeyMap_lineNumber, lineNum);
-        ret.putIfAbsent(esKyeMap_fileName, fileName);
+        ret.put(esKeyMap_topic, parserData.getTopicName());
+        ret.put(esKeyMap_tag, parserData.getMqTag());
+        ret.put(esKeyMap_logstoreName, parserData.getLogStoreName());
+        ret.put(esKeyMap_tail, parserData.getTailName());
+        ret.put(esKeyMap_logip, ip);
+        ret.put(esKeyMap_lineNumber, lineNum);
+        ret.put(esKyeMap_fileName, fileName);
     }
 
     /**

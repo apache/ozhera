@@ -25,7 +25,10 @@ import com.xiaomi.data.push.nacos.NacosNaming;
 import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.manager.common.Utils;
-import com.xiaomi.mone.log.manager.dao.*;
+import com.xiaomi.mone.log.manager.dao.MilogAppMiddlewareRelDao;
+import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
+import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
+import com.xiaomi.mone.log.manager.dao.MilogMiddlewareConfigDao;
 import com.xiaomi.mone.log.manager.domain.EsCluster;
 import com.xiaomi.mone.log.manager.model.pojo.*;
 import com.xiaomi.mone.log.manager.service.MilogConfigNacosService;
@@ -40,6 +43,7 @@ import com.xiaomi.mone.log.manager.service.nacos.impl.*;
 import com.xiaomi.mone.log.model.*;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -65,14 +69,15 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     private static Map<String, FetchStreamMachineService> streamServiceUniqueMap = new HashedMap();
 
+    @Getter
     private StreamConfigNacosPublisher streamConfigNacosPublisher;
-
+    @Getter
     private StreamConfigNacosProvider streamConfigNacosProvider;
-
+    @Getter
     private SpaceConfigNacosPublisher spaceConfigNacosPublisher;
-
+    @Getter
     private SpaceConfigNacosProvider spaceConfigNacosProvider;
-
+    @Getter
     private FetchStreamMachineService fetchStreamMachineService;
 
     @Resource

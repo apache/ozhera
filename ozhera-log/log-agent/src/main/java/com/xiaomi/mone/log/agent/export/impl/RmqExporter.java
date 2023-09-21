@@ -22,16 +22,18 @@ import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Random;
 
 /**
  * Rocketmq Default message sending implementation class
@@ -53,6 +55,8 @@ public class RmqExporter implements MsgExporter {
     private final static String OPENTELEMETRY_TYPE = String.valueOf(
             LogTypeEnum.OPENTELEMETRY.getType());
 
+    private List<MessageQueue> messageQueueList;
+
     public RmqExporter(DefaultMQProducer mqProducer) {
         this.mqProducer = mqProducer;
     }
@@ -67,38 +71,41 @@ public class RmqExporter implements MsgExporter {
         if (messageList.isEmpty()) {
             return;
         }
-        List<Message> messages = messageList.stream()
-                .map(m -> {
-                    Message message;
-                    if (OPENTELEMETRY_TYPE.equals(m.getProperties(LineMessage.KEY_MESSAGE_TYPE))) {
-                        byte[] bytes = TraceUtil.toBytes(m.getMsgBody());
-                        if (bytes != null) {
-                            message = new Message();
-                            message.setBody(bytes);
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        message = new Message();
-                        message.setTags(m.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
-                        message.setBody(gson.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    }
+
+        List<Message> telTryMessages = new ArrayList<>();
+        List<Message> otherMessages = new ArrayList<>();
+
+        for (LineMessage lineMessage : messageList) {
+            if (OPENTELEMETRY_TYPE.equals(lineMessage.getProperties(LineMessage.KEY_MESSAGE_TYPE))) {
+                byte[] bytes = TraceUtil.toBytes(lineMessage.getMsgBody());
+                if (bytes != null) {
+                    Message message = new Message();
+                    message.setBody(bytes);
                     message.setTopic(this.rmqTopic);
-                    return message;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                    telTryMessages.add(message);
+                }
+            } else {
+                Message message = new Message();
+                message.setTags(lineMessage.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
+                message.setBody(gson.toJson(lineMessage).getBytes(StandardCharsets.UTF_8));
+                message.setTopic(this.rmqTopic);
+                otherMessages.add(message);
+            }
+        }
 
         try {
-            mqProducer.send(messages);
-        } catch (MQClientException e) {
-            log.error("rocketmq export MQClientException:{}", e);
-        } catch (RemotingException e) {
-            log.error("rocketmq export RemotingException:{}", e);
-        } catch (MQBrokerException e) {
-            log.error("rocketmq export MQBrokerException:{}", e);
-        } catch (InterruptedException e) {
-            log.error("rocketmq export InterruptedException:{}", e);
+            if (CollectionUtils.isNotEmpty(telTryMessages)) {
+                if (CollectionUtils.isNotEmpty(messageQueueList) && messageQueueList.size() > 2) {
+                    mqProducer.send(telTryMessages, messageQueueList.get(new Random().nextInt(messageQueueList.size())));
+                } else {
+                    mqProducer.send(telTryMessages);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(otherMessages)) {
+                mqProducer.send(otherMessages);
+            }
+        } catch (MQClientException | RemotingException | MQBrokerException | InterruptedException e) {
+            log.error("RocketMQ export error", e);
         }
     }
 
@@ -107,6 +114,7 @@ public class RmqExporter implements MsgExporter {
     }
 
     public void setRmqTopic(String rmqTopic) {
+        this.messageQueueList = fetchMessageQueue(rmqTopic);
         this.rmqTopic = rmqTopic;
     }
 
@@ -127,6 +135,16 @@ public class RmqExporter implements MsgExporter {
     @Override
     public void close() {
         //mqProducer multi-topic public and cannot shutdown();
+    }
+
+
+    public List<MessageQueue> fetchMessageQueue(String topicName) {
+        try {
+            return mqProducer.fetchPublishMessageQueues(topicName);
+        } catch (MQClientException e) {
+            log.error("fetch queue task error : ", e);
+        }
+        return new ArrayList<>();
     }
 
 }

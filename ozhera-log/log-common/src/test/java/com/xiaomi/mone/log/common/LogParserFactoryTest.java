@@ -16,6 +16,10 @@
 package com.xiaomi.mone.log.common;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
+import com.google.gson.ToNumberPolicy;
+import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.log.parse.LogParser;
 import com.xiaomi.mone.log.parse.LogParserFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -55,4 +59,22 @@ public class LogParserFactoryTest {
 
         log.info("simple data:{}", gson.toJson(parseSimple));
     }
+
+    @Test
+    public void testGson() {
+
+        Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
+
+        String logData = "{\"key2\":\"4564646456645656565464564564545\"}";
+
+        TypeToken<Map<String, Object>> token = new TypeToken<Map<String, Object>>() {
+        };
+        Map<String, Object> rawLogMap = gson.fromJson(logData, token.getType());
+
+        log.info("result:{}", rawLogMap);
+
+        Long data = 45646464566456545L;
+        log.info("data:{}", Double.valueOf(data));
+    }
+
 }

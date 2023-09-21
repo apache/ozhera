@@ -17,6 +17,8 @@ package com.xiaomi.mone.log.agent.export.impl;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.xiaomi.hera.tspandata.TSpanData;
+import com.xiaomi.mone.log.agent.common.HashUtil;
 import com.xiaomi.mone.log.agent.common.trace.TraceUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
@@ -32,8 +34,10 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Rocketmq Default message sending implementation class
@@ -71,41 +75,73 @@ public class RmqExporter implements MsgExporter {
         if (messageList.isEmpty()) {
             return;
         }
-
-        List<Message> telTryMessages = new ArrayList<>();
-        List<Message> otherMessages = new ArrayList<>();
+        this.messageQueueList = fetchMessageQueue(this.rmqTopic);
+        List<Message> logMessages = new ArrayList<>();
+        Map<MessageQueue, List<Message>> messageQueueListMap = new HashMap<>();
 
         for (LineMessage lineMessage : messageList) {
             if (OPENTELEMETRY_TYPE.equals(lineMessage.getProperties(LineMessage.KEY_MESSAGE_TYPE))) {
-                byte[] bytes = TraceUtil.toBytes(lineMessage.getMsgBody());
-                if (bytes != null) {
-                    Message message = new Message();
-                    message.setBody(bytes);
-                    message.setTopic(this.rmqTopic);
-                    telTryMessages.add(message);
-                }
+                processOpenTelemetryMessage(lineMessage, messageQueueListMap);
             } else {
-                Message message = new Message();
-                message.setTags(lineMessage.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
-                message.setBody(gson.toJson(lineMessage).getBytes(StandardCharsets.UTF_8));
-                message.setTopic(this.rmqTopic);
-                otherMessages.add(message);
+                processLogMessage(lineMessage, logMessages);
             }
         }
 
+        sendMessagesToQueues(messageQueueListMap);
+        sendMessagesToProducer(logMessages);
+    }
+
+    private void processOpenTelemetryMessage(LineMessage lineMessage, Map<MessageQueue, List<Message>> messageQueueListMap) {
+        byte[] bytes = TraceUtil.toBytes(lineMessage.getMsgBody());
+        if (bytes != null) {
+            TSpanData tSpanData = TraceUtil.toTSpanData(lineMessage.getMsgBody());
+            String appName = tSpanData.getExtra().getServiceName();
+            Message message = new Message();
+            message.setBody(bytes);
+            message.setTopic(this.rmqTopic);
+
+            // Calculate the message queue based on the appName
+            MessageQueue messageQueue = calculateMessageQueue(appName);
+
+            messageQueueListMap.putIfAbsent(messageQueue, new ArrayList<>());
+            messageQueueListMap.get(messageQueue).add(message);
+        }
+    }
+
+    private void processLogMessage(LineMessage lineMessage, List<Message> logMessages) {
+        Message message = new Message();
+        message.setTags(lineMessage.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
+        message.setBody(gson.toJson(lineMessage).getBytes(StandardCharsets.UTF_8));
+        message.setTopic(this.rmqTopic);
+        logMessages.add(message);
+    }
+
+    private MessageQueue calculateMessageQueue(String appName) {
+        Integer partitionNumber = 2;
+        appName = String.format("p%s%s", ThreadLocalRandom.current().nextInt(partitionNumber), appName);
+        return messageQueueList.get(HashUtil.consistentHash(appName, messageQueueList.size()));
+    }
+
+    private void sendMessagesToQueues(Map<MessageQueue, List<Message>> messageQueueListMap) {
         try {
-            if (CollectionUtils.isNotEmpty(telTryMessages)) {
-                if (CollectionUtils.isNotEmpty(messageQueueList) && messageQueueList.size() > 2) {
-                    mqProducer.send(telTryMessages, messageQueueList.get(new Random().nextInt(messageQueueList.size())));
-                } else {
-                    mqProducer.send(telTryMessages);
+            for (Map.Entry<MessageQueue, List<Message>> queueListEntry : messageQueueListMap.entrySet()) {
+                List<Message> messages = queueListEntry.getValue();
+                if (CollectionUtils.isNotEmpty(messages)) {
+                    mqProducer.send(messages, queueListEntry.getKey());
                 }
             }
-            if (CollectionUtils.isNotEmpty(otherMessages)) {
-                mqProducer.send(otherMessages);
+        } catch (MQClientException | RemotingException | MQBrokerException | InterruptedException e) {
+            log.error("OPENTELEMETRY log rocketMQ export error", e);
+        }
+    }
+
+    private void sendMessagesToProducer(List<Message> logMessages) {
+        try {
+            if (CollectionUtils.isNotEmpty(logMessages)) {
+                mqProducer.send(logMessages);
             }
         } catch (MQClientException | RemotingException | MQBrokerException | InterruptedException e) {
-            log.error("RocketMQ export error", e);
+            log.error("normal rocketMQ export error", e);
         }
     }
 

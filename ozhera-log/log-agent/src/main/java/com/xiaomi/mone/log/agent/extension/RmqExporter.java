@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.agent.export.impl;
+package com.xiaomi.mone.log.agent.extension;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -56,8 +56,6 @@ public class RmqExporter implements MsgExporter {
 
     private Gson gson = new Gson();
 
-    private final static String OPENTELEMETRY_TYPE = String.valueOf(
-            LogTypeEnum.OPENTELEMETRY.getType());
 
     private List<MessageQueue> messageQueueList;
 

@@ -19,15 +19,44 @@ import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.agent.output.Output;
 import com.xiaomi.mone.log.api.model.meta.LogPattern;
 
-public interface OutPutService{
-
+public interface OutPutService {
+    /**
+     * comparison of old and new configurations to determine the life of production
+     *
+     * @param oldOutPut
+     * @param newOutPut
+     * @return
+     */
     boolean compare(Output oldOutPut, Output newOutPut);
 
+    /**
+     * configuration check
+     *
+     * @param output
+     */
     void preCheckOutput(Output output);
 
+    /**
+     * initialize message exposer
+     *
+     * @param output
+     * @return
+     * @throws Exception
+     */
     MsgExporter exporterTrans(Output output) throws Exception;
 
+    /**
+     * remove message producer based on configuration
+     *
+     * @param output
+     */
     void removeMQ(Output output);
 
+    /**
+     * get Output according to Log Pattern
+     *
+     * @param logPattern
+     * @return
+     */
     Output configOutPut(LogPattern logPattern);
 }

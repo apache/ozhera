@@ -14,4 +14,5 @@ import java.util.List;
 public class MetricDataSetVector implements Serializable {
     private Metric metric;
     private List<String> value;
+    private List<String> values;
 }

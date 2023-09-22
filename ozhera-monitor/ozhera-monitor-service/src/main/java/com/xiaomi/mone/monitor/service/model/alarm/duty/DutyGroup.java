@@ -13,18 +13,18 @@ import java.util.List;
 public class DutyGroup implements Serializable {
 
     private Integer id;//id
-    private String name;//子值班表（子告警组）名称，不允许重名
-    private Integer rotation_type=0;//值班周期类型，0为天，1为周，2为自定义【默认值为0】
-    private Integer shift_length=0;//自定义周期，RotationType=2时生效【默认值为0】
-    private String shift_length_unit="";//自定义周期单位，days或weeks
-    private Long duty_start_time;//值班开始时间,十位长度的时间戳
-    private Long handoff_time;//值班交接时间,时间点，单位为秒数。如 43200=12:00
-    private Integer preset_vacation=0;//标记是否预设假期值班，0=否，1=是。【默认值为0】当为是（=1）时，oncall_vacations字段不能为空
-    private List<UserInfo> oncall_vacations;//假期值班信息。假期值班人员必须 为日常值班人员（oncall_users）的子集
-    private List<UserInfo> oncall_users;//值班人列表信息
+    private String name;//Sub-duty table (sub-alarm group) name. The name cannot be the same
+    private Integer rotation_type=0;//Duty period type: 0 is day, 1 is week, 2 is custom [Default value is 0]
+    private Integer shift_length=0;//Custom period, takes effect when RotationType=2 [Default value is 0]
+    private String shift_length_unit="";//User-defined period unit: days or weeks
+    private Long duty_start_time;//Start of shift, 10-digit timestamp
+    private Long handoff_time;//Shift handover time, time point, unit is seconds. For example, 43200=12:00
+    private Integer preset_vacation=0;//Mark whether a scheduled holiday is on duty, 0= no, 1= yes. (Default is 0) When Yes (=1), the oncall_vacations field cannot be empty
+    private List<UserInfo> oncall_vacations;//Holiday duty information. Holiday duty personnel must be a subset of daily duty personnel (oncall_users)
+    private List<UserInfo> oncall_users;//Duty list information
 
-    private ShiftUserInfo duty_user;//当前值班人员
-    private ShiftUserInfo next_duty_user;//下期值班人员
-    private List<ShiftUserInfo> duty_order_users;//实际值班表
+    private ShiftUserInfo duty_user;//Current duty officer
+    private ShiftUserInfo next_duty_user;//Next shift officer
+    private List<ShiftUserInfo> duty_order_users;//Actual duty schedule
 
 }

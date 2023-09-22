@@ -13,12 +13,12 @@ import java.util.List;
 public class DutyInfo implements Serializable {
 
     private String manager;
-    private Integer model_type;//标识值班模式：0=多人值班，1=主备
+    private Integer model_type;//Identification Duty mode: 0= multiple persons on duty, 1= active/standby
 
     /**
-     * 当有值班表时，用来标记是否值班表的发送渠道是否只发送至群，0=否，1=是。
-     * 当关闭仅发送至群（=0）时，给群和值班人发送飞书通知
-     * 当仅发送至群（=1）时，P0不给值班人打电话，发群失败会给值班人再发一次飞书/兜底短信
+     * When there is a duty table, it is used to mark whether the sending channel of the duty table is sent only to the group, 0= no, 1= yes.
+     * When off send to group only (=0), send fly book notification to group and duty person
+     * When only sent to the group (=1), P0 does not call the person on duty, and the group fails to send the person on duty again
      */
     private Integer chat_only;
     private List<DutyGroup> child_groups;

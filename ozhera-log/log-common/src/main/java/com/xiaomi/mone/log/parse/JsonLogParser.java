@@ -16,7 +16,10 @@
 package com.xiaomi.mone.log.parse;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.Feature;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
+import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.log.utils.IndexUtils;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,10 @@ import java.util.*;
 @Slf4j
 @NoArgsConstructor
 public class JsonLogParser implements LogParser {
+    // can solve the problem of converting long integers to scientific notation
+    private static final Gson GSON = new GsonBuilder()
+            .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .create();
 
     private LogParserData parserData;
 
@@ -83,7 +90,10 @@ public class JsonLogParser implements LogParser {
 
     @Override
     public List<String> parseLogData(String logData) throws Exception {
-        Map<String, Object> rawLogMap = JSON.parseObject(logData, Feature.OrderedField);
+        TypeToken<Map<String, Object>> token = new TypeToken<Map<String, Object>>() {
+        };
+
+        Map<String, Object> rawLogMap = GSON.fromJson(logData, token.getType());
         List<String> parsedLogs = new ArrayList<>();
         for (String key : rawLogMap.keySet()) {
             parsedLogs.add(rawLogMap.getOrDefault(key, "").toString());

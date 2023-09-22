@@ -17,21 +17,27 @@ package com.xiaomi.mone.log.agent.export.impl;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.xiaomi.hera.tspandata.TSpanData;
+import com.xiaomi.mone.log.agent.common.HashUtil;
 import com.xiaomi.mone.log.agent.common.trace.TraceUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Rocketmq Default message sending implementation class
@@ -53,6 +59,8 @@ public class RmqExporter implements MsgExporter {
     private final static String OPENTELEMETRY_TYPE = String.valueOf(
             LogTypeEnum.OPENTELEMETRY.getType());
 
+    private List<MessageQueue> messageQueueList;
+
     public RmqExporter(DefaultMQProducer mqProducer) {
         this.mqProducer = mqProducer;
     }
@@ -67,38 +75,73 @@ public class RmqExporter implements MsgExporter {
         if (messageList.isEmpty()) {
             return;
         }
-        List<Message> messages = messageList.stream()
-                .map(m -> {
-                    Message message;
-                    if (OPENTELEMETRY_TYPE.equals(m.getProperties(LineMessage.KEY_MESSAGE_TYPE))) {
-                        byte[] bytes = TraceUtil.toBytes(m.getMsgBody());
-                        if (bytes != null) {
-                            message = new Message();
-                            message.setBody(bytes);
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        message = new Message();
-                        message.setTags(m.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
-                        message.setBody(gson.toJson(m).getBytes(StandardCharsets.UTF_8));
-                    }
-                    message.setTopic(this.rmqTopic);
-                    return message;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        this.messageQueueList = fetchMessageQueue(this.rmqTopic);
+        List<Message> logMessages = new ArrayList<>();
+        Map<MessageQueue, List<Message>> messageQueueListMap = new HashMap<>();
 
+        for (LineMessage lineMessage : messageList) {
+            if (OPENTELEMETRY_TYPE.equals(lineMessage.getProperties(LineMessage.KEY_MESSAGE_TYPE))) {
+                processOpenTelemetryMessage(lineMessage, messageQueueListMap);
+            } else {
+                processLogMessage(lineMessage, logMessages);
+            }
+        }
+
+        sendMessagesToQueues(messageQueueListMap);
+        sendMessagesToProducer(logMessages);
+    }
+
+    private void processOpenTelemetryMessage(LineMessage lineMessage, Map<MessageQueue, List<Message>> messageQueueListMap) {
+        byte[] bytes = TraceUtil.toBytes(lineMessage.getMsgBody());
+        if (bytes != null) {
+            TSpanData tSpanData = TraceUtil.toTSpanData(lineMessage.getMsgBody());
+            String appName = tSpanData.getExtra().getServiceName();
+            Message message = new Message();
+            message.setBody(bytes);
+            message.setTopic(this.rmqTopic);
+
+            // Calculate the message queue based on the appName
+            MessageQueue messageQueue = calculateMessageQueue(appName);
+
+            messageQueueListMap.putIfAbsent(messageQueue, new ArrayList<>());
+            messageQueueListMap.get(messageQueue).add(message);
+        }
+    }
+
+    private void processLogMessage(LineMessage lineMessage, List<Message> logMessages) {
+        Message message = new Message();
+        message.setTags(lineMessage.getProperties(LineMessage.KEY_MQ_TOPIC_TAG));
+        message.setBody(gson.toJson(lineMessage).getBytes(StandardCharsets.UTF_8));
+        message.setTopic(this.rmqTopic);
+        logMessages.add(message);
+    }
+
+    private MessageQueue calculateMessageQueue(String appName) {
+        Integer partitionNumber = 2;
+        appName = String.format("p%s%s", ThreadLocalRandom.current().nextInt(partitionNumber), appName);
+        return messageQueueList.get(HashUtil.consistentHash(appName, messageQueueList.size()));
+    }
+
+    private void sendMessagesToQueues(Map<MessageQueue, List<Message>> messageQueueListMap) {
         try {
-            mqProducer.send(messages);
-        } catch (MQClientException e) {
-            log.error("rocketmq export MQClientException:{}", e);
-        } catch (RemotingException e) {
-            log.error("rocketmq export RemotingException:{}", e);
-        } catch (MQBrokerException e) {
-            log.error("rocketmq export MQBrokerException:{}", e);
-        } catch (InterruptedException e) {
-            log.error("rocketmq export InterruptedException:{}", e);
+            for (Map.Entry<MessageQueue, List<Message>> queueListEntry : messageQueueListMap.entrySet()) {
+                List<Message> messages = queueListEntry.getValue();
+                if (CollectionUtils.isNotEmpty(messages)) {
+                    mqProducer.send(messages, queueListEntry.getKey());
+                }
+            }
+        } catch (MQClientException | RemotingException | MQBrokerException | InterruptedException e) {
+            log.error("OPENTELEMETRY log rocketMQ export error", e);
+        }
+    }
+
+    private void sendMessagesToProducer(List<Message> logMessages) {
+        try {
+            if (CollectionUtils.isNotEmpty(logMessages)) {
+                mqProducer.send(logMessages);
+            }
+        } catch (MQClientException | RemotingException | MQBrokerException | InterruptedException e) {
+            log.error("normal rocketMQ export error", e);
         }
     }
 
@@ -107,6 +150,7 @@ public class RmqExporter implements MsgExporter {
     }
 
     public void setRmqTopic(String rmqTopic) {
+        this.messageQueueList = fetchMessageQueue(rmqTopic);
         this.rmqTopic = rmqTopic;
     }
 
@@ -127,6 +171,16 @@ public class RmqExporter implements MsgExporter {
     @Override
     public void close() {
         //mqProducer multi-topic public and cannot shutdown();
+    }
+
+
+    public List<MessageQueue> fetchMessageQueue(String topicName) {
+        try {
+            return mqProducer.fetchPublishMessageQueues(topicName);
+        } catch (MQClientException e) {
+            log.error("fetch queue task error : ", e);
+        }
+        return new ArrayList<>();
     }
 
 }

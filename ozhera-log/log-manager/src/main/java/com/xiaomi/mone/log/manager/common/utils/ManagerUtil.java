@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.common.utils;
 
+import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +27,7 @@ import static com.xiaomi.mone.log.common.Constant.*;
 
 public class ManagerUtil {
 
-    private static final String KEY_WORD_IGNORE = "keyword";
-    private static final String KEY_TEXT_IGNORE = "text";
+    private static final List<String> IGNORE_KEYS = Lists.newArrayList("keyword", "text", "ip", "date");
 
     private ManagerUtil() {
 
@@ -38,7 +38,7 @@ public class ManagerUtil {
         String[] keyTypeArray = columnTypes.split(SYMBOL_COMMA);
         List<String> keyList = new ArrayList<>();
         for (int i = 0; i < keyDescryArray.length; i++) {
-            if (!KEY_WORD_IGNORE.equals(keyTypeArray[i]) && !KEY_TEXT_IGNORE.equals(keyTypeArray[i])) {
+            if (!IGNORE_KEYS.contains(keyTypeArray[i].toLowerCase())) {
                 continue;
             }
             keyList.add(keyDescryArray[i].split(SYMBOL_COLON)[0]);

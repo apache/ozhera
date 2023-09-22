@@ -23,6 +23,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.instrumentation.api.db.RedisCommandSanitizer;
+import io.opentelemetry.instrumentation.api.db.RedisCommandUtil;
 import io.opentelemetry.instrumentation.api.tracer.AttributeSetter;
 import io.opentelemetry.instrumentation.api.tracer.net.NetPeerAttributes;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
@@ -32,9 +33,6 @@ import java.net.SocketAddress;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -168,17 +166,25 @@ final class OpenTelemetryTracing implements Tracing {
   private static class OpenTelemetrySpan extends Tracer.Span {
     private final SpanBuilder spanBuilder;
 
-    @Nullable private String name;
+    @Nullable
+    private String name;
 
-    @Nullable private List<Object> events;
+    @Nullable
+    private List<Object> events;
 
-    @Nullable private Throwable error;
+    @Nullable
+    private Throwable error;
 
-    @Nullable private Span span;
+    @Nullable
+    private Span span;
 
-    @Nullable private String args;
+    @Nullable
+    private String args;
 
-    @Nullable private String intranetErrorMessage;
+    @Nullable
+    private String intranetErrorMessage;
+
+    private long startTime;
 
     OpenTelemetrySpan(SpanBuilder spanBuilder) {
       this.spanBuilder = spanBuilder;
@@ -225,21 +231,21 @@ final class OpenTelemetryTracing implements Tracing {
       if (command instanceof CompleteableCommand) {
         CompleteableCommand<?> completeableCommand = (CompleteableCommand<?>) command;
         completeableCommand.onComplete(
-            (o, throwable) -> {
-              if (throwable != null) {
-                span.recordException(throwable);
-              }
+                (o, throwable) -> {
+                  if (throwable != null) {
+                    span.recordException(throwable);
+                  }
 
-              CommandOutput<?, ?, ?> output = command.getOutput();
-              if (output != null) {
-                String error = output.getError();
-                if (error != null) {
-                  span.setStatus(StatusCode.ERROR, error);
-                }
-              }
+                  CommandOutput<?, ?, ?> output = command.getOutput();
+                  if (output != null) {
+                    String error = output.getError();
+                    if (error != null) {
+                      span.setStatus(StatusCode.ERROR, error);
+                    }
+                  }
 
-              finish(span);
-            });
+                  finish(span);
+                });
       }
 
       return this;
@@ -248,6 +254,7 @@ final class OpenTelemetryTracing implements Tracing {
     // Not called by Lettuce in 6.0+ (though we call it ourselves above).
     @Override
     public synchronized Tracer.Span start() {
+      startTime = System.currentTimeMillis();
       span = spanBuilder.startSpan();
       if (name != null) {
         span.updateName(name);
@@ -264,8 +271,8 @@ final class OpenTelemetryTracing implements Tracing {
         span.setStatus(StatusCode.ERROR);
         span.recordException(error);
         error = null;
-      }else if (intranetErrorMessage != null){
-        span.addEvent("redis_error", Attributes.builder().put("exception_message",intranetErrorMessage).build());
+      } else if (intranetErrorMessage != null) {
+        span.addEvent("redis_error", Attributes.builder().put("exception_message", intranetErrorMessage).build());
         span.setStatus(StatusCode.ERROR);
         intranetErrorMessage = null;
       }
@@ -293,11 +300,11 @@ final class OpenTelemetryTracing implements Tracing {
         args = value;
         return this;
       }
-      if("error".equals(key)){
-        if(span != null){
+      if ("error".equals(key)) {
+        if (span != null) {
           span.addEvent("redis_error", Attributes.builder().put("exception_message", value).build());
           span.setStatus(StatusCode.ERROR);
-        }else {
+        } else {
           intranetErrorMessage = value;
         }
         return this;
@@ -329,7 +336,7 @@ final class OpenTelemetryTracing implements Tracing {
 
     private void finish(Span span) {
       if (name != null) {
-        if (skipEnd()) {
+        if (RedisCommandUtil.skipEnd(name, error, startTime)) {
           return;
         }
         String statement = RedisCommandSanitizer.sanitize(name, splitArgs(args));
@@ -338,17 +345,9 @@ final class OpenTelemetryTracing implements Tracing {
       span.end();
     }
 
-    //The operation quantity of these commands is too large, it needs to be skipped.
-    private final Set<String> skipName = Stream.of("hget", "mget", "mset", "hmget", "hgetall").collect(Collectors.toSet());
-
-    //If it's in skipName and there are no errors, skip it directly.(issue #16)
-    private boolean skipEnd() {
-      return (null != name) && (skipName.contains(name.toLowerCase()) && (null == this.error));
+    private static void fillEndpoint(AttributeSetter span, OpenTelemetryEndpoint endpoint) {
+      span.setAttribute(SemanticAttributes.NET_TRANSPORT, IP_TCP);
+      NetPeerAttributes.INSTANCE.setNetPeer(span, endpoint.name, endpoint.ip, endpoint.port);
     }
-  }
-
-  private static void fillEndpoint(AttributeSetter span, OpenTelemetryEndpoint endpoint) {
-    span.setAttribute(SemanticAttributes.NET_TRANSPORT, IP_TCP);
-    NetPeerAttributes.INSTANCE.setNetPeer(span, endpoint.name, endpoint.ip, endpoint.port);
   }
 }

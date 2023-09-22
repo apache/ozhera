@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.agent.output;
+package com.xiaomi.mone.log.agent.extension;
 
+import com.xiaomi.mone.log.agent.output.Output;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -15,7 +15,9 @@
  */
 package com.xiaomi.mone.log.agent.export;
 
+import com.google.gson.Gson;
 import com.xiaomi.mone.log.agent.channel.Closeable;
+import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
 
 import java.util.List;
@@ -26,6 +28,11 @@ import java.util.List;
  * @describe Exposed encapsulation of log messages
  */
 public interface MsgExporter extends Closeable {
+
+    String OPENTELEMETRY_TYPE = String.valueOf(LogTypeEnum.OPENTELEMETRY.getType());
+
+    Gson gson = new Gson();
+
     int BATCH_EXPORT_SIZE = 200;
 
     /**

@@ -13,14 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.agent.service.impl;
+package com.xiaomi.mone.log.agent.extension;
 
 import com.google.common.base.Preconditions;
 import com.xiaomi.mone.log.agent.exception.AgentException;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
-import com.xiaomi.mone.log.agent.export.impl.RmqExporter;
 import com.xiaomi.mone.log.agent.output.Output;
-import com.xiaomi.mone.log.agent.output.RmqOutput;
 import com.xiaomi.mone.log.agent.service.OutPutService;
 import com.xiaomi.mone.log.api.model.meta.LogPattern;
 import com.xiaomi.mone.log.api.model.meta.MQConfig;

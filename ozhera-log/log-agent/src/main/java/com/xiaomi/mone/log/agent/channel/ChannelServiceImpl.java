@@ -38,6 +38,7 @@ import com.xiaomi.mone.log.api.model.msg.LineMessage;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.PathUtils;
 import com.xiaomi.mone.log.utils.NetUtil;
+import com.xiaomi.youpin.docean.Ioc;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -70,7 +71,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private ChannelMemory channelMemory;
 
     @Getter
-    private final ConcurrentHashMap<String, LogFile> logFileMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ILogFile> logFileMap = new ConcurrentHashMap<>();
 
     @Getter
     private final ConcurrentHashMap<String, Future> futureMap = new ConcurrentHashMap<>();
@@ -142,8 +143,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
             fileProgressMap = new HashMap<>();
         }
 
-        for (Iterator<Map.Entry<String, LogFile>> it = logFileMap.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<String, LogFile> entry = it.next();
+        for (Iterator<Map.Entry<String, ILogFile>> it = logFileMap.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, ILogFile> entry = it.next();
             String filePath = entry.getKey();
             for (String filePrefix : filePrefixList) {
                 if (filePath.startsWith(filePrefix)) {
@@ -205,7 +206,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     @Override
     public void deleteCollFile(String directory) {
         log.info("channelId:{},deleteCollFile,directory:{}", channelDefine.getChannelId(), directory);
-        for (Map.Entry<String, LogFile> logFileEntry : logFileMap.entrySet()) {
+        for (Map.Entry<String, ILogFile> logFileEntry : logFileMap.entrySet()) {
             if (logFileEntry.getKey().contains(directory)) {
                 delFileCollList.add(logFileEntry.getKey());
                 log.info("channelId:{},delFileCollList:{}", channelDefine.getChannelId(), gson.toJson(delFileCollList));
@@ -421,7 +422,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         if (!collectOnce) {
             log.info("fileProgressMap:{}", gson.toJson(fileProgressMap));
         }
-        LogFile logFile = getLogFile(filePath, listener, fileProgressMap);
+        ILogFile logFile = getLogFile(filePath, listener, fileProgressMap);
         if (null == logFile) {
             log.warn("file:{} marked stop to collect", filePath);
             return;
@@ -446,7 +447,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     }
 
     private void stopOldCurrentFileThread(String filePath) {
-        LogFile logFile = logFileMap.get(filePath);
+        ILogFile logFile = logFileMap.get(filePath);
         if (null != logFile) {
             logFile.setStop(true);
         }
@@ -456,7 +457,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
     }
 
-    private LogFile getLogFile(String filePath, ReadListener listener, Map<String, ChannelMemory.FileProgress> fileProgressMap) {
+
+    private ILogFile getLogFile(String filePath, ReadListener listener, Map<String, ChannelMemory.FileProgress> fileProgressMap) {
         long pointer = 0L;
         long lineNumber = 0L;
         ChannelMemory.FileProgress fileProgress = fileProgressMap.get(filePath);
@@ -489,7 +491,10 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 }
             }
         }
-        return new LogFile(filePath, listener, pointer, lineNumber);
+        ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
+        ILogFile logFile = channelEngine.logFile();
+        logFile.initLogFile(filePath, listener, pointer, lineNumber);
+        return logFile;
     }
 
     private void doExport(List<LineMessage> subList) {
@@ -518,7 +523,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     public void close() {
         log.info("Delete the current collection task,channelId:{}", getChannelId());
         //1.Stop log capture
-        for (Map.Entry<String, LogFile> fileEntry : logFileMap.entrySet()) {
+        for (Map.Entry<String, ILogFile> fileEntry : logFileMap.entrySet()) {
             fileEntry.getValue().setStop(true);
             InodeFileComparator.removeFile(fileEntry.getKey());
         }
@@ -575,7 +580,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
             return;
         }
-        LogFile logFile = logFileMap.get(filePath);
+        ILogFile logFile = logFileMap.get(filePath);
         String tailPodIp = getTailPodIp(filePath);
         String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
         if (null == logFile) {
@@ -627,7 +632,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     @Override
     public void cancelFile(String file) {
         log.info("cancelFile,file:{}", file);
-        for (Map.Entry<String, LogFile> logFileEntry : logFileMap.entrySet()) {
+        for (Map.Entry<String, ILogFile> logFileEntry : logFileMap.entrySet()) {
             if (file.equals(logFileEntry.getKey())) {
                 delFileCollList.add(logFileEntry.getKey());
             }
@@ -658,7 +663,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private void cleanFile(Predicate<String> filter) {
         List<String> delFiles = Lists.newArrayList();
-        for (Map.Entry<String, LogFile> logFileEntry : logFileMap.entrySet()) {
+        for (Map.Entry<String, ILogFile> logFileEntry : logFileMap.entrySet()) {
             if (filter.test(logFileEntry.getKey())) {
                 InodeFileComparator.removeFile(logFileEntry.getKey());
                 logFileEntry.getValue().setStop(true);

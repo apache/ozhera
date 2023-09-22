@@ -21,7 +21,7 @@ public class CacheConfiguration {
     public Cache<String, Object> guavaCache() {
         return CacheBuilder.newBuilder()
                 .maximumSize(100) // The maximum number of entries in the cache
-                .expireAfterWrite(7200, TimeUnit.MINUTES) // The expiration time of the entry
+                .expireAfterWrite(7200, TimeUnit.SECONDS) // The expiration time of the entry
                 .build();
     }
 }

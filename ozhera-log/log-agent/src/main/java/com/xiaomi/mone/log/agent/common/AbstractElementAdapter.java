@@ -16,9 +16,8 @@
 package com.xiaomi.mone.log.agent.common;
 
 import com.google.gson.*;
-import com.xiaomi.mone.log.agent.output.RmqOutput;
+import com.xiaomi.mone.log.agent.extension.RmqOutput;
 import com.xiaomi.mone.log.agent.input.*;
-import lombok.SneakyThrows;
 
 import java.lang.reflect.Type;
 

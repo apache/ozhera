@@ -29,10 +29,11 @@ import java.util.Arrays;
 public enum MiddlewareEnum {
 
     ROCKETMQ(1, "rocketmq", "RocketMQService"),
-    NCOS(3, "nacos" ,""),
+    KAFKA(2, "kafka", "KafkaMQService"),
+    NCOS(3, "nacos", ""),
+    ELASTICSEARCH(4, "elasticsearch", ""),
+    HDFS(5, "hdfs", ""),
     LOKI(6, "loki", ""),
-    ELASTICSEARCH(4, "elasticsearch",""),
-    HDFS(5, "hdfs",""),
     ;
 
     private final Integer code;

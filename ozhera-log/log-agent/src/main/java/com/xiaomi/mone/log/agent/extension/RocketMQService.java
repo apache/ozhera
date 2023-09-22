@@ -40,7 +40,7 @@ import static com.xiaomi.mone.log.common.Constant.DEFAULT_CONSUMER_GROUP;
  * @Author dingtao
  * @Date 2023/4/7 9:44 AM
  */
-@Service(name = "KafkaMQService")
+@Service(name = "RocketMQService")
 @Slf4j
 public class RocketMQService implements OutPutService {
 

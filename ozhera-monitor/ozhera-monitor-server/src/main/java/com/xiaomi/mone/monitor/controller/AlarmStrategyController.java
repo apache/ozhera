@@ -37,7 +37,7 @@ public class AlarmStrategyController {
     UserConfigService userConfigService;
 
     /**
-     * 策略类型列表查询
+     * Query the policy type list
      * @param request
      * @param param
      * @return

@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 public class AlarmService {
 
     /**
-     * 业务异常指标
+     * Business exception metric
      */
     private static final String http_error_metric = "httpError";
     private static final String http_client_error_metric = "httpClientError";//http client 错误数
@@ -63,10 +63,10 @@ public class AlarmService {
     private static final String hbase_error_metric = "hbaseClientError";
 
     /**
-     * 业务慢查询指标
+     * Business slow query metric
      */
     private static final String http_slow_query_metric = "httpSlowQuery";
-    private static final String http_client_slow_query_metric = "httpClientSlowQuery";//http client 慢查询
+    private static final String http_client_slow_query_metric = "httpClientSlowQuery";//http client slow query
     private static final String dubbo_consumer_slow_query_metric = "dubboConsumerSlowQuery";
     private static final String dubbo_provider_slow_query_metric = "dubboProviderSlowQuery";
     private static final String db_slow_query_metric = "dbSlowQuery";
@@ -77,7 +77,7 @@ public class AlarmService {
 
 
     /**
-     * 可用率指标
+     * Availability ratio metric
      */
     //http
     private static final String http_avalible_success_metric = "aopSuccessMethodCount";
@@ -104,7 +104,7 @@ public class AlarmService {
 
 
     /**
-     * 可用率默认计算时间区间 30s
+     * Availability ratio default calculate time duration: 30s
      */
     private static final String avalible_duration_time = "30s";
 
@@ -482,35 +482,35 @@ public class AlarmService {
                 }
 
                 /**
-                 * rpc系错误数报警
+                 * rpc series error alarm
                  */
                 if(rule.getAlert().endsWith("_error_times")){
                     return getPresetMetricErrorAlarm(presetMetric.getErrorMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,scrapeIntervel,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系可用率报警
+                 * rpc series availability alarm
                  */
                 if(rule.getAlert().endsWith("_availability")){
                     return getAvailableRate(presetMetric.getErrorMetric(),presetMetric.getTotalMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,avalible_duration_time,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系qps
+                 * rpc series qps alarm
                  */
                 if(rule.getAlert().endsWith("_qps")){
                     return getPresetMetricQpsAlarm(presetMetric.getTotalMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix, scrapeIntervel, null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系慢查询
+                 * rpc series slow query
                  */
                 if(rule.getAlert().endsWith("_slow_times")){
                     return getPresetMetricErrorAlarm(presetMetric.getSlowQueryMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,scrapeIntervel,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系耗时
+                 * rpc series time cost
                  */
                 if(rule.getAlert().endsWith("_time_cost")){
                     return getPresetMetricCostAlarm(presetMetric.getTimeCostMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels, scrapeIntervel,null, rule.getOp(),rule.getValue());
@@ -1580,7 +1580,7 @@ public class AlarmService {
     }
 
     /**
-     * 容器CPU使用率(最近1分钟)
+     * container CPU usage (latest 1 min)
      * @param projectId
      * @param projectName
      * @param op
@@ -1625,7 +1625,7 @@ public class AlarmService {
             exprBuilder.append("name!~'k8s.*',");
         }
 
-        //mimonitor视为全局配置
+        //if app name is mimonitor, this is a global config
         if(!projectName.equals("mimonitor")){
             exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("',");
         }
@@ -1711,7 +1711,6 @@ public class AlarmService {
             exprBuilder.append("container_label_PROJECT_ID!='',name !~'k8s.*',");
         }
 
-        //mimonitor视为全局配置
         if(!projectName.equals("mimonitor")){
             exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("',");
         }
@@ -1754,7 +1753,6 @@ public class AlarmService {
             exprBuilder.append(labelProperties).append(",");
         }
 
-        //k8s标识
         exprBuilder.append("name=~'").append("k8s.*").append("',");
         exprBuilder.append("application='").append(projectId).append("_").append(projectName).append("'");
 
@@ -1774,7 +1772,6 @@ public class AlarmService {
 
         exprBuilder.append("container_spec_cpu_period{");
         exprBuilder.append("system='mione',");
-        //k8s标识
         exprBuilder.append("name=~'").append("k8s.*").append("',");
         exprBuilder.append("application='").append(projectId).append("_").append(projectName).append("'");
         exprBuilder.append("}");
@@ -2144,7 +2141,6 @@ public class AlarmService {
 
     private String getLabelProperties(Map includeLabels,Map exceptLabels){
         StringBuilder labels = new StringBuilder();
-        //包含标签拼接
         if (!CollectionUtils.isEmpty(includeLabels)) {
 
             Set<Map.Entry<String, String>> set = includeLabels.entrySet();
@@ -2254,11 +2250,9 @@ public class AlarmService {
         labels.addProperty("app_iam_id",String.valueOf(rule.getIamId()));
         labels.addProperty("project_id",String.valueOf(rule.getProjectId()));
         labels.addProperty("project_name",app.getProjectName());
-        //报警key
         if (StringUtils.isNotBlank(rule.getAlert())) {
             labels.addProperty("alert_key",rule.getAlert());
         }
-        //报警操作
         if (StringUtils.isNotBlank(rule.getOp())) {
             labels.addProperty("alert_op",rule.getOp());
         }
@@ -2292,7 +2286,6 @@ public class AlarmService {
         }else if (rule.getValue() != null) {
             labels.addProperty("alert_value",rule.getValue().toString());
         }
-        // 数据次数
         // labels.addProperty("data_count",rule.getDataCount().toString());
         if (metrics != null) {
             labels.addProperty("calert",metrics.getMessage());
@@ -2302,20 +2295,20 @@ public class AlarmService {
         }
         ReqErrorMetricsPOJO errMetrics = reqErrorMetricsService.getErrorMetricsByMetrics(rule.getAlert());
         if (errMetrics != null) {
-            //错误指标标记
+            //error metric flag
             labels.addProperty("metrics_flag","1");
             labels.addProperty("metrics",errMetrics.getCode());
         }
         ReqSlowMetricsPOJO slowMetrics = reqSlowMetricsService.getSlowMetricsByMetric(rule.getAlert());
         if (slowMetrics != null) {
-            //慢指标标记
+            //slow query metric flag
             labels.addProperty("metrics_flag","2");
             labels.addProperty("metrics",slowMetrics.getCode());
         }
 
         ResourceUsageMetrics errorMetricsByMetrics = ResourceUsageMetrics.getErrorMetricsByMetrics(rule.getAlert());
         if (errorMetricsByMetrics != null) {
-            //资源利用率标记
+            //resource usage flag
             labels.addProperty("metrics_flag",errorMetricsByMetrics.getMetricsFlag());
             labels.addProperty("metrics",errorMetricsByMetrics.getCode());
         }
@@ -2372,7 +2365,7 @@ public class AlarmService {
     public Result editRule(AppAlarmRule rule,AlarmRuleData ruleData,AppMonitor app,String user){
 
         /**
-         * 接口可修改项：
+         * modifiable field：
          * cname
          * expr
          * for
@@ -2451,16 +2444,13 @@ public class AlarmService {
         labels.addProperty("app_iam_id",String.valueOf(rule.getIamId()));
         labels.addProperty("project_id",String.valueOf(rule.getProjectId()));
         labels.addProperty("project_name",app.getProjectName());
-        //报警key
         if (StringUtils.isNotBlank(rule.getAlert())) {
             labels.addProperty("alert_key",rule.getAlert());
         }
-        //报警操作
         if (StringUtils.isNotBlank(rule.getOp())) {
             labels.addProperty("alert_op",rule.getOp());
         }
 
-        //报警阈值
         if(rule.getMetricType() == AlarmRuleMetricType.customer_promql.getCode()){
 
             String ruleExpr = ruleData.getExpr();
@@ -2496,20 +2486,20 @@ public class AlarmService {
 
         ReqErrorMetricsPOJO errMetrics = reqErrorMetricsService.getErrorMetricsByMetrics(rule.getAlert());
         if (errMetrics != null) {
-            //错误指标标记
+            //error metric flag
             labels.addProperty("metrics_flag","1");
             labels.addProperty("metrics",errMetrics.getCode());
         }
         ReqSlowMetricsPOJO slowMetrics = reqSlowMetricsService.getSlowMetricsByMetric(rule.getAlert());
         if (slowMetrics != null) {
-            //慢指标标记
+            //slow query metric flag
             labels.addProperty("metrics_flag","2");
             labels.addProperty("metrics",slowMetrics.getCode());
         }
 
         ResourceUsageMetrics errorMetricsByMetrics = ResourceUsageMetrics.getErrorMetricsByMetrics(rule.getAlert());
         if (errorMetricsByMetrics != null) {
-            //资源利用率标记
+            //resource usage flag
             labels.addProperty("metrics_flag",errorMetricsByMetrics.getMetricsFlag());
             labels.addProperty("metrics",errorMetricsByMetrics.getCode());
         }
@@ -2653,19 +2643,6 @@ public class AlarmService {
         return alertServiceAdapt.searchAlarmGroup(alarmGroup,String.valueOf(iamId),user);
     }
 
-    /**
-     *
-     * @param name oncall报警组名称
-     * @param note oncall 组简介
-     * @param manager 值班经理
-     * @param oncallUser oncall 成员
-     * @param service oncall 服务
-     * @param iamId
-     * @param user
-     * @param page_no 页码
-     * @param page_size 每页条数
-     * @return
-     */
     public Result<PageData> searchAlertTeam(String name,String note,String manager,String oncallUser,String service,Integer iamId,String user,Integer page_no,Integer page_size){
         return alertServiceAdapt.searchAlertTeam(name,note,manager,oncallUser,service,iamId,user,page_no,page_size);
     }

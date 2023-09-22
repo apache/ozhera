@@ -52,7 +52,7 @@ public class AlarmService {
      * Business exception metric
      */
     private static final String http_error_metric = "httpError";
-    private static final String http_client_error_metric = "httpClientError";//http client 错误数
+    private static final String http_client_error_metric = "httpClientError";//http client error metric
     private static final String db_error_metric = "dbError";
     private static final String oracle_error_metric = "oracleError";
     private static final String dubbo_consumer_error_metric = "dubboConsumerError";

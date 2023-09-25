@@ -7,11 +7,10 @@ import java.util.List;
 
 /**
  * @author gaoxihui
- * @date 2021/8/26 8:51 下午
- * Instantaneous vector query data model with only one value
+ * @date 2021/8/16 11:53 上午
  */
 @Data
-public class MetricDataSetVector implements Serializable {
+public class MetricStandardDataSet implements Serializable {
     private Metric metric;
-    private List<String> value;
+    private List<List<Double>> values;
 }

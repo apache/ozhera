@@ -37,7 +37,7 @@ public class AlarmStrategyController {
     UserConfigService userConfigService;
 
     /**
-     * 策略类型列表查询
+     * Query the policy type list
      * @param request
      * @param param
      * @return
@@ -94,7 +94,7 @@ public class AlarmStrategyController {
                 param.setIds(Lists.newArrayList());
             }
 
-            //兼容单条删除的旧逻辑
+            //Compatible with a single deleted piece of old logic
             if(param.getId() != null){
                 if(!param.getIds().contains(param.getId())){
                     param.getIds().add(param.getId());

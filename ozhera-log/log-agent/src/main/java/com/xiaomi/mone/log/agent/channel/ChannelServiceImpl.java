@@ -39,9 +39,7 @@ import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.PathUtils;
 import com.xiaomi.mone.log.utils.NetUtil;
 import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.anno.Lookup;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -495,7 +493,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
         ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
         ILogFile logFile = channelEngine.logFile();
-        logFile.initLogFile(filePath,listener,pointer,lineNumber);
+        logFile.initLogFile(filePath, listener, pointer, lineNumber);
         return logFile;
     }
 

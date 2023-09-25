@@ -37,7 +37,7 @@ public class AbstractElementAdapter implements
 
     private static final String KEY_TYPE = "type";
 
-    private Map<String, String> typeToClassMap = new HashMap<>();
+    private Map<String, String> typeToClassMap;
 
     public AbstractElementAdapter() {
         this.typeToClassMap = loadTypeToClassMappingFromConfig();
@@ -52,7 +52,7 @@ public class AbstractElementAdapter implements
         JsonObject jsonObj = jsonElement.getAsJsonObject();
         String implType = jsonObj.get(KEY_TYPE).getAsString();
 
-        // 获取对应的类对象
+        // Get the corresponding class object
         Class<?> clz = getClassForImplType(implType);
 
         return jsonDeserializationContext.deserialize(jsonElement, clz);
@@ -91,15 +91,6 @@ public class AbstractElementAdapter implements
         }
 
         return typeToClassMap;
-    }
-
-
-    public Class getClassForName() {
-        try {
-            return Class.forName("com.xiaomi.mone.log.agent.output.TalosOutput");
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     @Override

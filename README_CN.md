@@ -45,9 +45,20 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 
 ---
 
-## User List
+### 贡献
+欢迎贡献者加入ozhera项目。请查看 [CONTRIBUTING_CN.md](readme%2Fcontributing%2FCONTRIBUTING_CN.md) 以了解如何为该项目做出贡献.
 
-If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.
+我该如何贡献？
+- 请查看带有标签 [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) 或 [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted)的问题.
+- 回答 [issues](https://github.com/XiaoMi/ozhera/issues)上的问题.
+- 修复 [issues](https://github.com/XiaoMi/ozhera/issues)上报告的错误,并向我们发送一个拉取请求.
+- 审查现有的 [pull request](https://github.com/XiaoMi/ozhera/pulls).
+
+---
+
+## 用户列表
+
+如果您正在使用 OzHera 并认为它对您有所帮助，或者想要为我们贡献代码，请将您的公司添加到用户列表中，以便让我们了解您的需求
 
 |![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
 | :---: | :---: | :---: | :---: |

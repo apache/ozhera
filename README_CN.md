@@ -30,6 +30,12 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 ---
 
 ## Getting Started
+### 在线体验
++ [https://ozhera.demo.yling.top](https://ozhera.demo.yling.top/)
++ username: ozhera@ozhera.com
++ password: 123456
+
+
 ### 部署
 [operator使用文档.md](readme%2Fdeploy%2Fozhera-deploy-document_cn.md)
 

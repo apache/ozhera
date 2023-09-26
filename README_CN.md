@@ -52,7 +52,7 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 ---
 
 ### 贡献
-欢迎贡献者加入ozhera项目。请查看 [CONTRIBUTING_CN.md](readme%2Fcontributing%2FCONTRIBUTING_CN.md) 以了解如何为该项目做出贡献.
+欢迎贡献者加入ozhera项目。请查看 [contributing_cn.md](readme%2Fcontributing%2Fcontributing_cn.md) 以了解如何为该项目做出贡献.
 
 我该如何贡献？
 - 请查看带有标签 [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) 或 [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted)的问题.

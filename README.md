@@ -46,7 +46,7 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 ---
 
 ### Contributing
-Contributors are welcomed to join Nacos project. Please check [CONTRIBUTING.md](readme%2Fcontributing%2FCONTRIBUTING_CN.md) about how to contribute to this project.
+Contributors are welcomed to join Nacos project. Please check [CONTRIBUTING.md](readme%2Fcontributing%2FCONTRIBUTING.md) about how to contribute to this project.
 
 How can I contribute?
 - Take a look at issues with tags marked [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted).

@@ -61,7 +61,9 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Argument(0) Protocol.Command command,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
+      startTime = System.currentTimeMillis();
       if(RedisCommandUtil.REDIS_EXCLUDE_COMMAND.contains(command.name())){
         return;
       }
@@ -81,14 +83,15 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Argument(0) Protocol.Command command,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
       if (scope == null) {
         return;
       }
 
       scope.close();
 
-      if (RedisCommandUtil.skipEnd(command.name(), throwable)) {
+      if (RedisCommandUtil.skipEnd(command.name(), throwable, startTime)) {
         return;
       }
       instrumenter().end(context, request, null, throwable);
@@ -105,7 +108,9 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Argument(1) byte[][] args,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
+      startTime = System.currentTimeMillis();
       if(RedisCommandUtil.REDIS_EXCLUDE_COMMAND.contains(command.name())){
         return;
       }
@@ -125,13 +130,14 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Argument(0) Protocol.Command command,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
       if (scope == null) {
         return;
       }
 
       scope.close();
-      if (RedisCommandUtil.skipEnd(command.name(), throwable)) {
+      if (RedisCommandUtil.skipEnd(command.name(), throwable, startTime)) {
         return;
       }
       instrumenter().end(context, request, null, throwable);

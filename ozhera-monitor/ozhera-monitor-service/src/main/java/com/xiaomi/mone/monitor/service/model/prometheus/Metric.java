@@ -3,6 +3,7 @@ package com.xiaomi.mone.monitor.service.model.prometheus;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author gaoxihui
@@ -60,6 +61,9 @@ public class Metric implements Serializable {
     private String clientProjectName;
     private String clientEnv;
     private String clientIp;
+
+    private String group;
+    private String url;
 
 
 }

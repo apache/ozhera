@@ -10,6 +10,8 @@ import com.google.gson.JsonObject;
 import com.xiaomi.mone.monitor.bo.*;
 import com.xiaomi.mone.monitor.dao.model.AppAlarmRule;
 import com.xiaomi.mone.monitor.dao.model.AppMonitor;
+import com.xiaomi.mone.monitor.enums.BasicAlarmLevel;
+import com.xiaomi.mone.monitor.enums.KeyCenterRequestType;
 import com.xiaomi.mone.monitor.pojo.AlarmPresetMetricsPOJO;
 import com.xiaomi.mone.monitor.pojo.ReqErrorMetricsPOJO;
 import com.xiaomi.mone.monitor.pojo.ReqSlowMetricsPOJO;
@@ -34,14 +36,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author gaoxihui
@@ -52,10 +49,10 @@ import java.util.stream.Collectors;
 public class AlarmService {
 
     /**
-     * 业务异常指标
+     * Business exception metric
      */
     private static final String http_error_metric = "httpError";
-    private static final String http_client_error_metric = "httpClientError";//http client 错误数
+    private static final String http_client_error_metric = "httpClientError";//http client error metric
     private static final String db_error_metric = "dbError";
     private static final String oracle_error_metric = "oracleError";
     private static final String dubbo_consumer_error_metric = "dubboConsumerError";
@@ -66,10 +63,10 @@ public class AlarmService {
     private static final String hbase_error_metric = "hbaseClientError";
 
     /**
-     * 业务慢查询指标
+     * Business slow query metric
      */
     private static final String http_slow_query_metric = "httpSlowQuery";
-    private static final String http_client_slow_query_metric = "httpClientSlowQuery";//http client 慢查询
+    private static final String http_client_slow_query_metric = "httpClientSlowQuery";//http client slow query
     private static final String dubbo_consumer_slow_query_metric = "dubboConsumerSlowQuery";
     private static final String dubbo_provider_slow_query_metric = "dubboProviderSlowQuery";
     private static final String db_slow_query_metric = "dbSlowQuery";
@@ -80,7 +77,7 @@ public class AlarmService {
 
 
     /**
-     * 可用率指标
+     * Availability ratio metric
      */
     //http
     private static final String http_avalible_success_metric = "aopSuccessMethodCount";
@@ -107,7 +104,7 @@ public class AlarmService {
 
 
     /**
-     * 可用率默认计算时间区间 30s
+     * Availability ratio default calculate time duration: 30s
      */
     private static final String avalible_duration_time = "30s";
 
@@ -363,6 +360,110 @@ public class AlarmService {
                 return getJvmGcCostExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),true,ruleData);
             case "jvm_full_gc_times":
                 return getJvmGcCountExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),true,ruleData);
+
+            //cpu usage
+            case "container_cpu_use_rate_new":
+                return getCpuUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_cpu_use_rate":
+                return getCpuUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+            case "cluster_cpu_use_rate":
+                return getCpuUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.cluster);
+
+            //cpu average load
+            case "container_cpu_average_load_new":
+                return getCpuLoadAverageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_cpu_average_load":
+                return getCpuLoadAverageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+            case "cluster_cpu_average_load":
+                return getCpuLoadAverageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.cluster);
+
+            //mem usage
+            case "container_mem_use_rate_new":
+                return getMemUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_mem_use_rate":
+                return getMemUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+            case "cluster_mem_use_rate":
+                return getMemUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.cluster);
+
+            //disk has used
+            case "container_disk_has_used":
+                return getDiskHasUsedAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_disk_has_used":
+                return getDiskHasUsedAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //disk usage
+            case "instance_disk_use_rate":
+                return getDiskUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+            //log disk usage
+            case "instance_log_dir_usage":
+                return getLogDirDiskUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData);
+
+            //disk write
+            case "container_disk_write_5m":
+                return getDiskWriteAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_disk_write_5m":
+                return getDiskWriteAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //disk read
+            case "container_disk_read_5m":
+                return getDiskReadAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_disk_read_5m":
+                return getDiskReadAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //net work transmit
+            case "instance_network_transmit_5m":
+                return getNetworkTransmitAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.cluster);
+            case "cluster_network_transmit_5m":
+                return getNetworkTransmitAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //net work receive
+            case "cluster_network_receive_5m":
+                return getNetworkReceiveAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.cluster);
+            case "instance_network_receive_5m":
+                return getNetworkReceiveAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //container restart
+            case "container_restart_5m":
+                return getContainerRestartAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_restart_5m":
+                return getContainerRestartAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //container process num
+            case "container_process_num":
+                return getProcessNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_process_num":
+                return getProcessNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //container  process num
+            case "container_thread_num":
+                return getThreadsNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_thread_num":
+                return getThreadsNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //container  process num
+            case "container_socket_num":
+                return getSocketNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.container);
+            case "instance_socket_num":
+                return getSocketNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,BasicAlarmLevel.instance);
+
+            //container  key center request
+            case "thrift_request_kc_agent_fail_num":
+                return getKeyCenterRequestAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,KeyCenterRequestType.thrift);
+            case "http_request_kc_agent_fail_num":
+                return getKeyCenterRequestAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData,KeyCenterRequestType.http);
+
+            case "instance_tpc_listen_drops_num":
+                return getTpcNumAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData);
+
+            case "instance_file_descriptor_num":
+                return getFileDescriptorsAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData);
+
+            case "cluster_instance_exception_num":
+                return getDeployUnitExceptionInstanceAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData);
+
+            case "cluster_instance_valid_rate":
+                return getDeployUnitInstanceUsageAlarmExpr(rule.getProjectId(),app.getProjectName(), rule.getOp(), rule.getValue(),ruleData);
+
             default:
 
                 if (rule.getAlert().endsWith("_tesla_availability")) {
@@ -381,35 +482,35 @@ public class AlarmService {
                 }
 
                 /**
-                 * rpc系错误数报警
+                 * rpc series error alarm
                  */
                 if(rule.getAlert().endsWith("_error_times")){
                     return getPresetMetricErrorAlarm(presetMetric.getErrorMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,scrapeIntervel,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系可用率报警
+                 * rpc series availability alarm
                  */
                 if(rule.getAlert().endsWith("_availability")){
                     return getAvailableRate(presetMetric.getErrorMetric(),presetMetric.getTotalMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,avalible_duration_time,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系qps
+                 * rpc series qps alarm
                  */
                 if(rule.getAlert().endsWith("_qps")){
                     return getPresetMetricQpsAlarm(presetMetric.getTotalMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix, scrapeIntervel, null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系慢查询
+                 * rpc series slow query
                  */
                 if(rule.getAlert().endsWith("_slow_times")){
                     return getPresetMetricErrorAlarm(presetMetric.getSlowQueryMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels,metric_total_suffix,scrapeIntervel,null,rule.getOp(),rule.getValue());
                 }
 
                 /**
-                 * rpc系耗时
+                 * rpc series time cost
                  */
                 if(rule.getAlert().endsWith("_time_cost")){
                     return getPresetMetricCostAlarm(presetMetric.getTimeCostMetric(),rule.getProjectId(),app.getProjectName(),includLabels,exceptLabels, scrapeIntervel,null, rule.getOp(),rule.getValue());
@@ -619,6 +720,837 @@ public class AlarmService {
         return expBuilder.toString();
     }
 
+    /**
+     * basic alarm -cpu usage alarm
+     * @param projectId
+     * @param projectName
+     * @param op
+     * @param value
+     * @param ruleData
+     * @param alarmLevel
+     * @return
+     */
+    public String getCpuUsageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getCpuUsageAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+        StringBuilder metric_quota_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+            case cluster :
+                sumBy = "sum by(application, serverZone, serverEnv, deploy_space, cluster, system)";
+                metric_usage_builder.append("container_cpu_usage_seconds_total{container!='', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_cpu_quota{container!='', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+
+            case container:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, container, id, system, ip)";
+                metric_usage_builder.append("container_cpu_usage_seconds_total{container!='', pod!='POD', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_cpu_quota{container!='', pod!='POD', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, system)";
+                metric_usage_builder.append("container_cpu_usage_seconds_total{container!='', pod!='', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_cpu_quota{container!='', pod!='', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append("(").append(sumBy).append(" ").append(" (irate(").append(metric_usage_builder.toString()).append("[5m])))");
+        exprBuilder.append("/");
+        exprBuilder.append("(").append(sumBy).append(" ").append("(").append(metric_quota_builder.toString()).append(") / 100000").append(")");
+        exprBuilder.append(" * 100 ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getCpuUsageAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getCpuLoadAverageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getCpuLoadAverageAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = "";
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case cluster :
+                sumBy = "sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ";
+                metric_usage_builder.append("(container_cpu_load_average_10s{application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("})");
+                break;
+
+            case container:
+                metric_usage_builder.append("avg_over_time(container_cpu_load_average_10s{image!='',application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[1m])");
+                break;
+
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+
+                metric_usage_builder.append("(container_cpu_load_average_10s{pod!='',application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("})");
+                break;
+
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy);
+        exprBuilder.append(metric_usage_builder.toString());
+        exprBuilder.append("/");
+        exprBuilder.append("1000");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getCpuLoadAverageAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    /**
+     *
+     * @param projectId
+     * @param projectName
+     * @param op
+     * @param value
+     * @param ruleData
+     * @param alarmLevel
+     * @return
+     */
+    public String getMemUsageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getMemUsageAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+        StringBuilder metric_quota_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+            case cluster :
+                sumBy = "sum by(application, serverZone, serverEnv, deploy_space, cluster,system)";
+                metric_usage_builder.append("container_memory_rss{container!='', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_memory_limit_bytes{container='', application='").append(projectSign).append("'");
+
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+            case container:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, container, id,system, ip) ";
+                metric_usage_builder.append("container_memory_rss{container!='',container!='POD', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_memory_limit_bytes{container!='', pod!='POD', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system)";
+                metric_usage_builder.append("container_memory_rss{container!='', pod!='', application='").append(projectSign).append("'");
+                metric_quota_builder.append("container_spec_memory_limit_bytes{container!='', pod!='', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                    metric_quota_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                metric_quota_builder.append("}");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(" (").append(metric_usage_builder.toString()).append(")");
+        exprBuilder.append("/");
+        exprBuilder.append(sumBy).append(" (").append(metric_quota_builder.toString()).append(")");
+        exprBuilder.append(" * 100 ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getMemUsageAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDiskHasUsedAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getDiskHasUsedAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, container, id,system) ";
+                metric_usage_builder.append("container_fs_usage_bytes{container!='',container!='POD', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("container_fs_usage_bytes{pod!='', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(" (").append(metric_usage_builder.toString()).append(")");
+        exprBuilder.append("/");
+        exprBuilder.append("1024 * 1024 * 1024 ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDiskHasUsedAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDiskUsageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getDiskUsageAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("container_fs_usage_bytes{pod!='', application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(" (").append(metric_usage_builder.toString()).append(")");
+        exprBuilder.append("/");
+        exprBuilder.append("(10 * 1024 * 1024 * 1024) * 100");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDiskUsageAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getLogDirDiskUsageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData){
+
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        sumBy = "sum by(application, serverZone, serverEnv, pod,device,system) ";
+        metric_usage_builder.append("(kube_pod_log_dir_file_usage{pod!='',application='").append(projectSign).append("'");
+        if (StringUtils.isNotBlank(labelProperties)) {
+            metric_usage_builder.append(",").append(labelProperties);
+        }
+        metric_usage_builder.append("})");
+
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(" (").append(metric_usage_builder.toString()).append(")");
+        exprBuilder.append("/");
+        exprBuilder.append("(100 * 1024 * 1024) * 100");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getLogDirDiskUsageAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDiskWriteAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getDiskWriteAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, container, id,system) ";
+                metric_usage_builder.append("(irate(container_fs_write_seconds_total{container!=\"\",container!=\"POD\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("(irate(container_fs_write_seconds_total{pod!=\"\", application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(metric_usage_builder.toString());
+        exprBuilder.append("/");
+        exprBuilder.append("(1024 * 1024 * 1024) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDiskWriteAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDiskReadAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getDiskReadAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy = "sum by(application, serverZone, serverEnv, pod, container, id,system) ";
+                metric_usage_builder.append("(irate(container_fs_read_seconds_total{container!=\"\",container!=\"POD\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("(irate(container_fs_read_seconds_total{pod!=\"\", application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(metric_usage_builder.toString());
+        exprBuilder.append("/");
+        exprBuilder.append("(1024 * 1024 * 1024) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDiskReadAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getNetworkTransmitAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getNetworkTransmitAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case cluster:
+                sumBy = "sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ";
+                metric_usage_builder.append("(irate(container_network_transmit_bytes_total{application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("(irate(container_network_transmit_bytes_total{pod!=\"\", application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(metric_usage_builder.toString());
+        exprBuilder.append("/");
+        exprBuilder.append("(1024 * 1024 * 1024) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getNetworkTransmitAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getNetworkReceiveAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getNetworkReceiveAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy = null;
+        StringBuilder metric_usage_builder = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case cluster:
+                sumBy = "sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ";
+                metric_usage_builder.append("(irate(container_network_receive_bytes_total{application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            case instance:
+                sumBy = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder.append("(irate(container_network_receive_bytes_total{pod!=\"\", application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder.append(",").append(labelProperties);
+                }
+                metric_usage_builder.append("}[5m]))");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy).append(metric_usage_builder.toString());
+        exprBuilder.append("/");
+        exprBuilder.append("(1024 * 1024 * 1024) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getNetworkReceiveAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getContainerRestartAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getContainerRestartAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy1 = "";
+        String sumBy2 = "";
+        StringBuilder metric_usage_builder1 = new StringBuilder();
+        StringBuilder metric_usage_builder2 = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod, container, id,system) ";
+                sumBy2 = "sum by(application, serverZone, serverEnv, pod, container, id,system, ip) ";
+                metric_usage_builder1.append("(round(increase(kube_pod_container_status_restarts_total{instance!=\"\",container!=\"POD\",pod!=\"\",application='").append(projectSign).append("'");
+                metric_usage_builder2.append("(round(increase(kube_pod_container_restarts_record{instance!=\"\",container!=\"POD\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                    metric_usage_builder2.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("}[5m])))");
+                metric_usage_builder2.append("}[5m])))");
+                break;
+            case instance:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,container,system) ";
+                metric_usage_builder1.append("(round(increase(kube_pod_container_status_restarts_total{container=\"main\",instance!=\"\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("}[5m])))");
+                break;
+            default:
+                ;
+        }
+
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append("(");
+        exprBuilder.append(sumBy1).append(metric_usage_builder1.toString());
+        if(StringUtils.isNotBlank(sumBy2) && StringUtils.isNotBlank(metric_usage_builder2.toString())){
+            exprBuilder.append(" or ");
+            exprBuilder.append(sumBy2).append(metric_usage_builder2.toString());
+        }
+        exprBuilder.append(")");
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getContainerRestartAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getProcessNumAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getProcessNumAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy1 = "";
+        StringBuilder metric_usage_builder1 = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod, container, id,system) ";
+                metric_usage_builder1.append("(container_processes{container!=\"\",container!=\"POD\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            case instance:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,container,system) ";
+                metric_usage_builder1.append("(container_processes{container=\"main\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy1).append(metric_usage_builder1.toString());
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getProcessNumAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getThreadsNumAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getThreadsNumAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy1 = "";
+        StringBuilder metric_usage_builder1 = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder1.append("(container_threads{container!=\"\",container!=\"POD\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            case instance:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,container,system) ";
+                metric_usage_builder1.append("(container_threads{container=\"main\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy1).append(metric_usage_builder1.toString());
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getThreadsNumAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getSocketNumAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, BasicAlarmLevel alarmLevel){
+
+        if(alarmLevel == null || !BasicAlarmLevel.isValid(alarmLevel)){
+            log.error("getSocketNumAlarmExpr no valid alarmLevel assign! alarmLevel : {}",alarmLevel);
+            return null;
+        }
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String sumBy1 = "";
+        StringBuilder metric_usage_builder1 = new StringBuilder();
+
+        String labelProperties = getEnvLabelProperties(ruleData);
+
+        switch (alarmLevel){
+
+            case container:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,system) ";
+                metric_usage_builder1.append("(container_sockets{container!=\"\",container!=\"POD\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            case instance:
+                sumBy1 = "sum by(application, serverZone, serverEnv, pod,container,system) ";
+                metric_usage_builder1.append("(container_sockets{container=\"main\",pod!=\"\",application='").append(projectSign).append("'");
+                if (StringUtils.isNotBlank(labelProperties)) {
+                    metric_usage_builder1.append(",").append(labelProperties);
+                }
+                metric_usage_builder1.append("})");
+                break;
+            default:
+                ;
+        }
+
+        StringBuilder exprBuilder = new StringBuilder();
+        exprBuilder.append(sumBy1).append(metric_usage_builder1.toString());
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getSocketNumAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+
+    public String getKeyCenterRequestAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData, KeyCenterRequestType requestType){
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String labelProperties = getEnvLabelProperties(ruleData);
+        StringBuilder exprBuilder = new StringBuilder();
+
+        switch (requestType){
+
+            case thrift:
+                exprBuilder.append("sum by(application, serverZone, serverEnv, pod, container, id, system) ")
+                        .append("(increase(keycenter_thrift_request_count_total{code!=\"200\",pod!=\"\",application='").append(projectSign).append("'");
+                break;
+            case http:
+                exprBuilder.append("sum by(application, serverZone, serverEnv, pod, container, id, system) ")
+                        .append("(increase(keycenter_http_request_count_total{code!=\"200\",pod!=\"\",application='").append(projectSign).append("'");
+                break;
+            default:
+                ;
+        }
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}[1m])) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getKeyCenterRequestAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getTpcNumAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData){
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String labelProperties = getEnvLabelProperties(ruleData);
+        StringBuilder exprBuilder = new StringBuilder();
+
+        exprBuilder.append("sum by(application, serverZone, serverEnv, pod,system) ")
+                .append("(increase(container_network_advance_tcp_stats_total{container=\"POD\",pod!=\"\", tcp_state=\"listendrops\", application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}[5m])) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getTpcNumAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getFileDescriptorsAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData){
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String labelProperties = getEnvLabelProperties(ruleData);
+        StringBuilder exprBuilder = new StringBuilder();
+
+        exprBuilder.append("sum by(application, serverZone, serverEnv, pod,system) ")
+                .append("(container_file_descriptors{container!=\"\",pod!=\"\", application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}) ");
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getFileDescriptorsAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDeployUnitExceptionInstanceAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData){
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String labelProperties = getEnvLabelProperties(ruleData);
+        StringBuilder exprBuilder = new StringBuilder();
+
+        exprBuilder.append("sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ")
+                .append("(kruise_cloneset_spec_replicas{application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}) ");
+        exprBuilder.append(" - ");
+        exprBuilder.append("sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ")
+                .append("(kruise_cloneset_status_replicas_ready{application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}) ");
+
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDeployUnitExceptionInstanceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
+    public String getDeployUnitInstanceUsageAlarmExpr(Integer projectId, String projectName, String op, double value, AlarmRuleData ruleData){
+
+        String projectSign = new StringBuilder().append(projectId).append("_").append(projectName.replaceAll("-","_")).toString();
+        String labelProperties = getEnvLabelProperties(ruleData);
+        StringBuilder exprBuilder = new StringBuilder();
+
+        exprBuilder.append("sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ")
+                .append("(kruise_cloneset_status_replicas_ready{ application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}) ");
+        exprBuilder.append("/");
+        exprBuilder.append("sum by(application, serverZone, serverEnv, deploy_space, cluster,system) ")
+                .append("(kruise_cloneset_spec_replicas{application='").append(projectSign).append("'");
+
+        if (StringUtils.isNotBlank(labelProperties)) {
+            exprBuilder.append(",").append(labelProperties);
+        }
+        exprBuilder.append("}) * 100");
+
+
+        exprBuilder.append(op);
+        exprBuilder.append(value);
+
+        log.info("getDeployUnitExceptionInstanceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        return exprBuilder.toString();
+    }
+
     public String getContainerLoadAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
@@ -648,7 +1580,7 @@ public class AlarmService {
     }
 
     /**
-     * 容器CPU使用率(最近1分钟)
+     * container CPU usage (latest 1 min)
      * @param projectId
      * @param projectName
      * @param op
@@ -680,6 +1612,7 @@ public class AlarmService {
         log.info("getContainerCpuAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
         return exprBuilder.toString();
     }
+
     public String getContainerCpuResourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
@@ -692,7 +1625,7 @@ public class AlarmService {
             exprBuilder.append("name!~'k8s.*',");
         }
 
-        //mimonitor视为全局配置
+        //if app name is mimonitor, this is a global config
         if(!projectName.equals("mimonitor")){
             exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("',");
         }
@@ -778,7 +1711,6 @@ public class AlarmService {
             exprBuilder.append("container_label_PROJECT_ID!='',name !~'k8s.*',");
         }
 
-        //mimonitor视为全局配置
         if(!projectName.equals("mimonitor")){
             exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("',");
         }
@@ -821,7 +1753,6 @@ public class AlarmService {
             exprBuilder.append(labelProperties).append(",");
         }
 
-        //k8s标识
         exprBuilder.append("name=~'").append("k8s.*").append("',");
         exprBuilder.append("application='").append(projectId).append("_").append(projectName).append("'");
 
@@ -841,7 +1772,6 @@ public class AlarmService {
 
         exprBuilder.append("container_spec_cpu_period{");
         exprBuilder.append("system='mione',");
-        //k8s标识
         exprBuilder.append("name=~'").append("k8s.*").append("',");
         exprBuilder.append("application='").append(projectId).append("_").append(projectName).append("'");
         exprBuilder.append("}");
@@ -1211,7 +2141,6 @@ public class AlarmService {
 
     private String getLabelProperties(Map includeLabels,Map exceptLabels){
         StringBuilder labels = new StringBuilder();
-        //包含标签拼接
         if (!CollectionUtils.isEmpty(includeLabels)) {
 
             Set<Map.Entry<String, String>> set = includeLabels.entrySet();
@@ -1321,11 +2250,9 @@ public class AlarmService {
         labels.addProperty("app_iam_id",String.valueOf(rule.getIamId()));
         labels.addProperty("project_id",String.valueOf(rule.getProjectId()));
         labels.addProperty("project_name",app.getProjectName());
-        //报警key
         if (StringUtils.isNotBlank(rule.getAlert())) {
             labels.addProperty("alert_key",rule.getAlert());
         }
-        //报警操作
         if (StringUtils.isNotBlank(rule.getOp())) {
             labels.addProperty("alert_op",rule.getOp());
         }
@@ -1333,13 +2260,17 @@ public class AlarmService {
         if(rule.getMetricType() == AlarmRuleMetricType.customer_promql.getCode()){
 
             String ruleExpr = ruleData.getExpr();
-            int a = ruleExpr.lastIndexOf(">=") > 0 ? ruleExpr.lastIndexOf(">=") :
-                    ruleExpr.lastIndexOf("<=") > 0 ? ruleExpr.lastIndexOf("<=") :
-                    ruleExpr.lastIndexOf("!=") > 0 ? ruleExpr.lastIndexOf("!=") :
-                    ruleExpr.lastIndexOf(">") > 0 ? ruleExpr.lastIndexOf(">") :
-                    ruleExpr.lastIndexOf("<") > 0 ? ruleExpr.lastIndexOf("<") :
-                    ruleExpr.lastIndexOf("=") > 0 ? ruleExpr.lastIndexOf("=") :
-                    -1;
+            Set set = new HashSet();
+            set.add(ruleExpr.lastIndexOf(">="));
+            set.add(ruleExpr.lastIndexOf("<="));
+            set.add(ruleExpr.lastIndexOf("!="));
+            set.add(ruleExpr.lastIndexOf(">"));
+            set.add(ruleExpr.lastIndexOf("<"));
+            set.add(ruleExpr.lastIndexOf("="));
+
+            List<Integer> indexSet = (List) set.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+            int a = CollectionUtils.isEmpty(indexSet) ? -1 : indexSet.get(0);
             log.info("add customer_promql ruleExpr :{},a:{}",ruleExpr,a);
 
             String value = "0.0";
@@ -1355,7 +2286,6 @@ public class AlarmService {
         }else if (rule.getValue() != null) {
             labels.addProperty("alert_value",rule.getValue().toString());
         }
-        // 数据次数
         // labels.addProperty("data_count",rule.getDataCount().toString());
         if (metrics != null) {
             labels.addProperty("calert",metrics.getMessage());
@@ -1365,20 +2295,20 @@ public class AlarmService {
         }
         ReqErrorMetricsPOJO errMetrics = reqErrorMetricsService.getErrorMetricsByMetrics(rule.getAlert());
         if (errMetrics != null) {
-            //错误指标标记
+            //error metric flag
             labels.addProperty("metrics_flag","1");
             labels.addProperty("metrics",errMetrics.getCode());
         }
         ReqSlowMetricsPOJO slowMetrics = reqSlowMetricsService.getSlowMetricsByMetric(rule.getAlert());
         if (slowMetrics != null) {
-            //慢指标标记
+            //slow query metric flag
             labels.addProperty("metrics_flag","2");
             labels.addProperty("metrics",slowMetrics.getCode());
         }
 
         ResourceUsageMetrics errorMetricsByMetrics = ResourceUsageMetrics.getErrorMetricsByMetrics(rule.getAlert());
         if (errorMetricsByMetrics != null) {
-            //资源利用率标记
+            //resource usage flag
             labels.addProperty("metrics_flag",errorMetricsByMetrics.getMetricsFlag());
             labels.addProperty("metrics",errorMetricsByMetrics.getCode());
         }
@@ -1435,7 +2365,7 @@ public class AlarmService {
     public Result editRule(AppAlarmRule rule,AlarmRuleData ruleData,AppMonitor app,String user){
 
         /**
-         * 接口可修改项：
+         * modifiable field：
          * cname
          * expr
          * for
@@ -1514,16 +2444,13 @@ public class AlarmService {
         labels.addProperty("app_iam_id",String.valueOf(rule.getIamId()));
         labels.addProperty("project_id",String.valueOf(rule.getProjectId()));
         labels.addProperty("project_name",app.getProjectName());
-        //报警key
         if (StringUtils.isNotBlank(rule.getAlert())) {
             labels.addProperty("alert_key",rule.getAlert());
         }
-        //报警操作
         if (StringUtils.isNotBlank(rule.getOp())) {
             labels.addProperty("alert_op",rule.getOp());
         }
 
-        //报警阈值
         if(rule.getMetricType() == AlarmRuleMetricType.customer_promql.getCode()){
 
             String ruleExpr = ruleData.getExpr();
@@ -1559,20 +2486,20 @@ public class AlarmService {
 
         ReqErrorMetricsPOJO errMetrics = reqErrorMetricsService.getErrorMetricsByMetrics(rule.getAlert());
         if (errMetrics != null) {
-            //错误指标标记
+            //error metric flag
             labels.addProperty("metrics_flag","1");
             labels.addProperty("metrics",errMetrics.getCode());
         }
         ReqSlowMetricsPOJO slowMetrics = reqSlowMetricsService.getSlowMetricsByMetric(rule.getAlert());
         if (slowMetrics != null) {
-            //慢指标标记
+            //slow query metric flag
             labels.addProperty("metrics_flag","2");
             labels.addProperty("metrics",slowMetrics.getCode());
         }
 
         ResourceUsageMetrics errorMetricsByMetrics = ResourceUsageMetrics.getErrorMetricsByMetrics(rule.getAlert());
         if (errorMetricsByMetrics != null) {
-            //资源利用率标记
+            //resource usage flag
             labels.addProperty("metrics_flag",errorMetricsByMetrics.getMetricsFlag());
             labels.addProperty("metrics",errorMetricsByMetrics.getCode());
         }
@@ -1716,19 +2643,6 @@ public class AlarmService {
         return alertServiceAdapt.searchAlarmGroup(alarmGroup,String.valueOf(iamId),user);
     }
 
-    /**
-     *
-     * @param name oncall报警组名称
-     * @param note oncall 组简介
-     * @param manager 值班经理
-     * @param oncallUser oncall 成员
-     * @param service oncall 服务
-     * @param iamId
-     * @param user
-     * @param page_no 页码
-     * @param page_size 每页条数
-     * @return
-     */
     public Result<PageData> searchAlertTeam(String name,String note,String manager,String oncallUser,String service,Integer iamId,String user,Integer page_no,Integer page_size){
         return alertServiceAdapt.searchAlertTeam(name,note,manager,oncallUser,service,iamId,user,page_no,page_size);
     }
@@ -1745,7 +2659,7 @@ public class AlarmService {
         return alertServiceAdapt.getEventById(user,treeId,eventId);
     }
 
-     public Result<JsonObject> resolvedEvent(String user, Integer treeId, String alertName, String comment, Long startTime, Long endTime) {
+    public Result<JsonObject> resolvedEvent(String user, Integer treeId, String alertName, String comment, Long startTime, Long endTime) {
         return alertServiceAdapt.resolvedEvent(user,treeId,alertName,comment,startTime,endTime);
     }
 

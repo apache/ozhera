@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.agent.channel.comparator.OutputSimilarComparator;
-import com.xiaomi.mone.log.agent.output.RmqOutput;
+import com.xiaomi.mone.log.agent.extension.RmqOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

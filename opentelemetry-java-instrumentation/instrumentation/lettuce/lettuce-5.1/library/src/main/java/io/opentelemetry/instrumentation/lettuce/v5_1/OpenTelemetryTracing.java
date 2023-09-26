@@ -184,6 +184,8 @@ final class OpenTelemetryTracing implements Tracing {
     @Nullable
     private String intranetErrorMessage;
 
+    private long startTime;
+
     OpenTelemetrySpan(SpanBuilder spanBuilder) {
       this.spanBuilder = spanBuilder;
     }
@@ -252,6 +254,7 @@ final class OpenTelemetryTracing implements Tracing {
     // Not called by Lettuce in 6.0+ (though we call it ourselves above).
     @Override
     public synchronized Tracer.Span start() {
+      startTime = System.currentTimeMillis();
       span = spanBuilder.startSpan();
       if (name != null) {
         span.updateName(name);
@@ -333,7 +336,7 @@ final class OpenTelemetryTracing implements Tracing {
 
     private void finish(Span span) {
       if (name != null) {
-        if (RedisCommandUtil.skipEnd(name, error)) {
+        if (RedisCommandUtil.skipEnd(name, error, startTime)) {
           return;
         }
         String statement = RedisCommandSanitizer.sanitize(name, splitArgs(args));

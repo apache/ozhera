@@ -17,6 +17,7 @@ import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireRe
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
 import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
+import com.xiaomi.youpin.prometheus.agent.service.alarmContact.DingAlertContact;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.FeishuAlertContact;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.MailAlertContact;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
@@ -44,6 +45,9 @@ public class RuleAlertService {
 
     @Autowired
     MailAlertContact mailAlertContact;
+
+    @Autowired
+    DingAlertContact dingAlertContact;
 
     @NacosValue(value = "${hera.alertmanager.url}", autoRefreshed = true)
     private String silenceUrl;
@@ -199,6 +203,9 @@ public class RuleAlertService {
                 break;
             case "mail":
                 mailAlertContact.Reach(fireResult);
+                break;
+            case "dingding":
+                dingAlertContact.Reach(fireResult);
                 break;
             default:
                 feishuAlertContact.Reach(fireResult);

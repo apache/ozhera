@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.data.push.rpc.RpcClient;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
+import com.xiaomi.mone.file.ILogFile;
 import com.xiaomi.mone.log.agent.channel.comparator.*;
 import com.xiaomi.mone.log.agent.channel.listener.DefaultFileMonitorListener;
 import com.xiaomi.mone.log.agent.channel.listener.FileMonitorListener;
@@ -42,6 +43,7 @@ import com.xiaomi.mone.log.api.model.vo.UpdateLogProcessCmd;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.utils.NetUtil;
 import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.anno.Lookup;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.config.Config;
 import lombok.Getter;
@@ -86,6 +88,11 @@ public class ChannelEngine {
 
     @Getter
     private volatile boolean initComplete;
+
+    @Lookup("$logFile")
+    public ILogFile logFile() {
+        return null;
+    }
 
     public void init() {
         List<Long> failedChannelId = Lists.newArrayList();

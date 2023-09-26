@@ -56,7 +56,9 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Argument(1) byte[][] args,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
+      startTime = System.currentTimeMillis();
       if(RedisCommandUtil.REDIS_EXCLUDE_COMMAND.contains(new String(command.getRaw(), StandardCharsets.UTF_8))){
         return;
       }
@@ -75,14 +77,15 @@ public class JedisConnectionInstrumentation implements TypeInstrumentation {
         @Advice.Thrown Throwable throwable,
         @Advice.Local("otelJedisRequest") JedisRequest request,
         @Advice.Local("otelContext") Context context,
-        @Advice.Local("otelScope") Scope scope) {
+        @Advice.Local("otelScope") Scope scope,
+        @Advice.Local("startTime") long startTime) {
       if (scope == null) {
         return;
       }
 
       scope.close();
       if(request != null){
-        if (RedisCommandUtil.skipEnd(new String(request.getCommand().getRaw(), StandardCharsets.UTF_8), throwable)) {
+        if (RedisCommandUtil.skipEnd(new String(request.getCommand().getRaw(), StandardCharsets.UTF_8), throwable, startTime)) {
           return;
         }
       }

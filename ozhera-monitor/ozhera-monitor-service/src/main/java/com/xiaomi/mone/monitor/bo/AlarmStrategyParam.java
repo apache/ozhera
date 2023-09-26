@@ -20,7 +20,7 @@ public class AlarmStrategyParam {
     private Integer strategyType;
     private String strategyName;
     private String desc;
-    private Integer status;//0可用，1禁用
+    private Integer status;//0 usable，1 forbidden
     private int page;
     private int pageSize;
     private String sortBy;

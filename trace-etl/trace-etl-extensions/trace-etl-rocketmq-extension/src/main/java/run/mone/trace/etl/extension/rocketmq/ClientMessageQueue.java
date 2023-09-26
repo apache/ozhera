@@ -1,9 +1,10 @@
-package com.xiaomi.hera.trace.etl.mq.rocketmq;
+package run.mone.trace.etl.extension.rocketmq;
 
 import com.xiaomi.hera.trace.etl.common.HashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
+import run.mone.trace.etl.extension.rocketmq.RocketMQExtension;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -23,13 +24,13 @@ public class ClientMessageQueue {
 
     private volatile int rocketMQQueueSize;
 
-    private RocketMqProducer producer;
+    private RocketMQExtension producer;
 
     private static final int CLIENT_QUEUE_SIZE = 2000;
 
     private final static int FETCH_ROCKETMQ_QUEUE_GAP = 10;
 
-    public ClientMessageQueue(RocketMqProducer producer) {
+    public ClientMessageQueue(RocketMQExtension producer) {
         this.producer = producer;
     }
 

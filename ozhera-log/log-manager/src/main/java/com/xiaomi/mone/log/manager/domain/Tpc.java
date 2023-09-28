@@ -205,7 +205,8 @@ public class Tpc {
         MoneUser currentUser = MoneUserContext.getCurrentUser();
         NodeQryParam param = new NodeQryParam();
         param.setPager(false);
-        param.setAccount(currentUser == null ? "wangtao29" : currentUser.getUser());
+        param.setAccount(currentUser == null ? "system" : currentUser.getUser());
+        param.setUserType(UserTypeEnum.CAS_TYPE.getCode());
         param.setType(NodeTypeEnum.PRO_SUB_GROUP.getCode());
         if (null != currentUser) {
             param.setUserType(currentUser.getUserType());

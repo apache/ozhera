@@ -31,6 +31,7 @@ import com.xiaomi.mone.log.agent.channel.locator.ChannelDefineLocator;
 import com.xiaomi.mone.log.agent.channel.locator.ChannelDefineRpcLocator;
 import com.xiaomi.mone.log.agent.channel.memory.AgentMemoryService;
 import com.xiaomi.mone.log.agent.channel.memory.AgentMemoryServiceImpl;
+import com.xiaomi.mone.log.agent.channel.wilcard.WildcardChannelServiceImpl;
 import com.xiaomi.mone.log.agent.common.ExecutorUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.agent.factory.OutPutServiceFactory;
@@ -60,6 +61,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
+import static com.xiaomi.mone.log.common.PathUtils.PATH_WILDCARD;
+import static com.xiaomi.mone.log.common.PathUtils.SEPARATOR;
 
 /**
  * @author shanwb
@@ -82,7 +85,7 @@ public class ChannelEngine {
      */
     private FileMonitorListener fileMonitorListener;
 
-    private static byte[] lock = new byte[0];
+    private String memoryBasePath;
 
     private Gson gson = GSON;
 
@@ -98,7 +101,7 @@ public class ChannelEngine {
         List<Long> failedChannelId = Lists.newArrayList();
         try {
             Config config = Ioc.ins().getBean(Config.class.getName());
-            String memoryBasePath = config.get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH);
+            memoryBasePath = config.get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH);
             //talosProducerMap = new ConcurrentHashMap<>(512);
 
             channelDefineLocator = getChannelDefineLocator(config);
@@ -259,7 +262,14 @@ public class ChannelEngine {
             if (null == agentMemoryService) {
                 agentMemoryService = new AgentMemoryServiceImpl(com.xiaomi.mone.log.common.Config.ins().get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH));
             }
-            ChannelService channelService = new ChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain);
+            ChannelService channelService;
+            Input input = channelDefine.getInput();
+            boolean matchWildcard = StringUtils.substringAfterLast(input.getLogPattern(), SEPARATOR).contains(PATH_WILDCARD);
+            if (matchWildcard) {
+                channelService = new WildcardChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain, memoryBasePath);
+            } else {
+                channelService = new ChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain);
+            }
             return channelService;
         } catch (Throwable e) {
             log.error("channelServiceTrans exception, channelDefine:{}, exception:{}", gson.toJson(channelDefine), e);

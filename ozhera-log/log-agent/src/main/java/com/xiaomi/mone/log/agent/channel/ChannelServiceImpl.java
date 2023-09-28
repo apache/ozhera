@@ -18,7 +18,6 @@ package com.xiaomi.mone.log.agent.channel;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Pair;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.mone.file.*;
@@ -185,7 +184,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
-            channelMemory = initChannelMemory(channelId, input, patterns);
+            channelMemory = initChannelMemory(channelId, input, patterns, channelDefine);
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
 
@@ -294,26 +293,6 @@ public class ChannelServiceImpl extends AbstractChannelService {
         monitorFileList.add(MonitorFile.of(configPath, cleanedPathList.get(0), logTypeEnum, collectOnce));
     }
 
-
-    private ChannelMemory initChannelMemory(Long channelId, Input input, List<String> patterns) {
-        channelMemory = new ChannelMemory();
-        channelMemory.setChannelId(channelId);
-        channelMemory.setInput(input);
-        HashMap<String, ChannelMemory.FileProgress> fileProgressMap = Maps.newHashMap();
-        for (String pattern : patterns) {
-            ChannelMemory.FileProgress fileProgress = new ChannelMemory.FileProgress();
-            fileProgress.setPointer(0L);
-            fileProgress.setCurrentRowNum(0L);
-            fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(pattern));
-            fileProgress.setPodType(channelDefine.getPodType());
-            fileProgressMap.put(pattern, fileProgress);
-        }
-        channelMemory.setFileProgressMap(fileProgressMap);
-        channelMemory.setCurrentTime(System.currentTimeMillis());
-        channelMemory.setVersion(ChannelMemory.DEFAULT_VERSION);
-        return channelMemory;
-    }
-
     private ReadListener initFileReadListener(MLog mLog, String patternCode, String ip, String pattern) {
         AtomicReference<ReadResult> readResult = new AtomicReference<>();
         ReadListener listener = new DefaultReadListener(event -> {
@@ -368,41 +347,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }), 30, 30, TimeUnit.SECONDS);
     }
 
-    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String localIp, long ct) {
-        LineMessage lineMessage = new LineMessage();
-        lineMessage.setMsgBody(lineMsg);
-        lineMessage.setPointer(readResult.get().getPointer());
-        lineMessage.setLineNumber(readResult.get().getLineNumber());
-        lineMessage.setFileName(pattern);
-        lineMessage.setProperties(LineMessage.KEY_MQ_TOPIC_TAG, patternCode);
-        lineMessage.setProperties(LineMessage.KEY_IP, localIp);
-        lineMessage.setProperties(LineMessage.KEY_COLLECT_TIMESTAMP, String.valueOf(ct));
-        String logType = channelDefine.getInput().getType();
-        LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
-        if (null != logTypeEnum) {
-            lineMessage.setProperties(LineMessage.KEY_MESSAGE_TYPE, logTypeEnum.getType().toString());
-        }
+    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String ip, long ct) {
+        LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ip, ct);
 
-        ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(pattern);
-        if (null == fileProgress) {
-            fileProgress = new ChannelMemory.FileProgress();
-            channelMemory.getFileProgressMap().put(pattern, fileProgress);
-            channelMemory.getInput().setLogPattern(logPattern);
-            channelMemory.getInput().setType(logTypeEnum.name());
-            channelMemory.getInput().setLogSplitExpress(logSplitExpress);
-        }
-        fileProgress.setCurrentRowNum(readResult.get().getLineNumber());
-        fileProgress.setPointer(readResult.get().getPointer());
-        if (null != readResult.get().getFileMaxPointer()) {
-            fileProgress.setFileMaxPointer(readResult.get().getFileMaxPointer());
-        }
-        fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(pattern));
-        fileProgress.setPodType(channelDefine.getPodType());
-        fileProgress.setCtTime(ct);
+        updateChannelMemory(channelMemory, pattern, logTypeEnum, ct, readResult);
         lineMessageList.add(lineMessage);
 
         fileReadMap.put(pattern, ct);
-
         int batchSize = msgExporter.batchExportSize();
         if (lineMessageList.size() > batchSize) {
             List<LineMessage> subList = lineMessageList.subList(0, batchSize);

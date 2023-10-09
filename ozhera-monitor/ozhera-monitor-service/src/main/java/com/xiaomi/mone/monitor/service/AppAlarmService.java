@@ -36,11 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -600,6 +596,9 @@ public class AppAlarmService {
             log.error("不存在 owner 为 user : {}， projectId={}的项目", user,ruleData.getProjectId());
             return Result.fail(ErrorCode.NoOperPermission);
         }
+
+        ruleData.setAlertMembers(StringUtils.isBlank(alarmStrategy.getAlertMembers()) ? null : Arrays.asList(alarmStrategy.getAlertMembers().split(",")));
+        ruleData.setAtMembers(StringUtils.isBlank(alarmStrategy.getAtMembers()) ? null : Arrays.asList(alarmStrategy.getAtMembers().split(",")));
 
         return editAlarmRule(ruleData,alarmStrategy,app,user);
 

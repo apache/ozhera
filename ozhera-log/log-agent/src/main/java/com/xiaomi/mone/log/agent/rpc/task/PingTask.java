@@ -17,6 +17,7 @@ package com.xiaomi.mone.log.agent.rpc.task;
 
 import com.xiaomi.data.push.rpc.RpcClient;
 import com.xiaomi.data.push.rpc.RpcCmd;
+import com.xiaomi.data.push.rpc.netty.ResponseFuture;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.data.push.task.Task;
 import com.xiaomi.mone.log.api.model.meta.AppLogMeta;
@@ -54,33 +55,31 @@ public class PingTask extends Task {
             try {
                 PingReq ping = new PingReq();
                 ping.setIp(IP);
-                if (!load.get()) {
-                    ping.setMessage("load");
-                } else {
-                    ping.setMessage("ping:" + System.currentTimeMillis());
-                }
+                String message = load.get() ? "ping:" + System.currentTimeMillis() : "load";
+                ping.setMessage(message);
+
                 RemotingCommand req = RemotingCommand.createRequestCommand(RpcCmd.pingReq);
                 req.setBody(GSON.toJson(ping).getBytes());
-
-                client.sendMessage(client.getServerAddrs(), req, responseFuture -> {
-                    if (null == responseFuture.getResponseCommand()) {
-                        return;
-                    }
-                    String body = new String(responseFuture.getResponseCommand().getBody());
-                    if (!load.get()) {
-                        AppLogMeta alm = GSON.fromJson(body, AppLogMeta.class);
-                        load.set(true);
-                        log.info("load config finish:{}", alm);
-                    }
-                    RpcClient.startLatch.countDown();
-                    log.info("ping res:{}", body);
-                });
-
+                for (String service : client.getServerList().get()) {
+                    client.sendMessage(service, req, PingTask::handleResponse);
+                }
+                RpcClient.startLatch.countDown();
             } catch (Exception ex) {
                 log.error("ping error:{}", ex.getMessage());
             }
         }, 10);
     }
 
-
+    private static void handleResponse(ResponseFuture responseFuture) {
+        if (responseFuture.getResponseCommand() == null) {
+            return;
+        }
+        String body = new String(responseFuture.getResponseCommand().getBody());
+        if (!load.get()) {
+            AppLogMeta alm = GSON.fromJson(body, AppLogMeta.class);
+            load.set(true);
+            log.info("load config finish: {}", alm);
+        }
+        log.info("ping res: {}", body);
+    }
 }

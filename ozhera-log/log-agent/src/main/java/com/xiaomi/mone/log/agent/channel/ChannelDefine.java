@@ -56,10 +56,6 @@ public class ChannelDefine implements Serializable {
      * filter and script configuration
      */
     private List<FilterConf> filters;
-    /**
-     * Only when the current machine is k8s and the log type is opentelemetry type log, it will take effect, and the pods alive on this machine.
-     */
-    private List<String> podNames;
 
     /**
      * Individual configuration data, default full configuration under this machine.

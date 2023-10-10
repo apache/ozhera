@@ -16,21 +16,16 @@
 package com.xiaomi.mone.log.agent.common;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.xiaomi.mone.log.agent.channel.memory.ChannelMemory;
-import com.xiaomi.mone.log.common.PathUtils;
-import com.xiaomi.mone.log.utils.NetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.*;
@@ -45,8 +40,6 @@ import static com.xiaomi.mone.log.common.PathUtils.SEPARATOR;
  */
 @Slf4j
 public class ChannelUtil {
-
-    private Gson gson = GSON;
 
     private ChannelUtil() {
 

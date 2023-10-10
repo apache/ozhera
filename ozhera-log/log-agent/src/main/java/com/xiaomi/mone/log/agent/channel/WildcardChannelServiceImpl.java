@@ -1,4 +1,4 @@
-package com.xiaomi.mone.log.agent.channel.wilcard;
+package com.xiaomi.mone.log.agent.channel;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -7,8 +7,6 @@ import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
 import com.xiaomi.mone.file.listener.DefaultMonitorListener;
 import com.xiaomi.mone.file.ozhera.HeraFileMonitor;
-import com.xiaomi.mone.log.agent.channel.AbstractChannelService;
-import com.xiaomi.mone.log.agent.channel.ChannelDefine;
 import com.xiaomi.mone.log.agent.channel.file.MonitorFile;
 import com.xiaomi.mone.log.agent.channel.memory.AgentMemoryService;
 import com.xiaomi.mone.log.agent.channel.memory.ChannelMemory;
@@ -30,6 +28,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,6 +72,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     private ScheduledFuture<?> scheduledFuture;
 
     private ScheduledFuture<?> lastFileLineScheduledFuture;
+
+    private Future<?> fileCollfuture;
 
     private long lastSendTime = System.currentTimeMillis();
 
@@ -123,23 +124,40 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
         // Set up file monitoring
         String filePathExpressName = input.getLogPattern();
-        String monitorPath = StringUtils.substringBeforeLast(filePathExpressName, SEPARATOR);
+
         HeraFileMonitor monitor = createFileMonitor(input.getPatternCode(), ip);
 
         // Compile the file expression pattern
         String fileExpress = ChannelUtil.buildSingleTimeExpress(filePathExpressName);
 
-        wildcardGraceShutdown(monitorPath, fileExpress);
+        String monitorPath = buildMonitorPath(filePathExpressName);
 
+        wildcardGraceShutdown(monitorPath, fileExpress);
+        log.info("fileExpress:{}", fileExpress);
         Pattern pattern = Pattern.compile(fileExpress);
 
-        // Register the monitor with the specified pattern
-        try {
-            monitor.reg(monitorPath, it -> pattern.matcher(it).matches());
-        } catch (IOException | InterruptedException e) {
-            log.error("startCollectFile error,channelId:{},input:{},ip:{}", channelId, GSON.toJson(input), ip, e);
-        }
+        String finalMonitorPath = monitorPath;
+        fileCollfuture = ExecutorUtil.submit(() -> {
+            try {
+                monitor.reg(finalMonitorPath, it -> {
+                    boolean matches = pattern.matcher(it).matches();
+                    log.info("file:{},matches:{}", it, matches);
+                    return matches;
+                });
+            } catch (IOException | InterruptedException e) {
+                log.error("startCollectFile error,channelId:{},input:{},ip:{}", channelId, GSON.toJson(input), ip, e);
+            }
+        });
     }
+
+    private String buildMonitorPath(String filePathExpressName) {
+        String monitorPath = StringUtils.substringBeforeLast(filePathExpressName, SEPARATOR);
+        if (!monitorPath.endsWith(SEPARATOR)) {
+            monitorPath = String.format("%s%s", monitorPath, SEPARATOR);
+        }
+        return monitorPath;
+    }
+
 
     private HeraFileMonitor createFileMonitor(String patternCode, String ip) {
         MLog mLog = new MLog();
@@ -230,7 +248,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
             log.info("doExport channelId:{}, send {} message, cost:{}, total send:{}, instanceId:{},", channelDefine.getChannelId(), subList.size(), lastSendTime - current, logCounts, instanceId());
         } catch (Exception e) {
-            log.error("doExport Exception:{}", e);
+            log.error("doExport Exception", e);
         } finally {
             subList.clear();
         }
@@ -332,6 +350,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         }
         if (null != lastFileLineScheduledFuture) {
             lastFileLineScheduledFuture.cancel(false);
+        }
+        if (null != fileCollfuture) {
+            fileCollfuture.cancel(false);
         }
         lineMessageList.clear();
     }

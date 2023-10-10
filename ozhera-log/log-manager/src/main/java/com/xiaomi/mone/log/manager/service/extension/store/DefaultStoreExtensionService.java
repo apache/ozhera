@@ -93,6 +93,18 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
                 cmd.setMqResourceId(milogMiddlewareConfig.getId());
             }
         }
+
+        //Custom resources operate
+        customResources(ml, cmd);
+    }
+
+    private void customResources(MilogLogStoreDO ml, LogStoreParam command) {
+        if (null != command.getMqResourceId()) {
+            ml.setMqResourceId(command.getMqResourceId());
+        }
+        if (null != command.getEsResourceId()) {
+            ml.setEsClusterId(command.getEsResourceId());
+        }
     }
 
     @Override

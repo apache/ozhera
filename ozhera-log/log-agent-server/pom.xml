@@ -39,7 +39,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>rpc</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>1.7-jdk20-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -120,6 +120,21 @@
         </resources>
 
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-modules=jdk.incubator.concurrent</arg>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                    <compilerVersion>20</compilerVersion>
+                    <source>20</source>
+                    <target>20</target>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

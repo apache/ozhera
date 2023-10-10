@@ -16,8 +16,6 @@
 package com.xiaomi.mone.log.api.enums;
 
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @author shanwb
  * @date 2021-07-08
@@ -85,6 +83,6 @@ public enum LogTypeEnum {
         if (null != logTypeEnum) {
             return logTypeEnum.getTypeName();
         }
-        return StringUtils.EMPTY;
+        return "";
     }
 }

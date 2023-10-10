@@ -31,7 +31,6 @@ import com.xiaomi.mone.log.agent.channel.locator.ChannelDefineLocator;
 import com.xiaomi.mone.log.agent.channel.locator.ChannelDefineRpcLocator;
 import com.xiaomi.mone.log.agent.channel.memory.AgentMemoryService;
 import com.xiaomi.mone.log.agent.channel.memory.AgentMemoryServiceImpl;
-import com.xiaomi.mone.log.agent.channel.wilcard.WildcardChannelServiceImpl;
 import com.xiaomi.mone.log.agent.common.ExecutorUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
 import com.xiaomi.mone.log.agent.factory.OutPutServiceFactory;
@@ -117,7 +116,7 @@ public class ChannelEngine {
                     failedChannelId.add(channelDefine.getChannelId());
                 }
                 return channelService;
-            }).filter(channelService -> null != channelService).collect(Collectors.toList());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
             // Delete failed channel
             deleteFailedChannel(failedChannelId, this.channelDefineList, this.channelServiceList);
             channelServiceList = new CopyOnWriteArrayList<>(channelServiceList);
@@ -205,16 +204,16 @@ public class ChannelEngine {
         List<Long> failedChannelIds = Lists.newArrayList();
         List<Long> successChannelIds = Lists.newArrayList();
         for (ChannelService channelService : channelServiceList) {
-            ChannelServiceImpl realChannelService = (ChannelServiceImpl) channelService;
-            log.info("realChannelService,id:{}", realChannelService.getChannelId());
+            AbstractChannelService abstractChannelService = (AbstractChannelService) channelService;
+            Long channelId = abstractChannelService.getChannelDefine().getChannelId();
+            log.info("realChannelService,id:{}", channelId);
             try {
                 channelService.start();
-                fileMonitorListener.addChannelService(realChannelService);
-                successChannelIds.add(realChannelService.getChannelId());
+                fileMonitorListener.addChannelService(channelService);
+                successChannelIds.add(channelId);
             } catch (RejectedExecutionException e) {
-                log.error("The thread pool is full.id:{}", realChannelService.getChannelId(), e);
+                log.error("The thread pool is full.id:{}", channelId, e);
             } catch (Exception e) {
-                Long channelId = ((ChannelServiceImpl) channelService).getChannelId();
                 failedChannelIds.add(channelId);
                 log.error("start channel exception,channelId:{}", channelId, e);
             }
@@ -228,7 +227,7 @@ public class ChannelEngine {
             //Processing is removed from the current queue
             for (Long delChannelId : failedChannelId) {
                 defineList.removeIf(channelDefine -> Objects.equals(delChannelId, channelDefine.getChannelId()));
-                serviceList.removeIf(channelService -> Objects.equals(delChannelId, ((ChannelServiceImpl) channelService).getChannelId()));
+                serviceList.removeIf(channelService -> Objects.equals(delChannelId, ((AbstractChannelService) channelService).getChannelDefine().getChannelId()));
             }
         }
     }
@@ -387,7 +386,7 @@ public class ChannelEngine {
                     FilterSimilarComparator filterSimilarComparator = new FilterSimilarComparator(oldChannelDefine.getFilters());
                     if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput())) {
                         if (!filterSimilarComparator.compare(newChannelDefine.getFilters())) {
-                            channelServiceList.stream().filter(channelService -> ((ChannelServiceImpl) channelService).getChannelId().equals(channelId)).findFirst().ifPresent(channelService -> channelService.filterRefresh(newChannelDefine.getFilters()));
+                            channelServiceList.stream().filter(channelService -> ((AbstractChannelService) channelService).getChannelDefine().getChannelId().equals(channelId)).findFirst().ifPresent(channelService -> channelService.filterRefresh(newChannelDefine.getFilters()));
                         }
                     } else {
                         log.info("config changed,old:{},new:{}", gson.toJson(oldChannelDefine), gson.toJson(newChannelDefine));
@@ -424,7 +423,7 @@ public class ChannelEngine {
                 List<Long> channelIdDels = channelDels.stream().map(ChannelDefine::getChannelId).collect(Collectors.toList());
                 List<ChannelService> tempChannelServiceList = Lists.newArrayList();
                 channelServiceList.forEach(channelService -> {
-                    Long channelId = ((ChannelServiceImpl) channelService).getChannelId();
+                    Long channelId = ((AbstractChannelService) channelService).getChannelDefine().getChannelId();
                     if (channelIdDels.contains(channelId)) {
                         log.info("[delete config]channelService:{}", channelId);
                         channelService.close();
@@ -535,7 +534,7 @@ public class ChannelEngine {
         deleteFailedChannel(failedChannelId, definesIncrement, channelServices);
         List<Long> successChannelIds = channelStart(channelServices);
         if (CollectionUtils.isNotEmpty(successChannelIds)) {
-            this.channelServiceList.addAll(channelServices.stream().filter(channelService -> successChannelIds.contains(((ChannelServiceImpl) channelService).getChannelId())).collect(Collectors.toList()));
+            this.channelServiceList.addAll(channelServices.stream().filter(channelService -> successChannelIds.contains(((AbstractChannelService) channelService).getChannelDefine().getChannelId())).collect(Collectors.toList()));
             this.channelDefineList.addAll(definesIncrement.stream().filter(channelDefine -> successChannelIds.contains(channelDefine.getChannelId())).collect(Collectors.toList()));
         }
         log.info("[add config] after current channelDefineList:{},channelServiceList:{}", gson.toJson(this.channelDefineList), gson.toJson(gson.toJson(channelServiceList.stream().map(ChannelService::instanceId).collect(Collectors.toList()))));
@@ -555,7 +554,7 @@ public class ChannelEngine {
         RpcClient rpcClient = Ioc.ins().getBean(RpcClient.class);
         RemotingCommand req = RemotingCommand.createRequestCommand(Constant.RPCCMD_AGENT_CODE);
         req.setBody(GSON.toJson(processCmd).getBytes());
-        rpcClient.sendMessage(req);
+        rpcClient.sendToAllMessage(req);
         log.debug("send collect progress,data:{}", gson.toJson(processCmd));
     }
 

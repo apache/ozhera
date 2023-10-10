@@ -44,13 +44,6 @@ public class LogCollectMeta implements Serializable {
     private List<AppLogMeta> appLogMetaList;
 
     private AgentDefine agentDefine;
-    /**
-     * If it is K8s, all pod collections of the current node,
-     * specifically used to process OpenTelemetry logs, due to configuration,
-     * will scan the log files of many pods that have ended,
-     * resulting in the problem that many threads cannot be put into tasks after the thread pool is full <p>
-     */
-    private List<String> podNames;
 
     /**
      * A single configuration data is configured by default to the full configuration of the machine

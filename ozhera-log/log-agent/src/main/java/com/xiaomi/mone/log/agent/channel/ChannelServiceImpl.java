@@ -410,35 +410,29 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
 
     private ILogFile getLogFile(String filePath, ReadListener listener, Map<String, ChannelMemory.FileProgress> fileProgressMap) {
-        long pointer = 0L;
-        long lineNumber = 0L;
-        ChannelMemory.FileProgress fileProgress = fileProgressMap.get(filePath);
-        if (fileProgress != null) {
-            if (null != fileProgress.getFinished() && fileProgress.getFinished()) {
-                /**
-                 * Stateful pods in k8s do not need to be judged by finished
-                 */
-                if (StringUtils.isNotBlank(channelDefine.getPodType())) {
-                    if (K8sPodTypeEnum.valueOf(channelDefine.getPodType().toUpperCase()) != K8sPodTypeEnum.STATEFUL) {
-                        return null;
-                    }
-                }
+
+        ChannelMemory.FileProgress progressInfo = fileProgressMap.get(filePath);
+
+        if (progressInfo == null || (progressInfo.getFinished() != null && progressInfo.getFinished())) {
+            // Stateful pods in k8s do not need to be judged by finished
+            if (StringUtils.isNotBlank(channelDefine.getPodType()) &&
+                    K8sPodTypeEnum.valueOf(channelDefine.getPodType().toUpperCase()) != K8sPodTypeEnum.STATEFUL) {
+                return null;
             }
-            pointer = fileProgress.getPointer();
-            lineNumber = fileProgress.getCurrentRowNum();
-            //Compare whether the inode value changes, and read from the beginning if the change
-            ChannelMemory.UnixFileNode memoryUnixFileNode = fileProgress.getUnixFileNode();
-            if (null != memoryUnixFileNode && null != memoryUnixFileNode.getSt_ino()) {
-                log.info("memory file inode info,filePath:{},:{}", filePath, gson.toJson(memoryUnixFileNode));
-                //Get current file inode information
+        }
+        long pointer = progressInfo != null ? progressInfo.getPointer() : 0L;
+        long lineNumber = progressInfo != null ? progressInfo.getCurrentRowNum() : 0L;
+        if (progressInfo != null) {
+            ChannelMemory.UnixFileNode memoryUnixFileNode = progressInfo.getUnixFileNode();
+            if (memoryUnixFileNode != null && memoryUnixFileNode.getSt_ino() != null) {
+                log.info("memory file inode info, filePath:{},:{}", filePath, gson.toJson(memoryUnixFileNode));
                 ChannelMemory.UnixFileNode currentUnixFileNode = ChannelUtil.buildUnixFileNode(filePath);
-                if (null != currentUnixFileNode && null != currentUnixFileNode.getSt_ino()) {
-                    log.info("current file inode info,filePath:{},file node info:{}", filePath, gson.toJson(currentUnixFileNode));
-                    if (!Objects.equals(memoryUnixFileNode.getSt_ino(), currentUnixFileNode.getSt_ino())) {
-                        pointer = 0L;
-                        lineNumber = 0L;
-                        log.info("read file start from head,filePath:{},memory:{},current:{}", filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
-                    }
+                if (currentUnixFileNode != null && currentUnixFileNode.getSt_ino() != null &&
+                        !Objects.equals(memoryUnixFileNode.getSt_ino(), currentUnixFileNode.getSt_ino())) {
+                    pointer = 0L;
+                    lineNumber = 0L;
+                    log.info("read file start from head, filePath:{}, memory:{}, current:{}",
+                            filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
                 }
             }
         }

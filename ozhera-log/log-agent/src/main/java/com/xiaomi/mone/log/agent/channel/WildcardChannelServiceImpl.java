@@ -97,11 +97,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         this.logPattern = input.getLogPattern();
         this.linePrefix = input.getLinePrefix();
 
-        List<String> patterns = PathUtils.parseLevel5Directory(logPattern);
-        if (CollectionUtils.isEmpty(patterns)) {
-            log.info("config pattern:{},current files not exist", logPattern);
-        }
-        log.info("channel start, logPattern:{}，fileList:{}, channelId:{}, instanceId:{}", logPattern, patterns, channelId, instanceId());
+        List<String> patterns = getPatternsWithRetry();
+        log.info("channel start, logPattern:{}，fileList:{}, channelId:{}, instanceId:{}", logPattern, GSON.toJson(patterns), channelId, instanceId());
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
@@ -116,6 +113,36 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         log.warn("channelId:{}, channelInstanceId:{} start success! channelDefine:{}", channelId, instanceId(), GSON.toJson(this.channelDefine));
 
     }
+
+    private List<String> getPatternsWithRetry() {
+        List<String> patterns = PathUtils.parseLevel5Directory(logPattern);
+
+        if (CollectionUtils.isEmpty(patterns)) {
+            int maxRetries = 10;  // Maximum number of retries
+            int retryIntervalMillis = 1000;  // Retry interval (milliseconds)
+
+            for (int retryCount = 1; retryCount <= maxRetries; retryCount++) {
+                try {
+                    Thread.sleep(retryIntervalMillis);
+                } catch (InterruptedException e) {
+                    log.error("Sleep error", e);
+                }
+
+                patterns = PathUtils.parseLevel5Directory(logPattern);
+
+                if (CollectionUtils.isNotEmpty(patterns)) {
+                    break;  // Find matching file, exit and try again
+                }
+
+                if (retryCount == maxRetries) {
+                    log.info("Config pattern: {}, current files not exist after {} retries", logPattern, maxRetries);
+                }
+            }
+        }
+
+        return patterns;
+    }
+
 
     private void startCollectFile(Long channelId, Input input, String ip) {
         try {

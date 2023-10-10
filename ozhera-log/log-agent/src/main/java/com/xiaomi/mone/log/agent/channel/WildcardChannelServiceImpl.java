@@ -118,36 +118,47 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     }
 
     private void startCollectFile(Long channelId, Input input, String ip) {
-        // Load the restart file
-        String restartFile = String.format("%s%s%s%s", memoryBasePath, MEMORY_DIR, POINTER_FILENAME_PREFIX, channelId);
-        FileInfoCache.ins().load(restartFile);
+        try {
+            // Load the restart file
+            String restartFile = buildRestartFilePath(channelId);
+            FileInfoCache.ins().load(restartFile);
 
-        // Set up file monitoring
-        String filePathExpressName = input.getLogPattern();
+            HeraFileMonitor monitor = createFileMonitor(input.getPatternCode(), ip);
 
-        HeraFileMonitor monitor = createFileMonitor(input.getPatternCode(), ip);
+            String fileExpression = buildFileExpression(input.getLogPattern());
 
-        // Compile the file expression pattern
-        String fileExpress = ChannelUtil.buildSingleTimeExpress(filePathExpressName);
+            String monitorPath = buildMonitorPath(input.getLogPattern());
 
-        String monitorPath = buildMonitorPath(filePathExpressName);
+            wildcardGraceShutdown(monitorPath, fileExpression);
 
-        wildcardGraceShutdown(monitorPath, fileExpress);
-        log.info("fileExpress:{}", fileExpress);
-        Pattern pattern = Pattern.compile(fileExpress);
+            log.info("fileExpression:{}", fileExpression);
+            // Compile the file expression pattern
+            Pattern pattern = Pattern.compile(fileExpression);
 
-        String finalMonitorPath = monitorPath;
-        fileCollfuture = ExecutorUtil.submit(() -> {
-            try {
-                monitor.reg(finalMonitorPath, it -> {
-                    boolean matches = pattern.matcher(it).matches();
-                    log.info("file:{},matches:{}", it, matches);
-                    return matches;
-                });
-            } catch (IOException | InterruptedException e) {
-                log.error("startCollectFile error,channelId:{},input:{},ip:{}", channelId, GSON.toJson(input), ip, e);
-            }
-        });
+            fileCollfuture = ExecutorUtil.submit(() -> monitorFileChanges(monitor, monitorPath, pattern));
+        } catch (Exception e) {
+            log.error("startCollectFile error, channelId: {}, input: {}, ip: {}", channelId, GSON.toJson(input), ip, e);
+        }
+    }
+
+    private String buildRestartFilePath(Long channelId) {
+        return String.format("%s%s%s%s", memoryBasePath, MEMORY_DIR, POINTER_FILENAME_PREFIX, channelId);
+    }
+
+    private String buildFileExpression(String logPattern) {
+        return ChannelUtil.buildSingleTimeExpress(logPattern);
+    }
+
+    private void monitorFileChanges(HeraFileMonitor monitor, String monitorPath, Pattern pattern) {
+        try {
+            monitor.reg(monitorPath, filePath -> {
+                boolean matches = pattern.matcher(filePath).matches();
+                log.info("file: {}, matches: {}", filePath, matches);
+                return matches;
+            });
+        } catch (IOException | InterruptedException e) {
+            log.error("Error while monitoring files, monitorPath: {}", monitorPath, e);
+        }
     }
 
     private String buildMonitorPath(String filePathExpressName) {

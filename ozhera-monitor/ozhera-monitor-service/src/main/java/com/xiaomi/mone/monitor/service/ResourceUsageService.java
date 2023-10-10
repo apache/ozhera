@@ -5,10 +5,10 @@ import com.google.common.collect.Lists;
 import com.xiaomi.mone.monitor.dao.HeraAppRoleDao;
 import com.xiaomi.mone.monitor.dao.model.HeraAppRole;
 import com.xiaomi.mone.monitor.result.Result;
+import com.xiaomi.mone.monitor.service.alertmanager.AlarmExprService;
 import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.monitor.service.model.ResourceUsageMessage;
 import com.xiaomi.mone.monitor.service.model.prometheus.Metric;
-import com.xiaomi.mone.monitor.service.prometheus.AlarmService;
 import com.xiaomi.mone.monitor.service.prometheus.PrometheusService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class ResourceUsageService {
 
     @Autowired
-    AlarmService alarmService;
+    AlarmExprService alarmExprService;
 
     @Autowired
     PrometheusService prometheusService;
@@ -38,7 +38,7 @@ public class ResourceUsageService {
     private String resourceAlarm;
 
     public List<ResourceUsageMessage> getCpuUsageData(){
-        String mimonitor = alarmService.getContainerCpuResourceAlarmExpr(null, "mimonitor", "<", Integer.valueOf(resourceAlarm),false,null);
+        String mimonitor = alarmExprService.getContainerCpuResourceAlarmExpr(null, "mimonitor", "<", Integer.valueOf(resourceAlarm),false,null);
         Result<PageData> pageDataResult = prometheusService.queryByMetric(mimonitor);
         PageData data = pageDataResult.getData();
         List<ResourceUsageMessage> listMsg = new ArrayList<>();
@@ -57,7 +57,7 @@ public class ResourceUsageService {
     }
 
     public List<ResourceUsageMessage> getMemUsageData(){
-        String mimonitor = alarmService.getContainerMemReourceAlarmExpr(null, "mimonitor", "<", Integer.valueOf(resourceAlarm),false,null);
+        String mimonitor = alarmExprService.getContainerMemReourceAlarmExpr(null, "mimonitor", "<", Integer.valueOf(resourceAlarm),false,null);
         Result<PageData> pageDataResult = prometheusService.queryByMetric(mimonitor);
         PageData data = pageDataResult.getData();
         List<ResourceUsageMessage> listMsg = new ArrayList<>();

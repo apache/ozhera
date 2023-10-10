@@ -1,4 +1,4 @@
-package com.xiaomi.mone.app.common;
+package com.xiaomi.mone.app.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

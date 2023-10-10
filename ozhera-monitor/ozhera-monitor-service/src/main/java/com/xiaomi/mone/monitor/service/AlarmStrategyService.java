@@ -182,7 +182,7 @@ public class AlarmStrategyService {
         if(!CollectionUtils.isEmpty(param.getIncludeZones())){
             envs.addProperty("includeZones",String.join(",", param.getIncludeZones()));
         }
-        if(!CollectionUtils.isEmpty(param.getExceptEnvs())){
+        if(!CollectionUtils.isEmpty(param.getExceptZones())){
             envs.addProperty("exceptZones",String.join(",", param.getExceptZones()));
         }
 

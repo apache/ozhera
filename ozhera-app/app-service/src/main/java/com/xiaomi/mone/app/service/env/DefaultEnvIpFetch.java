@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.app.common.Result;
-import com.xiaomi.mone.app.common.TpcLabelRes;
-import com.xiaomi.mone.app.common.TpcPageRes;
+import com.xiaomi.mone.app.model.vo.TpcLabelRes;
+import com.xiaomi.mone.app.model.vo.TpcPageRes;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,6 +44,9 @@ public class DefaultEnvIpFetch {
     @NacosValue(value = "${hera.tpc.url}", autoRefreshed = true)
     private String heraTpcUrl;
 
+    @NacosValue(value = "${hera.tpc.token}", autoRefreshed = true)
+    private String heraTpcToken;
+
     @Resource
     private OkHttpClient okHttpClient;
 
@@ -71,6 +74,7 @@ public class DefaultEnvIpFetch {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         jsonObject.addProperty("parentId", appId);
         jsonObject.addProperty("flagKey", DEFAULT_REGISTER_REMOTE_TYPE);
+        jsonObject.addProperty("token", heraTpcToken);
         RequestBody requestBody = RequestBody.create(mediaType, gson.toJson(jsonObject));
 
         Request request = new Request.Builder()
@@ -81,7 +85,7 @@ public class DefaultEnvIpFetch {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
                 String rstJson = response.body().string();
-                log.debug("getEnvFetchFromRemote result:{}",rstJson);
+                log.info("getEnvFetchFromRemote result:{}",rstJson);
                 Result<TpcPageRes<TpcLabelRes>> pageResponseResult = gson.fromJson(rstJson, new TypeToken<Result<TpcPageRes<TpcLabelRes>>>() {
                 }.getType());
                 if (null != pageResponseResult &&

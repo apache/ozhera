@@ -4,27 +4,27 @@
 
 ###   （1）进入 Issues 的主页面
 
-![](.\images\1-1.PNG)
+![1-1.PNG](images%2F1-1.PNG)
 
 ### （2）点击 New issue 绿色按钮，就可以去创建
 
-![](.\images\1-2.PNG)
+![1-2.PNG](images%2F1-2.PNG)
 进入到如下边的页面
-![](.\images\1-2-1.PNG)
+![1-2-1.PNG](images%2F1-2-1.PNG)
 
 ### （3）给予受托人（就是把这个需求给某个人来解决）(选填)
 
-![](.\images\1-3.PNG)
+![1-3.PNG](images%2F1-3.PNG)
 
 ### （4）设置标签（标明是什么类型的需求）
 
 一共有9大标签，可以有多个选择，但是一般情况，选一个。如果是bug的选择bug
-![](.\images\1-4.PNG)
+![1-4.PNG](images%2F1-4.PNG)
 
 ### （5）选完标签，去写Title（标题）
 
 标题是有格式要求，必须采取 `[标签] 文字描述` 的格式 比如我标签是bug,则我的标题是：[bug] 点击获取验证码的时候有问题 注意：[ ] 后面要有空格
-![](.\images\1-5.PNG)
+![1-5.PNG](images%2F1-5.PNG)
 
 ### （6）编写内容
 
@@ -38,36 +38,37 @@
 - [ ] (输入框） boolean
 ```
 
-![](.\images\1-6.PNG)
+![1-6.PNG](images%2F1-6.PNG)
 
 ## 2.创建pr
 
 ###   (1) 从开源项目fork项目到自己的远程仓库
 
-![](.\images\2-1.PNG)
+![2-1.PNG](images%2F2-1.PNG)
 
 ### (2) 在自己的仓库中clone项目到本地.
 
-![](.\images\2-2.PNG)
+![2-2.PNG](images%2F2-2.PNG)
 
 ### (3) 本地基于master分支创建一个新的分支修改代码提交到远程仓库，然后点击pull request去创建pr
 
-![](.\images\2-3.PNG)
+![2-3.PNG](images%2F2-3.PNG)
 
 
 ### (4)创建正确的pr
 
-![](.\images\2-4.PNG)
+![2-4.PNG](images%2F2-4.PNG)
 
 ### (5) .创建正确的pr
 
-![](.\images\2-5.PNG)在pr请求的时候的内容里面填写 #702,也可以填 close #702,这样当你的pr被合并后，issue也会被标记为closed状态
+![2-5.PNG](images%2F2-5.PNG)
+在pr请求的时候的内容里面填写 #702,也可以填 close #702,这样当你的pr被合并后，issue也会被标记为closed状态
 
-\#702即为每个issue的编号，当你创建完issue后可以在url中看到，如![](.\images\2-5-1.PNG)
+\#702即为每个issue的编号，当你创建完issue后可以在url中看到，如![2-5-1.PNG](images%2F2-5-1.PNG)
 
 ### (6) 指定Reviewers和Assigner，必须得指定一个.
 
-![](.\images\2-6.PNG)
+![2-6.PNG](images%2F2-6.PNG)
 
 ```Apache
 在 GitHub 上，"reviewer"（审阅人）和 "assignee"（指派人）是两个不同的角色，它们在 Pull Request（PR）和 Issue 管理中具有不同的作用：
@@ -84,20 +85,20 @@ Assignee（指派人）：
 
 ### (7) 找到上边对应的人给你Approve,之后让Reviewer给你合并
 
-![](.\images\2-7.PNG)
-![](.\images\2-7-1.PNG)
+![2-7.PNG](images%2F2-7.PNG)
+![2-7-1.PNG](images%2F2-7-1.PNG)
 
 ## 3.关闭Issues
 
 ### (1) 自动关闭Issue
 
 当你的pr被合并后，如果pr的内容中有close #issueId ，对应的issue也会被标记为closed状态
-![](.\images\3-1-1.PNG)
-![](.\images\3-1-2.PNG)
+![3-1-1.PNG](images%2F3-1-1.PNG)
+![3-1-2.PNG](images%2F3-1-2.PNG)
 
 ### (2) 手动合并pr,并关闭Issue.
 
-![](.\images\3-2-1.PNG)
+![3-2-1.PNG](images%2F3-2-1.PNG)
 
 ```SQL
 "Squash and merge" 是一个有用的合并选项，特别适用于那些希望保持干净的提交历史的项目。它可以将多个小的提交合并成一个更有组织的提交，以减少分支历史中的噪音和混乱。但要注意，合并后的提交历史将不再包含原始的拉取请求分支上的每个提交，因此某些详细信息可能会丢失。
@@ -105,5 +106,5 @@ Assignee（指派人）：
 
 ​         大家合并pr的时候选择一定要选择     Squash and merge  这个按钮，这样会在首页的commit message后追加 pr Id,可以根据message直接跳转到 pr界面，对于提交的这次commit解决了什么问题以及怎么解决的很好的关联起来了，如
 
-![](.\images\3-2-2.PNG)
-![](.\images\3-2-3.PNG)
+![3-2-2.PNG](images%2F3-2-2.PNG)
+![3-2-3.PNG](images%2F3-2-3.PNG)

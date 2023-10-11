@@ -16,20 +16,35 @@
 package com.xiaomi.mone.log.agent.common;
 
 import com.google.gson.*;
-import com.xiaomi.mone.log.agent.extension.RmqOutput;
-import com.xiaomi.mone.log.agent.input.*;
+import com.xiaomi.mone.log.agent.input.AppLogInput;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author shanwb
  * @date 2021-08-02
  */
+@Slf4j
 public class AbstractElementAdapter implements
         JsonSerializer<Object>, JsonDeserializer<Object> {
 
     private static final String KEY_TYPE = "type";
 
+    private Map<String, String> typeToClassMap;
+
+    public AbstractElementAdapter() {
+        this.typeToClassMap = loadTypeToClassMappingFromConfig();
+    }
+
+
+    @SneakyThrows
     @Override
     public Object deserialize(JsonElement jsonElement, Type type,
                               JsonDeserializationContext jsonDeserializationContext)
@@ -37,52 +52,45 @@ public class AbstractElementAdapter implements
         JsonObject jsonObj = jsonElement.getAsJsonObject();
         String implType = jsonObj.get(KEY_TYPE).getAsString();
 
-        Class<?> clz = type.getClass();
-        switch (implType) {
-            /**The following is log type**/
-            case "APP_LOG":
-            case "APP_LOG_MULTI":
-            case "APP_LOG_SIGNAL":
-                clz = AppLogInput.class;
-                break;
-            case "MIS_APP_LOG":
-                clz = MisAppLogInput.class;
-                break;
-            case "NGINX":
-                clz = NginxInput.class;
-                break;
-            case "OPENTELEMETRY":
-                clz = OpentelemetryInput.class;
-                break;
-            case "DOCKER":
-                //todo
-                break;
-            case "FREE":
-                clz = FreeLogInput.class;
-                break;
-            case "ORIGIN_LOG":
-                clz = OriginLogInput.class;
-                break;
-            /**The following is mq type**/
-            case "rocketmq":
-                clz = RmqOutput.class;
-                break;
-            case "talos":
-                clz = getClassForName();
-                break;
-            default:
-                break;
-        }
+        // Get the corresponding class object
+        Class<?> clz = getClassForImplType(implType);
 
         return jsonDeserializationContext.deserialize(jsonElement, clz);
     }
 
-    public Class getClassForName() {
-        try {
-            return Class.forName("com.xiaomi.mone.log.agent.output.TalosOutput");
-        } catch (Throwable ex) {
-            throw new RuntimeException(ex);
+    private Class<?> getClassForImplType(String implType) throws ClassNotFoundException {
+
+        // Get the corresponding class name based on implType
+        String className = this.typeToClassMap.get(implType);
+
+        if (className != null && !className.isEmpty()) {
+            // Loading classes using reflection
+            return Class.forName(className);
+        } else {
+            // If the corresponding class name cannot be found, you can throw an exception or provide a default value
+            return AppLogInput.class;
         }
+    }
+
+    private static Map<String, String> loadTypeToClassMappingFromConfig() {
+        Map<String, String> typeToClassMap = new HashMap<>();
+
+        String configFile = "log_impl_type.json";
+
+        try (InputStream input = AbstractElementAdapter.class.getClassLoader().getResourceAsStream(configFile)) {
+            // Parse JSON files using Gson
+            JsonParser parser = new JsonParser();
+            JsonObject json = parser.parse(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+
+            // Parse JSON and store the mapping in typeToClassMap
+            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                typeToClassMap.put(entry.getKey(), entry.getValue().getAsString());
+            }
+        } catch (Exception e) {
+            log.error("loadTypeToClassMappingFromConfig error,fileName:{}", configFile, e);
+        }
+
+        return typeToClassMap;
     }
 
     @Override

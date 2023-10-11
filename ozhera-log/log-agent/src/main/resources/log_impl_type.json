@@ -1,0 +1,13 @@
+{
+  "APP_LOG": "com.xiaomi.mone.log.agent.input.AppLogInput",
+  "APP_LOG_MULTI": "com.xiaomi.mone.log.agent.input.AppLogInput",
+  "APP_LOG_SIGNAL": "com.xiaomi.mone.log.agent.input.AppLogInput",
+  "MIS_APP_LOG": "com.xiaomi.mone.log.agent.input.MisAppLogInput",
+  "NGINX": "com.xiaomi.mone.log.agent.input.NginxInput",
+  "OPENTELEMETRY": "com.xiaomi.mone.log.agent.input.OpentelemetryInput",
+  "DOCKER": "com.xiaomi.mone.log.agent.input.AppLogInput",
+  "FREE": "com.xiaomi.mone.log.agent.input.FreeLogInput",
+  "ORIGIN_LOG": "com.xiaomi.mone.log.agent.input.OriginLogInput",
+  "rocketmq": "com.xiaomi.mone.log.agent.extension.RmqOutput",
+  "talos": "com.xiaomi.mone.log.agent.output.TalosOutput"
+}

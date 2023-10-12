@@ -115,12 +115,12 @@ public class GrafanaServiceExtensionImpl implements GrafanaServiceExtension {
     public void setContainerAndHostUrl(String area) {
         switch (area) {
             case "Hera":
-                ContainerAndHostUrl.put(CONTAINER_URL, grafanaDomain + grafanaContainerUrl + "${__data.fields.jumpIp.text}");
-                ContainerAndHostUrl.put(HOST_URL, grafanaDomain + grafanaHostUrl + "${__data.fields.jumpIp.text}");
+                ContainerAndHostUrl.put(CONTAINER_URL, grafanaDomain + grafanaContainerUrl + "${__data.fields.ip.text}");
+                ContainerAndHostUrl.put(HOST_URL, grafanaDomain + grafanaHostUrl + "${__data.fields.ip.text}");
                 break;
             default:
-                ContainerAndHostUrl.put(CONTAINER_URL, grafanaDomain + grafanaContainerUrl + "${__data.fields.jumpIp.text}");
-                ContainerAndHostUrl.put(HOST_URL, grafanaDomain + grafanaHostUrl + "${__data.fields.jumpIp.text}");
+                ContainerAndHostUrl.put(CONTAINER_URL, grafanaDomain + grafanaContainerUrl + "${__data.fields.ip.text}");
+                ContainerAndHostUrl.put(HOST_URL, grafanaDomain + grafanaHostUrl + "${__data.fields.ip.text}");
                 break;
         }
     }

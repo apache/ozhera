@@ -183,13 +183,13 @@ public class HeraDashboardService {
                 });
 
         //创建java等业务型模板
-        GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName("hera-java默认模板");
+        GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName("hera默认模板");
         if (grafanaTemplate == null) {
             //未创建过则从从ftl文件创建
             try {
                 String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, DashboardConstant.JAEGER_QUERY_File_NAME);
                 GrafanaTemplate template = new GrafanaTemplate();
-                template.setName("hera-java默认模板");
+                template.setName("hera默认模板");
                 template.setCreateTime(new Date());
                 template.setUpdateTime(new Date());
                 template.setLanguage(0);

@@ -47,6 +47,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private List<LineMessage> lineMessageList = new ArrayList<>();
 
-    private byte[] lock = new byte[0];
+    private ReentrantLock fileColLock = new ReentrantLock();
+
+    private ReentrantLock fileReopenLock = new ReentrantLock();
 
     private long lastSendTime = System.currentTimeMillis();
 
@@ -128,10 +131,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
     public void refresh(ChannelDefine channelDefine, MsgExporter msgExporter) {
         this.channelDefine = channelDefine;
         if (null != msgExporter) {
-            synchronized (this.lock) {
-                this.msgExporter.close();
-                this.msgExporter = msgExporter;
-            }
+            this.msgExporter.close();
+            this.msgExporter = msgExporter;
         }
     }
 
@@ -219,8 +220,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
             if (System.currentTimeMillis() - lastSendTime < 10 * 1000 || CollectionUtils.isEmpty(lineMessageList)) {
                 return;
             }
-            synchronized (lock) {
-                this.doExport(lineMessageList);
+            if (CollectionUtils.isNotEmpty(lineMessageList) && fileColLock.tryLock()) {
+                try {
+                    this.doExport(lineMessageList);
+                } finally {
+                    fileColLock.unlock();
+                }
             }
         }, 10, 7, TimeUnit.SECONDS);
     }
@@ -312,8 +317,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     // tail single line mode
                 }
                 if (null != l) {
-                    synchronized (lock) {
+                    try {
+                        fileColLock.tryLock(30, TimeUnit.SECONDS);
                         wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
+                    } catch (InterruptedException e) {
+                        log.error("wrapDataToSend InterruptedException", e);
+                    } finally {
+                        fileColLock.unlock();
                     }
                 } else {
                     log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
@@ -336,10 +346,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 Long appendTime = mLog.getAppendTime();
                 if (null != appendTime && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
                     String remainMsg = mLog.takeRemainMsg2();
-                    if (null != remainMsg) {
-                        synchronized (lock) {
+                    if (null != remainMsg && fileColLock.tryLock()) {
+                        try {
                             log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
                             wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
+                        } finally {
+                            fileColLock.unlock();
                         }
                     }
                 }
@@ -512,36 +524,41 @@ public class ChannelServiceImpl extends AbstractChannelService {
     }
 
     @Override
-    public synchronized void reOpen(String filePath) {
-        //Judging the number of openings, it can only be reopened once within 10 seconds.
-        if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
-            log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
-                    "last time opening time.:{}", filePath, reOpenMap.get(filePath));
-            return;
-        }
-        reOpenMap.put(filePath, Instant.now().toEpochMilli());
-        log.info("reOpen file:{}", filePath);
-        if (collectOnce) {
-            handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
-            return;
-        }
-        ILogFile logFile = logFileMap.get(filePath);
-        String tailPodIp = getTailPodIp(filePath);
-        String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
-        if (null == logFile) {
-            // Add new log file
-            readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
-            log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
-        } else {
-            // Normal log segmentation
-            try {
-                //Delay 5 seconds to split files, todo @shanwb Ensure that the files are collected before switching
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void reOpen(String filePath) {
+        try {
+            fileReopenLock.lock();
+            //Judging the number of openings, it can only be reopened once within 10 seconds.
+            if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
+                log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
+                        "last time opening time.:{}", filePath, reOpenMap.get(filePath));
+                return;
             }
-            logFile.setReOpen(true);
-            log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath);
+            reOpenMap.put(filePath, Instant.now().toEpochMilli());
+            log.info("reOpen file:{}", filePath);
+            if (collectOnce) {
+                handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
+                return;
+            }
+            ILogFile logFile = logFileMap.get(filePath);
+            String tailPodIp = getTailPodIp(filePath);
+            String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
+            if (null == logFile) {
+                // Add new log file
+                readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
+                log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
+            } else {
+                // Normal log segmentation
+                try {
+                    //Delay 5 seconds to split files, todo @shanwb Ensure that the files are collected before switching
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                logFile.setReOpen(true);
+                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath);
+            }
+        } finally {
+            fileReopenLock.unlock();
         }
     }
 

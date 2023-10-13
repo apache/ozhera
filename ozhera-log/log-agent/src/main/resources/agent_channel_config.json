@@ -22,11 +22,11 @@
       },
       "output": {
         "type": "rocketmq",
-        "ak": "AKAAYLRV3QYU23DHVY",
-        "sk": "sKmVZ5iV66Ox1oCSG1Or8xh+01HX7WNam1PLBF79",
-        "clusterInfo": "http://staging-cnbj2-rocketmq.namesrv.api.xiaomi.net:9876",
-        "producerGroup": "mymq_test_consumer",
-        "topic": "market-393-topic",
+        "ak": "Please delete this line if not have ak",
+        "sk": "Please delete this line if not have sk",
+        "clusterInfo": "http://your-rmq-cluster:9876",
+        "producerGroup": "your producerGroup",
+        "topic": "your topic",
         "batchExportSize": 600
       },
       "filters": [

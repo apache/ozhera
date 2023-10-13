@@ -1,6 +1,11 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
+import com.dingtalk.api.DefaultDingTalkClient;
+import com.dingtalk.api.DingTalkClient;
+import com.dingtalk.api.request.OapiV2UserGetRequest;
+import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.google.gson.Gson;
+import com.taobao.api.ApiException;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
@@ -248,8 +253,20 @@ public class DingDingTest {
 
                     String content = sb.toString();
                     finalMap.put("content", content);
+                    //begin constructive silent parameter
+                    StringBuilder silenceSb = new StringBuilder();
+                    String silencePrefix = silenceSb.append(alert.getLabels().getApplication()).append("||").append(alert.getLabels().getAlertname())
+                            .append("||").append(content).append("||").toString();;
+                    finalMap.put("silence2h",silencePrefix + "2h");
+                   // System.out.println(finalMap.get("silence2h"));
+                    finalMap.put("silence1d",silencePrefix + "1d");
+                    finalMap.put("silence3d",silencePrefix + "3d");
                     String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                    dingDingService.sendDingDing(freeMarkerRes,new String[]{"a","b"});
+                    //String nameByUserId = dingDingService.getNameByUserId("586215596024257467");
+                    //finalMap.put("updateUser","**" + "已由 <font color=common_blue1_color>" + nameByUserId + " </font>静默" +" <font color=common_red1_color>2h</font>" + "**");
+                    //String freeMarkerResUpdate = FreeMarkerUtil.getContent("/dingding", "dingdingbasicUpdateCart.ftl", finalMap);
+                    dingDingService.sendDingDing(freeMarkerRes,new String[]{"xx"},alert.getLabels().getAlertname());
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -257,6 +274,14 @@ public class DingDingTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testFetchName() throws Exception {
+        DingDingService dingDingService = new DingDingService();
+        dingDingService.init();
+        String nameByUserId = dingDingService.getNameByUserId("xx");
+        System.out.println(nameByUserId);
     }
 
     Map<String, Object> transferNames(Map<String, Object> map) {
@@ -282,6 +307,19 @@ public class DingDingTest {
                     map.remove(key);
                 }
             }
+        }
+    }
+
+    @Test
+    public void testding() {
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/get");
+            OapiV2UserGetRequest req = new OapiV2UserGetRequest();
+            req.setUserid("xx");
+            OapiV2UserGetResponse rsp = client.execute(req, "xx");
+            System.out.println(rsp.getBody());
+        } catch (ApiException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -14,11 +14,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @ToString(callSuper = true)
 public class RuleSilenceParam extends BaseParam {
 
-    private String alertId;
+    private String id;
     private List<Matcher> matcher;
-    private Long startTime;
-    private Long endTime;
+    private Long startsAt;
+    private Long endsAt;
     private String comment;
+    private String createdBy;
 
     public boolean argCheck() {
         //The comment cannot be empty.
@@ -26,15 +27,12 @@ public class RuleSilenceParam extends BaseParam {
             return false;
         }
         // alertId and matcher cannot both be present or both be empty.
-        if ((alertId == null || alertId.isEmpty()) && matcher.isEmpty() || (!alertId.isEmpty() && !matcher.isEmpty())) {
-            return false;
-        }
         //Check Matchers
         if (!ValidateMatchers(matcher)) {
             return false;
         }
         //Time synchronization
-        if (startTime == null || endTime == null || startTime < endTime) {
+        if (startsAt == null || endsAt == null || startsAt < endsAt) {
             return false;
         }
 

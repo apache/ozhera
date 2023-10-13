@@ -180,8 +180,7 @@ public class AlertManagerImpl implements AlertManager {
 
         AuthUserVo userVoSearch = UserUtil.parseFullAccount(searchName);
         param.setUserAcc(userVoSearch == null ? null : userVoSearch.getAccount());
-        //暂时只支持邮箱账号
-        param.setType(UserTypeEnum.EMAIL.getCode());
+//        param.setType(UserTypeEnum.EMAIL.getCode());
         com.xiaomi.youpin.infra.rpc.Result<PageDataVo<UserVo>> userResult =  userFacade.list(param);
         log.info("userFacade reqeust param:{},result:{}",gson.toJson(param),gson.toJson(userResult));
         if (userResult == null || userResult.getData() == null || CollectionUtils.isEmpty(userResult.getData().getList())) {

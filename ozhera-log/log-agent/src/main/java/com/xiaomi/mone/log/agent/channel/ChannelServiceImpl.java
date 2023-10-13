@@ -18,7 +18,6 @@ package com.xiaomi.mone.log.agent.channel;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Pair;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.mone.file.*;
@@ -48,6 +47,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -89,7 +89,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private List<LineMessage> lineMessageList = new ArrayList<>();
 
-    private byte[] lock = new byte[0];
+    private ReentrantLock fileColLock = new ReentrantLock();
+
+    private ReentrantLock fileReopenLock = new ReentrantLock();
 
     private long lastSendTime = System.currentTimeMillis();
 
@@ -129,10 +131,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
     public void refresh(ChannelDefine channelDefine, MsgExporter msgExporter) {
         this.channelDefine = channelDefine;
         if (null != msgExporter) {
-            synchronized (this.lock) {
-                this.msgExporter.close();
-                this.msgExporter = msgExporter;
-            }
+            this.msgExporter.close();
+            this.msgExporter = msgExporter;
         }
     }
 
@@ -185,7 +185,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
-            channelMemory = initChannelMemory(channelId, input, patterns);
+            channelMemory = initChannelMemory(channelId, input, patterns, channelDefine);
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
 
@@ -220,8 +220,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
             if (System.currentTimeMillis() - lastSendTime < 10 * 1000 || CollectionUtils.isEmpty(lineMessageList)) {
                 return;
             }
-            synchronized (lock) {
-                this.doExport(lineMessageList);
+            if (CollectionUtils.isNotEmpty(lineMessageList) && fileColLock.tryLock()) {
+                try {
+                    this.doExport(lineMessageList);
+                } finally {
+                    fileColLock.unlock();
+                }
             }
         }, 10, 7, TimeUnit.SECONDS);
     }
@@ -294,26 +298,6 @@ public class ChannelServiceImpl extends AbstractChannelService {
         monitorFileList.add(MonitorFile.of(configPath, cleanedPathList.get(0), logTypeEnum, collectOnce));
     }
 
-
-    private ChannelMemory initChannelMemory(Long channelId, Input input, List<String> patterns) {
-        channelMemory = new ChannelMemory();
-        channelMemory.setChannelId(channelId);
-        channelMemory.setInput(input);
-        HashMap<String, ChannelMemory.FileProgress> fileProgressMap = Maps.newHashMap();
-        for (String pattern : patterns) {
-            ChannelMemory.FileProgress fileProgress = new ChannelMemory.FileProgress();
-            fileProgress.setPointer(0L);
-            fileProgress.setCurrentRowNum(0L);
-            fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(pattern));
-            fileProgress.setPodType(channelDefine.getPodType());
-            fileProgressMap.put(pattern, fileProgress);
-        }
-        channelMemory.setFileProgressMap(fileProgressMap);
-        channelMemory.setCurrentTime(System.currentTimeMillis());
-        channelMemory.setVersion(ChannelMemory.DEFAULT_VERSION);
-        return channelMemory;
-    }
-
     private ReadListener initFileReadListener(MLog mLog, String patternCode, String ip, String pattern) {
         AtomicReference<ReadResult> readResult = new AtomicReference<>();
         ReadListener listener = new DefaultReadListener(event -> {
@@ -333,8 +317,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     // tail single line mode
                 }
                 if (null != l) {
-                    synchronized (lock) {
+                    try {
+                        fileColLock.tryLock(30, TimeUnit.SECONDS);
                         wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
+                    } catch (InterruptedException e) {
+                        log.error("wrapDataToSend InterruptedException", e);
+                    } finally {
+                        fileColLock.unlock();
                     }
                 } else {
                     log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
@@ -357,10 +346,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 Long appendTime = mLog.getAppendTime();
                 if (null != appendTime && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
                     String remainMsg = mLog.takeRemainMsg2();
-                    if (null != remainMsg) {
-                        synchronized (lock) {
+                    if (null != remainMsg && fileColLock.tryLock()) {
+                        try {
                             log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
                             wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
+                        } finally {
+                            fileColLock.unlock();
                         }
                     }
                 }
@@ -368,41 +359,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }), 30, 30, TimeUnit.SECONDS);
     }
 
-    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String localIp, long ct) {
-        LineMessage lineMessage = new LineMessage();
-        lineMessage.setMsgBody(lineMsg);
-        lineMessage.setPointer(readResult.get().getPointer());
-        lineMessage.setLineNumber(readResult.get().getLineNumber());
-        lineMessage.setFileName(pattern);
-        lineMessage.setProperties(LineMessage.KEY_MQ_TOPIC_TAG, patternCode);
-        lineMessage.setProperties(LineMessage.KEY_IP, localIp);
-        lineMessage.setProperties(LineMessage.KEY_COLLECT_TIMESTAMP, String.valueOf(ct));
-        String logType = channelDefine.getInput().getType();
-        LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
-        if (null != logTypeEnum) {
-            lineMessage.setProperties(LineMessage.KEY_MESSAGE_TYPE, logTypeEnum.getType().toString());
-        }
+    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String ip, long ct) {
+        LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ip, ct);
 
-        ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(pattern);
-        if (null == fileProgress) {
-            fileProgress = new ChannelMemory.FileProgress();
-            channelMemory.getFileProgressMap().put(pattern, fileProgress);
-            channelMemory.getInput().setLogPattern(logPattern);
-            channelMemory.getInput().setType(logTypeEnum.name());
-            channelMemory.getInput().setLogSplitExpress(logSplitExpress);
-        }
-        fileProgress.setCurrentRowNum(readResult.get().getLineNumber());
-        fileProgress.setPointer(readResult.get().getPointer());
-        if (null != readResult.get().getFileMaxPointer()) {
-            fileProgress.setFileMaxPointer(readResult.get().getFileMaxPointer());
-        }
-        fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(pattern));
-        fileProgress.setPodType(channelDefine.getPodType());
-        fileProgress.setCtTime(ct);
+        updateChannelMemory(channelMemory, pattern, logTypeEnum, ct, readResult);
         lineMessageList.add(lineMessage);
 
         fileReadMap.put(pattern, ct);
-
         int batchSize = msgExporter.batchExportSize();
         if (lineMessageList.size() > batchSize) {
             List<LineMessage> subList = lineMessageList.subList(0, batchSize);
@@ -459,35 +422,29 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
 
     private ILogFile getLogFile(String filePath, ReadListener listener, Map<String, ChannelMemory.FileProgress> fileProgressMap) {
-        long pointer = 0L;
-        long lineNumber = 0L;
-        ChannelMemory.FileProgress fileProgress = fileProgressMap.get(filePath);
-        if (fileProgress != null) {
-            if (null != fileProgress.getFinished() && fileProgress.getFinished()) {
-                /**
-                 * Stateful pods in k8s do not need to be judged by finished
-                 */
-                if (StringUtils.isNotBlank(channelDefine.getPodType())) {
-                    if (K8sPodTypeEnum.valueOf(channelDefine.getPodType().toUpperCase()) != K8sPodTypeEnum.STATEFUL) {
-                        return null;
-                    }
-                }
+
+        ChannelMemory.FileProgress progressInfo = fileProgressMap.get(filePath);
+
+        if (progressInfo == null || (progressInfo.getFinished() != null && progressInfo.getFinished())) {
+            // Stateful pods in k8s do not need to be judged by finished
+            if (StringUtils.isNotBlank(channelDefine.getPodType()) &&
+                    K8sPodTypeEnum.valueOf(channelDefine.getPodType().toUpperCase()) != K8sPodTypeEnum.STATEFUL) {
+                return null;
             }
-            pointer = fileProgress.getPointer();
-            lineNumber = fileProgress.getCurrentRowNum();
-            //Compare whether the inode value changes, and read from the beginning if the change
-            ChannelMemory.UnixFileNode memoryUnixFileNode = fileProgress.getUnixFileNode();
-            if (null != memoryUnixFileNode && null != memoryUnixFileNode.getSt_ino()) {
-                log.info("memory file inode info,filePath:{},:{}", filePath, gson.toJson(memoryUnixFileNode));
-                //Get current file inode information
+        }
+        long pointer = progressInfo != null ? progressInfo.getPointer() : 0L;
+        long lineNumber = progressInfo != null ? progressInfo.getCurrentRowNum() : 0L;
+        if (progressInfo != null) {
+            ChannelMemory.UnixFileNode memoryUnixFileNode = progressInfo.getUnixFileNode();
+            if (memoryUnixFileNode != null && memoryUnixFileNode.getSt_ino() != null) {
+                log.info("memory file inode info, filePath:{},:{}", filePath, gson.toJson(memoryUnixFileNode));
                 ChannelMemory.UnixFileNode currentUnixFileNode = ChannelUtil.buildUnixFileNode(filePath);
-                if (null != currentUnixFileNode && null != currentUnixFileNode.getSt_ino()) {
-                    log.info("current file inode info,filePath:{},file node info:{}", filePath, gson.toJson(currentUnixFileNode));
-                    if (!Objects.equals(memoryUnixFileNode.getSt_ino(), currentUnixFileNode.getSt_ino())) {
-                        pointer = 0L;
-                        lineNumber = 0L;
-                        log.info("read file start from head,filePath:{},memory:{},current:{}", filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
-                    }
+                if (currentUnixFileNode != null && currentUnixFileNode.getSt_ino() != null &&
+                        !Objects.equals(memoryUnixFileNode.getSt_ino(), currentUnixFileNode.getSt_ino())) {
+                    pointer = 0L;
+                    lineNumber = 0L;
+                    log.info("read file start from head, filePath:{}, memory:{}, current:{}",
+                            filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
                 }
             }
         }
@@ -567,36 +524,41 @@ public class ChannelServiceImpl extends AbstractChannelService {
     }
 
     @Override
-    public synchronized void reOpen(String filePath) {
-        //Judging the number of openings, it can only be reopened once within 10 seconds.
-        if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
-            log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
-                    "last time opening time.:{}", filePath, reOpenMap.get(filePath));
-            return;
-        }
-        reOpenMap.put(filePath, Instant.now().toEpochMilli());
-        log.info("reOpen file:{}", filePath);
-        if (collectOnce) {
-            handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
-            return;
-        }
-        ILogFile logFile = logFileMap.get(filePath);
-        String tailPodIp = getTailPodIp(filePath);
-        String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
-        if (null == logFile) {
-            // Add new log file
-            readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
-            log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
-        } else {
-            // Normal log segmentation
-            try {
-                //Delay 5 seconds to split files, todo @shanwb Ensure that the files are collected before switching
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public void reOpen(String filePath) {
+        try {
+            fileReopenLock.lock();
+            //Judging the number of openings, it can only be reopened once within 10 seconds.
+            if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
+                log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
+                        "last time opening time.:{}", filePath, reOpenMap.get(filePath));
+                return;
             }
-            logFile.setReOpen(true);
-            log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath);
+            reOpenMap.put(filePath, Instant.now().toEpochMilli());
+            log.info("reOpen file:{}", filePath);
+            if (collectOnce) {
+                handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
+                return;
+            }
+            ILogFile logFile = logFileMap.get(filePath);
+            String tailPodIp = getTailPodIp(filePath);
+            String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
+            if (null == logFile) {
+                // Add new log file
+                readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
+                log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
+            } else {
+                // Normal log segmentation
+                try {
+                    //Delay 5 seconds to split files, todo @shanwb Ensure that the files are collected before switching
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                logFile.setReOpen(true);
+                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath);
+            }
+        } finally {
+            fileReopenLock.unlock();
         }
     }
 

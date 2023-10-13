@@ -1,7 +1,7 @@
 {
   "channelDefine": [
     {
-      "channelId": 215,
+      "channelId": 258,
       "tailName": "测试",
       "appId": 100,
       "appName": "test",
@@ -16,8 +16,8 @@
       ],
       "input": {
         "type": "APP_LOG_MULTI",
-        "logPattern": "/home/work/log/*.log",
-        "logSplitExpress": "/home/work/log/log-test/*.log",
+        "logPattern": "/home/work/log/log-agent/server.log.*",
+        "logSplitExpress": "/home/work/log/log-agent/server.log.*",
         "patternCode": "test_server_log"
       },
       "output": {

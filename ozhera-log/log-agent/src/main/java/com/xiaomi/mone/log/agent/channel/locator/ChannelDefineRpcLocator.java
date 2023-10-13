@@ -110,7 +110,6 @@ public class ChannelDefineRpcLocator implements ChannelDefineLocator {
             ChannelDefine channelDefine = new ChannelDefine();
             channelDefine.setAppId(appLogMeta.getAppId());
             channelDefine.setAppName(appLogMeta.getAppName());
-            channelDefine.setPodNames(logCollectMeta.getPodNames());
             channelDefine.setSingleMetaData(logCollectMeta.getSingleMetaData());
             channelDefine.setPodType(logCollectMeta.getPodType());
             channelDefine.setDelDirectory(logCollectMeta.getDelDirectory());

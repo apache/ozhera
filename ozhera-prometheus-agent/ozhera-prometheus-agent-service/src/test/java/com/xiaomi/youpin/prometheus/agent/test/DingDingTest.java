@@ -262,9 +262,6 @@ public class DingDingTest {
                     finalMap.put("silence1d",silencePrefix + "1d");
                     finalMap.put("silence3d",silencePrefix + "3d");
                     String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                    //String nameByUserId = dingDingService.getNameByUserId("586215596024257467");
-                    //finalMap.put("updateUser","**" + "已由 <font color=common_blue1_color>" + nameByUserId + " </font>静默" +" <font color=common_red1_color>2h</font>" + "**");
-                    //String freeMarkerResUpdate = FreeMarkerUtil.getContent("/dingding", "dingdingbasicUpdateCart.ftl", finalMap);
                     dingDingService.sendDingDing(freeMarkerRes,new String[]{"xx"},alert.getLabels().getAlertname());
 
                 } catch (Exception e) {

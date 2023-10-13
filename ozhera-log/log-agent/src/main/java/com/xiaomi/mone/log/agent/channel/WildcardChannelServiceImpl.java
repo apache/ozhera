@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 import static com.xiaomi.mone.log.agent.channel.memory.AgentMemoryService.MEMORY_DIR;
@@ -65,8 +66,6 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private static final String POINTER_FILENAME_PREFIX = ".ozhera_pointer";
 
-    private byte[] lock = new byte[0];
-
     private List<LineMessage> lineMessageList = new ArrayList<>();
 
     private ScheduledFuture<?> scheduledFuture;
@@ -78,6 +77,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     private long lastSendTime = System.currentTimeMillis();
 
     private long logCounts = 0;
+
+    private ReentrantLock reentrantLock = new ReentrantLock();
 
 
     public WildcardChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
@@ -233,8 +234,13 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             }
 
             if (line != null) {
-                synchronized (lock) {
+                try {
+                    reentrantLock.tryLock(30, TimeUnit.SECONDS);
                     wrapDataToSend(line, readResult, patternCode, ip, currentTime);
+                } catch (InterruptedException e) {
+                    log.error("wrapDataToSend InterruptedException", e);
+                } finally {
+                    reentrantLock.unlock();
                 }
             } else {
                 log.debug("Biz log channelId:{}, not a new line:{}", channelDefine.getChannelId(), line);
@@ -247,9 +253,13 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             Long appendTime = mLog.getAppendTime();
             if (appendTime != null && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
                 String remainMsg = mLog.takeRemainMsg2();
-                if (remainMsg != null) {
-                    log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
-                    wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
+                if (null != remainMsg && reentrantLock.tryLock()) {
+                    try {
+                        log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
+                        wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
+                    } finally {
+                        reentrantLock.unlock();
+                    }
                 }
             }
         }, 30, 30, TimeUnit.SECONDS);
@@ -298,8 +308,12 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             if (System.currentTimeMillis() - lastSendTime < 10 * 1000 || CollectionUtils.isEmpty(lineMessageList)) {
                 return;
             }
-            synchronized (lock) {
-                this.doExport(lineMessageList);
+            if (CollectionUtils.isNotEmpty(lineMessageList) && reentrantLock.tryLock()) {
+                try {
+                    this.doExport(lineMessageList);
+                } finally {
+                    reentrantLock.unlock();
+                }
             }
         }, 10, 7, TimeUnit.SECONDS);
     }
@@ -333,10 +347,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     public void refresh(ChannelDefine channelDefine, MsgExporter msgExporter) {
         this.channelDefine = channelDefine;
         if (null != msgExporter) {
-            synchronized (this.lock) {
-                this.msgExporter.close();
-                this.msgExporter = msgExporter;
-            }
+            this.msgExporter.close();
+            this.msgExporter = msgExporter;
         }
     }
 

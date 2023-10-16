@@ -11,8 +11,9 @@ public class Alerts {
     private String status;
     private Labels labels;
     private Annotations annotations;
-    private Date startsAt;
-    private Date endsAt;
+    private String startsAt;
+    private String endsAt;
     private String generatorURL;
     private String fingerprint;
+    private String expectedSilenceTime;
 }

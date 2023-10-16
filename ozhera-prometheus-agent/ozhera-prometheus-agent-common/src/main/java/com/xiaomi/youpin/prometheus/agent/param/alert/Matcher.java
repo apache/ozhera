@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data
-@ToString(callSuper = true)
 public class Matcher {
     private String name;  //label name
     private String value;  //Matching values can be label values or regular expressions.

@@ -1,6 +1,7 @@
 package com.xiaomi.youpin.prometheus.agent.service.alarmContact;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
@@ -10,10 +11,12 @@ import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
 import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
+import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +39,9 @@ public class DingAlertContact extends BaseAlertContact {
 
     @NacosValue(value = "${hera.alertmanager.url}", autoRefreshed = true)
     private String silenceUrl;
+
+    public static final Gson gson = new Gson();
+
     @Override
     public void Reach(AlertManagerFireResult fireResult) {
         List<Alerts> alerts = fireResult.getAlerts();
@@ -50,6 +56,7 @@ public class DingAlertContact extends BaseAlertContact {
                     log.info("SendAlert principals null alertName:{}", alertName);
                     return;
                 }
+                log.info("SendAlert dingdingReach AlertName :{} , principals:{}", alertName,principals);
                 RuleAlertEntity ruleAlertEntity = dao.GetRuleAlertByAlertName(alert.getLabels().getAlertname());
                 int priority = ruleAlertEntity.getPriority();
                 Map<String, Object> map = new HashMap<>();
@@ -94,13 +101,38 @@ public class DingAlertContact extends BaseAlertContact {
 
                 String content = sb.toString();
                 finalMap.put("content", content);
+                //begin constructive silent parameter
+                String callbackTitle = "[" + priority + "][Hera] " + fireResult.getCommonAnnotations().getTitle() + alertOp + alertValue;
+                StringBuilder silenceSb = new StringBuilder();
+                String silencePrefix = silenceSb.append(alert.getLabels().getApplication()).append("||")
+                        .append(alert.getLabels().getAlertname()).append("||").append(content).append("||")
+                        .append(callbackTitle).append("||").toString();
+                finalMap.put("silence2h", silencePrefix + "2h");
+                finalMap.put("silence1d", silencePrefix + "1d");
+                finalMap.put("silence3d", silencePrefix + "3d");
                 String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                dingDingService.sendDingDing(freeMarkerRes, principals);
+                dingDingService.sendDingDing(freeMarkerRes, principals,alert.getLabels().getAlertname() + System.currentTimeMillis());
             } catch (Exception e) {
                 log.error("SendAlert.feishuReach error:{}", e);
             }
         });
 
         log.info("SendAlert success AlertName:{}", alertName);
+    }
+
+    public void updateDingDingCard(String userId, String content, String expectedSilenceTime, String carBizId,String callbackTitle) {
+        log.info("DingAlertContact.updateDingDingCard begin userId:{},content:{},expectedSilenceTime:{},carBizId:{}", userId, content, expectedSilenceTime, carBizId);
+        Map<String, Object> finalMap = new HashMap<>();
+        finalMap.put("content", content);
+        finalMap.put("callbackTitle",callbackTitle);
+        String nameByUserId = dingDingService.getNameByUserId(userId);
+        finalMap.put("updateUser", "**" + "已由 <font color=common_blue1_color>" + nameByUserId +
+                " </font>静默" + " <font color=common_red1_color>" + expectedSilenceTime + "</font>" + "**");
+        try {
+            String freeMarkerResUpdate = FreeMarkerUtil.getContent("/dingding", "dingdingbasicUpdateCart.ftl", finalMap);
+            dingDingService.updateDingDingCard(freeMarkerResUpdate, carBizId);
+        } catch (Exception e) {
+            log.error("DingAlertContact.updateDingDingCard error:{}", e);
+        }
     }
 }

@@ -16,14 +16,14 @@
 package com.xiaomi.mone.log.api.enums;
 
 import lombok.Getter;
+
 /**
  * @author shanwb
  * @date 2021-07-08
  */
 @Getter
 public enum LogTypeEnum {
-    APP_LOG_MULTI(1, "多行应用日志",
-            1, 1,
+    APP_LOG_MULTI(1, "多行应用日志", 1, 1,
             "时间格式开始的日志可以多行采集，例如2022或者[2022]等，如果不是以时间开始,则会多行糅合在一起"),
     NGINX(2, "nginx日志", 3, 1, "单行采集，按文件的每一行采集成一列"),
     OPENTELEMETRY(3, "opentelemetry日志", 4, 0, "多行采集，采集到固定的topic中"),
@@ -82,6 +82,14 @@ public enum LogTypeEnum {
         LogTypeEnum logTypeEnum = type2enum(typeCode);
         if (null != logTypeEnum) {
             return logTypeEnum.getTypeName();
+        }
+        return "";
+    }
+
+    public static String getLogTypeName(Integer typeCode) {
+        LogTypeEnum logTypeEnum = type2enum(typeCode);
+        if (null != logTypeEnum) {
+            return logTypeEnum.name();
         }
         return "";
     }

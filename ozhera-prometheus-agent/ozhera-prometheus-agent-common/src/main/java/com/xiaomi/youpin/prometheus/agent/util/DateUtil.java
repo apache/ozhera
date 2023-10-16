@@ -27,10 +27,4 @@ public class DateUtil {
         return utcTime;
     }
 
-    public static void main(String[] args) {
-        long timeStamp = 1696930178773L;
-        String s = TimeStampToISO8601UTC(timeStamp);
-        System.out.println(s);
-    }
-
 }

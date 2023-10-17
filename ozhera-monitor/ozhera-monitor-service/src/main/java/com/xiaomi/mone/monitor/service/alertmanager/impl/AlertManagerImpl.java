@@ -196,6 +196,7 @@ public class AlertManagerImpl implements AlertManager {
             StringBuilder cname = new StringBuilder();
             cname.append(vo.getAccount()).append("(").append(UserTypeEnum.getEnum(vo.getType()).getDesc()).append(")");
             userInfo.setCname(cname.toString());
+            userInfo.setShowAccount(vo.getShowAccount());
             userInfos.add(userInfo);
         });
         page.setList(userInfos);

@@ -1,32 +1,30 @@
 package com.xiaomi.youpin.prometheus.agent.enums;
 
-import lombok.ToString;
+public enum RuleSilenceStatusEnum implements Base {
 
-@ToString
-public enum RuleAlertStatusEnum  implements Base {
-    PENDING(0, "pending"),
-    SUCCESS(1, "success"),
-            ;
+    SUCCESS(0, "success"),
+    EXPIRED(1, "expired"),
+    ;
+
     private Integer code;
     private String desc;
 
-    RuleAlertStatusEnum(Integer Code, String desc) {
+    RuleSilenceStatusEnum(Integer Code, String desc) {
         this.code = Code;
         this.desc = desc;
     }
 
-    public static RuleAlertStatusEnum getEnum(Integer code) {
+    public static RuleSilenceStatusEnum getEnum(Integer code) {
         if (code == null) {
             return null;
         }
-        for (RuleAlertStatusEnum jobStatus : RuleAlertStatusEnum.values()) {
+        for (RuleSilenceStatusEnum jobStatus : RuleSilenceStatusEnum.values()) {
             if (code.equals(jobStatus.code)) {
                 return jobStatus;
             }
         }
         return null;
     }
-
 
     @Override
     public Integer getCode() {

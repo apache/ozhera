@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.parse;
 
-import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
@@ -65,7 +64,10 @@ public class JsonLogParser implements LogParser {
             return ret;
         }
         try {
-            Map<String, Object> rawLogMap = JSON.parseObject(logData);
+            TypeToken<Map<String, Object>> token = new TypeToken<Map<String, Object>>() {
+            };
+
+            Map<String, Object> rawLogMap = GSON.fromJson(logData, token.getType());
             // The complete set of index column names
             List<String> keyNameList = IndexUtils.getKeyListSlice(parserData.getKeyList());
             // An index subset that marks whether the index column name at the corresponding location is referenced in the current tail

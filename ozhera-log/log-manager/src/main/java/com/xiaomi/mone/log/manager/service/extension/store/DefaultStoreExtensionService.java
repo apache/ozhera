@@ -70,6 +70,8 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
     @Override
     public void storeResourceBinding(MilogLogStoreDO ml, LogStoreParam cmd, OperateEnum operateEnum) {
         if (StringUtils.isNotEmpty(ml.getEsIndex()) && null != ml.getMqResourceId() && null != ml.getEsClusterId()) {
+            //Custom resources operate
+            customResources(ml, cmd);
             return;
         }
         ResourceUserSimple resourceUserConfig = resourceConfigService.userResourceList(cmd.getMachineRoom(), cmd.getLogType());
@@ -92,6 +94,18 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
                 ml.setMqResourceId(milogMiddlewareConfig.getId());
                 cmd.setMqResourceId(milogMiddlewareConfig.getId());
             }
+        }
+    }
+
+    private void customResources(MilogLogStoreDO ml, LogStoreParam command) {
+        if (null != command.getMqResourceId()) {
+            ml.setMqResourceId(command.getMqResourceId());
+        }
+        if (null != command.getEsResourceId()) {
+            ml.setEsClusterId(command.getEsResourceId());
+        }
+        if (StringUtils.isNotBlank(command.getEsIndex())) {
+            ml.setEsIndex(command.getEsIndex());
         }
     }
 

@@ -467,8 +467,8 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         if (milogLogtailDao.deleteMilogLogtail(id)) {
             if (storeExtensionService.isNeedSendMsgType(logStoreDO.getLogType())) {
                 CompletableFuture.runAsync(() -> sendMessageOnDelete(milogLogtailDo, logStoreDO));
+                tailExtensionService.logTailDelPostProcess(logStoreDO, milogLogtailDo);
             }
-            tailExtensionService.logTailDelPostProcess(logStoreDO, milogLogtailDo);
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());
         } else {
             log.warn("[LogTailService.deleteLogTail] delete LogTail error,id:{}", id);

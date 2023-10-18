@@ -1,18 +1,22 @@
 package com.xiaomi.youpin.prometheus.agent.controller;
 
 
-import com.xiaomi.youpin.prometheus.agent.aop.ArgCheck;
+import com.google.gson.*;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
-import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
-import com.xiaomi.youpin.prometheus.agent.param.alert.RuleSilenceParam;
+import com.xiaomi.youpin.prometheus.agent.service.dto.SilenceAlertManagerReqBuilder;
+import com.xiaomi.youpin.prometheus.agent.service.dto.dingding.SilenceCallBack;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleSilenceService;
 import lombok.extern.slf4j.Slf4j;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.xiaomi.youpin.prometheus.agent.result.Result;
+
+import java.util.Arrays;
+import java.util.List;
 
 //Alarm suppression related interface
 
@@ -26,15 +30,25 @@ public class PrometheusSilenceController {
 
     @Autowired
     RuleSilenceService ruleSilenceService;
+    private final Gson gson = new Gson();
 
-    @ArgCheck
+    //@ArgCheck
     @RequestMapping(value = "/silence", method = RequestMethod.POST)
-    public Result createRuleSilence(@RequestBody RuleSilenceParam param) {
-        if (param == null) {
-            return Result.fail(ErrorCode.invalidParamError);
+    public Result createRuleSilence(@RequestBody Object param) {
+        log.info("createRuleSilence param:{}", param);
+        try {
+            String json = gson.toJson(param);
+            SilenceAlertManagerReqBuilder silenceAlertManagerReqBuilder = parseSilenceData(json);
+            if (silenceAlertManagerReqBuilder == null) {
+                return Result.fail(ErrorCode.invalidParamError);
+            }
+            Result result = ruleSilenceService.createRuleSilence(silenceAlertManagerReqBuilder);
+            return result;
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return Result.fail(ErrorCode.unknownError);
         }
-        Result result = ruleSilenceService.createRuleSilence(param);
-        return result;
     }
 
     @RequestMapping(value = "/silence/{id}", method = RequestMethod.PUT)
@@ -60,6 +74,31 @@ public class PrometheusSilenceController {
     @RequestMapping(value = "/silence/list", method = RequestMethod.POST)
     public Result searchRuleSilenceList() {
         return null;
+    }
+
+    private SilenceAlertManagerReqBuilder parseSilenceData(String json) {
+        log.info("createRuleSilence json:{}", json);
+        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+        SilenceCallBack silenceCallBack = gson.fromJson(jsonObject, SilenceCallBack.class);
+        JsonObject contentJsonObject = JsonParser.parseString(silenceCallBack.getContent()).getAsJsonObject();
+        JsonPrimitive valueObject = contentJsonObject.getAsJsonObject("cardPrivateData").
+                getAsJsonObject("params").getAsJsonPrimitive("value");
+        String cardCallBackStr = valueObject.getAsString();
+        //将cardCallBackStr按照||切分
+        List<String> cardCallBackList = Arrays.asList(cardCallBackStr.split("\\|\\|"));
+        if (cardCallBackList.size() != 5) {
+            log.error("cardCallBackList size not valid");
+            return null;
+        }
+        SilenceAlertManagerReqBuilder builder = new SilenceAlertManagerReqBuilder();
+        builder.setOutTrackId(silenceCallBack.getOutTrackId());
+        builder.setUserId(silenceCallBack.getUserId());
+        builder.setApplication(cardCallBackList.get(0));
+        builder.setAlertName(cardCallBackList.get(1));
+        builder.setContent(cardCallBackList.get(2));
+        builder.setCallbackTitle(cardCallBackList.get(3));
+        builder.setExpectedSilenceTime(cardCallBackList.get(4));
+        return builder;
     }
 
 }

@@ -110,7 +110,6 @@ public class ChannelDefineRpcLocator implements ChannelDefineLocator {
             ChannelDefine channelDefine = new ChannelDefine();
             channelDefine.setAppId(appLogMeta.getAppId());
             channelDefine.setAppName(appLogMeta.getAppName());
-            channelDefine.setPodNames(logCollectMeta.getPodNames());
             channelDefine.setSingleMetaData(logCollectMeta.getSingleMetaData());
             channelDefine.setPodType(logCollectMeta.getPodType());
             channelDefine.setDelDirectory(logCollectMeta.getDelDirectory());
@@ -122,7 +121,7 @@ public class ChannelDefineRpcLocator implements ChannelDefineLocator {
                 cloneChannelDefine.setTailName(logPattern.getTailName());
                 //input
                 AppLogInput input = new AppLogInput();
-                input.setType(logPattern.getLogType() != null ? LogTypeEnum.type2enum(logPattern.getLogType()).name() : "");
+                input.setType(logPattern.getLogType() != null ? LogTypeEnum.getLogTypeName(logPattern.getLogType()) : "");
                 input.setLogPattern(logPattern.getLogPattern());
                 input.setPatternCode(logPattern.getPatternCode());
                 input.setLogSplitExpress(logPattern.getLogSplitExpress());

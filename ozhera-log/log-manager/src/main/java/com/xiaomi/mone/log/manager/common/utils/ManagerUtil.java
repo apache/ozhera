@@ -29,6 +29,8 @@ public class ManagerUtil {
 
     private static final List<String> IGNORE_KEYS = Lists.newArrayList("keyword", "text", "ip", "date");
 
+    private static final String TAIL_KEY = "tail";
+
     private ManagerUtil() {
 
     }
@@ -42,6 +44,9 @@ public class ManagerUtil {
                 continue;
             }
             keyList.add(keyDescryArray[i].split(SYMBOL_COLON)[0]);
+        }
+        if (!keyList.contains(TAIL_KEY)) {
+            keyList.add(TAIL_KEY);
         }
         return keyList;
     }

@@ -56,7 +56,7 @@ public class DingAlertContact extends BaseAlertContact {
                     log.info("SendAlert principals null alertName:{}", alertName);
                     return;
                 }
-                log.info("SendAlert dingdingReach AlertName :{} , principals:{}", alertName, principals);
+                log.info("SendAlert dingdingReach AlertName :{} , principals:{}", alertName,principals);
                 RuleAlertEntity ruleAlertEntity = dao.GetRuleAlertByAlertName(alert.getLabels().getAlertname());
                 int priority = ruleAlertEntity.getPriority();
                 Map<String, Object> map = new HashMap<>();
@@ -120,11 +120,11 @@ public class DingAlertContact extends BaseAlertContact {
         log.info("SendAlert success AlertName:{}", alertName);
     }
 
-    public void updateDingDingCard(String userId, String content, String expectedSilenceTime, String carBizId, String callbackTitle) {
+    public void updateDingDingCard(String userId, String content, String expectedSilenceTime, String carBizId,String callbackTitle) {
         log.info("DingAlertContact.updateDingDingCard begin userId:{},content:{},expectedSilenceTime:{},carBizId:{}", userId, content, expectedSilenceTime, carBizId);
         Map<String, Object> finalMap = new HashMap<>();
         finalMap.put("content", content);
-        finalMap.put("callbackTitle", callbackTitle);
+        finalMap.put("callbackTitle",callbackTitle);
         String nameByUserId = dingDingService.getNameByUserId(userId);
         finalMap.put("updateUser", "**" + "已由 <font color=common_blue1_color>" + nameByUserId +
                 " </font>静默" + " <font color=common_red1_color>" + expectedSilenceTime + "</font>" + "**");

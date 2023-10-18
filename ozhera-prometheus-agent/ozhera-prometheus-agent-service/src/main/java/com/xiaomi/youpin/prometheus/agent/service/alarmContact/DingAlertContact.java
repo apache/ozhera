@@ -111,7 +111,7 @@ public class DingAlertContact extends BaseAlertContact {
                 finalMap.put("silence1d", silencePrefix + "1d");
                 finalMap.put("silence3d", silencePrefix + "3d");
                 String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                dingDingService.sendDingDing(freeMarkerRes, principals,alert.getLabels().getAlertname() + System.currentTimeMillis());
+                dingDingService.sendDingDing(freeMarkerRes, principals, alert.getLabels().getAlertname() + "||" + System.currentTimeMillis());
             } catch (Exception e) {
                 log.error("SendAlert.feishuReach error:{}", e);
             }

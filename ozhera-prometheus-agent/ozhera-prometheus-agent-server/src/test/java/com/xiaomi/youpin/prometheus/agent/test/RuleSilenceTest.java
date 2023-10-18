@@ -29,9 +29,6 @@ public class RuleSilenceTest {
         entity.setPromCluster("open-source");
         entity.setStatus(RuleSilenceStatusEnum.SUCCESS.getDesc());
         entity.setAlertId("123");
-        //转换成上海时间
-        TimeZone timeZone = TimeZone.getTimeZone("Asia/Shanghai");
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         entity.setStartTime(new Date());
         Date endTime = new Date();
         endTime.setTime(System.currentTimeMillis() + 2 * 3600 * 1000);

@@ -3,7 +3,11 @@ package com.xiaomi.youpin.prometheus.agent.service.prometheus;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
+import com.xiaomi.youpin.prometheus.agent.Impl.ScrapeConfigDao;
+import com.xiaomi.youpin.prometheus.agent.Impl.SilenceDao;
+import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
+import com.xiaomi.youpin.prometheus.agent.enums.RuleSilenceStatusEnum;
 import com.xiaomi.youpin.prometheus.agent.param.alert.AMSilence;
 import com.xiaomi.youpin.prometheus.agent.param.alert.AMSilenceResponse;
 import com.xiaomi.youpin.prometheus.agent.param.alert.Matcher;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
@@ -40,7 +45,13 @@ public class RuleSilenceService {
     @Autowired
     DingAlertContact dingAlertContact;
 
+    @Autowired
+    SilenceDao dao;
+
+    private static final String CLUSTER = "open-source";
     private final Gson gson = new Gson();
+
+    private final Date endTime = new Date();
 
     public static final String CREATE_SILENCE = "/api/v2/silences";
 
@@ -63,7 +74,26 @@ public class RuleSilenceService {
             log.error("createRuleSilence request alertManager failed,param:{}", param);
             return Result.fail(ErrorCode.OperationFailed);
         }
-        //TODO: insert db
+
+        //insert db
+        RuleSilenceEntity entity = new RuleSilenceEntity();
+        entity.setUuid(silenceResId);
+        entity.setPromCluster(CLUSTER);
+        entity.setStatus(RuleSilenceStatusEnum.SUCCESS.getDesc());
+        entity.setAlertId(param.getAlertName());
+        entity.setStartTime(new Date());
+        endTime.setTime(System.currentTimeMillis() + transferTimeMillis(param.getExpectedSilenceTime()));
+        entity.setEndTime(endTime);
+        entity.setCreatedTime(new Date());
+        entity.setUpdatedTime(new Date());
+        entity.setComment("Hera silence");
+        entity.setCreatedBy(param.getUserId());
+        log.info("createRuleSilence insert db begin,entity:{}", entity);
+        Long silenceDbId = dao.CreateSilence(entity);
+        if (silenceDbId == null) {
+            log.error("createRuleSilence insert db failed,entity:{}", entity);
+            return Result.fail(ErrorCode.OperationFailed);
+        }
 
         //Call back different update cards according to different alert types
         updateCardByAlertType(param.getUserId(),param.getContent(),param.getExpectedSilenceTime(),param.getOutTrackId(),param.getCallbackTitle());

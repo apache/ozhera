@@ -15,7 +15,7 @@ public class RuleSilenceEntity {
     @Id
     private Long id;
 
-    @Column("name")
+    @Column("uuid")
     private String uuid;
 
     @Column("comment")
@@ -41,5 +41,8 @@ public class RuleSilenceEntity {
 
     @Column("alert_id")
     private String alertId;
+
+    @Column("created_by")
+    private String createdBy;
 
 }

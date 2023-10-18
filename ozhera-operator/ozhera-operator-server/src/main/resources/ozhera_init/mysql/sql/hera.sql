@@ -1077,7 +1077,7 @@ CREATE TABLE `silence`
     `updated_time` timestamp                                                     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'updated time',
     `prom_cluster` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci          DEFAULT 'public' COMMENT 'prometheus cluster name',
     `status`       varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci  NOT NULL DEFAULT 'pending' COMMENT 'Was the configuration successfully deployed : pending、success',
-    `alert_id`     int                                                           NOT NULL DEFAULT '0' COMMENT 'alert id',
+    `alert_id`      varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci    NOT NULL DEFAULT '0' COMMENT 'alert id',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 

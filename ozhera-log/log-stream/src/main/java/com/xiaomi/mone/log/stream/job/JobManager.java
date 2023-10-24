@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.stream.job;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.model.EsInfo;
 import com.xiaomi.mone.log.model.LogtailConfig;
@@ -32,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,44 +44,38 @@ public class JobManager {
     /**
      * key: logstoreId
      */
-    private ConcurrentHashMap<Long, List<SinkJob>> jobs = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, Map<SinkJobEnum, SinkJob>> jobs = new ConcurrentHashMap<>();
 
     private SinkChain sinkChain = Ioc.ins().getBean(SinkChain.class);
 
     private Gson gson = new Gson();
 
     public void closeJobs(MilogSpaceData milogSpaceData) {
-        List<SinkConfig> spaceConfig = milogSpaceData.getSpaceConfig();
+        List<SinkConfig> configList = milogSpaceData.getSpaceConfig();
         log.info("Tasks that are already running:{},The task that is about to be shut down:{}", gson.toJson(jobs), gson.toJson(milogSpaceData));
-        if (spaceConfig != null) {
-            spaceConfig.forEach(sinkConfig -> {
-                List<LogtailConfig> logtailConfigs = sinkConfig.getLogtailConfigs();
-                if (logtailConfigs != null) {
-                    logtailConfigs.forEach(logtailConfig -> {
-                        try {
-                            sinkJobsShutDown(logtailConfig);
-                        } catch (Exception e) {
-                            log.error(String.format("[JobManager.closeJobs] closeJob err,logtailId:%s", logtailConfig.getLogtailId()), e);
-                        }
-                    });
+        if (CollectionUtils.isNotEmpty(configList)) {
+            for (SinkConfig sinkConfig : configList) {
+                List<LogtailConfig> tailConfigs = sinkConfig.getLogtailConfigs();
+                for (LogtailConfig tailConfig : tailConfigs) {
+                    try {
+                        sinkJobsShutDown(tailConfig);
+                    } catch (Exception e) {
+                        log.error(String.format("[JobManager.closeJobs] closeJob err,logtailId:%s", tailConfig.getLogtailId()), e);
+                    }
                 }
-            });
+            }
         }
     }
 
     private void sinkJobsShutDown(LogtailConfig logtailConfig) {
-        List<SinkJob> sinkJobs = jobs.get(logtailConfig.getLogtailId());
-        if (CollectionUtils.isNotEmpty(sinkJobs)) {
-            sinkJobs.forEach(sinkJob -> {
-                try {
-                    sinkJob.shutdown();
-                } catch (Exception e) {
-                    log.error("[JobManager.shutdown] closeJobs.shutdown error,logTailID:{}", logtailConfig.getLogtailId(), e);
-                }
-            });
-        } else {
-            log.warn("[JobManager.closeJobs] closeJobs.shutdown error,old job is null,logtailID:{}", logtailConfig.getLogtailId());
-        }
+        Map<SinkJobEnum, SinkJob> sinkJobs = jobs.get(logtailConfig.getLogtailId());
+        sinkJobs.values().forEach(sinkJob -> {
+            try {
+                sinkJob.shutdown();
+            } catch (Exception e) {
+                log.error("[JobManager.shutdown] closeJobs.shutdown error,logTailID:{}", logtailConfig.getLogtailId(), e);
+            }
+        });
         jobs.remove(logtailConfig.getLogtailId());
     }
 
@@ -98,45 +92,56 @@ public class JobManager {
     private void startConsumerJob(String type, String ak, String sk, String clusterInfo, LogtailConfig
             logtailConfig, String keyList, String logStoreName, String esIndex, EsInfo esInfo, Long logStoreId, Long logSpaceId) {
         try {
-            SinkJobConfig sinkJobConfig = SinkJobConfig.builder()
-                    .mqType(type)
-                    .ak(ak)
-                    .sk(sk)
-                    .clusterInfo(clusterInfo)
-                    .topic(logtailConfig.getTopic())
-                    .tag(logtailConfig.getTag())
-                    .index(esIndex)
-                    .keyList(keyList)
-                    .valueList(logtailConfig.getValueList())
-                    .parseScript(logtailConfig.getParseScript())
-                    .logStoreName(logStoreName)
-                    .sinkChain(this.getSinkChain())
-                    .tail(logtailConfig.getTail())
-                    .esInfo(esInfo)
-                    .parseType(logtailConfig.getParseType())
-                    .jobType(SinkJobEnum.NORMAL_JOB.name())
-                    .build();
-            sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
-            sinkJobConfig.setLogStoreId(logStoreId);
-            sinkJobConfig.setLogSpaceId(logSpaceId);
+            SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId);
             log.warn("##startConsumerJob## spaceId:{}, storeId:{}, tailId:{}", sinkJobConfig.getLogSpaceId(), sinkJobConfig.getLogStoreId(), sinkJobConfig.getLogTailId());
 
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
             SinkJobProvider sinkJobProvider = Ioc.ins().getBean(sinkProviderBean);
-            SinkJob instanceSinkJobEs = sinkJobProvider.getSinkJob(sinkJobConfig);
 
-            if (instanceSinkJobEs.start()) {
-                jobs.putIfAbsent(logtailConfig.getLogtailId(), Lists.newArrayList());
-                jobs.get(logtailConfig.getLogtailId()).add(instanceSinkJobEs);
-            }
-            SinkJob providerBackupJob = sinkJobProvider.getBackupJob(sinkJobConfig);
-            if (null != providerBackupJob && providerBackupJob.start()) {
-                jobs.get(logtailConfig.getLogtailId()).add(providerBackupJob);
-            }
+            startSinkJob(sinkJobProvider.getSinkJob(sinkJobConfig), SinkJobEnum.NORMAL_JOB,
+                    logtailConfig.getLogtailId());
+
+            sinkJobConfig.setJobType(SinkJobEnum.BACKUP_JOB.name());
+            startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
+                    logtailConfig.getLogtailId());
+
             log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex));
         } catch (Throwable e) {
             log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex), e);
         }
+    }
+
+    private void startSinkJob(SinkJob sinkJob, SinkJobEnum jobEnum, Long tailId) throws Exception {
+        if (sinkJob != null && sinkJob.start()) {
+            Map<SinkJobEnum, SinkJob> jobMap = jobs.computeIfAbsent(tailId, k -> new HashMap<>());
+            jobMap.put(jobEnum, sinkJob);
+        }
+    }
+
+
+    private SinkJobConfig buildSinkJobConfig(String type, String ak, String sk, String clusterInfo, LogtailConfig logtailConfig, String keyList, String logStoreName, String esIndex, EsInfo esInfo, Long logStoreId, Long logSpaceId) {
+        SinkJobConfig sinkJobConfig = SinkJobConfig.builder()
+                .mqType(type)
+                .ak(ak)
+                .sk(sk)
+                .clusterInfo(clusterInfo)
+                .topic(logtailConfig.getTopic())
+                .tag(logtailConfig.getTag())
+                .index(esIndex)
+                .keyList(keyList)
+                .valueList(logtailConfig.getValueList())
+                .parseScript(logtailConfig.getParseScript())
+                .logStoreName(logStoreName)
+                .sinkChain(this.getSinkChain())
+                .tail(logtailConfig.getTail())
+                .esInfo(esInfo)
+                .parseType(logtailConfig.getParseType())
+                .jobType(SinkJobEnum.NORMAL_JOB.name())
+                .build();
+        sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
+        sinkJobConfig.setLogStoreId(logStoreId);
+        sinkJobConfig.setLogSpaceId(logSpaceId);
+        return sinkJobConfig;
     }
 
     public synchronized void startJob(LogtailConfig logtailConfig, String esIndex, String keyList, String logStoreName,
@@ -157,8 +162,8 @@ public class JobManager {
     }
 
     public void stopAllJob() {
-        for (Map.Entry<Long, List<SinkJob>> sinkJobEntry : jobs.entrySet()) {
-            sinkJobEntry.getValue().forEach(sinkJob -> {
+        for (Map.Entry<Long, Map<SinkJobEnum, SinkJob>> sinkJobEntry : jobs.entrySet()) {
+            sinkJobEntry.getValue().values().forEach(sinkJob -> {
                 try {
                     sinkJob.shutdown();
                 } catch (Exception e) {
@@ -168,4 +173,30 @@ public class JobManager {
         }
         jobs.clear();
     }
+
+
+    public boolean shutDownJob(SinkJobEnum sinkJobEnum) {
+        for (Map<SinkJobEnum, SinkJob> sinkJobMap : jobs.values()) {
+            try {
+                SinkJob sinkJob = sinkJobMap.get(sinkJobEnum);
+                sinkJob.shutdown();
+            } catch (Exception e) {
+                log.error("shutDownJob error", e);
+            }
+        }
+        return true;
+    }
+
+    public boolean startJob(SinkJobEnum sinkJobEnum) {
+        for (Map<SinkJobEnum, SinkJob> sinkJobMap : jobs.values()) {
+            try {
+                SinkJob sinkJob = sinkJobMap.get(sinkJobEnum);
+                sinkJob.start();
+            } catch (Exception e) {
+                log.error("startJob error", e);
+            }
+        }
+        return true;
+    }
+
 }

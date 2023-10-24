@@ -119,6 +119,31 @@ public class PathUtils {
         return pathList;
     }
 
+    public static List<String> buildMultipleDirectories(String multipleDire) {
+        List<String> pathList = Lists.newArrayList();
+        if (multipleDire.contains(MULTI_FILE_PREFIX) && multipleDire.contains(MULTI_FILE_SUFFIX)) {
+            String[] directoryArray = multipleDire.split(SEPARATOR);
+            String directory = "";
+            List<String> directories = Lists.newArrayList();
+            for (String perDire : directoryArray) {
+                if (perDire.startsWith(MULTI_FILE_PREFIX) && perDire.endsWith(MULTI_FILE_SUFFIX)) {
+                    directory = perDire;
+                    directories = Arrays.asList(StringUtils.substringBetween(perDire, MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX).split(SPLIT_VERTICAL_LINE));
+                }
+            }
+            if (StringUtils.isNotBlank(directory)) {
+                String prefix = StringUtils.substringBeforeLast(multipleDire, directory);
+                String suffix = StringUtils.substringAfter(multipleDire, directory);
+                for (String directoryTemp : directories) {
+                    pathList.add(String.format("%s%s%s", prefix, directoryTemp, suffix));
+                }
+            }
+        } else {
+            pathList.add(multipleDire);
+        }
+        return pathList;
+    }
+
     private static void handleMultipleDirectoryFile(String basePath, String fileNamePattern, List<String> pathList) {
         if (basePath.contains(MULTI_FILE_PREFIX) && basePath.contains(MULTI_FILE_SUFFIX)) {
             String multiDirectories = StringUtils.substringBetween(basePath, MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX);

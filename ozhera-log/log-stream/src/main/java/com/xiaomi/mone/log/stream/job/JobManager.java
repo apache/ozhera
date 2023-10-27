@@ -107,7 +107,7 @@ public class JobManager {
 
             log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex));
         } catch (Throwable e) {
-            log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex), e);
+            log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex), new RuntimeException(e));
         }
     }
 
@@ -134,6 +134,7 @@ public class JobManager {
                 .logStoreName(logStoreName)
                 .sinkChain(this.getSinkChain())
                 .tail(logtailConfig.getTail())
+                .tailId(logtailConfig.getLogtailId())
                 .esInfo(esInfo)
                 .parseType(logtailConfig.getParseType())
                 .jobType(SinkJobEnum.NORMAL_JOB.name())

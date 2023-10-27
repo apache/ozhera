@@ -55,6 +55,7 @@ public interface LogParser {
     String esKeyMap_logSource = "logsource";
     String esKeyMap_MESSAGE = "message";
     String esKeyMap_tail = "tail";
+    String ES_KEY_MAP_TAIL_ID = "tailId";
     String esKeyMap_logip = "logip";
     String esKeyMap_lineNumber = "linenumber";
     String esKyeMap_fileName = "filename";

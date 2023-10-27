@@ -121,7 +121,7 @@ public class EsPlugin {
 
                 @Override
                 public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    log.error(String.format("fail send %s message to es,desc:%s,es addr:%s", request.numberOfActions(), request.getDescription(), esInfo.getAddr()), new Exception(failure));
+                    log.error(String.format("fail send %s message to es,desc:%s,es addr:%s", request.numberOfActions(), request.getDescription(), esInfo.getAddr()), new RuntimeException(failure));
                     Class clazz = failure.getClass();
                     log.error("Bulk [{}] finished with [{}] requests of error:{}, {}, {}:-[{}]", executionId
                             , request.numberOfActions()

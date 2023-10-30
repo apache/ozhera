@@ -902,7 +902,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         Set allIps = new HashSet();
         for(Metric metric : metrics){
 
-            allIps.add(metric.getServerIp());
+            allIps.add(metric.getPodIp());
 
             if(StringUtils.isBlank(metric.getServerEnv())){
                 continue;
@@ -912,12 +912,12 @@ public class AlarmExprServiceOuter implements AlarmExprService {
 
             stringObjectMap.putIfAbsent("envIps", new HashSet<>());
             HashSet ipList = (HashSet<String>)stringObjectMap.get("envIps");
-            ipList.add(metric.getServerIp());
+            ipList.add(metric.getPodIp());
 
             if(StringUtils.isNotBlank(metric.getServerZone())){
                 allZones.putIfAbsent(metric.getServerZone(),new HashSet<String>());
                 HashSet<String> zoneIps = allZones.get(metric.getServerZone());
-                zoneIps.add(metric.getServerIp());
+                zoneIps.add(metric.getPodIp());
 
                 stringObjectMap.putIfAbsent("zoneList", new HashMap<>());
                 HashMap serviceList = (HashMap<String,Set<String>>)stringObjectMap.get("zoneList");
@@ -925,7 +925,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
                 serviceList.putIfAbsent(metric.getServerZone(), new HashSet<String>());
                 HashSet<String> ips = (HashSet<String>)serviceList.get(metric.getServerZone());
 
-                ips.add(metric.getServerIp());
+                ips.add(metric.getPodIp());
             }
         }
 
@@ -941,7 +941,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         projectName = projectName.replaceAll("-","_");
 
         StringBuilder builder = new StringBuilder();
-        builder.append("process_uptime_seconds{application=\"")
+        builder.append("container_last_seen{application=\"")
                 .append(projectId).append("_").append(projectName)
                 .append("\"").append("}");
         Result<PageData> pageDataResult = prometheusService.queryByMetric(builder.toString());

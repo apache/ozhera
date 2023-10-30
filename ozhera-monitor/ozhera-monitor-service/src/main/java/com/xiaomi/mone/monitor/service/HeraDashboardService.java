@@ -199,7 +199,7 @@ public class HeraDashboardService {
                 template.setDeleted(false);
                 template.setPanelIdList(DashboardConstant.DEFAULT_PANEL_ID_LIST);
                 int insertRes = grafanaTemplateDao.insert(template);
-                log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-java默认模板", insertRes);
+                log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-java模板", insertRes);
             } catch (IOException e) {
                 log.error("HeraDashboardService.createDefaultDashboardTemplate error :{}", e.getMessage());
             }

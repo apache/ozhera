@@ -47,6 +47,7 @@ public class SinkJobConfig extends LogConfig {
     private String logStoreName;
     private SinkChain sinkChain;
     private String tail;
+    private Long tailId;
     private EsInfo esInfo;
     private Integer parseType;
     /**

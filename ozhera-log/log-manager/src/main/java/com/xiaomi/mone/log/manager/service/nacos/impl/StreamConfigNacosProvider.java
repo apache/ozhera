@@ -47,7 +47,20 @@ public class StreamConfigNacosProvider implements DynamicConfigProvider<MiLogStr
                 return gson.fromJson(rules, MiLogStreamConfig.class);
             }
         } catch (Exception e) {
-            log.error(String.format("Query namespace configuration data data exceptions, parameters:%s", rules), e);
+            log.error("Query namespace configuration data data exceptions", e);
+        }
+        return null;
+    }
+
+    public MiLogStreamConfig getConfig(String appName, String dataId) {
+        String rules = null;
+        try {
+            rules = configService.getConfig(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+            if (StringUtils.isNotEmpty(rules)) {
+                return gson.fromJson(rules, MiLogStreamConfig.class);
+            }
+        } catch (Exception e) {
+            log.error(String.format("Query namespace configuration data data exceptions, parameters:%s", dataId), e);
         }
         return null;
     }

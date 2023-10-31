@@ -49,7 +49,7 @@ spec:
             - '--store_container_labels=false'
             - '--docker_only'
             - '--whitelisted_container_labels=io.kubernetes.container.name,io.kubernetes.pod.name,io.kubernetes.pod.namespace,annotation.io.kubernetes.container.restartCount'
-            - '--env_metadata_whitelist=ENV_ID,PROJECT_ID,APPLICATION,serverEnv'
+            - '--env_metadata_whitelist=ENV_ID,PROJECT_ID,application,serverEnv,POD_IP'
             - '--enable_load_reader=true'
           ports:
             - name: http

@@ -11,4 +11,5 @@ public class UserInfo {
     private String cname;
     private String email;
     private Integer type;
+    private String showAccount;
 }

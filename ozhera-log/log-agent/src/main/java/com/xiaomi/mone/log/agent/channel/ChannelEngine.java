@@ -312,12 +312,21 @@ public class ChannelEngine {
         log.info("[config change],changed data:{},origin data:{}", gson.toJson(channelDefines), gson.toJson(channelDefineList));
         try {
             if (CollectionUtils.isNotEmpty(channelDefines) && !CollectionUtils.isEqualCollection(channelDefines, channelDefineList)) {
-                if (channelDefines.stream().allMatch(channelDefine -> null != channelDefine.getOperateEnum() && channelDefine.getOperateEnum().getCode().equals(OperateEnum.DELETE_OPERATE.getCode()))) {
+                if (channelDefines.stream().allMatch(channelDefine -> null != channelDefine.getOperateEnum() &&
+                        channelDefine.getOperateEnum().getCode().equals(OperateEnum.STOP_OPERATE.getCode()))) {
                     // Collect and delete files in the specified directory
-                    log.info("delSpecialFileColl,config:{}", gson.toJson(channelDefines));
+                    log.info("stopSpecialFileColl,config:{}", gson.toJson(channelDefines));
                     delSpecialFileColl(channelDefines);
                     return;
                 }
+
+                if (channelDefines.stream().allMatch(channelDefine -> null != channelDefine.getOperateEnum() &&
+                        channelDefine.getOperateEnum().getCode().equals(OperateEnum.DELETE_OPERATE.getCode()))) {
+                    log.info("delSpecialFileColl,config:{}", gson.toJson(channelDefines));
+                    deleteConfig(channelDefines, false);
+                    return;
+                }
+
                 log.info("refresh,config:{}", gson.toJson(channelDefines));
                 // add config
                 addConfig(channelDefines, false);

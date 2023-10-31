@@ -56,9 +56,7 @@ public class MioneRocketMqConsumer extends RocketMqConsumer {
             log.error("Subscription IP address changed Mq consumption abnormality", e);
         }
         consumer.registerMessageListener((MessageListenerOrderly) (list, consumeOrderlyContext) -> {
-            list.stream().forEach(ele -> {
-                ipChangeConsumeMessage(ele);
-            });
+            list.forEach(this::ipChangeConsumeMessage);
             return ConsumeOrderlyStatus.SUCCESS;
         });
 

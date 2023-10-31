@@ -16,7 +16,7 @@
       ],
       "input": {
         "type": "APP_LOG_MULTI",
-        "logPattern": "/home/work/log/log-agent/server.log.*",
+        "logPattern": "/home/work/log/(log-agent|hera-app)/server.log.*",
         "logSplitExpress": "/home/work/log/log-agent/server.log.*",
         "patternCode": "test_server_log"
       },

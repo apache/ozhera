@@ -124,6 +124,12 @@
                 <artifactId>hera-trace</artifactId>
                 <version>1.4.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.8.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -140,22 +146,6 @@
             <artifactId>lombok</artifactId>
 <!--            <version>1.18.4</version>-->
             <!--            <scope>provided</scope>-->
-        </dependency>
-
-        <dependency>
-            <groupId>run.mone</groupId>
-            <artifactId>rpc</artifactId>
-            <version>1.7-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

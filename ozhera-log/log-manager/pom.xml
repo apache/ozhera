@@ -19,15 +19,15 @@
     <dependencies>
 
         <dependency>
-            <artifactId>mi-tpclogin-sdk</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>nacos</artifactId>
+            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <artifactId>mi-tpclogin-sdk</artifactId>
+            <groupId>run.mone</groupId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

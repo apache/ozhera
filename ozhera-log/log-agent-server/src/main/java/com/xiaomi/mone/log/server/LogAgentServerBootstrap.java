@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+import static com.xiaomi.mone.log.server.common.ServerConstant.SERVER_PORT;
+
 /**
  * @author wtt
  * @version 1.0
@@ -43,7 +45,7 @@ public class LogAgentServerBootstrap {
         String serverName = Config.ins().get("serverName", "");
         log.info("nacos:{} name:{}", nacosAddr, serverName);
         RpcServer rpcServer = new RpcServer(nacosAddr, serverName);
-        rpcServer.setListenPort(9899);
+        rpcServer.setListenPort(SERVER_PORT);
         //Register the processor
         rpcServer.setProcessorList(Lists.newArrayList(
                 new Pair<>(RpcCmd.pingReq, new PingProcessor()),

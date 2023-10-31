@@ -15,7 +15,7 @@ public enum RuleAlertStatusEnum  implements Base {
         this.desc = desc;
     }
 
-    public static final RuleAlertStatusEnum getEnum(Integer code) {
+    public static RuleAlertStatusEnum getEnum(Integer code) {
         if (code == null) {
             return null;
         }

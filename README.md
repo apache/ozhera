@@ -51,13 +51,23 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 
 ---
 
+### Contributing
+Contributors are welcomed to join ozhera project. Please check [contributing.md](readme%2Fcontributing%2Fcontributing.md) about how to contribute to this project.
+
+How can I contribute?
+- Take a look at issues with tags marked [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted).
+- Answer questions on [issues](https://github.com/XiaoMi/ozhera/issues).
+- Fix bugs reported on [issues](https://github.com/XiaoMi/ozhera/issues), and send us a pull request.
+- Review the existing [pull request](https://github.com/XiaoMi/ozhera/pulls).
+
+---
+
 ## User List
 
 If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.
 
 |![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
 | :---: | :---: | :---: | :---: |
-
 
 
 

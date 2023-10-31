@@ -189,18 +189,72 @@
 "timeFrom": null,
 "timeShift": null
 },
+
 {
+"id": 148,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 1
+},
+"type": "table",
+"title": "实例列表 【主机数：$total】可以点击跳转到容器与物理机监控",
+"transformations": [
+{
+"id": "filterFieldsByName",
+"options": {
+"include": {
+"names": [
+"ip",
+"podIp",
+"Value"
+]
+}
+}
+},
+{
+"id": "calculateField",
+"options": {
+"mode": "reduceRow",
+"reduce": {
+"reducer": "lastNotNull"
+}
+}
+},
+{
+"id": "organize",
+"options": {
+"excludeByName": {
+"jumpIp": false
+},
+"indexByName": {
+"Last (not null)": 2,
+"Value": 1,
+"jumpIp": 3,
+"serverIp": 0
+},
+"renameByName": {
+"jumpIp": "宿主机"
+}
+}
+}
+],
 "datasource": {
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
+"pluginVersion": "9.2.0",
+"description": "点击实例下方的IP可以跳转到服务所在的物理机监控\n\n点击容器启动时间下方的时间可以跳转到服务所在的容器监控",
 "fieldConfig": {
 "defaults": {
 "custom": {
 "align": "center",
-"filterable": false,
-"displayMode": "color-background"
+"displayMode": "color-background",
+"inspect": false,
+"filterable": false
 },
+"mappings": [],
 "thresholds": {
 "mode": "absolute",
 "steps": [
@@ -218,7 +272,6 @@
 }
 ]
 },
-"mappings": [],
 "color": {
 "mode": "continuous-GrYlRd"
 }
@@ -227,7 +280,7 @@
 {
 "matcher": {
 "id": "byName",
-"options": "serverIp"
+"options": "ip"
 },
 "properties": [
 {
@@ -259,7 +312,7 @@
 {
 "matcher": {
 "id": "byName",
-"options": "Value"
+"options": "Last *"
 },
 "properties": [
 {
@@ -285,20 +338,22 @@
 "id": "mappings",
 "value": [
 {
-"from": "",
-"id": 1,
-"text": "宕机",
-"to": "",
-"type": 1,
-"value": "0"
+"options": {
+"0": {
+"text": "宕机"
+}
+},
+"type": "value"
 },
 {
-"from": "1",
-"id": 2,
-"text": "存活",
-"to": "999999999999999998",
-"type": 2,
-"value": "1"
+"options": {
+"from": 1,
+"result": {
+"text": "存活"
+},
+"to": 1000000000000000000
+},
+"type": "range"
 }
 ]
 },
@@ -327,7 +382,7 @@
 {
 "matcher": {
 "id": "byName",
-"options": "Last *"
+"options": "podIp"
 },
 "properties": [
 {
@@ -360,18 +415,34 @@
 }
 }
 ]
+},
+{
+"matcher": {
+"id": "byName",
+"options": "Value"
+},
+"properties": [
+{
+"id": "displayName",
+"value": "最近探活时间"
+},
+{
+"id": "custom.hidden",
+"value": true
+}
+]
 }
 ]
 },
-"gridPos": {
-"h": 8,
-"w": 12,
-"x": 12,
-"y": 1
-},
-"id": 148,
 "options": {
 "showHeader": true,
+"footer": {
+"show": false,
+"reducer": [
+"sum"
+],
+"fields": ""
+},
 "sortBy": [
 {
 "desc": false,
@@ -379,73 +450,40 @@
 }
 ]
 },
-"pluginVersion": "7.5.3",
 "targets": [
 {
-"expr": "sum(process_uptime_seconds{application=\"$application\",serverIp=~\"$instance\"}) by (serverIp,jumpIp)",
-"legendFormat": "{{serverIp}}",
-"interval": "",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"editorMode": "code",
 "exemplar": true,
+"expr": "sum(process_uptime_seconds{application=\"$application\",serverIp=~\"$instance\"}) by (serverIp,jumpIp)",
 "format": "table",
-"hide": false,
+"hide": true,
 "instant": true,
+"interval": "",
+"legendFormat": "{{serverIp}}",
 "refId": "A"
 },
 {
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"editorMode": "code",
 "exemplar": true,
-"expr": "sum(container_last_seen{image!=\"\",name=~\"$containerName.*\"}) by (name,ip)",
+"expr": "sum(container_last_seen{application=\"$application\",podIp=~\"$instance\"}) by (podIp,ip)",
 "format": "table",
-"hide": true,
+"hide": false,
 "instant": true,
 "interval": "",
 "legendFormat": "",
 "refId": "B"
 }
-],
-"title": "实例列表 【主机数：$total】可以点击跳转到容器与物理机监控",
-"description": "点击实例下方的IP可以跳转到服务所在的物理机监控\n\n点击容器启动时间下方的时间可以跳转到服务所在的容器监控",
-"transformations": [
-{
-"id": "filterFieldsByName",
-"options": {
-"include": {
-"names": [
-"serverIp",
-"Value",
-"jumpIp"
 ]
-}
-}
 },
-{
-"id": "calculateField",
-"options": {
-"mode": "reduceRow",
-"reduce": {
-"reducer": "lastNotNull"
-}
-}
-},
-{
-"id": "organize",
-"options": {
-"excludeByName": {
-"jumpIp": false
-},
-"indexByName": {
-"serverIp": 0,
-"Value": 1,
-"Last (not null)": 2,
-"jumpIp": 3
-},
-"renameByName": {
-"jumpIp": "宿主机"
-}
-}
-}
-],
-"type": "table"
-},
+
 {
 "aliasColors": {},
 "dashLength": 10,
@@ -5148,7 +5186,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "label_values(jvm_classes_loaded_classes{application=\"$application\"},serverEnv)",
+"definition": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
 "description": null,
 "error": null,
 "hide": 0,
@@ -5158,7 +5196,7 @@
 "name": "serverEnv",
 "options": [],
 "query": {
-"query": "label_values(jvm_classes_loaded_classes{application=\"$application\"},serverEnv)",
+"query": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
 "refId": "StandardVariableQuery"
 },
 "refresh": 1,
@@ -5186,7 +5224,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "label_values(jvm_classes_loaded_classes{application=\"$application\",serverEnv=~\"$serverEnv\"},serverIp)",
+"definition": "label_values(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"},podIp)",
 "description": null,
 "error": null,
 "hide": 0,
@@ -5196,7 +5234,7 @@
 "name": "instance",
 "options": [],
 "query": {
-"query": "label_values(jvm_classes_loaded_classes{application=\"$application\",serverEnv=~\"$serverEnv\"},serverIp)",
+"query": "label_values(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"},podIp)",
 "refId": "StandardVariableQuery"
 },
 "refresh": 2,
@@ -5220,7 +5258,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "query_result(count(jvm_classes_loaded_classes{application=\"$application\",serverEnv=~\"$serverEnv\",job=\"mione-yewujiankong-china-jvm\"}))",
+"definition": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"} by (podIp)))",
 "description": null,
 "error": null,
 "hide": 2,
@@ -5230,7 +5268,7 @@
 "name": "total",
 "options": [],
 "query": {
-"query": "query_result(count(jvm_classes_loaded_classes{application=\"$application\",serverEnv=~\"$serverEnv\",job=\"mione-yewujiankong-china-jvm\"}))",
+"query": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"} by (podIp)))",
 "refId": "StandardVariableQuery"
 },
 "refresh": 2,
@@ -5439,5 +5477,5 @@
 "overwrite":false,
 "folderId":${folderId},
 "folderUid":"${folderUid}",
-"message":"hera V1.0"
+"message":"hera V1.1"
 }

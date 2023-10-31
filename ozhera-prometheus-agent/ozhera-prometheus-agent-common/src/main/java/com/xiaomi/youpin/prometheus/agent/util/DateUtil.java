@@ -19,4 +19,12 @@ public class DateUtil {
         return outputDate;
     }
 
+    @SneakyThrows
+    public static String TimeStampToISO8601UTC(long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:MM:ss.sss'Z'");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String utcTime = sdf.format(new Date(timeStamp));
+        return utcTime;
+    }
+
 }

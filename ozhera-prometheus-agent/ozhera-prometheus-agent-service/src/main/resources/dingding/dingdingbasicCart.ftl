@@ -23,17 +23,43 @@
 "type": "button",
 "label": {
 "type": "text",
-"text": "报警静默",
-"id": "text_1695109070630"
+"text": "报警静默2h",
+"id": "text_1696818602521"
 },
-"actionType": "openLink",
-"url": {
-"all": "${silence_url}"
+"actionType": "request",
+"value": "${silence2h}",
+"iconCode": "icon_notice_warning",
+"status": "normal",
+"id": "button_1647246177301"
 },
+{
+"type": "button",
+"label": {
+"type": "text",
+"text": "报警静默1d",
+"id": "text_1696818602521"
+},
+"actionType": "request",
+"value": "${silence1d}",
+"iconCode": "icon_notice_warning",
 "status": "primary",
-"id": "button_1646816888247"
+"id": "button_1647246177302"
+},
+{
+"type": "button",
+"label": {
+"type": "text",
+"text": "报警静默3d",
+"id": "text_1696818602521"
+},
+"actionType": "request",
+"value": "${silence3d}",
+"iconCode": "icon_notice_warning",
+"status": "warning",
+"id": "button_1647246177303"
 }
-]
+],
+"id": "action_1696840868884"
 }
 ]
 }

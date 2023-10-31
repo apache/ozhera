@@ -119,21 +119,6 @@ public class PathUtils {
         return pathList;
     }
 
-    public static List<String> findDirectoryWithMultiple(String patternStr, Boolean collectOnce) {
-        List<String> directories = Lists.newArrayList();
-        if (patternStr.contains(MULTI_FILE_PREFIX) && patternStr.contains(MULTI_FILE_SUFFIX)) {
-            String multiDirectories = StringUtils.substringBetween(patternStr, MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX);
-            String directoryPrefix = StringUtils.substringBefore(patternStr, MULTI_FILE_PREFIX);
-            for (String directory : multiDirectories.split(SPLIT_VERTICAL_LINE)) {
-                String basePathSingle = directoryPrefix + directory;
-                directories.add(basePathSingle);
-            }
-        } else {
-            directories.add(StringUtils.substringBeforeLast(patternStr, SEPARATOR));
-        }
-        return directories;
-    }
-
     private static void handleMultipleDirectoryFile(String basePath, String fileNamePattern, List<String> pathList) {
         if (basePath.contains(MULTI_FILE_PREFIX) && basePath.contains(MULTI_FILE_SUFFIX)) {
             String multiDirectories = StringUtils.substringBetween(basePath, MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX);

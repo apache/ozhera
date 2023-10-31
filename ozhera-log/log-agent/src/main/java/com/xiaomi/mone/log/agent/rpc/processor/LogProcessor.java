@@ -30,6 +30,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
 
@@ -39,6 +40,8 @@ import static com.xiaomi.mone.log.common.Constant.GSON;
 @Slf4j
 @Component
 public class LogProcessor implements NettyRequestProcessor {
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) throws Exception {
@@ -54,30 +57,35 @@ public class LogProcessor implements NettyRequestProcessor {
         return response;
     }
 
-    private synchronized void metaConfigEffect(LogCollectMeta req) {
-        ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
-        // Whether the initialization is completed or not, wait for 30 s before executing
-        int count = 0;
-        while (true) {
-            if (!channelEngine.isInitComplete()) {
-                try {
-                    TimeUnit.SECONDS.sleep(5L);
-                    ++count;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    private void metaConfigEffect(LogCollectMeta req) {
+        try {
+            lock.lock();
+            ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
+            // Whether the initialization is completed or not, wait for 30 s before executing
+            int count = 0;
+            while (true) {
+                if (!channelEngine.isInitComplete()) {
+                    try {
+                        TimeUnit.SECONDS.sleep(5L);
+                        ++count;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (channelEngine.isInitComplete() || count >= 20) {
+                    break;
                 }
             }
-            if (channelEngine.isInitComplete() || count >= 20) {
-                break;
+            if (CollectionUtils.isNotEmpty(req.getAppLogMetaList())) {
+                try {
+                    List<ChannelDefine> channelDefines = ChannelDefineRpcLocator.agentTail2ChannelDefine(ChannelDefineRpcLocator.logCollectMeta2ChannelDefines(req));
+                    channelEngine.refresh(channelDefines);
+                } catch (Exception e) {
+                    log.error("refresh config error,req:{}", GSON.toJson(req), e);
+                }
             }
-        }
-        if (CollectionUtils.isNotEmpty(req.getAppLogMetaList())) {
-            try {
-                List<ChannelDefine> channelDefines = ChannelDefineRpcLocator.agentTail2ChannelDefine(ChannelDefineRpcLocator.logCollectMeta2ChannelDefines(req));
-                channelEngine.refresh(channelDefines);
-            } catch (Exception e) {
-                log.error("refresh config error,req:{}", GSON.toJson(req), e);
-            }
+        } finally {
+            lock.unlock();
         }
     }
 

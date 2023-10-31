@@ -104,6 +104,9 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     @Override
     public void addChannelService(ChannelService channelService) {
         List<MonitorFile> monitorPathList = channelService.getMonitorPathList();
+        if (CollectionUtils.isEmpty(monitorPathList)) {
+            return;
+        }
         List<String> newMonitorDirectories = newMonitorDirectories(monitorPathList);
         for (String watchDirectory : newMonitorDirectories) {
             if (isValidWatch(watchDirectory)) {

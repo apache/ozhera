@@ -17,13 +17,13 @@ public class Constant {
 
     public static String DEFAULT_OPERATOR = "system";
 
-    public static String DEFAULT_REGISTER_REMOTE_TYPE = "deploymentIp";
+    public static String DEFAULT_REGISTER_REMOTE_TYPE = "OZHERA_AUTO_COLLECT_ENVIP";
 
 
     public static class URL {
         // tpc query app url
         public static String HERA_TPC_APP_DETAIL_URL = "/backend/node/flag/inner_list";
         // operator query app ip url
-        public static String HERA_OPERATOR_ENV_URL = "/ips";
+        public static String HERA_OPERATOR_ENV_URL = "/envIps";
     }
 }

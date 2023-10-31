@@ -1,11 +1,15 @@
 package com.xiaomi.mone.monitor.controller;
 
 import com.xiaomi.mone.monitor.aop.HeraRequestMapping;
-import com.xiaomi.mone.monitor.bo.*;
+import com.xiaomi.mone.monitor.bo.AlarmAlertLevel;
+import com.xiaomi.mone.monitor.bo.AlarmCheckDataCount;
+import com.xiaomi.mone.monitor.bo.AlarmSendInterval;
+import com.xiaomi.mone.monitor.bo.InterfaceNameEnum;
 import com.xiaomi.mone.monitor.dao.model.AppAlarmRuleTemplate;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.AppAlarmService;
+import com.xiaomi.mone.monitor.service.alertmanager.AlertServiceAdapt;
 import com.xiaomi.mone.monitor.service.aop.action.HeraRequestMappingActionRuleDelete;
 import com.xiaomi.mone.monitor.service.aop.action.HeraRequestMappingActionRuleEdit;
 import com.xiaomi.mone.monitor.service.aop.action.HeraRequestMappingActionStrategyAdd;
@@ -13,12 +17,10 @@ import com.xiaomi.mone.monitor.service.aop.action.HeraRequestMappingActionStrate
 import com.xiaomi.mone.monitor.service.api.AlarmPresetMetricsService;
 import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.monitor.service.model.prometheus.*;
-import com.xiaomi.mone.monitor.service.prometheus.AlarmService;
 import com.xiaomi.mone.monitor.service.user.UserConfigService;
 import com.xiaomi.mone.tpc.login.util.UserUtil;
 import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +41,7 @@ public class AlarmController {
     @Autowired
     AppAlarmService appAlarmService;
     @Autowired
-    AlarmService alarmService;
+    AlertServiceAdapt alarmService;
     @Value("${server.type}")
     private String env;
 

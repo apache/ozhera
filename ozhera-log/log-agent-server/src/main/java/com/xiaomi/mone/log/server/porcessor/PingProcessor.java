@@ -24,16 +24,20 @@ import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.mone.log.api.model.meta.AppLogMeta;
 import com.xiaomi.mone.log.api.model.vo.PingReq;
 import com.xiaomi.mone.log.server.common.Version;
+import com.xiaomi.mone.log.utils.NetUtil;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
+import static com.xiaomi.mone.log.server.common.ServerConstant.SERVER_PORT;
 
 /**
  * @Author goodjava@qq.com
@@ -46,6 +50,8 @@ public class PingProcessor implements NettyRequestProcessor {
 
     private static Version version = new Version();
 
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss SSS");
+
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) {
         final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(channelHandlerContext.channel());
@@ -57,7 +63,8 @@ public class PingProcessor implements NettyRequestProcessor {
         if (null != ch) {
             ch.setIp(pr.getIp());
         }
-        response.setBody(version.toString().getBytes());
+        String requestBody = String.format("%s->%s->%s:%s", version.toString(), dateTimeFormatter.format(LocalDateTime.now()), NetUtil.getLocalIp(), SERVER_PORT);
+        response.setBody(requestBody.getBytes());
         if (null != pr && StringUtils.isNotBlank(pr.getIp())) {
             agentHeartTimeStampMap.put(pr.getIp(), Instant.now().toEpochMilli());
         }

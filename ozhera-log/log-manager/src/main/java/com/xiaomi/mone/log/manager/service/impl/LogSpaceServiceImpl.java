@@ -165,12 +165,12 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
      *
      * @param spaceName
      * @param page
-     * @param pagesize
+     * @param pageSize
      * @return
      */
     @Override
-    public Result<PageInfo<MilogSpaceDTO>> getMilogSpaceByPage(String spaceName, Long tenantId, Integer page, Integer pagesize) {
-        com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpacePage = spaceAuthService.getUserPermSpace(spaceName, page, pagesize);
+    public Result<PageInfo<MilogSpaceDTO>> getMilogSpaceByPage(String spaceName, Long tenantId, Integer page, Integer pageSize) {
+        com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpacePage = spaceAuthService.getUserPermSpace(spaceName, page, pageSize);
         PageInfo<MilogSpaceDTO> spaceDTOPageInfo = MilogSpaceConvert.INSTANCE.fromTpcPage(userPermSpacePage.getData());
         return Result.success(spaceDTOPageInfo);
     }

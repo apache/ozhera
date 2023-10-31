@@ -15,12 +15,13 @@
  */
 package com.xiaomi.mone.log.stream.job;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
-import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.parse.LogParser;
 import com.xiaomi.mone.log.stream.common.LogStreamConstants;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
+import com.xiaomi.mone.log.stream.job.extension.DefaultLogSendFilter;
 import com.xiaomi.mone.log.stream.job.extension.MessageSender;
 import com.xiaomi.mone.log.stream.job.extension.MqMessagePostProcessing;
 import com.xiaomi.mone.log.stream.sink.SinkChain;
@@ -34,8 +35,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.xiaomi.mone.log.common.Constant.COUNT_NUM;
-import static com.xiaomi.mone.log.parse.LogParser.TIME_STAMP_MILLI_LENGTH;
-import static com.xiaomi.mone.log.parse.LogParser.esKeyMap_timestamp;
+import static com.xiaomi.mone.log.parse.LogParser.*;
 
 /**
  * @author wtt
@@ -58,9 +58,13 @@ public class LogDataTransfer {
 
     private final AtomicLong sendMsgNumber = new AtomicLong(0);
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private RateLimiter rateLimiter = RateLimiter.create(180000000);
 
     private MqMessagePostProcessing messagePostProcessing;
+
+    private LogSendFilter logSendFilter;
 
     public LogDataTransfer(SinkChain sinkChain, LogParser logParser,
                            MessageSender messageSender, SinkJobConfig sinkJobConfig) {
@@ -70,13 +74,15 @@ public class LogDataTransfer {
         this.sinkJobConfig = sinkJobConfig;
         String mqPostProcessingBean = sinkJobConfig.getMqType() + LogStreamConstants.postProcessingProviderBeanSuffix;
         this.messagePostProcessing = Ioc.ins().getBean(mqPostProcessingBean);
+        this.logSendFilter = Ioc.ins().getBean(DefaultLogSendFilter.class);
     }
 
 
     public void handleMessage(String type, String msg, String time) {
         Map<String, Object> dataMap;
         try {
-            LineMessage lineMessage = Constant.GSON.fromJson(msg, LineMessage.class);
+            LineMessage lineMessage = objectMapper.readValue(msg, LineMessage.class);
+
             String ip = lineMessage.getProperties(LineMessage.KEY_IP);
             Long lineNumber = lineMessage.getLineNumber();
             dataMap = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, lineMessage.getTimestamp(), lineMessage.getFileName());
@@ -97,7 +103,15 @@ public class LogDataTransfer {
         }
     }
 
-    private void sendMessage(Map<String, Object> m) throws Exception {
+    private void sendMessage(Map<String, Object> dataMap) throws Exception {
+        dataMap.putIfAbsent(ES_KEY_MAP_TAIL_ID, sinkJobConfig.getTailId());
+        if (!logSendFilter.sendMessageSwitch(dataMap)) {
+            return;
+        }
+        doSendMessage(dataMap);
+    }
+
+    private void doSendMessage(Map<String, Object> m) throws Exception {
         sendMsgNumber.incrementAndGet();
         rateLimiter.acquire();
         checkInsertTimeStamp(m);

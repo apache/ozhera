@@ -31,7 +31,8 @@ public enum OperateEnum {
 
     ADD_OPERATE(1, "Add"),
     UPDATE_OPERATE(2, "Update"),
-    DELETE_OPERATE(3, "Delete");
+    DELETE_OPERATE(3, "Delete"),
+    STOP_OPERATE(4, "Stop");
 
     private final Integer code;
     private final String describe;

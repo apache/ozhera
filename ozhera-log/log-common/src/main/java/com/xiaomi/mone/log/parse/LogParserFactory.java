@@ -44,7 +44,11 @@ public class LogParserFactory {
                 .tailName(tailName)
                 .mqTag(mqTag)
                 .logStoreName(logStoreName).build();
-        switch (LogParserEnum.getByCode(parseType)) {
+        LogParserEnum parserEnum = LogParserEnum.getByCode(parseType);
+        if (null == parserEnum) {
+            return new RawLogParser(logParserData);
+        }
+        switch (parserEnum) {
             case SEPARATOR_PARSE:
                 return new SeparatorLogParser(logParserData);
             case CUSTOM_PARSE:

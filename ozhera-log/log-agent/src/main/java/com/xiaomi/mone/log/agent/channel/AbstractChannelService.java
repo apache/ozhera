@@ -33,6 +33,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.xiaomi.mone.log.common.Constant.GSON;
+
 /**
  * @author wtt
  * @version 1.0
@@ -147,10 +149,10 @@ public abstract class AbstractChannelService implements ChannelService {
         return fileProgressMap;
     }
 
-    protected static void wildcardGraceShutdown(String directory, String matchExpress) {
+    protected static void wildcardGraceShutdown(List<String> directory, String matchExpress) {
         // Add a shutdown hook to gracefully shutdown FileInfoCache
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{}", directory, matchExpress);
+            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{}", GSON.toJson(directory), matchExpress);
             FileInfoCache.ins().shutdown();
         }));
     }

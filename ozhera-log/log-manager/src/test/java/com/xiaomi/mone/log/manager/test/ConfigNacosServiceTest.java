@@ -29,7 +29,6 @@ import com.xiaomi.mone.log.manager.service.impl.LogTailServiceImpl;
 import com.xiaomi.mone.log.manager.service.impl.MilogStreamServiceImpl;
 import com.xiaomi.mone.log.manager.service.nacos.MultipleNacosConfig;
 import com.xiaomi.mone.log.manager.service.nacos.impl.SpaceConfigNacosProvider;
-import com.xiaomi.mone.log.manager.service.nacos.impl.StreamConfigNacosProvider;
 import com.xiaomi.mone.log.manager.service.nacos.impl.StreamConfigNacosPublisher;
 import com.xiaomi.mone.log.model.MiLogStreamConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;

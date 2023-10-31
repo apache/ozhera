@@ -26,12 +26,14 @@ import com.xiaomi.mone.log.manager.model.pojo.MilogLogProcessDOMybatis;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -105,18 +107,30 @@ public class LogProcessServiceImpl implements LogProcessService {
 
     @Nullable
     private List<UpdateLogProcessCmd.CollectDetail> upColProcessTailName(List<UpdateLogProcessCmd.CollectDetail> colProcessImperfect) {
-        if (CollectionUtils.isNotEmpty(colProcessImperfect)) {
-            colProcessImperfect = colProcessImperfect.parallelStream().map(collectDetail -> {
-                String tailId = collectDetail.getTailId();
-                if (StringUtils.isNotBlank(tailId)) {
-                    MilogLogTailDo logTailDo = logtailDao.queryById(Long.valueOf(tailId));
-                    if (null != logTailDo) {
-                        collectDetail.setTailName(logTailDo.getTail());
-                    }
+        // Create a mapping of tailId to CollectDetail
+        Map<String, UpdateLogProcessCmd.CollectDetail> tailIdToDetailMap = new HashMap<>();
+
+        // Process and update details
+        colProcessImperfect.parallelStream().forEach(collectDetail -> {
+            String tailId = collectDetail.getTailId();
+            if (StringUtils.isNotBlank(tailId)) {
+                MilogLogTailDo logTailDo = logtailDao.queryById(Long.valueOf(tailId));
+                if (logTailDo != null) {
+                    collectDetail.setTailName(logTailDo.getTail());
                 }
-                return collectDetail;
-            }).collect(Collectors.toList());
-        }
-        return colProcessImperfect;
+
+                // Update the map with the latest details
+                tailIdToDetailMap.merge(tailId, collectDetail, (existingDetail, newDetail) -> {
+                    existingDetail.getIpList().addAll(newDetail.getIpList());
+                    existingDetail.getIpList().stream().distinct().collect(Collectors.toList());
+                    existingDetail.getFileProgressDetails().addAll(newDetail.getFileProgressDetails());
+                    return existingDetail;
+                });
+            }
+        });
+
+        // Return the values from the map as a list
+        return new ArrayList<>(tailIdToDetailMap.values());
+
     }
 }

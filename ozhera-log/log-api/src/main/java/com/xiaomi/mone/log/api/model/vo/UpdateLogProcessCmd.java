@@ -59,6 +59,7 @@ public class UpdateLogProcessCmd implements Serializable {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    @EqualsAndHashCode
     public static class FileProgressDetail implements Serializable {
         // The path to the real acquisition file
         private String pattern;

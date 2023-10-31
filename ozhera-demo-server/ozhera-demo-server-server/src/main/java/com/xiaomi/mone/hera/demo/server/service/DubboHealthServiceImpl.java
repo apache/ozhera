@@ -1,9 +1,9 @@
 package com.xiaomi.mone.hera.demo.server.service;
 
-import com.xiaomi.youpin.infra.rpc.Result;
 import org.apache.dubbo.config.annotation.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import run.mone.common.Result;
 
 import java.util.Random;
 
@@ -27,5 +27,10 @@ public class DubboHealthServiceImpl implements DubboHealthService {
     @Override
     public String simple(int size) {
         return new String(new byte[size]);
+    }
+
+    @Override
+    public Result testResultCode500() {
+        return Result.fromException(new Exception("test Result code 500"));
     }
 }

@@ -183,13 +183,13 @@ public class HeraDashboardService {
                 });
 
         //创建java等业务型模板
-        GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName("hera默认模板");
+        GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName("hera-java模板");
         if (grafanaTemplate == null) {
             //未创建过则从从ftl文件创建
             try {
                 String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, DashboardConstant.JAEGER_QUERY_File_NAME);
                 GrafanaTemplate template = new GrafanaTemplate();
-                template.setName("hera默认模板");
+                template.setName("hera-java模板");
                 template.setCreateTime(new Date());
                 template.setUpdateTime(new Date());
                 template.setLanguage(0);
@@ -199,7 +199,7 @@ public class HeraDashboardService {
                 template.setDeleted(false);
                 template.setPanelIdList(DashboardConstant.DEFAULT_PANEL_ID_LIST);
                 int insertRes = grafanaTemplateDao.insert(template);
-                log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-java默认模板", insertRes);
+                log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-java模板", insertRes);
             } catch (IOException e) {
                 log.error("HeraDashboardService.createDefaultDashboardTemplate error :{}", e.getMessage());
             }

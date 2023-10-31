@@ -5258,7 +5258,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"} by (podIp)))",
+"definition": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"}))",
 "description": null,
 "error": null,
 "hide": 2,
@@ -5268,7 +5268,7 @@
 "name": "total",
 "options": [],
 "query": {
-"query": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"} by (podIp)))",
+"query": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"}))",
 "refId": "StandardVariableQuery"
 },
 "refresh": 2,

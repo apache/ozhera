@@ -111,52 +111,7 @@ public class AlarmService {
     }
 
     public Map getEnvIpMapping(Integer projectId, String projectName){
-
-        List<Metric> metrics = listInstanceMetric(projectId, projectName);
-        if(CollectionUtils.isEmpty(metrics)){
-            log.error("getEnvIpMapping no data found! projectId :{},projectName:{}",projectId,projectName);
-            return null;
-        }
-
-
-        Map result = new HashMap();
-        Map<String,Map<String,Object>> mapResult = new HashMap<>();
-        Map<String, HashSet<String>> allZones = new HashMap<>();
-        Set allIps = new HashSet();
-        for(Metric metric : metrics){
-
-            allIps.add(metric.getServerIp());
-
-            if(StringUtils.isBlank(metric.getServerEnv())){
-                continue;
-            }
-            mapResult.putIfAbsent(metric.getServerEnv(),new HashMap<>());
-            Map<String, Object> stringObjectMap = mapResult.get(metric.getServerEnv());
-
-            stringObjectMap.putIfAbsent("envIps", new HashSet<>());
-            HashSet ipList = (HashSet<String>)stringObjectMap.get("envIps");
-            ipList.add(metric.getServerIp());
-
-            if(StringUtils.isNotBlank(metric.getServerZone())){
-                allZones.putIfAbsent(metric.getServerZone(),new HashSet<String>());
-                HashSet<String> zoneIps = allZones.get(metric.getServerZone());
-                zoneIps.add(metric.getServerIp());
-
-                stringObjectMap.putIfAbsent("zoneList", new HashMap<>());
-                HashMap serviceList = (HashMap<String,Set<String>>)stringObjectMap.get("zoneList");
-
-                serviceList.putIfAbsent(metric.getServerZone(), new HashSet<String>());
-                HashSet<String> ips = (HashSet<String>)serviceList.get(metric.getServerZone());
-
-                ips.add(metric.getServerIp());
-            }
-        }
-
-        result.put("allIps",allIps);
-        result.put("envIpMapping",mapResult);
-        result.put("allZones",allZones);
-
-        return result;
+        return alarmExprService.getEnvIpMapping(projectId,projectName);
     }
 
 

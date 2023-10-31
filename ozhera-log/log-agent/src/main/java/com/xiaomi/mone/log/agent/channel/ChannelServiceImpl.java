@@ -318,10 +318,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 }
                 if (null != l) {
                     try {
-                        fileColLock.tryLock(30, TimeUnit.SECONDS);
+                        fileColLock.lock();
                         wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
-                    } catch (InterruptedException e) {
-                        log.error("wrapDataToSend InterruptedException", e);
                     } finally {
                         fileColLock.unlock();
                     }
@@ -346,13 +344,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 Long appendTime = mLog.getAppendTime();
                 if (null != appendTime && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
                     String remainMsg = mLog.takeRemainMsg2();
-                    if (null != remainMsg && fileColLock.tryLock()) {
-                        try {
-                            log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
-                            wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
-                        } finally {
-                            fileColLock.unlock();
-                        }
+                    if (null != remainMsg) {
+                        log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
+                        wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
                     }
                 }
             }

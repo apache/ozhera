@@ -99,12 +99,13 @@ public class StreamUtils {
         return getLocalIp();
     }
 
-    public static void getConfigFromNacos() {
+    public static NacosConfig getConfigFromNacos() {
         NacosConfig nacosConfig = new NacosConfig();
         nacosConfig.setDataId(Config.ins().get("nacos_config_dataid", ""));
         nacosConfig.setGroup(Config.ins().get("nacos_config_group", DEFAULT_GROUP_ID));
         nacosConfig.setServerAddr(Config.ins().get("nacos_config_server_addr", ""));
         nacosConfig.init();
         nacosConfig.forEach((k, v) -> Config.ins().set(k, v));
+        return nacosConfig;
     }
 }

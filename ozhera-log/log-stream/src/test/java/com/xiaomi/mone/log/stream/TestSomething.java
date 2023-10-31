@@ -26,6 +26,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.xiaomi.mone.log.common.Constant.GSON;
 import static com.xiaomi.mone.log.utils.DateUtils.getTime;
 
 /**
@@ -94,5 +95,13 @@ public class TestSomething {
 
         String msg = "";
 //        rmqSinkJob.handleMessage("", msg, time);
+    }
+
+    @Test
+    public void testComputeIfAbsent() {
+        Map<String, Map<String, String>> testMap = new HashMap<>();
+        Map<String, String> test = testMap.computeIfAbsent("test", k -> new HashMap<>());
+        test.put("sfsdf", "ersrser");
+        log.info("result:{}",GSON.toJson(testMap));
     }
 }

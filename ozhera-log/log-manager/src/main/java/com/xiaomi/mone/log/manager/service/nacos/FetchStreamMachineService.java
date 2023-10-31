@@ -24,4 +24,6 @@ public interface FetchStreamMachineService {
      * @return
      */
     List<String> streamMachineUnique();
+
+    List<String> getStreamList(String dataId);
 }

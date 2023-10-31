@@ -2,6 +2,7 @@ package com.xiaomi.mone.log.agent.channel;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.mone.file.MLog;
 import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
@@ -72,7 +73,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private ScheduledFuture<?> lastFileLineScheduledFuture;
 
-    private Future<?> fileCollfuture;
+    private List<Future<?>> fileCollFutures = Lists.newArrayList();
 
     private long lastSendTime = System.currentTimeMillis();
 
@@ -155,18 +156,27 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
             String fileExpression = buildFileExpression(input.getLogPattern());
 
-            String monitorPath = buildMonitorPath(input.getLogPattern());
+            List<String> monitorPaths = buildMonitorPaths(input.getLogPattern());
 
-            wildcardGraceShutdown(monitorPath, fileExpression);
+            wildcardGraceShutdown(monitorPaths, fileExpression);
+
+            saveCollProgress();
 
             log.info("fileExpression:{}", fileExpression);
             // Compile the file expression pattern
             Pattern pattern = Pattern.compile(fileExpression);
-
-            fileCollfuture = ExecutorUtil.submit(() -> monitorFileChanges(monitor, monitorPath, pattern));
+            for (String monitorPath : monitorPaths) {
+                fileCollFutures.add(ExecutorUtil.submit(() -> monitorFileChanges(monitor, monitorPath, pattern)));
+            }
         } catch (Exception e) {
             log.error("startCollectFile error, channelId: {}, input: {}, ip: {}", channelId, GSON.toJson(input), ip, e);
         }
+    }
+
+    private void saveCollProgress() {
+        ExecutorUtil.scheduleAtFixedRate(() -> SafeRun.run(() -> {
+            FileInfoCache.ins().shutdown();
+        }), 10, 30, TimeUnit.SECONDS);
     }
 
     private String buildRestartFilePath(Long channelId) {
@@ -179,9 +189,10 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private void monitorFileChanges(HeraFileMonitor monitor, String monitorPath, Pattern pattern) {
         try {
+            log.info("monitorFileChanges,directory:{}", monitorPath);
             monitor.reg(monitorPath, filePath -> {
                 boolean matches = pattern.matcher(filePath).matches();
-                log.info("file: {}, matches: {}", filePath, matches);
+                log.debug("file: {}, matches: {}", filePath, matches);
                 return matches;
             });
         } catch (IOException | InterruptedException e) {
@@ -189,12 +200,12 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         }
     }
 
-    private String buildMonitorPath(String filePathExpressName) {
+    private List<String> buildMonitorPaths(String filePathExpressName) {
         String monitorPath = StringUtils.substringBeforeLast(filePathExpressName, SEPARATOR);
         if (!monitorPath.endsWith(SEPARATOR)) {
             monitorPath = String.format("%s%s", monitorPath, SEPARATOR);
         }
-        return monitorPath;
+        return PathUtils.buildMultipleDirectories(monitorPath);
     }
 
 
@@ -235,15 +246,13 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
             if (line != null) {
                 try {
-                    reentrantLock.tryLock(30, TimeUnit.SECONDS);
+                    reentrantLock.lock();
                     wrapDataToSend(line, readResult, patternCode, ip, currentTime);
-                } catch (InterruptedException e) {
-                    log.error("wrapDataToSend InterruptedException", e);
                 } finally {
                     reentrantLock.unlock();
                 }
             } else {
-                log.debug("Biz log channelId:{}, not a new line:{}", channelDefine.getChannelId(), line);
+                log.debug("Biz log channelId:{}, not a new line", channelDefine.getChannelId());
             }
         });
     }
@@ -253,13 +262,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             Long appendTime = mLog.getAppendTime();
             if (appendTime != null && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
                 String remainMsg = mLog.takeRemainMsg2();
-                if (null != remainMsg && reentrantLock.tryLock()) {
-                    try {
-                        log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
-                        wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
-                    } finally {
-                        reentrantLock.unlock();
-                    }
+                if (null != remainMsg) {
+                    log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
+                    wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
                 }
             }
         }, 30, 30, TimeUnit.SECONDS);
@@ -401,8 +406,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         if (null != lastFileLineScheduledFuture) {
             lastFileLineScheduledFuture.cancel(false);
         }
-        if (null != fileCollfuture) {
-            fileCollfuture.cancel(false);
+        for (Future<?> fileCollFuture : fileCollFutures) {
+            fileCollFuture.cancel(false);
         }
         lineMessageList.clear();
     }

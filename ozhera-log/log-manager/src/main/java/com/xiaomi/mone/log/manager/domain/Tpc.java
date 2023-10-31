@@ -106,7 +106,7 @@ public class Tpc {
         }
         param.setStatus(NodeStatusEnum.ENABLE.getCode());
         // The admin user queries all
-        param.setMyNode(currentUser.getIsAdmin() ? false : true);
+        param.setMyNode(!currentUser.getIsAdmin());
         return tpcService.orgNodelist(param);
     }
 
@@ -217,9 +217,6 @@ public class Tpc {
         param.setMyNode(false);
         Result<NodeVo> nodeVoResult = tpcService.getByOutId(param);
         NodeVo data = nodeVoResult.getData();
-        if (data == null) {
-            return null;
-        }
         return data;
     }
 
@@ -233,7 +230,7 @@ public class Tpc {
             return "";
         }
         String spaceOrg = spaceNode.getOrgInfoVo().getNamePath();
-        return spaceOrg.lastIndexOf('/') == -1 ? "Public space" : spaceOrg.substring(spaceOrg.lastIndexOf('/') + 1, spaceOrg.length());
+        return spaceOrg.lastIndexOf('/') == -1 ? "Public space" : spaceOrg.substring(spaceOrg.lastIndexOf('/') + 1);
     }
 
     public OrgInfoVo getOrg(String account, Integer userType) {

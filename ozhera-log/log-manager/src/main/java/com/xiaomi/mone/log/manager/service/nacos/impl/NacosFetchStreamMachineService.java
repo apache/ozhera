@@ -42,23 +42,49 @@ public class NacosFetchStreamMachineService implements FetchStreamMachineService
 
     @Override
     public List<String> streamMachineUnique() {
-        if (null == nacosNaming) {
-            throw new MilogManageException("please set nacos naming first");
-        }
+        preCheckNaming(nacosNaming);
         List<String> uniqueKeys = Lists.newArrayList();
         try {
             List<Instance> allInstances = nacosNaming.getAllInstances(CommonExtensionServiceFactory.getCommonExtensionService().getHeraLogStreamServerName());
-            for (Instance instance : allInstances) {
-                if (instance.getMetadata().containsKey(STREAM_CONTAINER_POD_NAME_KEY)) {
-                    uniqueKeys.add(StringUtils.substringAfterLast(instance.getMetadata().get(STREAM_CONTAINER_POD_NAME_KEY), STRIKETHROUGH_SYMBOL));
-                } else {
-                    uniqueKeys.add(instance.getIp());
-                }
-            }
-            uniqueKeys = uniqueKeys.stream().distinct().collect(Collectors.toList());
+            return extractUniqueKeys(allInstances);
         } catch (NacosException e) {
             log.error("nacos queryStreamMachineIps error", e);
         }
         return uniqueKeys;
     }
+
+    @Override
+    public List<String> getStreamList(String dataId) {
+        preCheckNaming(nacosNaming);
+        List<String> uniqueKeys = Lists.newArrayList();
+        try {
+            List<Instance> allInstances = nacosNaming.getAllInstances(dataId);
+            return extractUniqueKeys(allInstances);
+        } catch (NacosException e) {
+            log.error("nacos queryStreamMachineIps error,dataId:{}", dataId, e);
+        }
+        return uniqueKeys;
+    }
+
+    private void preCheckNaming(NacosNaming nacosNaming) {
+        if (null == nacosNaming) {
+            throw new MilogManageException("please set nacos naming first");
+        }
+    }
+
+    private List<String> extractUniqueKeys(List<Instance> instances) {
+        return instances.stream()
+                .map(this::extractKeyFromInstance)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private String extractKeyFromInstance(Instance instance) {
+        if (instance.getMetadata().containsKey(STREAM_CONTAINER_POD_NAME_KEY)) {
+            return StringUtils.substringAfterLast(instance.getMetadata().get(STREAM_CONTAINER_POD_NAME_KEY), STRIKETHROUGH_SYMBOL);
+        } else {
+            return instance.getIp();
+        }
+    }
+
 }

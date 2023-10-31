@@ -1,6 +1,7 @@
 package com.xiaomi.mone.hera.demo.server.service;
 
-import com.xiaomi.youpin.infra.rpc.Result;
+
+import run.mone.common.Result;
 
 public interface DubboHealthService {
 
@@ -8,4 +9,5 @@ public interface DubboHealthService {
 
     String simple(int size);
 
+    Result testResultCode500();
 }

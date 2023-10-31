@@ -3,7 +3,6 @@ package com.xiaomi.mone.hera.demo.client.controller;
 import com.xiaomi.hera.trace.annotation.Trace;
 import com.xiaomi.mone.hera.demo.client.api.service.DubboHealthService;
 import com.xiaomi.mone.hera.demo.client.util.HttpClientUtil;
-import com.xiaomi.youpin.infra.rpc.Result;
 import com.xiaomi.youpin.prometheus.all.client.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import run.mone.common.Result;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -80,6 +80,11 @@ public class TestController {
     @GetMapping("/testError")
     public Object testError() {
         throw new RuntimeException("test error");
+    }
+
+    @GetMapping("/testResultCode500")
+    public Object testResultCode500() {
+        return dubboHealthService.testResultCode500();
     }
 
     double[] buckets = new double[]{0.01, 0.1, 1.0, 5.0, 10.0, 20.0, 40.0, 80.0, 200.0, 300.0, 400.0, 600.0, 800.0, 1000.0,2000.0,3000.0};

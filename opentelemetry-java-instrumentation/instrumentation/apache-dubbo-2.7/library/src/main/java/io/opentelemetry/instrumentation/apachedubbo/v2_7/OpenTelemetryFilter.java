@@ -15,12 +15,14 @@ import io.opentelemetry.context.Scope;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.dubbo.common.extension.Activate;
+import org.apache.dubbo.rpc.AsyncRpcResult;
 import org.apache.dubbo.rpc.Filter;
 import org.apache.dubbo.rpc.Invocation;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcInvocation;
+import org.apache.dubbo.rpc.support.RpcUtils;
 
 @Activate(group = {"consumer", "provider"})
 public class OpenTelemetryFilter implements Filter {
@@ -53,9 +55,25 @@ public class OpenTelemetryFilter implements Filter {
             result = invoker.invoke(invocation);
             if (kind.equals(CLIENT)) {
                 CompletableFuture<Object> future = rpcContext.getCompletableFuture();
-                if (future != null) {
+                boolean async = RpcUtils.isAsync(invoker.getUrl(), invocation);
+                if (future != null && async) {
                     isSynchronous = false;
-                    future.whenComplete((o, throwable) -> tracer.end(context, result));
+                    future.whenComplete((o, throwable) -> {
+                        Object bizResult;
+                        if (throwable != null) {
+                            tracer.endExceptionally(context, throwable);
+                        } else {
+                            // 处理结果
+                            if (o instanceof AsyncRpcResult) {
+                                AsyncRpcResult asyncResult = (AsyncRpcResult) o;
+                                bizResult = asyncResult.getValue();
+                            } else {
+                                bizResult = o;
+                            }
+                            tracer.parseBussinessCode(context, result);
+                            tracer.end(context, bizResult);
+                        }
+                    });
                 }
             }
 
@@ -67,6 +85,7 @@ public class OpenTelemetryFilter implements Filter {
             if (result.hasException()) {
                 tracer.endExceptionally(context, result.getException());
             } else {
+                tracer.parseBussinessCode(context, result);
                 tracer.end(context, result);
             }
         }

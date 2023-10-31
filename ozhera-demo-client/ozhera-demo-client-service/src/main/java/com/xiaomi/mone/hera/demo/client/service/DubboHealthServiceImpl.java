@@ -5,6 +5,7 @@ import com.xiaomi.mone.hera.demo.client.api.service.DubboHealthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
+import run.mone.common.Result;
 
 @Service(timeout = 3000, group = "${dubbo.group}")
 @Slf4j
@@ -31,6 +32,11 @@ public class DubboHealthServiceImpl implements DubboHealthService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Result testResultCode500() {
+        return dubboHealthService.testResultCode500();
     }
 
     @Trace

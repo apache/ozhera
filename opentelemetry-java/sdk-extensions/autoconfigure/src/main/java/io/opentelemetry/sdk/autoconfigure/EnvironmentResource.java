@@ -7,6 +7,8 @@ package io.opentelemetry.sdk.autoconfigure;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.sdk.common.EnvOrJvmProperties;
+import io.opentelemetry.sdk.common.SystemCommon;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 
@@ -39,9 +41,14 @@ public final class EnvironmentResource {
     AttributesBuilder resourceAttributes = Attributes.builder();
     configProperties.getCommaSeparatedMap(ATTRIBUTE_PROPERTY).forEach(resourceAttributes::put);
     String serviceName = configProperties.getString(SERVICE_NAME_PROPERTY);
-    if (serviceName != null) {
+    if (serviceName == null) {
+      serviceName = SystemCommon.getEnvOrProperties(EnvOrJvmProperties.MIONE_PROJECT_NAME.getKey());
+    }
+
+    if(serviceName != null) {
       resourceAttributes.put(ResourceAttributes.SERVICE_NAME, serviceName);
     }
+
     return resourceAttributes.build();
   }
 

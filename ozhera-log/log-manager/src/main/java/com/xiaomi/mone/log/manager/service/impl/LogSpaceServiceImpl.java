@@ -228,7 +228,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
         }
 
-        if (Objects.equals(param.getSpaceName(), milogSpace.getSpaceName()) && Objects.equals(param.getDescription(), milogSpace.getSpaceName())) {
+        if (Objects.equals(param.getSpaceName(), milogSpace.getSpaceName()) &&
+                Objects.equals(param.getDescription(), milogSpace.getDescription())) {
             return Result.success("the logSpace data has not changed");
         }
 

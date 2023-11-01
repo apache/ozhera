@@ -218,18 +218,26 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (null == param || StringUtils.isBlank(param.getSpaceName())) {
             return new Result<>(CommonError.ParamsError.getCode(), "Parameter error", "");
         }
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
-            return Result.fail(CommonError.UNAUTHORIZED);
-        }
+
         if (milogSpaceDao.verifyExistByName(param.getSpaceName(), param.getId())) {
             return new Result<>(CommonError.UnknownError.getCode(), "There is a space name of the same name", "");
         }
+
         MilogSpaceDO milogSpace = milogSpaceDao.queryById(param.getId());
         if (null == milogSpace) {
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
         }
+
+        if (Objects.equals(param.getSpaceName(), milogSpace.getSpaceName()) && Objects.equals(param.getDescription(), milogSpace.getSpaceName())) {
+            return Result.success("the logSpace data has not changed");
+        }
+
+        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
+            return Result.fail(CommonError.UNAUTHORIZED);
+        }
         wrapMilogSpace(milogSpace, param);
         wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE);
+
         if (milogSpaceDao.update(milogSpace)) {
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
             if (tpcResult == null || tpcResult.getCode() != 0) {

@@ -16,9 +16,6 @@
 
 package com.xiaomi.mone.app.dao;
 
-import com.google.gson.Gson;
-import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupModel;
-import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupMapper;
 import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupUserMapper;
 import com.xiaomi.mone.app.model.HeraProjectGroupUser;
 import com.xiaomi.mone.app.model.HeraProjectGroupUserExample;
@@ -31,6 +28,8 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.xiaomi.mone.app.common.Constant.GSON;
+
 @Slf4j
 @Repository
 public class HeraProjectGroupUserDao {
@@ -38,9 +37,9 @@ public class HeraProjectGroupUserDao {
     @Resource
     private HeraProjectGroupUserMapper projectGroupUserMapper;
 
-    public List<Integer> listGroupIdsByUser(String user){
+    public List<Integer> listGroupIdsByUser(String user) {
 
-        if(StringUtils.isBlank(user)){
+        if (StringUtils.isBlank(user)) {
             return null;
         }
 
@@ -54,20 +53,20 @@ public class HeraProjectGroupUserDao {
         try {
             heraProjectGroupUsers = projectGroupUserMapper.selectByExample(example);
         } catch (Exception e) {
-            log.error("HeraProjectGroupUserDao#listGroupIdsByUser error! exception:{}",e.getMessage(),e);
+            log.error("HeraProjectGroupUserDao#listGroupIdsByUser error! exception:{}", e.getMessage(), e);
         }
 
-        if(CollectionUtils.isEmpty(heraProjectGroupUsers)){
-            log.info("listGroupIdsByUser no data found!user:{}",user);
+        if (CollectionUtils.isEmpty(heraProjectGroupUsers)) {
+            log.info("listGroupIdsByUser no data found!user:{}", user);
             return null;
         }
 
         return heraProjectGroupUsers.stream().map(t -> t.getProjectGroupId()).collect(Collectors.toList());
     }
 
-    public List<HeraProjectGroupUser> listByProjectGroupId(Integer projectGroupId){
+    public List<HeraProjectGroupUser> listByProjectGroupId(Integer projectGroupId) {
 
-        if(projectGroupId == null){
+        if (projectGroupId == null) {
             log.error("listByProjectGroupId param is invalid!");
             return null;
         }
@@ -82,32 +81,34 @@ public class HeraProjectGroupUserDao {
         try {
             heraProjectGroupUsers = projectGroupUserMapper.selectByExample(example);
         } catch (Exception e) {
-            log.error("HeraProjectGroupUserDao#listGroupIdsByUser error! exception:{}",e.getMessage(),e);
+            log.error("HeraProjectGroupUserDao#listGroupIdsByUser error! exception:{}", e.getMessage(), e);
         }
 
         return heraProjectGroupUsers;
     }
 
-    public Integer batchInsert(List<HeraProjectGroupUser> users){
+    public Integer batchInsert(List<HeraProjectGroupUser> users) {
         try {
+            if (CollectionUtils.isEmpty(users)) {
+                return 0;
+            }
             return projectGroupUserMapper.batchInsert(users);
         } catch (Exception e) {
-            String userInfos = new Gson().toJson(users);
-            log.error("batchInsert error!exception : {},userInfos : {}",e.getMessage(),userInfos,e);
+            log.error("batchInsert error!exception : {},userInfos : {}", e.getMessage(), GSON.toJson(users), e);
             return 0;
         }
     }
 
-    public Integer delById(Integer id){
+    public Integer delById(Integer id) {
         try {
             return projectGroupUserMapper.deleteByPrimaryKey(id);
         } catch (Exception e) {
-            log.error("delById error!exception : {}",e.getMessage(),e);
+            log.error("delById error!exception : {}", e.getMessage(), e);
             return 0;
         }
     }
 
-    public Integer delByGroupId(Integer groupId){
+    public Integer delByGroupId(Integer groupId) {
 
         HeraProjectGroupUserExample example = new HeraProjectGroupUserExample();
         HeraProjectGroupUserExample.Criteria ca = example.createCriteria();
@@ -115,7 +116,7 @@ public class HeraProjectGroupUserDao {
         try {
             return projectGroupUserMapper.deleteByExample(example);
         } catch (Exception e) {
-            log.error("delByGroupId error!exception : {}",e.getMessage(),e);
+            log.error("delByGroupId error!exception : {}", e.getMessage(), e);
             return 0;
         }
     }

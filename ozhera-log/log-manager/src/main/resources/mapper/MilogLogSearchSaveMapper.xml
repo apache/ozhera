@@ -41,7 +41,7 @@
 
     <select id="selectByCreator" resultType="com.xiaomi.mone.log.manager.model.dto.SearchSaveDTO">
         SELECT
-            *,
+            t.*,
             GROUP_CONCAT( DISTINCT CASE WHEN t.tail IS NULL THEN '' ELSE t.tail END ) tailName,
             GROUP_CONCAT( DISTINCT CASE WHEN t.tail IS NULL THEN '' ELSE app_name END ) appName
         FROM
@@ -65,7 +65,7 @@
                     save.order_num ASC
             ) t
         GROUP BY
-            t.id
+            t.id, t.tail, t.app_name
     </select>
 
     <select id="getMaxOrder" resultType="java.lang.Integer">

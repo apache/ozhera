@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -129,7 +130,8 @@ public class RocketMqHeraMetaDataConsumer {
             HeraMetaData heraMetaData = HeraMetaDataConvertUtil.messageConvertTo(heraMetaDataMessage);
 
             if ("insert".equals(heraMetaDataMessage.getOperator())) {
-                if (getOne(heraMetaDataMessage.getMetaId(), heraMetaDataMessage.getHost(), heraMetaDataMessage.getPort()) == null) {
+                List<HeraMetaData> list = getList(heraMetaDataMessage.getMetaId(), heraMetaDataMessage.getHost(), heraMetaDataMessage.getPort());
+                if (list == null || list.isEmpty()) {
                     Date date = new Date();
                     heraMetaData.setCreateTime(date);
                     heraMetaData.setUpdateTime(date);
@@ -141,11 +143,11 @@ public class RocketMqHeraMetaDataConsumer {
         }
     }
 
-    private HeraMetaData getOne(Integer metaId, String ip, HeraMetaDataPortModel port) {
+    private List<HeraMetaData> getList(Integer metaId, String ip, HeraMetaDataPortModel port) {
         QueryWrapper<HeraMetaData> queryWrapper = new QueryWrapper();
         queryWrapper.eq("meta_id", metaId);
         queryWrapper.eq("host", ip);
         queryWrapper.eq("port -> '$.dubboPort'", port.getDubboPort());
-        return heraMetaDataMapper.selectOne(queryWrapper);
+        return heraMetaDataMapper.selectList(queryWrapper);
     }
 }

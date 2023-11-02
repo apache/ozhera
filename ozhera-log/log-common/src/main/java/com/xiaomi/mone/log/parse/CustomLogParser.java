@@ -52,9 +52,7 @@ public class CustomLogParser extends AbstractLogParser {
 
     @Override
     public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        return ret;
+        return parseSimple(logData, collectStamp);
     }
 
     @Override

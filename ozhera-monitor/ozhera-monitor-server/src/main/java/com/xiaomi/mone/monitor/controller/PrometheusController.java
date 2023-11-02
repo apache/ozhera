@@ -111,7 +111,7 @@ public class PrometheusController {
         log.info("PrometheusController.queryRange request afterConvert Param startTime : {} ,endTime : {} ,step : {},projectName : {},metricSuffix : {}",startTime,endTime,step,projectName,metricSuffix);
 
         String pDuration = duration + "s";
-        return  prometheusService.queryRangeSumOverTime(param.getMetric(),param.getLabels(),projectName, metricSuffix.name(),startTime,endTime,step,pDuration);
+        return  prometheusService.queryRangeSumOverTime(param.getMetric(),param.getLabels(),projectName, metricSuffix.name(),startTime,endTime,step,pDuration,param.getSumBy());
     }
 
     @ResponseBody
@@ -156,7 +156,7 @@ public class PrometheusController {
 
         String pDuration = duration + "s";
 
-        Result<PageData> pageDataResult = prometheusService.queryRangeSumOverTime(param.getMetric(), param.getLabels(), projectName, metricSuffix.name(), startTime, endTime, step, pDuration);
+        Result<PageData> pageDataResult = prometheusService.queryRangeSumOverTime(param.getMetric(), param.getLabels(), projectName, metricSuffix.name(), startTime, endTime, step, pDuration,param.getSumBy());
 
 
         return pageDataResult;

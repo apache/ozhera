@@ -122,7 +122,7 @@ public class PrometheusService {
     }
 
 
-    public Result<PageData> queryRangeSumOverTime(String metric_, Map labels, String projectName, String metricSuffix, Long startTime, Long endTime, Long step, String duration) {
+    public Result<PageData> queryRangeSumOverTime(String metric_, Map labels, String projectName, String metricSuffix, Long startTime, Long endTime, Long step, String duration,String sumBy) {
 
         String offset = null;
         Long offsetLong = System.currentTimeMillis() / 1000 - endTime;
@@ -133,9 +133,9 @@ public class PrometheusService {
         endTime = System.currentTimeMillis() / 1000;
 
         // 指标名称拼接
-        String metric = completePromQL(metric_, labels, projectName, metricSuffix, null, 0, duration, offset);
+        String metricSource = completePromQL(metric_, labels, projectName, metricSuffix, null, 0, duration, offset);
 
-        String sumOverTimeFunc = sumSumOverTimeFunc(metric);
+        String sumOverTimeFunc = sumSumOverTimeFunc(metricSource,metric_,sumBy);
         log.info("PrometheusService.queryRangeSumOverTime sumOverTimeFunc : {} ", sumOverTimeFunc);
 
         Map<String, Object> map = new HashMap<>();
@@ -344,7 +344,13 @@ public class PrometheusService {
     private List<Metric> convertValidMetric(List<MetricDataSetVector> result) {
         List<Metric> list = new ArrayList<>();
         if (!CollectionUtils.isEmpty(result)) {
+            int count = 0;
             for (MetricDataSetVector metricDataVector : result) {
+
+                if(count > 1000){
+                    break;
+                }
+
                 Metric metric = metricDataVector.getMetric();
                 if (Double.valueOf(metricDataVector.getValue().get(1)) == 0d) {
                     continue;
@@ -362,6 +368,7 @@ public class PrometheusService {
                 }
 
                 list.add(metric);
+                count++;
 
             }
         }
@@ -440,12 +447,67 @@ public class PrometheusService {
      * @param source
      * @return
      */
-    private String sumSumOverTimeFunc(String source) {
+    private String sumSumOverTimeFunc(String source,String metric,String sumBy) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("sum(sum_over_time(");
         sb.append(source);
-        sb.append(")) by (serverIp,job,application,methodName,serviceName,dataSource,sqlMethod,sql,serverEnv,serverZone,containerName,method,clientProjectId,clientProjectName,clientEnv,clientIp) ");
+        sb.append(")) ");
+        if (StringUtils.isNotBlank(sumBy)) {
+            sb.append(" by (").append(sumBy).append( ")");
+        }else {
+            switch (metric) {
+                case "dubboProviderSLAError":
+                    sb.append(" by (application,methodName,serviceName,serverEnv,serverZone,clientProjectName,clientEnv) ");
+                    break;
+                case "dubboConsumerError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "dubboProviderError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "httpError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "httpClientError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "redisError":
+                    sb.append(" by (serverIp,application,method,serverEnv,serverZone) ");
+                    break;
+                case "dbError":
+                    sb.append(" by (serverIp,application,dataSource,sqlMethod,sql,serverEnv,serverZone) ");
+                    break;
+                case "grpcClientError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "grpcServerError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "thriftServerError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "thriftClientError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "apusServerError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "apusClientError":
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    break;
+                case "oracleError":
+                    sb.append(" by (serverIp,application,dataSource,sqlMethod,sql,serverEnv,serverZone) ");
+                    break;
+                case "elasticsearchClientError":
+                    sb.append(" by (serverIp,application,dataSource,sqlMethod,sql,serverEnv,serverZone) ");
+                    break;
+
+                default:
+                    sb.append(" by (serverIp,application,methodName,serviceName,dataSource,sqlMethod,sql,serverEnv,serverZone,containerName,method,clientProjectId,clientProjectName,clientEnv) ");
+            }
+        }
+
         return sb.toString();
     }
 
@@ -519,6 +581,9 @@ public class PrometheusService {
                 }
                 promQL.append(entry.getKey());
                 promQL.append("=");
+                if(StringUtils.isNotBlank(entry.getValue()) && entry.getValue().indexOf("|") > 0){
+                    promQL.append("~");
+                }
                 promQL.append("'");
                 promQL.append(entry.getValue());
                 promQL.append("'");

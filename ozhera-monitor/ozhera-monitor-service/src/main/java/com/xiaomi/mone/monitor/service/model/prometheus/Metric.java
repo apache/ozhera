@@ -1,5 +1,6 @@
 package com.xiaomi.mone.monitor.service.model.prometheus;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.util.List;
  * @date 2021/8/16 11:42 上午
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Metric implements Serializable {
 
     private String application;

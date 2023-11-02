@@ -10,10 +10,15 @@ import java.util.*;
 public enum AlarmCheckDataCount {
 
     zero("0","立即触发"),
-    one("1","持续30s"),
-    two("2","持续60s"),
-    three("3","持续90s"),
-    five("5","持续150s");
+    one("1","持续20s"),
+    two("2","持续40s"),
+    three("3","持续60s"),
+    five("5","持续100s"),
+    six("6","持续120s"),
+    seven("7","持续140s"),
+    eight("8","持续160s"),
+    nine("9","持续180s"),
+    fifteen("15","持续5m");
 
     private String code;
     private String message;

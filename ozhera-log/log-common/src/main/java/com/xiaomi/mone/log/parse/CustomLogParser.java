@@ -20,7 +20,6 @@ import cn.hutool.core.util.StrUtil;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.utils.IndexUtils;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,9 +32,8 @@ import java.util.stream.Collectors;
  * @Description: Custom expression parsing
  */
 @Data
-@NoArgsConstructor
 @Slf4j
-public class CustomLogParser implements LogParser {
+public class CustomLogParser extends AbstractLogParser {
 
     private boolean isParsePattern;
 
@@ -43,23 +41,19 @@ public class CustomLogParser implements LogParser {
 
     private Gson gson = new Gson();
 
-    private LogParserData parserData;
-
     private String keyValueList;
 
     private List<String> logPerComments;
 
     public CustomLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
     }
 
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
         Map<String, Object> ret = parseSimple(logData, collectStamp);
-        extractTimeStamp(ret, logData, collectStamp);
         wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        checkMessageExist(ret, logData);
         return ret;
     }
 

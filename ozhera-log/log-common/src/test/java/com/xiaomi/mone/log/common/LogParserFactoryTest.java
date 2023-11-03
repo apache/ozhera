@@ -48,7 +48,7 @@ public class LogParserFactoryTest {
         String tailName = "test name";
         String mqTag = "fsfsd";
         String logStoreName = "testet";
-        String message = "{\"lineNumber\":115,\"fileName\":\"/home/work/log/ai-avatar-web-364298-ai-avatar-web-staging/ai-avatar-web-staging-d2lmc/log/ai-avatar-web/info.log\",\"pointer\":46518,\"msgBody\":\"2023-11-01 17:04:00,053 [INFO ] c.x.a.a.w.s.PreviewService.syncPreviewTaskWithResult(PreviewService.java:151) [http-nio-8046-exec-1] [0d065eb4c37506d34fb5cc8d94394ae5] [syncPreviewImageTask] response url=http://staging.audit-rest.inf.miui.com/task/sync, reviewId=42805baf-9670-4e0a-a617-6c23c5314562, result={\\\"appId\\\":\\\"ai_extend_prompt\\\",\\\"reviewId\\\":\\\"42805baf-9670-4e0a-a617-6c23c5314562\\\",\\\"timestamp\\\":1698829439830,\\\"secret\\\":\\\"dfb14703047f5577fc6e84712d1c14637b3700ab\\\",\\\"offlineReason\\\":\\\"\\\",\\\"resultCode\\\":1,\\\"subCode\\\":11,\\\"hint\\\":[]}\",\"extMap\":{\"ct\":\"1698829440261\",\"ip\":\"10.167.146.99\",\"tag\":\"tags_164389_91872_93518\",\"type\":\"1\"}}\n";
+        String message = "";
         LogParser logParser = LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, topicName, tailName, mqTag, logStoreName);
 
         LineMessage lineMessage = Constant.GSON.fromJson(message, LineMessage.class);

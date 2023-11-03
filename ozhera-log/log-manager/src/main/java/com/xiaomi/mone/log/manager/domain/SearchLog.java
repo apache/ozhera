@@ -60,8 +60,6 @@ public class SearchLog {
         if (StringUtils.isEmpty(logQuery.getFullTextSearch())) {
             return boolQueryBuilder;
         }
-//        BoolQueryBuilder fullTextSearchBuilder = buildTextQuery(logQuery.getFullTextSearch(), keyList);
-//        BoolQueryBuilder fullTextSearchBuilder = StatementMatchParseFactory.getStatementMatchParseQueryBuilder(logQuery.getFullTextSearch(), keyList);
         SearchSourceBuilder searchSourceBuilder = EsQueryUtils.getSearchSourceBuilder(logQuery.getFullTextSearch());
         if (searchSourceBuilder != null) {
             boolQueryBuilder.filter(searchSourceBuilder.query());

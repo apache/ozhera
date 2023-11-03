@@ -18,10 +18,10 @@
         SELECT
             idx.*
         FROM
-            milog_es_index idx,
-            milog_es_cluster clu
+            milog_es_index idx LEFT JOIN
+            milog_es_cluster clu ON idx.cluster_id = clu.id
         WHERE
-            idx.cluster_id = clu.id
+            idx.log_type <![CDATA[<>]]> 2
             AND clu.area = #{area}
     </select>
 </mapper>

@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.parse;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,22 +27,15 @@ import java.util.stream.Collectors;
  * @description
  */
 @Slf4j
-@NoArgsConstructor
-public class SeparatorLogParser implements LogParser {
-
-    private LogParserData parserData;
+public class SeparatorLogParser extends AbstractLogParser {
 
     public SeparatorLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
     }
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        extractTimeStamp(ret, logData, collectStamp);
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        checkMessageExist(ret, logData);
-        return ret;
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+       return parseSimple(logData, collectStamp);
     }
 
     @Override

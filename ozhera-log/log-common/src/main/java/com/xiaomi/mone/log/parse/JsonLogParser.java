@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.log.utils.IndexUtils;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,31 +29,19 @@ import java.util.*;
  * @author liyandi
  */
 @Slf4j
-@NoArgsConstructor
-public class JsonLogParser implements LogParser {
+public class JsonLogParser extends AbstractLogParser {
     // can solve the problem of converting long integers to scientific notation
     private static final Gson GSON = new GsonBuilder()
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
             .create();
 
-    private LogParserData parserData;
-
     public JsonLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
     }
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        //Field configuration error check
-        validRet(ret, logData);
-        //timestamp
-        extractTimeStamp(ret, logData, collectStamp);
-        //default labels
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        //add default message
-        checkMessageExist(ret, logData);
-        return ret;
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+        return parseSimple(logData, collectStamp);
     }
 
     @Override
@@ -82,7 +69,7 @@ public class JsonLogParser implements LogParser {
                 ret.put(currentKey, StringUtils.isNotEmpty(value) ? value.trim() : value);
             }
             //timestamp
-            validTimestamp(ret, logData, collectStamp);
+            validTimestamp(ret, collectStamp);
         } catch (Exception e) {
             // If an exception occurs, the original log is kept to the logsource field
             ret.put(esKeyMap_logSource, logData);

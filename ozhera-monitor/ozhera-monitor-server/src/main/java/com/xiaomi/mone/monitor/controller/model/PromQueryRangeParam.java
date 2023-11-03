@@ -24,4 +24,5 @@ public class PromQueryRangeParam implements Serializable {
     Long startTime;
     Long endTime;
     Long step;
+    String sumBy;
 }

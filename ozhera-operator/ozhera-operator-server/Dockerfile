@@ -1,5 +1,5 @@
-FROM openjdk:8-jre
+FROM herahub/opensource-pub:ozhera-base-jdk8-alpine-v1
 
-COPY ./target/hera-operator-server-1.0-SNAPSHOT.jar /home/work/hera-operator-server-1.0-SNAPSHOT.jar
+COPY ./target/ozhera-operator-server-1.0-SNAPSHOT.jar /home/work/ozhera-operator-server-1.0-SNAPSHOT.jar
 
-ENTRYPOINT ["java","-jar","-Duser.timezone=Asia/Shanghai","/home/work/hera-operator-server-1.0-SNAPSHOT.jar","&&","tail","-f","/dev/null"]
+ENTRYPOINT ["java","-jar","/home/work/ozhera-operator-server-1.0-SNAPSHOT.jar","&&","tail","-f","/dev/null"]

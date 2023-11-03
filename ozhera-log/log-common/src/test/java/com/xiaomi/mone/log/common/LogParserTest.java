@@ -33,7 +33,7 @@ import java.util.Map;
  * @date 2021/12/29 14:25
  */
 @Slf4j
-public class CustomLogParserTest {
+public class LogParserTest {
 
     String topicName = "test";
     String tailName = "test";
@@ -86,8 +86,6 @@ public class CustomLogParserTest {
 
     @Test
     public void testGetTime() {
-        String msg = "";
-        String substring = msg.substring(0, 20);
         System.out.println("1.647590227174E12".length());
         System.out.println(String.valueOf(Instant.now().toEpochMilli()).length());
         DateParser dateFormat1 = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");

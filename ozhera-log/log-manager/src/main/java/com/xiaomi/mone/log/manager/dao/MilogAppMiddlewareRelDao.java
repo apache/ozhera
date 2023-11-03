@@ -17,7 +17,6 @@ package com.xiaomi.mone.log.manager.dao;
 
 import com.xiaomi.mone.log.manager.model.dto.MilogAppConfigTailDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogAppMiddlewareRel;
-import com.xiaomi.mone.log.manager.service.impl.MilogAppMiddlewareRelServiceImpl;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,9 +45,6 @@ public class MilogAppMiddlewareRelDao {
 
     @Resource
     private NutDao dao;
-
-    @Resource
-    private MilogAppMiddlewareRelServiceImpl milogAppMiddlewareRelService;
 
     public void insertUpdate(MilogAppMiddlewareRel middlewareRel) {
         Cnd cnd = Cnd.where("milog_app_id", EQUAL_OPERATE, middlewareRel.getMilogAppId())
@@ -135,10 +131,6 @@ public class MilogAppMiddlewareRelDao {
 
     public void delete(Long id) {
         dao.delete(MilogAppMiddlewareRel.class, id);
-    }
-
-    public void insertConfig(Long milogAppId, Long tailId, Long middlewareConfigId, String topicName) {
-        milogAppMiddlewareRelService.bindingTailConfigRel(tailId, milogAppId, middlewareConfigId, topicName);
     }
 
     public List<MilogAppMiddlewareRel> getAppRelByLimit(int offset, int rows) {

@@ -96,23 +96,6 @@ public class HeraConfigValid {
         return StringUtils.isNotEmpty(validMsg) ? validMsg : StringUtils.EMPTY;
     }
 
-    public String checkParseParam(MlogParseParam mlogParseParam) {
-        StringBuilder sb = new StringBuilder();
-        if (null == mlogParseParam.getStoreId()) {
-            sb.append("The store cannot be empty;");
-        }
-        if (null == mlogParseParam.getParseScript()) {
-            sb.append("The parsing script cannot be empty;");
-        }
-        if (null == mlogParseParam.getValueList()) {
-            sb.append("Indexing rules cannot be empty;");
-        }
-        if (null == mlogParseParam.getMsg()) {
-            sb.append("Log information cannot be empty;");
-        }
-        return sb.toString();
-    }
-
     public String checkParseExampleParam(MlogParseParam mlogParseParam) {
         StringBuilder sb = new StringBuilder();
         if (!LogParserFactory.LogParserEnum.JSON_PARSE.getCode().equals(mlogParseParam.getParseType())

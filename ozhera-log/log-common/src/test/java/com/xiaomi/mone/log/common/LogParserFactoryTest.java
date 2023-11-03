@@ -17,7 +17,6 @@ package com.xiaomi.mone.log.common;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.LongSerializationPolicy;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.log.parse.LogParser;
@@ -41,15 +40,15 @@ public class LogParserFactoryTest {
 
     @Test
     public void test() {
-        Integer parseType = 2;
-        String keyList = "message:text,logstore:date,logsource:keyword,mqtopic:keyword,mqtag:text,logip:text,tail:keyword,linenumber:keyword";
-        String valueList = "0";
-        String parseScript = "@##$%";
+        Integer parseType = 5;
+        String keyList = "timestamp:date,level:keyword,traceId:keyword,threadName:text,className:text,line:keyword,methodName:keyword,message:text,podName:keyword,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long\",";
+        String valueList = "0,1,5,4,2,-1,3,6,-1";
+        String parseScript = "%s-[%s]-%s-(%s)-[%s]-[%s]-%s";
         String topicName = "3424";
         String tailName = "test name";
         String mqTag = "fsfsd";
         String logStoreName = "testet";
-        String message = "{}";
+        String message = "";
         LogParser logParser = LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, topicName, tailName, mqTag, logStoreName);
 
         LineMessage lineMessage = Constant.GSON.fromJson(message, LineMessage.class);

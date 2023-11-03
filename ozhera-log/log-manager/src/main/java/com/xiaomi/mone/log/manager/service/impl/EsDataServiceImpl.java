@@ -190,10 +190,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             return Result.success(dto);
         } catch (ElasticsearchStatusException e) {
             log.error("Log query error, log search error, error type[{}], logQuery:[{}], searchRequest:[{}], user:[{}]", e.status(), logQuery, searchRequest, MoneUserContext.getCurrentUser(), e);
-            return Result.failParam("If the permissions of ES resources are configured incorrectly, check the username and password or token");
+            return Result.failParam(e.getMessage());
         } catch (Throwable e) {
             log.error("Log query error, log search error,logQuery:[{}],searchRequest:[{}],user:[{}]", logQuery, searchRequest, MoneUserContext.getCurrentUser(), e);
-            return Result.failParam("Search term input error, please check");
+            return Result.failParam(e.getMessage());
         }
     }
 

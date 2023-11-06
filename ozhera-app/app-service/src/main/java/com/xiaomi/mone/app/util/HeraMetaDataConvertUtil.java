@@ -19,6 +19,8 @@ import java.util.List;
 @Slf4j
 public class HeraMetaDataConvertUtil {
 
+    public static final String SYNC_DATA_LOCK_REDIS_KEY = "hera_meta_data_sync";
+
     public static List<HeraMetaDataModel> convertToModel(List<HeraMetaData> heraMetaDataList) {
         if (heraMetaDataList == null) {
             return null;

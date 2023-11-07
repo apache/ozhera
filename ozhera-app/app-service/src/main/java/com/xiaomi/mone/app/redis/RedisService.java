@@ -130,7 +130,7 @@ public class RedisService {
                 if ("OK".equals(jedis.set(key, "1", disLockParam))) {
                     return true;
                 } else {
-                    Thread.sleep(10);
+                    Thread.sleep(100);
                 }
                 if (System.currentTimeMillis() - startTime > waitTimeOut) {
                     log.warn("等待分布式锁超过30秒...");

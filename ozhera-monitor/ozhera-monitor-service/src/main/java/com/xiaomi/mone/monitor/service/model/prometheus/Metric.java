@@ -68,7 +68,7 @@ public class Metric implements Serializable {
     private String group;
     private String url;
 
-    //拓扑图相关
+    //topology
     private String type;
     private String destApp;
 

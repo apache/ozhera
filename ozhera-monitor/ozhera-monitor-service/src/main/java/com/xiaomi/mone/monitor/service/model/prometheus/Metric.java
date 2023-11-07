@@ -68,5 +68,8 @@ public class Metric implements Serializable {
     private String group;
     private String url;
 
+    //topology
+    private String type;
+    private String destApp;
 
 }

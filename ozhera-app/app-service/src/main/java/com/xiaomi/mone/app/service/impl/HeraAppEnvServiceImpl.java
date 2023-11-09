@@ -2,6 +2,7 @@ package com.xiaomi.mone.app.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xiaomi.mone.app.dao.mapper.HeraAppBaseInfoMapper;
 import com.xiaomi.mone.app.dao.mapper.HeraAppEnvMapper;
@@ -27,7 +28,13 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.app.common.Constant.DEFAULT_OPERATOR;
 import static com.xiaomi.mone.app.common.Constant.GSON;
@@ -110,10 +117,7 @@ public class HeraAppEnvServiceImpl implements HeraAppEnvService {
 
         while (true) {
             log.info("轮询应用,pageNum:{},pageSize:{}", pageNum, pageSize);
-            Page<HeraAppBaseInfo> appBaseInfoPage = heraAppBaseInfoMapper
-                    .selectPage(new Page(pageNum, pageSize),
-                            new LambdaQueryWrapper<HeraAppBaseInfo>().eq(HeraAppBaseInfo::getStatus,
-                                    StatusEnum.NOT_DELETED.getCode()));
+            Page<HeraAppBaseInfo> appBaseInfoPage = heraAppBaseInfoMapper.selectPage(new Page(pageNum, pageSize), new LambdaQueryWrapper<HeraAppBaseInfo>().eq(HeraAppBaseInfo::getStatus, StatusEnum.NOT_DELETED.getCode()));
             List<HeraAppBaseInfo> appBaseInfos = appBaseInfoPage.getRecords();
             if (CollectionUtils.isNotEmpty(appBaseInfos)) {
                 appBaseInfos.stream().forEach(baseInfo -> {
@@ -136,14 +140,10 @@ public class HeraAppEnvServiceImpl implements HeraAppEnvService {
 
     public void handleAppEnv(Integer id, String bindId, String appName) throws Exception {
         envIpFetch = defaultEnvIpFetch.getEnvFetch(bindId);
-        HeraAppEnvVo heraAppEnvVo = envIpFetch.fetch(id.longValue(),
-                Long.valueOf(bindId), appName);
+        HeraAppEnvVo heraAppEnvVo = envIpFetch.fetch(id.longValue(), Long.valueOf(bindId), appName);
         log.debug("heraAppEnvVo,result:{}", GSON.toJson(heraAppEnvVo));
         for (HeraAppEnvVo.EnvVo envVo : heraAppEnvVo.getEnvVos()) {
-            LambdaQueryWrapper<HeraAppEnv> queryWrapper = new LambdaQueryWrapper<HeraAppEnv>()
-                    .eq(HeraAppEnv::getHeraAppId, id)
-                    .eq(HeraAppEnv::getAppId, Long.valueOf(bindId))
-                    .eq(HeraAppEnv::getEnvId, envVo.getEnvId());
+            LambdaQueryWrapper<HeraAppEnv> queryWrapper = new LambdaQueryWrapper<HeraAppEnv>().eq(HeraAppEnv::getHeraAppId, id).eq(HeraAppEnv::getAppId, Long.valueOf(bindId)).eq(HeraAppEnv::getEnvId, envVo.getEnvId());
             HeraAppEnv heraAppEnv = heraAppEnvMapper.selectOne(queryWrapper);
             if (null == heraAppEnv) {
                 addAppEnvNotExist(heraAppEnvVo, envVo);
@@ -184,15 +184,53 @@ public class HeraAppEnvServiceImpl implements HeraAppEnvService {
 
     @Override
     public Boolean addAppEnvNotExist(HeraAppEnvVo heraAppEnvVo, HeraAppEnvVo.EnvVo envVo) {
-        QueryWrapper<HeraAppEnv> queryWrapper = new QueryWrapper<HeraAppEnv>().eq("hera_app_id",
-                        heraAppEnvVo.getHeraAppId()).eq("app_id", heraAppEnvVo.getAppId())
-                .eq("env_id", envVo.getEnvId());
+        QueryWrapper<HeraAppEnv> queryWrapper = new QueryWrapper<HeraAppEnv>().eq("hera_app_id", heraAppEnvVo.getHeraAppId()).eq("app_id", heraAppEnvVo.getAppId()).eq("env_id", envVo.getEnvId());
         HeraAppEnv heraAppEnv = heraAppEnvMapper.selectOne(queryWrapper);
         if (null == heraAppEnv) {
             addAppEnv(buildHeraAppOperateVo(heraAppEnvVo, envVo));
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<String> queryNonProbeAccessIPs() {
+        List<String> ipList = new CopyOnWriteArrayList<>();
+        Map<Long, Boolean> filterMap = new ConcurrentHashMap<>();
+        long current = 1;
+        long size = 100;
+
+        while (true) {
+            Page<HeraAppEnv> page = new Page<>(current, size);
+            Page<HeraAppEnv> heraAppEnvPage = heraAppEnvMapper.selectPage(page, Wrappers.emptyWrapper());
+
+            List<HeraAppEnv> pageRecords = heraAppEnvPage.getRecords();
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+            for (HeraAppEnv heraAppEnv : pageRecords) {
+                futures.add(CompletableFuture.runAsync(() -> processHeraAppEnv(heraAppEnv, filterMap, ipList)));
+            }
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allOf.join();
+            current++;
+
+            if (!heraAppEnvPage.hasNext()) {
+                break;
+            }
+        }
+        return ipList.parallelStream().distinct().collect(Collectors.toList());
+    }
+
+    private void processHeraAppEnv(HeraAppEnv heraAppEnv, Map<Long, Boolean> filterMap, List<String> ipList) {
+        if (filterMap.containsKey((heraAppEnv.getAppId())) && filterMap.get((heraAppEnv.getAppId()))) {
+            ipList.addAll(heraAppEnv.getIpList());
+        } else {
+            EnvIpFetch envFetchFromRemote = defaultEnvIpFetch.getEnvFetchFromRemote(heraAppEnv.getAppId().toString());
+            if (envFetchFromRemote != null) {
+                ipList.addAll(heraAppEnv.getIpList());
+            }
+            filterMap.put(heraAppEnv.getAppId(), envFetchFromRemote != null);
+        }
     }
 
     private HeraAppOperateVo buildHeraAppOperateVo(HeraAppEnvVo heraAppEnvVo, HeraAppEnvVo.EnvVo envVo) {

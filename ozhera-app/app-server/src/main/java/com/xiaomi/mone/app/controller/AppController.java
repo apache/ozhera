@@ -27,7 +27,7 @@ import java.util.List;
 public class AppController {
 
     @Autowired
-    HeraAppBaseInfoService heraAppBaseInfoService;
+    private HeraAppBaseInfoService heraAppBaseInfoService;
 
     private final HeraAppService heraAppService;
 
@@ -111,4 +111,5 @@ public class AppController {
     public List<String> testOriginalResponse() {
         return Lists.newArrayList("122343", "中国", "5656.66");
     }
+
 }

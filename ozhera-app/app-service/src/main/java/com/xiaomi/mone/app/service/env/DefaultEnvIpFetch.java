@@ -69,7 +69,7 @@ public class DefaultEnvIpFetch {
         return getEnvIpFetch();
     }
 
-    private EnvIpFetch getEnvFetchFromRemote(String appId) {
+    public EnvIpFetch getEnvFetchFromRemote(String appId) {
         JsonObject jsonObject = new JsonObject();
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         jsonObject.addProperty("parentId", appId);
@@ -85,7 +85,7 @@ public class DefaultEnvIpFetch {
             Response response = okHttpClient.newCall(request).execute();
             if (response.isSuccessful()) {
                 String rstJson = response.body().string();
-                log.info("getEnvFetchFromRemote result:{}",rstJson);
+                log.info("getEnvFetchFromRemote,appId:{},result:{}", appId, rstJson);
                 Result<TpcPageRes<TpcLabelRes>> pageResponseResult = gson.fromJson(rstJson, new TypeToken<Result<TpcPageRes<TpcLabelRes>>>() {
                 }.getType());
                 if (null != pageResponseResult &&

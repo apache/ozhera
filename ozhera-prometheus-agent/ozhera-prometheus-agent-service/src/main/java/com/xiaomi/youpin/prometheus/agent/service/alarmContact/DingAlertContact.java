@@ -44,7 +44,6 @@ public class DingAlertContact extends BaseAlertContact {
 
     @Override
     public void Reach(AlertManagerFireResult fireResult) {
-        List<Alerts> alerts = fireResult.getAlerts();
         GroupLabels groupLabels = fireResult.getGroupLabels();
         String alertName = groupLabels.getAlertname();
         log.info("SendAlert dingdingReach begin send AlertName :{}", alertName);

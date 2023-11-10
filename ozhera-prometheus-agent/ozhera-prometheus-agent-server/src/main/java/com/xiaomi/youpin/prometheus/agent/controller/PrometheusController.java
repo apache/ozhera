@@ -63,4 +63,9 @@ public class PrometheusController {
     public List<Ips> getK8sNodeIp(String type) {
         return prometheusIpService.getK8sNodeIp(type);
     }
+
+    @GetMapping("/prometheus/getHeraAppPodIp")
+    public List<Ips> getHeraAppPodIp() {
+        return prometheusIpService.getHeraAppPodIp();
+    }
 }

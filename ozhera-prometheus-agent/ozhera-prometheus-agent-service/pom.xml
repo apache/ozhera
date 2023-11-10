@@ -104,6 +104,11 @@
             <version>31.0.1-jre</version>
         </dependency>
 
+        <dependency>
+            <artifactId>http</artifactId>
+            <groupId>run.mone</groupId>
+        </dependency>
+
 
     </dependencies>
 

@@ -208,7 +208,8 @@
 "names": [
 "ip",
 "podIp",
-"Value"
+"Value",
+"pod"
 ]
 }
 }
@@ -226,7 +227,8 @@
 "id": "organize",
 "options": {
 "excludeByName": {
-"jumpIp": false
+"jumpIp": false,
+"pod": false
 },
 "indexByName": {
 "Last (not null)": 2,
@@ -241,8 +243,8 @@
 }
 ],
 "datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
+"uid": "${prometheusUid}",
+"type": "prometheus"
 },
 "pluginVersion": "9.2.0",
 "description": "点击实例下方的IP可以跳转到服务所在的物理机监控\n\n点击容器启动时间下方的时间可以跳转到服务所在的容器监控",
@@ -338,12 +340,12 @@
 "id": "mappings",
 "value": [
 {
+"type": "value",
 "options": {
 "0": {
 "text": "宕机"
 }
-},
-"type": "value"
+}
 },
 {
 "options": {
@@ -473,7 +475,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "sum(container_last_seen{application=\"$application\",podIp=~\"$instance\"}) by (podIp,ip)",
+"expr": "sum(container_last_seen{application=\"$application\",podIp=~\"$instance\"}) by (podIp,ip,pod)",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -5477,5 +5479,5 @@
 "overwrite":false,
 "folderId":${folderId},
 "folderUid":"${folderUid}",
-"message":"hera V1.1"
+"message":"hera V1.2"
 }

@@ -3,6 +3,8 @@ package com.xiaomi.mone.app.service;
 import com.xiaomi.mone.app.model.vo.HeraAppEnvVo;
 import com.xiaomi.mone.app.model.vo.HeraAppOperateVo;
 
+import java.util.List;
+
 /**
  * @author wtt
  * @version 1.0
@@ -24,4 +26,6 @@ public interface HeraAppEnvService {
     void addAppEnvNotExist(HeraAppEnvVo heraAppEnvVo);
 
     Boolean addAppEnvNotExist(HeraAppEnvVo heraAppEnvVo, HeraAppEnvVo.EnvVo envVo);
+
+    List<String> queryNonProbeAccessIPs();
 }

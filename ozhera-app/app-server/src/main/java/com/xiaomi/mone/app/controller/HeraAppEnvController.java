@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author wtt
  * @version 1.0
@@ -42,5 +44,15 @@ public class HeraAppEnvController {
     @PostMapping("/delete")
     public Boolean deleteAppEnv(@RequestParam("id") Long id) {
         return heraAppEnvService.deleteAppEnv(id);
+    }
+
+    /**
+     * query the IP information of non probe connected application machines
+     *
+     * @return
+     */
+    @GetMapping("/non/probe/ips")
+    public List<String> queryNonProbeAccessIPs() {
+        return heraAppEnvService.queryNonProbeAccessIPs();
     }
 }

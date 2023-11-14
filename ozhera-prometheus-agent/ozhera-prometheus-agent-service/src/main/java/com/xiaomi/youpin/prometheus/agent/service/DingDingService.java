@@ -60,6 +60,9 @@ public class DingDingService {
     @NacosValue(value = "${hera.alert.whiteList}", autoRefreshed = true)
     private String whiteListStr;
 
+    @NacosValue(value = "${dingding.user.type}", autoRefreshed = true)
+    private String dingdingUserType;
+
     private final String ACCESS_TOKEN = "dingding_access_token";
 
     private final String DINGDING_USER_INFO_URL = "https://oapi.dingtalk.com/topapi/v2/user/get";
@@ -98,6 +101,12 @@ public class DingDingService {
             for (int i = 0; i < whiteList.size(); i = i + 2) {
                 whiteListMap.put(whiteList.get(i), whiteList.get(i + 1));
             }
+        }
+        //user type judge
+        if (!dingdingUserType.equals("userId") && !dingdingUserType.equals("unionId")) {
+            log.error("DingDingService.userType not valid, userType: {}",dingdingUserType);
+            //set default value
+            dingdingUserType = "userId";
         }
     }
 
@@ -172,7 +181,7 @@ public class DingDingService {
                     new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions();
             SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
                     .setCardTemplateId("StandardCard")
-                    .setSingleChatReceiver("{\"userId\":\"" + uid + "\"}")
+                    .setSingleChatReceiver("{\""+ dingdingUserType +"\":\"" + uid + "\"}")
                     .setCardBizId(cardBizId)
                     .setRobotCode(robotCode)
                     .setCardData(content)

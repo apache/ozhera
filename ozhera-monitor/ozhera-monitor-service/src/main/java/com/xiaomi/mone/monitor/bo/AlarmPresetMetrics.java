@@ -21,8 +21,8 @@ public enum AlarmPresetMetrics {
     k8s_container_count_monitor("k8s_container_count_monitor","k8s容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.application, BasicUrlType.hera_dash_ip, "148"),
 
     //资源利用率报警
-//    container_cpu_resource_use_rate("container_cpu_resource_use_rate","容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "2"),
-//    container_mem_resource_use_rate("container_mem_resource_use_rate","容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "11"),
+    container_cpu_resource_use_rate("container_cpu_resource_use_rate","容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "2"),
+    container_mem_resource_use_rate("container_mem_resource_use_rate","容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "11"),
     k8s_cpu_resource_use_rate("k8s_cpu_resource_use_rate","k8s容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "2"),
     k8s_mem_resource_use_rate("k8s_mem_resource_use_rate","k8s容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "11"),
 

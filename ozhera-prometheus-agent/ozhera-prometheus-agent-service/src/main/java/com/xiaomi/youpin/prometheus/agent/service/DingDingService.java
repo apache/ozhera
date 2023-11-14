@@ -89,7 +89,7 @@ public class DingDingService {
         dingCardClient = new com.aliyun.dingtalkcard_1_0.Client(dingConfig);
         dingOauthClient = new com.aliyun.dingtalkoauth2_1_0.Client(dingConfig);
         //registerDingDingCallBack();
-        //白名单填充
+        //fill in white list
         if (!StringUtils.isBlank(whiteListStr)) {
             List<String> whiteList = Arrays.asList(whiteListStr.split(",", -1));
             log.info("DingDingService init whiteList is :{}", whiteList);
@@ -97,7 +97,7 @@ public class DingDingService {
                 log.error("DingDingService sendDingDing whiteList error , because whiteList size is not even");
                 return;
             }
-            //填充map
+            //fill in map
             for (int i = 0; i < whiteList.size(); i = i + 2) {
                 whiteListMap.put(whiteList.get(i), whiteList.get(i + 1));
             }

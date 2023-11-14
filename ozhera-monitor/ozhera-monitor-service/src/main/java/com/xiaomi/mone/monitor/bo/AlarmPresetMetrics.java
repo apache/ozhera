@@ -8,38 +8,38 @@ public enum AlarmPresetMetrics {
     /**
      * 系统指标
      */
-    container_cpu_use_rate("container_cpu_use_rate","容器机CPU使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "2"),
-    container_cpu_average_load("container_cpu_average_load","容器负载", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "9"),
-    container_mem_use_rate("container_mem_use_rate","容器机内存使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "11"),
-    container_disk_use_rate("container_disk_use_rate","容器机磁盘使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_disk_rate, "2"),
-    container_count_monitor("container_count_monitor","容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_ip, "148"),
-    app_crash_monitor("app_crash_monitor","应用宕机",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic,true),
+//    container_cpu_use_rate("container_cpu_use_rate","容器机CPU使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "2"),
+//    container_cpu_average_load("container_cpu_average_load","容器负载", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "9"),
+//    container_mem_use_rate("container_mem_use_rate","容器机内存使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "11"),
+//    container_disk_use_rate("container_disk_use_rate","容器机磁盘使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_disk_rate, "2"),
+//    container_count_monitor("container_count_monitor","容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.application, BasicUrlType.hera_dash_ip, "148"),
+    app_crash_monitor("app_crash_monitor","应用宕机",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.application,true),
 
-    k8s_container_cpu_use_rate("k8s_container_cpu_use_rate","k8s容器机CPU使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "2"),
-    k8s_container_cpu_average_load("k8s_container_cpu_average_load","k8s容器负载", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "9"),
-    k8s_container_mem_use_rate("k8s_container_mem_use_rate","k8s容器机内存使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip, "11"),
-    k8s_container_count_monitor("k8s_container_count_monitor","k8s容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_ip, "148"),
+    k8s_container_cpu_use_rate("k8s_container_cpu_use_rate","k8s容器机CPU使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "2"),
+    k8s_container_cpu_average_load("k8s_container_cpu_average_load","k8s容器负载", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "9"),
+    k8s_container_mem_use_rate("k8s_container_mem_use_rate","k8s容器机内存使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "11"),
+    k8s_container_count_monitor("k8s_container_count_monitor","k8s容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.application, BasicUrlType.hera_dash_ip, "148"),
 
     //资源利用率报警
     container_cpu_resource_use_rate("container_cpu_resource_use_rate","容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "2"),
     container_mem_resource_use_rate("container_mem_resource_use_rate","容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "11"),
-    k8s_cpu_resource_use_rate("k8s_cpu_resource_use_rate","k8s容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "2"),
-    k8s_mem_resource_use_rate("k8s_mem_resource_use_rate","k8s容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "11"),
+    k8s_cpu_resource_use_rate("k8s_cpu_resource_use_rate","k8s容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "2"),
+    k8s_mem_resource_use_rate("k8s_mem_resource_use_rate","k8s容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "11"),
 
-    k8s_cpu_avg_use_rate("k8s_cpu_avg_use_rate","k8s容器CPU平均使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "2"),
-//    k8s_pod_restart_times("k8s_pod_restart_times","k8s-POD重启", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, true,BasicUrlType.cn_grafana_ip_1d, "2"),
+    k8s_cpu_avg_use_rate("k8s_cpu_avg_use_rate","k8s容器CPU平均使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "2"),
+    k8s_pod_restart_times("k8s_pod_restart_times","k8s-POD重启", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, true,BasicUrlType.cn_grafana_ip_1d, "2"),
 
     /**
      * jvm指标
      */
 
-    jvm_heap_mem_use_rate("jvm_heap_mem_use_rate","HeapUsed", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "176"),
-    jvm_no_heap_mem_use_rate("jvm_no_heap_mem_use_rate","Non-HeapUsed", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic,BasicUrlType.hera_dash_sip, "178"),
-    jvm_thread_num("jvm_thread_num","线程数量", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "68"),
-    jvm_gc_times("jvm_gc_times","GC次数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "74"),
-    jvm_gc_cost("jvm_gc_cost","GC耗时", MetricsUnit.UNIT_S, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "76"),
-    jvm_full_gc_times("jvm_full_gc_times","FullGC次数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "74"),
-    jvm_full_gc_cost("jvm_full_gc_cost","FullGC耗时", MetricsUnit.UNIT_S, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.hera_dash_sip, "76"),
+    jvm_heap_mem_use_rate("jvm_heap_mem_use_rate","HeapUsed", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "176"),
+    jvm_no_heap_mem_use_rate("jvm_no_heap_mem_use_rate","Non-HeapUsed", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime,BasicUrlType.hera_dash_sip, "178"),
+    jvm_thread_num("jvm_thread_num","线程数量", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "68"),
+    jvm_gc_times("jvm_gc_times","GC次数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "74"),
+    jvm_gc_cost("jvm_gc_cost","GC耗时", MetricsUnit.UNIT_S, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "76"),
+    jvm_full_gc_times("jvm_full_gc_times","FullGC次数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "74"),
+    jvm_full_gc_cost("jvm_full_gc_cost","FullGC耗时", MetricsUnit.UNIT_S, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "76"),
 
     /**
      * 业务指标-http

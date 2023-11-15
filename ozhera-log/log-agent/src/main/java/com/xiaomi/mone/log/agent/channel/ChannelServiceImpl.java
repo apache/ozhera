@@ -343,10 +343,16 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 String pattern = referenceEntry.getKey();
                 Long appendTime = mLog.getAppendTime();
                 if (null != appendTime && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
-                    String remainMsg = mLog.takeRemainMsg2();
-                    if (null != remainMsg) {
-                        log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
-                        wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
+                    if (fileColLock.tryLock()) {
+                        try {
+                            String remainMsg = mLog.takeRemainMsg2();
+                            if (null != remainMsg) {
+                                log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
+                                wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
+                            }
+                        } finally {
+                            fileColLock.unlock();
+                        }
                     }
                 }
             }
@@ -519,8 +525,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public void reOpen(String filePath) {
+        fileReopenLock.lock();
         try {
-            fileReopenLock.lock();
             //Judging the number of openings, it can only be reopened once within 10 seconds.
             if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
                 log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
@@ -543,13 +549,14 @@ public class ChannelServiceImpl extends AbstractChannelService {
             } else {
                 // Normal log segmentation
                 try {
-                    //Delay 5 seconds to split files, todo @shanwb Ensure that the files are collected before switching
+                    //Delay 5 seconds to split files
                     TimeUnit.SECONDS.sleep(5);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.error("sleep error");
                 }
                 logFile.setReOpen(true);
-                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath);
+                LogFile file = (LogFile) logFile;
+                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath, file.getFile(), file.getBeforePointerHashCode());
             }
         } finally {
             fileReopenLock.unlock();

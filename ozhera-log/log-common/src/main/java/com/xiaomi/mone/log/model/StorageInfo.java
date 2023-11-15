@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class EsInfo {
+public class StorageInfo {
     private Long id;
     /**
      * ES address
@@ -47,14 +47,14 @@ public class EsInfo {
 
     private String database;
 
-    public EsInfo(Long id, String addr, String user, String pwd) {
+    public StorageInfo(Long id, String addr, String user, String pwd) {
         this.id = id;
         this.addr = addr;
         this.user = user;
         this.pwd = pwd;
     }
 
-    public EsInfo(Long id, String addr, String token, String catalog, String database) {
+    public StorageInfo(Long id, String addr, String token, String catalog, String database) {
         this.id = id;
         this.addr = addr;
         this.token = token;

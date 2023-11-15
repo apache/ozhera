@@ -88,9 +88,9 @@ public abstract class AbstractLogParser implements LogParser {
     }
 
     void checkMessageExist(Map<String, Object> ret, String originData) {
-        if (!ret.containsKey(esKeyMap_MESSAGE)) {
-            ret.put(esKeyMap_MESSAGE, originData);
-            ret.remove(esKeyMap_logSource);
+        if (!ret.containsKey(ES_KEY_MAP_MESSAGE)) {
+            ret.put(ES_KEY_MAP_MESSAGE, originData);
+            ret.remove(ES_KEY_MAP_LOG_SOURCE);
         }
     }
 
@@ -100,7 +100,7 @@ public abstract class AbstractLogParser implements LogParser {
      */
     void validRet(Map<String, Object> ret, String logData) {
         if (ret.values().stream().filter(Objects::nonNull).map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-            ret.put(esKeyMap_logSource, logData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
     }
 

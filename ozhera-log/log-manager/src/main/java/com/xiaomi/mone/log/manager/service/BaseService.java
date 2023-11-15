@@ -21,6 +21,8 @@ import com.xiaomi.mone.log.manager.model.BaseCommon;
 import com.xiaomi.mone.log.manager.model.MilogSpaceParam;
 import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
 
+import static com.xiaomi.mone.log.common.Constant.DEFAULT_OPERATOR;
+
 /**
  * @author wtt
  * @version 1.0
@@ -44,12 +46,13 @@ public class BaseService {
     }
 
     public void wrapBaseCommon(BaseCommon common, OperateEnum operateEnum) {
+        String operator = MoneUserContext.getCurrentUser() != null ? MoneUserContext.getCurrentUser().getUser() : DEFAULT_OPERATOR;
         if (operateEnum == OperateEnum.ADD_OPERATE) {
             common.setCtime(System.currentTimeMillis());
-            common.setCreator(MoneUserContext.getCurrentUser().getUser());
+            common.setCreator(operator);
         }
         common.setUtime(System.currentTimeMillis());
-        common.setUpdater(MoneUserContext.getCurrentUser().getUser());
+        common.setUpdater(operator);
     }
 
     public void wrapBaseCommon(BaseCommon common, OperateEnum operateEnum, String appCreator) {

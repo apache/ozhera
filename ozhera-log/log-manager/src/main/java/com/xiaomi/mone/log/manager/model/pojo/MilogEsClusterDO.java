@@ -28,6 +28,10 @@ import com.xiaomi.mone.log.manager.model.BaseCommon;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.nutz.dao.entity.annotation.ColDefine;
+import org.nutz.dao.entity.annotation.ColType;
+import org.nutz.dao.entity.annotation.Column;
+import org.nutz.dao.entity.annotation.Comment;
 
 import java.io.Serializable;
 import java.util.List;
@@ -49,6 +53,11 @@ public class MilogEsClusterDO extends BaseCommon implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    @Column(value = "log_storage_type")
+    @ColDefine(type = ColType.VARCHAR, width = 50)
+    @Comment("Log storage type")
+    private String logStorageType;
 
     /**
      * Cluster type

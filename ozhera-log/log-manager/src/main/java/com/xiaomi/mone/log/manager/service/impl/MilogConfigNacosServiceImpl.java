@@ -354,11 +354,11 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         return sinkConfig;
     }
 
-    private EsInfo buildEsInfo(MilogEsClusterDO clusterDO) {
+    private StorageInfo buildEsInfo(MilogEsClusterDO clusterDO) {
         if (Objects.equals(ES_CONWAY_PWD, clusterDO.getConWay())) {
-            return new EsInfo(clusterDO.getId(), clusterDO.getAddr(), clusterDO.getUser(), clusterDO.getPwd());
+            return new StorageInfo(clusterDO.getId(), clusterDO.getAddr(), clusterDO.getUser(), clusterDO.getPwd());
         }
-        return new EsInfo(clusterDO.getId(), clusterDO.getAddr(), clusterDO.getToken(), clusterDO.getDtCatalog(), clusterDO.getDtDatabase());
+        return new StorageInfo(clusterDO.getId(), clusterDO.getAddr(), clusterDO.getToken(), clusterDO.getDtCatalog(), clusterDO.getDtDatabase());
     }
 
 

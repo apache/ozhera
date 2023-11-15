@@ -46,7 +46,7 @@ public interface StoreExtensionService {
      * @param ml
      * @param cmd
      */
-    void postProcessing(MilogLogStoreDO ml, LogStoreParam cmd);
+    void postProcessing(MilogLogStoreDO ml, LogStoreParam cmd, OperateEnum operateEnum);
 
     /**
      * Send Configuration Switch

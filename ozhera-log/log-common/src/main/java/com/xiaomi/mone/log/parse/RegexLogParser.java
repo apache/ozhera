@@ -71,7 +71,7 @@ public class RegexLogParser extends AbstractLogParser {
             validTimestamp(ret, collectStamp);
         } catch (Exception e) {
             // If an exception occurs, the original log is kept to the logsource field
-            ret.put(esKeyMap_logSource, logData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
         return ret;
     }

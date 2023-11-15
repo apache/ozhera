@@ -17,7 +17,10 @@ package com.xiaomi.mone.log.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +45,7 @@ public class IndexUtils {
             }
         }
         return map.entrySet().stream()
-                .sorted(Comparator.comparing(e -> e.getKey()))
+                .sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue).collect(Collectors.joining(","));
     }
 

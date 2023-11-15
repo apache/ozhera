@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.log.stream.job.compensate;
 
-import com.xiaomi.mone.log.model.EsInfo;
+import com.xiaomi.mone.log.model.StorageInfo;
 import lombok.Data;
 
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
 @Data
 public class MqMessageDTO {
 
-    private EsInfo esInfo;
+    private StorageInfo esInfo;
 
     private List<CompensateMqDTO> compensateMqDTOS;
 

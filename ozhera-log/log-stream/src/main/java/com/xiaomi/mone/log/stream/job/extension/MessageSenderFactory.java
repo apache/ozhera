@@ -30,7 +30,7 @@ public class MessageSenderFactory {
             case ELASTICSEARCH:
                 return getEsMessageSender(sinkJobConfig, mqMessageProduct);
             case DORIS:
-                return getDorisMessageSender(sinkJobConfig, mqMessageProduct);
+//                return getDorisMessageSender(sinkJobConfig, mqMessageProduct);
             default:
                 return null;
         }
@@ -44,8 +44,8 @@ public class MessageSenderFactory {
         return esMessageSender;
     }
 
-    private static MessageSender getDorisMessageSender(SinkJobConfig sinkJobConfig, MqMessageProduct mqMessageProduct) {
-        List<String> keyListSlice = IndexUtils.getKeyListSlice(sinkJobConfig.getKeyList());
-        return new DorisMessageSender(sinkJobConfig.getIndex(), mqMessageProduct, sinkJobConfig.getStorageInfo(), keyListSlice);
-    }
+//    private static MessageSender getDorisMessageSender(SinkJobConfig sinkJobConfig, MqMessageProduct mqMessageProduct) {
+//        List<String> keyListSlice = IndexUtils.getKeyListSlice(sinkJobConfig.getKeyList());
+//        return new DorisMessageSender(sinkJobConfig.getIndex(), mqMessageProduct, sinkJobConfig.getStorageInfo(), keyListSlice);
+//    }
 }

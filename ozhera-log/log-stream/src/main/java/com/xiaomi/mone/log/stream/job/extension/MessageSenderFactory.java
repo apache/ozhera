@@ -3,13 +3,9 @@ package com.xiaomi.mone.log.stream.job.extension;
 import com.xiaomi.mone.es.EsProcessor;
 import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.stream.job.SinkJobConfig;
-import com.xiaomi.mone.log.stream.job.extension.impl.DorisMessageSender;
 import com.xiaomi.mone.log.stream.job.extension.impl.EsMessageSender;
 import com.xiaomi.mone.log.stream.job.extension.impl.RocketMqMessageProduct;
 import com.xiaomi.mone.log.stream.plugin.es.EsPlugin;
-import com.xiaomi.mone.log.utils.IndexUtils;
-
-import java.util.List;
 
 /**
  * @author wtt

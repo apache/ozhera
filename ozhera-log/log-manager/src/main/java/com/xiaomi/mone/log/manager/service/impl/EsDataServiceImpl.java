@@ -302,46 +302,6 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                 milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch(), sortSql, limitSql);
     }
 
-    public String transferColumnTypeFromDorisToJava(String columnType) {
-        if (columnType == null) {
-            return "";
-        }
-
-        if (columnType.startsWith("varchar")) {
-            return "java.lang.String";
-        }
-
-        if (columnType.startsWith("int")) {
-            return "java.lang.Integer";
-        }
-
-        if (columnType.startsWith("bigint")) {
-            return "java.lang.Long";
-        }
-
-        if (columnType.startsWith("decimal")) {
-            return "java.math.BigDecimal";
-        }
-
-        if (columnType.startsWith("date")) {
-            return "java.util.Date";
-        }
-
-        if (columnType.startsWith("tinyint")) {
-            return "java.lang.Byte";
-        }
-
-        if (columnType.startsWith("smallint")) {
-            return "java.lang.Short";
-        }
-
-        if (columnType.startsWith("tinyint(0)") || columnType.startsWith("tinyint(1)")) {
-            return "java.lang.Boolean";
-        }
-
-        return "";
-    }
-
     private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, BoolQueryBuilder boolQueryBuilder) {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(boolQueryBuilder);

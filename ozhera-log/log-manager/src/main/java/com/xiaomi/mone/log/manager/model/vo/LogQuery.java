@@ -19,6 +19,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -26,7 +27,7 @@ public class LogQuery implements Serializable {
     private String logstore;
     private Long storeId;
     private String tail;
-    private Long tailId;
+    private List<Long> tailIds;
     private Long startTime;
     private Long endTime;
     private Integer pageSize;

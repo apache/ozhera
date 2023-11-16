@@ -15,17 +15,16 @@
  */
 package com.xiaomi.mone.log.stream.job.extension.impl;
 
-import com.xiaomi.mone.es.EsProcessor;
 import com.xiaomi.mone.log.parse.LogParser;
 import com.xiaomi.mone.log.parse.LogParserFactory;
 import com.xiaomi.mone.log.stream.common.LogStreamConstants;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
 import com.xiaomi.mone.log.stream.job.LogDataTransfer;
 import com.xiaomi.mone.log.stream.job.SinkJobConfig;
-import com.xiaomi.mone.log.stream.job.extension.MqMessageProduct;
+import com.xiaomi.mone.log.stream.job.extension.MessageSender;
+import com.xiaomi.mone.log.stream.job.extension.MessageSenderFactory;
 import com.xiaomi.mone.log.stream.job.extension.SinkJob;
 import com.xiaomi.mone.log.stream.job.extension.SinkJobProvider;
-import com.xiaomi.mone.log.stream.plugin.es.EsPlugin;
 import com.xiaomi.mone.log.stream.plugin.mq.rocketmq.RocketmqConfig;
 import com.xiaomi.mone.log.stream.plugin.mq.rocketmq.RocketmqPlugin;
 import com.xiaomi.mone.log.stream.sink.SinkChain;
@@ -43,10 +42,7 @@ public class RocketMqSinkJobProvider implements SinkJobProvider {
     public SinkJob getSinkJob(SinkJobConfig sinkJobConfig) {
         SinkJobEnum jobType = SinkJobEnum.valueOf(sinkJobConfig.getJobType());
 
-        MqMessageProduct mqMessageProduct = new RocketMqMessageProduct();
-        EsMessageSender esMessageSender = new EsMessageSender(sinkJobConfig.getIndex(), mqMessageProduct);
-        EsProcessor esProcessor = EsPlugin.getEsProcessor(sinkJobConfig.getEsInfo(), mqMessageDTO -> esMessageSender.compensateSend(mqMessageDTO));
-        esMessageSender.setEsProcessor(esProcessor);
+        MessageSender messageSender = MessageSenderFactory.getMessageSender(sinkJobConfig);
 
         SinkChain sinkChain = sinkJobConfig.getSinkChain();
         LogParser logParser = LogParserFactory.getLogParser(
@@ -54,7 +50,7 @@ public class RocketMqSinkJobProvider implements SinkJobProvider {
                 sinkJobConfig.getParseScript(), sinkJobConfig.getTopic(), sinkJobConfig.getTail(),
                 sinkJobConfig.getTag(), sinkJobConfig.getLogStoreName());
 
-        LogDataTransfer dataTransfer = new LogDataTransfer(sinkChain, logParser, esMessageSender, sinkJobConfig);
+        LogDataTransfer dataTransfer = new LogDataTransfer(sinkChain, logParser, messageSender, sinkJobConfig);
         dataTransfer.setJobType(jobType);
 
         RocketmqConfig rocketmqConfig = RocketmqPlugin.buildRocketmqConfig(sinkJobConfig.getAk(), sinkJobConfig.getSk(), sinkJobConfig.getClusterInfo(),

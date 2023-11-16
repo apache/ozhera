@@ -246,8 +246,8 @@ public class MilogConfigListener {
             return;
         }
         log.info("【Listen tail】Initialize the new task, tail configuration:{},index:{},cluster information：{},spaceId:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex(), gson.toJson(sinkConfig.getEsInfo()), logSpaceId);
-        jobManager.startJob(logTailConfig, sinkConfig.getEsIndex(), sinkConfig.getKeyList(), sinkConfig.getLogstoreName(), logTailConfig.getTail(), sinkConfig.getEsInfo(),
-                sinkConfig.getLogstoreId(), logSpaceId);
+        jobManager.startJob(logTailConfig, sinkConfig.getEsIndex(), sinkConfig.getKeyList(), sinkConfig.getLogstoreName(), sinkConfig.getEsInfo(),
+                sinkConfig.getLogstoreId(), logSpaceId, sinkConfig.getStorageType());
         oldLogTailConfigMap.put(logTailConfig.getLogtailId(), logTailConfig);
     }
 

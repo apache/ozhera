@@ -71,7 +71,7 @@ public class CustomLogParser extends AbstractLogParser {
             }
             String originLog = logData;
             if (StringUtils.isBlank(keyValueList) && CollectionUtil.isEmpty(logPerComments)) {
-                ret.put(esKeyMap_MESSAGE, logData);
+                ret.put(ES_KEY_MAP_MESSAGE, logData);
                 return ret;
             }
             List<String> logDataArray = parseLogData(logData);
@@ -84,7 +84,7 @@ public class CustomLogParser extends AbstractLogParser {
                 ret.put(logPerComments.get(i), StringUtils.isNotEmpty(value) ? value.trim() : value);
             }
             if (ret.values().stream().map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-                ret.put(esKeyMap_logSource, originLog);
+                ret.put(ES_KEY_MAP_LOG_SOURCE, originLog);
             }
             /**
              * Pocket does not include esKeyMap_timestamp, esKeyMap_topic, esKeyMap_tag, esKeyMap_logstoreName
@@ -94,7 +94,7 @@ public class CustomLogParser extends AbstractLogParser {
                 ret.put(esKeyMap_timestamp, time);
             }
         } catch (Exception e) {
-            ret.put(esKeyMap_logSource, originData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, originData);
         }
         return ret;
     }

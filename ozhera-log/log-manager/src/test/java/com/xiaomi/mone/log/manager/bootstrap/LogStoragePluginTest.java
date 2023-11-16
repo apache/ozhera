@@ -20,7 +20,7 @@ import com.xiaomi.youpin.docean.plugin.es.EsService;
 import org.junit.Before;
 import org.junit.Test;
 
-public class EsPluginTest {
+public class LogStoragePluginTest {
 
     @Before
     public void beforeFunc() {

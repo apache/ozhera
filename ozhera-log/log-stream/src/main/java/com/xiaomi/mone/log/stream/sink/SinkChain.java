@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author wtt
@@ -39,7 +40,7 @@ public class SinkChain {
      */
     private boolean isLoad;
 
-    private static final List<SinkProcessor> sinkProcessorList = Lists.newArrayList();
+    private static final List<SinkProcessor> sinkProcessorList = new CopyOnWriteArrayList();
 
     /**
      * If one is true, then it is true. (literal translation)
@@ -53,7 +54,7 @@ public class SinkChain {
         List<Boolean> res = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(sinkProcessorList)) {
             for (SinkProcessor sinkProcessor : sinkProcessorList) {
-                if(null != sinkProcessor){
+                if (null != sinkProcessor) {
                     res.add(sinkProcessor.execute(map));
                 }
             }

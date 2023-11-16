@@ -29,6 +29,7 @@ import com.xiaomi.mone.log.manager.service.extension.store.StoreExtensionService
 import com.xiaomi.mone.log.manager.service.extension.store.StoreExtensionServiceFactory;
 import com.xiaomi.mone.log.manager.service.impl.MilogMiddlewareConfigServiceImpl;
 import com.xiaomi.youpin.docean.anno.Component;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,11 +60,17 @@ public class StoreValidation {
     @Resource
     private EsCluster esCluster;
 
+    @Value("$tpc.devMode")
+    private String tpcDevMode;
+
     public void init() {
         storeExtensionService = StoreExtensionServiceFactory.getStoreExtensionService();
     }
 
     public String logStoreParamValid(LogStoreParam storeParam) {
+        if (StringUtils.equals("true", tpcDevMode)) {
+            return "";
+        }
         if (null == MoneUserContext.getCurrentUser()) {
             throw new MilogManageException("please go to login");
         }

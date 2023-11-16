@@ -128,15 +128,15 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         if (CollectionUtils.isNotEmpty(logStoreDOS)) {
             return Result.failParam("The store name is duplicated, please fill in the name again");
         }
-        MilogLogStoreDO storeDO = MilogLogstoreConvert.INSTANCE.fromCommad(cmd);
+        MilogLogStoreDO storeDO = MilogLogstoreConvert.INSTANCE.fromCommand(cmd);
         wrapBaseCommon(storeDO, OperateEnum.ADD_OPERATE);
         // Bind resources
         storeExtensionService.storeResourceBinding(storeDO, cmd, OperateEnum.ADD_OPERATE);
-        checkRequiredFieldExist(storeDO);
+        checkRequiredFieldExist(storeDO, cmd);
         // storage
         boolean res = logStoreDao.newMilogLogStore(storeDO);
         if (res == true) {
-            storeExtensionService.postProcessing(storeDO, cmd);
+            storeExtensionService.postProcessing(storeDO, cmd, OperateEnum.ADD_OPERATE);
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());
         } else {
             log.warn("[MilogLogstoreService.newMilogLogstore] creator MilogLogstore err,logstoreName:{}", cmd.getLogstoreName());
@@ -145,7 +145,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
 
     }
 
-    private void checkRequiredFieldExist(MilogLogStoreDO storeDO) {
+    private void checkRequiredFieldExist(MilogLogStoreDO storeDO, LogStoreParam cmd) {
         String keyList = storeDO.getKeyList();
         String columnTypeList = storeDO.getColumnTypeList();
         for (Pair<String, String> requiredField : requiredFields) {
@@ -156,6 +156,8 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         }
         storeDO.setKeyList(keyList);
         storeDO.setColumnTypeList(columnTypeList);
+        cmd.setKeyList(keyList);
+        cmd.setColumnTypeList(columnTypeList);
     }
 
     @Override
@@ -163,7 +165,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         // get esIndex
         EsInfoDTO esInfo = esIndexTemplate.getEsInfo(storeParam.getMachineRoom(), storeParam.getLogType());
         storeParam.setEsIndex(esInfo.getIndex());
-        MilogLogStoreDO ml = MilogLogstoreConvert.INSTANCE.fromCommad(storeParam);
+        MilogLogStoreDO ml = MilogLogstoreConvert.INSTANCE.fromCommand(storeParam);
         ml.setEsClusterId(esInfo.getClusterId());
         wrapBaseCommon(ml, OperateEnum.ADD_OPERATE, creator);
         return ml;
@@ -228,7 +230,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
             return new Result(CommonError.UnknownError.getCode(), "There is a store name with the same name", "");
         }
 
-        MilogLogStoreDO ml = MilogLogstoreConvert.INSTANCE.fromCommad(param);
+        MilogLogStoreDO ml = MilogLogstoreConvert.INSTANCE.fromCommand(param);
         ml.setEsClusterId(milogLogstoreDO.getEsClusterId());
         ml.setEsIndex(milogLogstoreDO.getEsIndex());
         ml.setCtime(milogLogstoreDO.getCtime());
@@ -236,9 +238,10 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         // Select the corresponding index
         storeExtensionService.storeResourceBinding(ml, param, OperateEnum.UPDATE_OPERATE);
         wrapBaseCommon(ml, OperateEnum.UPDATE_OPERATE);
-        checkRequiredFieldExist(ml);
+        checkRequiredFieldExist(ml, param);
         boolean updateRes = storeExtensionService.updateLogStore(ml);
         if (updateRes && storeExtensionService.sendConfigSwitch(param)) {
+            storeExtensionService.postProcessing(milogLogstoreDO, param, OperateEnum.UPDATE_OPERATE);
             //Check to see if there is a tail and if there is a resend configuration information (nacos and agent)
             logTail.handleStoreTail(milogLogstoreDO.getId());
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());
@@ -257,6 +260,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         }
         storeExtensionService.deleteStorePostProcessing(logStore);
         if (logStoreDao.deleteMilogSpace(id)) {
+            storeExtensionService.postProcessing(logStore, null, OperateEnum.ADD_OPERATE);
             //Delete the configuration in NACOS
             logTailService.deleteConfigRemote(logStore.getSpaceId(), id, logStore.getMachineRoom(), LogStructureEnum.STORE);
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());

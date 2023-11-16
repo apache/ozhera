@@ -55,7 +55,7 @@ public class SeparatorLogParser extends AbstractLogParser {
 
             List<String> logArray = parseLogData(logData, maxLength);
             if (0 == maxLength) {
-                ret.put(esKeyMap_MESSAGE, logData);
+                ret.put(ES_KEY_MAP_MESSAGE, logData);
                 return ret;
             }
             if (values.length == 1 && logArray.size() == 1 && maxLength == 1) {
@@ -91,7 +91,7 @@ public class SeparatorLogParser extends AbstractLogParser {
                     count++;
                     ret.put(esKeyMap_tail, parserData.getTailName());
                     continue;
-                } else if (kTsplit[0].equals(esKeyMap_logSource)) {
+                } else if (kTsplit[0].equals(ES_KEY_MAP_LOG_SOURCE)) {
                     count++;
                     continue;
                 }
@@ -124,10 +124,10 @@ public class SeparatorLogParser extends AbstractLogParser {
              * esKeyMap_topic,esKeyMap_tag,esKeyMap_logstoreName,esKeyMap_logSource are not visible to the user, i.e. do not exist in values, logArray
              */
             if (ret.values().stream().filter(Objects::nonNull).map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-                ret.put(esKeyMap_logSource, logData);
+                ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
             }
         } catch (Exception e) {
-            ret.put(esKeyMap_logSource, logData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
         return ret;
     }

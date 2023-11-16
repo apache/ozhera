@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.es.EsProcessor;
 import com.xiaomi.mone.log.common.Config;
-import com.xiaomi.mone.log.model.EsInfo;
+import com.xiaomi.mone.log.model.StorageInfo;
 import com.xiaomi.mone.log.stream.job.compensate.MqMessageDTO;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.es.EsProcessorConf;
@@ -70,11 +70,11 @@ public class EsPlugin {
         return true;
     }
 
-    public static EsProcessor getEsProcessor(EsInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
+    public static EsProcessor getEsProcessor(StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
         return getEsProcessor(esInfo, EsPlugin.esConfig, onFailedConsumer);
     }
 
-    public static synchronized EsProcessor getEsProcessor(EsInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer) {
+    public static synchronized EsProcessor getEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer) {
         EsProcessor esProcessor = esProcessorMap.get(cacheKey(esInfo));
         if (esProcessor == null) {
             EsService esService = esServiceMap.get(cacheKey(esInfo));
@@ -162,7 +162,7 @@ public class EsPlugin {
         return esProcessor;
     }
 
-    private static String cacheKey(EsInfo esInfo) {
+    private static String cacheKey(StorageInfo esInfo) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(esInfo.getId()).append(",");
         stringBuilder.append(esInfo.getAddr());

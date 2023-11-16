@@ -30,7 +30,7 @@ public class RawLogParser extends AbstractLogParser {
     @Override
     public Map<String, Object> parseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
-        ret.put(esKeyMap_MESSAGE, logData);
+        ret.put(ES_KEY_MAP_MESSAGE, logData);
         if (null != collectStamp) {
             ret.put(esKeyMap_timestamp, collectStamp);
         }

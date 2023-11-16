@@ -23,6 +23,21 @@
 "type": "button",
 "label": {
 "type": "text",
+"text": "查看",
+"id": "text_1700014087919"
+},
+"actionType": "openLink",
+"url": {
+"all": "${detailRedirectUrl}"
+},
+"status": "normal",
+"iconCode": "icon_XDS_Todo2",
+"id": "button_1700014087923"
+},
+{
+"type": "button",
+"label": {
+"type": "text",
 "text": "报警静默2h",
 "id": "text_1696818602521"
 },

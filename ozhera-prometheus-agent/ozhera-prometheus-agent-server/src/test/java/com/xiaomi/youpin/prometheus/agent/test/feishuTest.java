@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

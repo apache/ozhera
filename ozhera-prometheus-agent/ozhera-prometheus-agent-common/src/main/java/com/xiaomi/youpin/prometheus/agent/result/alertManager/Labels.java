@@ -34,5 +34,5 @@ public class Labels {
     private String namespace;
     private String pod;
     private String restartCounts;
-
+    private String detailRedirectUrl;
 }

@@ -160,6 +160,7 @@ public class DingDingService {
     }
 
     public void sendDingDing(String content, String[] unionIds, String cardBizId) {
+        log.info("sendDingDing param content: {}, unionIds: {}, cardBizId: {}", content, unionIds, cardBizId);
         String token = getAccessToken();
         if (token == null) {
             log.error("DingDingService sendDingDing token is null");

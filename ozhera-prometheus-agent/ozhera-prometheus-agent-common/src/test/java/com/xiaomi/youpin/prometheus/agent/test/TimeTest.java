@@ -1,5 +1,6 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
+import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
@@ -25,5 +26,12 @@ public class TimeTest {
             return "end time must not be before start time";
         }
         return "";
+    }
+
+    @Test
+    public void testTime() {
+        String time = "2023-11-16T02:18:33.633Z";
+        System.out.println(DateUtil.ISO8601UTCTOTimeStamp(time));
+        System.out.println(DateUtil.ISO8601UTCTOCST(time));
     }
 }

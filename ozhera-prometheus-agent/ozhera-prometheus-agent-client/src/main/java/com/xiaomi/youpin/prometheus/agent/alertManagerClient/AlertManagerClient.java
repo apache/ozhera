@@ -159,7 +159,10 @@ public class AlertManagerClient implements Client {
         Map<String, String> labelMap = new HashMap<>();
         try {
             Arrays.stream(labels.split(",")).forEach(item -> {
-                String[] split = item.split("=");
+                String[] split = item.split("=",2);
+                if (split.length != 2) {
+                    return;
+                }
                 labelMap.put(split[0], split[1]);
             });
             return labelMap;

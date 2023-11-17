@@ -22,13 +22,13 @@ public class RawLogParser extends AbstractLogParser {
 
     @Override
     public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
+        Map<String, Object> ret = doParseSimple(logData, collectStamp);
         checkMessageExist(ret, logData);
         return ret;
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
         ret.put(ES_KEY_MAP_MESSAGE, logData);
         if (null != collectStamp) {

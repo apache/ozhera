@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author gaoxihui
@@ -37,6 +38,8 @@ public class AuthorizationService {
     private static int tokenTimeLimit = 10 * 60;
 
     private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     public Result fetchToken(String user, String sign, Long timestamp){
 
@@ -110,36 +113,40 @@ public class AuthorizationService {
 
     }
 
-    public synchronized Integer checkAuthorizationWithSeq(String token,Integer accessSeq){
+    public Integer checkAuthorizationWithSeq(String token,Integer accessSeq){
 
-        if(StringUtils.isBlank(token)){
-            log.error("checkAuthorization error!token is null!");
-            return null;
+        lock.lock();
+        try {
+            if (StringUtils.isBlank(token)) {
+                log.error("checkAuthorization error!token is null!");
+                return null;
+            }
+
+            if (redisService.get(token) == null) {
+                log.error("checkAuthorization token is error or expired!");
+                return null;
+            }
+
+            String accessNumStr = redisService.get(token);
+            Integer accessNum = Integer.valueOf(accessNumStr);
+
+            if (accessSeq <= accessNum) {
+                log.error("token accessSeq has expired!accessSeq:{}, currentNum:{}", accessSeq, accessNum);
+                return null;
+            }
+
+            if (accessSeq - accessNum > 1) {
+                log.error("token accessSeq error!accessSeq:{}, currentNum:{}", accessSeq, accessNum);
+                return null;
+            }
+
+            long ttl = redisService.ttl(token);
+
+            redisService.set(token, String.valueOf(accessSeq), ttl);
+
+            return accessSeq + 1;
+        } finally {
+            lock.unlock();
         }
-
-        if(redisService.get(token) == null){
-            log.error("checkAuthorization token is error or expired!");
-            return null;
-        }
-
-        String accessNumStr = redisService.get(token);
-        Integer accessNum = Integer.valueOf(accessNumStr);
-
-        if(accessSeq <= accessNum){
-            log.error("token accessSeq has expired!accessSeq:{}, currentNum:{}",accessSeq,accessNum);
-            return null;
-        }
-
-        if(accessSeq - accessNum > 1){
-            log.error("token accessSeq error!accessSeq:{}, currentNum:{}",accessSeq,accessNum);
-            return null;
-        }
-
-        long ttl = redisService.ttl(token);
-
-        redisService.set(token,String.valueOf(accessSeq),ttl);
-
-        return accessSeq + 1;
-
     }
 }

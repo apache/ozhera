@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.manager.service.extension.store;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.api.model.vo.ResourceUserSimple;
 import com.xiaomi.mone.log.manager.common.ManagerConstant;
@@ -23,6 +24,7 @@ import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.domain.EsIndexTemplate;
 import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
 import com.xiaomi.mone.log.manager.model.dto.EsInfoDTO;
+import com.xiaomi.mone.log.manager.model.dto.LogStorageData;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsClusterDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogMiddlewareConfig;
@@ -62,38 +64,55 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
     @Resource
     private MilogLogstoreDao logStoreDao;
 
+    @Resource
+    private DorisLogStorageService dorisLogStorageService;
+
     @Override
     public boolean storeInfoCheck(LogStoreParam param) {
         return false;
     }
 
     @Override
-    public void storeResourceBinding(MilogLogStoreDO ml, LogStoreParam cmd, OperateEnum operateEnum) {
-        if (StringUtils.isNotEmpty(ml.getEsIndex()) && null != ml.getMqResourceId() && null != ml.getEsClusterId()) {
+    public void storeResourceBinding(MilogLogStoreDO storeDO, LogStoreParam storeParam, OperateEnum operateEnum) {
+        if (StringUtils.isNotEmpty(storeDO.getEsIndex()) && null != storeDO.getMqResourceId() && null != storeDO.getEsClusterId()) {
             //Custom resources operate
-            customResources(ml, cmd);
+            customResources(storeDO, storeParam);
             return;
         }
-        ResourceUserSimple resourceUserConfig = resourceConfigService.userResourceList(cmd.getMachineRoom(), cmd.getLogType());
+//        bindMqResource(storeDO, storeParam);
+        bindStorageResource(storeDO, storeParam);
+    }
+
+    private void bindStorageResource(MilogLogStoreDO storeDO, LogStoreParam storeParam) {
+        MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(storeParam.getEsResourceId());
+        LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
+        if (storageTypeEnum == LogStorageTypeEnum.DORIS) {
+            return;
+        }
+        ResourceUserSimple resourceUserConfig = resourceConfigService.userResourceList(storeParam.getMachineRoom(), storeParam.getLogType());
         if (resourceUserConfig.getInitializedFlag()) {
             //Select the ES cluster
-            if (null == cmd.getEsResourceId()) {
+            if (null == storeParam.getEsResourceId()) {
                 List<MilogEsClusterDO> esClusterDOS = milogEsClusterMapper.selectList(Wrappers.lambdaQuery());
-                cmd.setEsResourceId(esClusterDOS.get(esClusterDOS.size() - 1).getId());
+                storeParam.setEsResourceId(esClusterDOS.get(esClusterDOS.size() - 1).getId());
             }
-            EsInfoDTO esInfo = esIndexTemplate.getEsInfo(cmd.getEsResourceId(), cmd.getLogType(), null);
-            cmd.setEsIndex(esInfo.getIndex());
-            ml.setEsClusterId(esInfo.getClusterId());
-            if (StringUtils.isEmpty(cmd.getEsIndex())) {
-                ml.setEsIndex(esInfo.getIndex());
+            EsInfoDTO esInfo = esIndexTemplate.getEsInfo(storeParam.getEsResourceId(), storeParam.getLogType(), null);
+            storeParam.setEsIndex(esInfo.getIndex());
+            storeDO.setEsClusterId(esInfo.getClusterId());
+            if (StringUtils.isEmpty(storeParam.getEsIndex())) {
+                storeDO.setEsIndex(esInfo.getIndex());
             } else {
-                ml.setEsIndex(cmd.getEsIndex());
+                storeDO.setEsIndex(storeParam.getEsIndex());
             }
-            if (null == cmd.getMqResourceId()) {
-                MilogMiddlewareConfig milogMiddlewareConfig = milogMiddlewareConfigService.queryMiddlewareConfigDefault(cmd.getMachineRoom());
-                ml.setMqResourceId(milogMiddlewareConfig.getId());
-                cmd.setMqResourceId(milogMiddlewareConfig.getId());
-            }
+        }
+    }
+
+    private void bindMqResource(MilogLogStoreDO storeDO, LogStoreParam storeParam) {
+        ResourceUserSimple resourceUserConfig = resourceConfigService.userResourceList(storeParam.getMachineRoom(), storeParam.getLogType());
+        if (resourceUserConfig.getInitializedFlag() && null == storeParam.getMqResourceId()) {
+            MilogMiddlewareConfig milogMiddlewareConfig = milogMiddlewareConfigService.queryMiddlewareConfigDefault(storeParam.getMachineRoom());
+            storeDO.setMqResourceId(milogMiddlewareConfig.getId());
+            storeParam.setMqResourceId(milogMiddlewareConfig.getId());
         }
     }
 
@@ -110,7 +129,75 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
     }
 
     @Override
-    public void postProcessing(MilogLogStoreDO ml, LogStoreParam cmd) {
+    public void postProcessing(MilogLogStoreDO storeDO, LogStoreParam cmd, OperateEnum operateEnum) {
+        if (isDorisStorage(storeDO)) {
+            processDorisStorage(storeDO, cmd, operateEnum);
+        }
+    }
+
+    private boolean isDorisStorage(MilogLogStoreDO storeDO) {
+        MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(storeDO.getEsClusterId());
+        LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
+        return storageTypeEnum == LogStorageTypeEnum.DORIS;
+    }
+
+    private void processDorisStorage(MilogLogStoreDO ml, LogStoreParam cmd, OperateEnum operateEnum) {
+        LogStorageData storageData = LogStorageData.builder()
+                .storeId(ml.getId()).build();
+
+        switch (operateEnum) {
+            case DELETE_OPERATE:
+                deleteDorisTable(ml, storageData);
+                break;
+            case ADD_OPERATE:
+                addDorisTable(cmd, storageData);
+                break;
+            case UPDATE_OPERATE:
+                updateDorisTable(ml, cmd, storageData);
+                break;
+            default:
+                // other operations can be processed according to actual needs
+        }
+
+        updateEsIndexIfNeeded(ml, storageData, operateEnum);
+    }
+
+
+    private void deleteDorisTable(MilogLogStoreDO ml, LogStorageData storageData) {
+        storageData.setClusterId(ml.getEsClusterId());
+        dorisLogStorageService.deleteTable(storageData);
+    }
+
+
+    private void addDorisTable(LogStoreParam cmd, LogStorageData storageData) {
+        storageData.setLogType(cmd.getLogType());
+        storageData.setClusterId(cmd.getEsResourceId());
+        storageData.setLogStoreName(cmd.getLogstoreName());
+        storageData.setKeys(cmd.getKeyList());
+        storageData.setColumnTypes(cmd.getColumnTypeList());
+        dorisLogStorageService.createTable(storageData);
+    }
+
+    private void updateDorisTable(MilogLogStoreDO ml, LogStoreParam cmd, LogStorageData storageData) {
+        storageData.setUpdateKeys(cmd.getKeyList());
+        storageData.setUpdateColumnTypes(cmd.getColumnTypeList());
+        storageData.setKeys(ml.getKeyList());
+        storageData.setColumnTypes(ml.getColumnTypeList());
+        storageData.setLogStoreName(ml.getLogstoreName());
+        storageData.setUpdateStoreName(cmd.getLogstoreName());
+        dorisLogStorageService.updateTable(storageData);
+    }
+
+    private void updateEsIndexIfNeeded(MilogLogStoreDO ml, LogStorageData storageData, OperateEnum operateEnum) {
+        if (OperateEnum.DELETE_OPERATE == operateEnum) {
+            return;
+        }
+        String tableName = dorisLogStorageService.buildTableName(storageData.getClusterId(), storageData.getStoreId());
+        if (!StringUtils.equals(tableName, ml.getEsIndex())) {
+            ml.setEsClusterId(storageData.getClusterId());
+            ml.setEsIndex(tableName);
+            logStoreDao.updateMilogLogStore(ml);
+        }
     }
 
     @Override

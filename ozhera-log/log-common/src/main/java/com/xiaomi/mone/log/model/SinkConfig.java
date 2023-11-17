@@ -40,7 +40,9 @@ public class SinkConfig {
 
     private String esIndex;
 
-    private EsInfo esInfo;
+    private StorageInfo esInfo;
+
+    private String storageType;
 
     public void updateStoreParam(SinkConfig sinkConfig) {
         this.logstoreId = sinkConfig.getLogstoreId();

@@ -32,7 +32,7 @@ import com.xiaomi.mone.log.api.model.vo.ResourceUserSimple;
 import com.xiaomi.mone.log.api.model.vo.ValueKeyObj;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.Result;
-import com.xiaomi.mone.log.manager.bootstrap.EsPlugin;
+import com.xiaomi.mone.log.manager.bootstrap.LogStoragePlugin;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.common.validation.ResourceValidation;
@@ -95,7 +95,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
     @Resource
     private MilogLogstoreDao logstoreDao;
     @Resource
-    private EsPlugin esPlugin;
+    private LogStoragePlugin esPlugin;
     @Resource
     private LogTail logTail;
 
@@ -559,7 +559,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
         addEsIndex(esClusterDO.getId(), miLogResource.getMultipleEsIndex());
         //Add the ES client
-        esPlugin.buildEsClient(esClusterDO);
+        esPlugin.initializeLogStorage(esClusterDO);
     }
 
     private void checkAlias(MiLogResource resource, OperateEnum operateEnum) {
@@ -620,7 +620,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
             milogEsClusterMapper.updateById(esClusterDO);
             handleEsIndexStore(miLogResource, esClusterDO.getId(), changed);
             // Modify the ES client information
-            esPlugin.buildEsClient(esClusterDO);
+            esPlugin.initializeLogStorage(esClusterDO);
             return;
         }
 

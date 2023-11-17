@@ -64,13 +64,13 @@ public class RocketmqPlugin implements MQPlugin {
         if (StringUtils.isNotEmpty(config.getAk()) && (StringUtils.isNotEmpty(config.getSk()))) {
             SessionCredentials credentials = new SessionCredentials(config.getAk(), config.getSk());
             RPCHook rpcHook = new AclClientRPCHook(credentials);
-            defaultMQPushConsumer = new DefaultMQPushConsumer(config.getConsumerGroup(), rpcHook, new AllocateMessageQueueAveragely());
+            defaultMQPushConsumer = new DefaultMQPushConsumer("milog_topic_group_staging_event_staging", rpcHook, new AllocateMessageQueueAveragely());
         } else {
             defaultMQPushConsumer = new DefaultMQPushConsumer(config.getConsumerGroup());
         }
         defaultMQPushConsumer.setNamesrvAddr(config.getNamesrvAddr());
 
-        defaultMQPushConsumer.setConsumeFromWhere(getConsumeFromWhere(config.getConsumerFromWhere()));
+        defaultMQPushConsumer.setConsumeFromWhere(CONSUME_FROM_FIRST_OFFSET);
         return defaultMQPushConsumer;
     }
 

@@ -88,6 +88,10 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.prometheus</groupId>
+                    <artifactId>simpleclient</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -100,7 +104,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>prometheus-diy-starter</artifactId>
-            <version>0.0.1-opensource-SNAPSHOT</version>
+            <version>0.0.1-opensource-jdk21-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.nacos</groupId>

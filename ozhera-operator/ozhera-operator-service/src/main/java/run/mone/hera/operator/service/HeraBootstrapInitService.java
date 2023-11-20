@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import org.mariadb.jdbc.Driver;
@@ -96,6 +97,8 @@ public class HeraBootstrapInitService {
     private K8sUtilBean k8sUtilBean;
 
     private volatile HeraOperatorDefineDTO heraOperatorDefine = new HeraOperatorDefineDTO();
+
+    private ReentrantLock lock = new ReentrantLock();
 
     public void init() {
         try {
@@ -458,13 +461,18 @@ public class HeraBootstrapInitService {
         return heraOperatorDefine;
     }
 
-    public synchronized HeraOperatorDefineDTO updateResource(HeraOperatorDefineDTO heraOperatorDefine) {
-        preCheck(heraOperatorDefine);
-        replacePlaceholder(heraOperatorDefine);
+    public HeraOperatorDefineDTO updateResource(HeraOperatorDefineDTO heraOperatorDefine) {
+        lock.lock();
+        try {
+            preCheck(heraOperatorDefine);
+            replacePlaceholder(heraOperatorDefine);
 
-        this.heraOperatorDefine = heraOperatorDefine;
+            this.heraOperatorDefine = heraOperatorDefine;
 
-        return this.heraOperatorDefine;
+            return this.heraOperatorDefine;
+        }finally {
+            lock.unlock();
+        }
     }
 
     private void replacePlaceholder(HeraOperatorDefineDTO heraOperatorDefine) {

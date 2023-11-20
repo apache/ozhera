@@ -102,7 +102,7 @@ public class HeraDashboardService {
         //base64 username & password
         String base64Str = dashboardDTO.getUsername() + ":" + dashboardDTO.getPassword();
         String basicAuth = Base64.getEncoder().encodeToString(base64Str.getBytes());
-        //申请api key
+        //request api key
         Map<String, String> header = new HashMap<>();
         header.put("Content-Type", "application/json");
         header.put("Authorization", "Basic " + basicAuth);
@@ -111,25 +111,26 @@ public class HeraDashboardService {
             return Result.fail(ErrorCode.API_KEY_CREATE_FAIL);
         }
         log.info("createGrafanaResources.apikey:{}", apiKey);
-        //通过api key创建prometheus数据源
+        //by api key to create prometheus dataSource
         header.put("Authorization", "Bearer " + apiKey);
         String datasourceUid = createDataSource(header, dashboardDTO.getPrometheusDatasource());
         if (datasourceUid == null || datasourceUid.isEmpty()) {
             return Result.fail(ErrorCode.DATASOURCE_CREATE_FAIL);
         }
         log.info("createGrafanaResources.datasourceUid:{}", datasourceUid);
-        //通过api key创建hera folder
+        //by api key to create hera folder
         int folderId = createFolder(header, dashboardDTO.getDashboardFolderName());
         if (folderId == -1) {
             return Result.fail(ErrorCode.FOLDER_CREATE_FAIL);
         }
-        //根据grafana template 替换模板变量，请求grafana生成各种图表
+        //grafana template  replace template variable，request grafana generate dashboard and panel.
         createDefaultGrafanaDashboard(datasourceUid, header);
 
-        //将图表返回的url ，写回mimonitor的nacos配置中
+        //Write the url returned by the panel back to mimonitor's nacos configuration
         try {
             ConfigService configService = NacosFactory.createConfigService(nacosAddress);
-            String nacosResult = configService.getConfig(DashboardConstant.DEFAULT_MIMONITOR_NACOS_CONFIG, DashboardConstant.DEFAULT_MIMONITOR_NACOS_GROUP, 5000);
+            String nacosResult = configService.getConfig(DashboardConstant.DEFAULT_MIMONITOR_NACOS_CONFIG,
+                    DashboardConstant.DEFAULT_MIMONITOR_NACOS_GROUP, 5000);
             Properties props = new Properties();
             props.load(new StringReader(nacosResult));
             props.setProperty("grafana.api.key", apiKey);
@@ -140,9 +141,10 @@ public class HeraDashboardService {
             StringWriter writer = new StringWriter();
             props.store(writer, "after replace!");
             String finalNacosConfig = writer.getBuffer().toString();
-            //请求nacos覆盖配置
-            log.info("createGrafanaResources.before overlays nacos config:{}",finalNacosConfig);
-            boolean postResult = configService.publishConfig(DashboardConstant.DEFAULT_MIMONITOR_NACOS_CONFIG, DashboardConstant.DEFAULT_MIMONITOR_NACOS_GROUP, finalNacosConfig);
+            //request nacos cover config
+            log.info("createGrafanaResources.before overlays nacos config:{}", finalNacosConfig);
+            boolean postResult = configService.publishConfig(DashboardConstant.DEFAULT_MIMONITOR_NACOS_CONFIG,
+                    DashboardConstant.DEFAULT_MIMONITOR_NACOS_GROUP, finalNacosConfig);
             if (!postResult) {
                 log.error("createGrafanaResources.create nacos config failed:{}", postResult);
             } else {
@@ -154,15 +156,15 @@ public class HeraDashboardService {
         return Result.success("success");
     }
 
-    //创建业务、容器、物理机、服务大盘、接口大盘等grafana template
+    //create biz、docker、node、serviceMarket、interfaceMarket etc...
     public void createDefaultDashboardTemplate() {
-        //只有第一次初始化是用freeMarker创建，先查是否数据库已经有这些模板，如果有则不再创建
-        //创建容器、物理机等主机形模板
+        //Only the first initialization is created using freeMarker. First check if the templates already exist in the database.
+        // If so, do not create them again
         DashboardConstant.GRAFANA_SRE_TEMPLATES.forEach(
                 name -> {
                     GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName(name);
                     if (grafanaTemplate == null) {
-                        //未创建过则从从ftl文件创建
+                        //If it has not been created, it is created from the ftl file
                         try {
                             String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, name + ".ftl");
                             GrafanaTemplate template = new GrafanaTemplate();
@@ -171,7 +173,7 @@ public class HeraDashboardService {
                             template.setUpdateTime(new Date());
                             template.setLanguage(0);
                             template.setPlatform(0);
-                            template.setAppType(1); //主机性模板
+                            template.setAppType(1);
                             template.setTemplate(content);
                             template.setDeleted(false);
                             int insertRes = grafanaTemplateDao.insert(template);
@@ -182,10 +184,9 @@ public class HeraDashboardService {
                     }
                 });
 
-        //创建java等业务型模板
+        //create java biz template
         GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName("hera-java模板");
         if (grafanaTemplate == null) {
-            //未创建过则从从ftl文件创建
             try {
                 String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, DashboardConstant.JAEGER_QUERY_File_NAME);
                 GrafanaTemplate template = new GrafanaTemplate();
@@ -193,8 +194,8 @@ public class HeraDashboardService {
                 template.setCreateTime(new Date());
                 template.setUpdateTime(new Date());
                 template.setLanguage(0);
-                template.setPlatform(0); //国内平台
-                template.setAppType(0); //业务型模板
+                template.setPlatform(0);
+                template.setAppType(0);
                 template.setTemplate(content);
                 template.setDeleted(false);
                 template.setPanelIdList(DashboardConstant.DEFAULT_PANEL_ID_LIST);
@@ -206,13 +207,13 @@ public class HeraDashboardService {
         }
     }
 
-    //请求prometheus-agent创建业务、容器、物理机、jvm等抓取job
+    //request prometheus-agent create biz、docker、node、jvm ...etc prometheus job
     public void createDefaultScrapeJob() {
-        //从文件获取jobJson
+        //Get jobJson from a file
         Map<String, Object> jaegerQueryMap = new HashMap<>();
         jaegerQueryMap.put("token", jaegerQueryToken);
         try {
-            //创建jaeger_query业务监控
+            //create jaeger_query monitor
             Result jaegerResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_JAEGER_QUERY_JOB_NAME);
             log.info("jaegerResult:{}", jaegerResult);
             if (jaegerResult.getData().equals("null")) {
@@ -222,7 +223,7 @@ public class HeraDashboardService {
                 log.info("HeraDashboardService.createDefaultScrapeJob jaeger_query res: {}", jaegerQueryJobRes.getData());
             }
 
-            //创建jvm监控
+            //create jvm monitor
             Result jvmResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_JVM_JOB_NAME);
             if (jvmResult.getData().equals("null")) {
                 log.info("jvm job begin create");
@@ -231,7 +232,7 @@ public class HeraDashboardService {
                 log.info("HeraDashboardService.createDefaultScrapeJob jvm res: {}", jvmJobJsonRes.getData());
             }
 
-            //创建容器监控
+            //create docker monitor
             Result dockerResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_DOCKER_JOB_NAME);
             if (dockerResult.getData().equals("null")) {
                 log.info("docker job begin create");
@@ -240,7 +241,7 @@ public class HeraDashboardService {
                 log.info("HeraDashboardService.createDefaultScrapeJob docker res: {}", dockerJobJsonRes.getData());
             }
 
-            //创建物理机监控
+            //create node monitor
             Result nodeResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_NODE_JOB_NAME);
             if (nodeResult.getData().equals("null")) {
                 log.info("node job begin create");
@@ -248,7 +249,7 @@ public class HeraDashboardService {
                 Result nodeJobJsonRes = jobService.createJob(null, "Hera", nodeJobJson, "初始化创建物理机监控");
                 log.info("HeraDashboardService.createDefaultScrapeJob node res: {}", nodeJobJsonRes.getData());
             }
-            //创建自定义监控
+            //create custom monitor
             Result customizeResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_CUSTOMIZE_JOB_NAME);
             if (customizeResult.getData().equals("null")) {
                 log.info("customize job begin create");
@@ -286,8 +287,9 @@ public class HeraDashboardService {
         req.setUrl(prometheusDatasourceUrl);
         log.info("GrafanaCreateDataSourceReq:{}", gson.toJson(req));
         try {
-            //先查询有没有，有则不创建
-            String getDatasourceRes = HttpClientV5.get(grafanaUrl + grafanaDatasourceUrl + "/name/" + DashboardConstant.GRAFANA_DATASOURCE_NAME, header);
+            //If yes, no creation is required
+            String getDatasourceRes = HttpClientV5.get(grafanaUrl + grafanaDatasourceUrl + "/name/" +
+                    DashboardConstant.GRAFANA_DATASOURCE_NAME, header);
             log.info("HeraDashboardService.createDataSource getDatasourceRes:{}", getDatasourceRes);
             GrafanaGetDataSourceRes grafanaGetDataSourceRes = gson.fromJson(getDatasourceRes, GrafanaGetDataSourceRes.class);
             if (grafanaGetDataSourceRes.getUid() != null) {
@@ -309,7 +311,6 @@ public class HeraDashboardService {
         req.setUid(DashboardConstant.GRAFANA_FOLDER_UID);
         log.info("GrafanaCreateFolderReq:{}", gson.toJson(req));
         try {
-            //有则不创建
             String getFolderRes = HttpClientV5.get(grafanaUrl + grafanaFolderUrl + "/" + DashboardConstant.GRAFANA_FOLDER_UID, header);
             log.info("HeraDashboardService.createFolder getFolderRes:{}", getFolderRes);
             GrafanaGetFolderRes grafanaGetFolderRes = gson.fromJson(getFolderRes, GrafanaGetFolderRes.class);
@@ -329,29 +330,33 @@ public class HeraDashboardService {
     private void createDefaultGrafanaDashboard(String prometheusUid, Map<String, String> header) {
         Map<String, Object> map = new HashMap<>();
         map.put("prometheusUid", prometheusUid);
-        map.put("serviceMarketUrl", grafanaDomain + "/d/${__data.fields.application.text}/ye-wu-jian-kong-${__data.fields.application.text}?orgId=1&refresh=30s&theme=light");
-        map.put("query0","${query0}");
-        map.put("env",serverType);
-        map.put("serviceName","hera");
-        try {
-            DashboardConstant.GRAFANA_SRE_TEMPLATES.forEach(
-                    name -> {
-                        GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName(name);
+        map.put("serviceMarketUrl", grafanaDomain + "/d/${__data.fields.application.text}/ye-wu-jian-kong-" +
+                "${__data.fields.application.text}?orgId=1&refresh=30s&theme=light");
+        map.put("query0", "${query0}");
+        map.put("env", serverType);
+        map.put("serviceName", "hera");
+
+        DashboardConstant.GRAFANA_SRE_TEMPLATES.forEach(
+                name -> {
+                    GrafanaTemplate grafanaTemplate = grafanaTemplateDao.fetchOneByName(name);
+                    try {
                         if (grafanaTemplate != null) {
                             String template = FreeMarkerUtil.freemarkerProcess(map, grafanaTemplate.getTemplate());
+                            log.info("HeraDashboardService.createDefaultGrafanaDashboard name :{} begin!", name);
                             //request grafana
                             String grafanaDashboardResStr = HttpClientV5.post(grafanaUrl + grafanaDashboardUrl, template, header);
                             log.info("HeraDashboardService.createDefaultGrafanaDashboard request " + name + " template res:{}", grafanaDashboardResStr);
                             GrafanaCreateDashboardRes grafanaCreateDashboardRes = gson.fromJson(grafanaDashboardResStr, GrafanaCreateDashboardRes.class);
                             if (!grafanaCreateDashboardRes.getStatus().equals("success")) {
-                                log.error("HeraDashboardService.createDefaultGrafanaDashboard name:{},status:{},message:{}", name, grafanaCreateDashboardRes.getStatus(), grafanaCreateDashboardRes.getMessage());
+                                log.error("HeraDashboardService.createDefaultGrafanaDashboard name:{},status:{},message:{}",
+                                        name, grafanaCreateDashboardRes.getStatus(), grafanaCreateDashboardRes.getMessage());
                             }
                         } else {
                             log.error("HeraDashboardService.createDefaultGrafanaDashboard " + name + " template fetch error!");
                         }
-                    });
-        } catch (Exception e) {
-            log.error("HeraDashboardService.createDefaultGrafanaDashboard error :{}", e.getMessage());
-        }
+                    } catch (Exception e) {
+                        log.error("HeraDashboardService.createDefaultGrafanaDashboard error:{}", e);
+                    }
+                });
     }
 }

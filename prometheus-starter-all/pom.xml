@@ -6,11 +6,10 @@
 
     <groupId>run.mone</groupId>
     <artifactId>prometheus-starter-all</artifactId>
-    <version>1.0-opensource-SNAPSHOT</version>
+    <version>1.0-opensource-jdk21-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
-        <java.version>1.8</java.version>
-        <prometheus-all.version>0.0.1-opensource-SNAPSHOT</prometheus-all.version>
+        <prometheus-all.version>0.0.1-opensource-jdk21-SNAPSHOT</prometheus-all.version>
     </properties>
 
     <modules>
@@ -25,18 +24,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <verbose>true</verbose>
-                    <encoding>UTF-8</encoding>
-                    <compilerArguments>
-                        <sourcepath>
-                            ${project.basedir}/src/main/java
-                        </sourcepath>
-                    </compilerArguments>
+                    <compilerVersion>21</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
 
@@ -149,7 +141,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.4</version>
+                <version>1.18.30</version>
                 <scope>compile</scope>
             </dependency>
 
@@ -162,7 +154,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
-                <version>2.2.0.RELEASE</version>
+                <version>2.7.15</version>
                 <scope>provided</scope>
             </dependency>
 

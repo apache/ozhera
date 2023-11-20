@@ -5,21 +5,22 @@
     <parent>
         <groupId>run.mone</groupId>
         <artifactId>ozhera-monitor</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.2-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ozhera-monitor-server</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>ozhera-monitor-service</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-context-support</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

@@ -43,12 +43,6 @@ public class HeraRequestMappingAspect {
     @Resource(name = "heraRequestMappingExecutor")
     private ThreadPoolExecutor heraRequestMappingExecutor;
 
-    @Bean("heraRequestMappingExecutor")
-    public ThreadPoolExecutor heraRequestMappingExecutor() {
-        return new ThreadPoolExecutor(1, 20, 5, TimeUnit.MINUTES, new LinkedBlockingQueue(20),
-                (Runnable r) -> new Thread(r, "compute-execute-thread-v2"), new ThreadPoolExecutor.CallerRunsPolicy());
-    }
-
     @Around("operationLog()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
         try {

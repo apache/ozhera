@@ -58,6 +58,7 @@ public interface LogParser {
     String esKeyMap_lineNumber = "linenumber";
     String esKyeMap_fileName = "filename";
     String TRACE_ID_KEY = "traceId";
+    String PACKAGE_NAME = "com.xiaomi.mone.log";
 
     Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
 

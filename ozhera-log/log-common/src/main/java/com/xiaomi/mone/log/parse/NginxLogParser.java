@@ -46,8 +46,8 @@ public class NginxLogParser extends AbstractLogParser {
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
-        return this.regexLogParser.parseSimple(logData, collectStamp);
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
+        return this.regexLogParser.doParseSimple(logData, collectStamp);
     }
 
     public String generateRegexFromNginxScript(String nginxFormatStr) {

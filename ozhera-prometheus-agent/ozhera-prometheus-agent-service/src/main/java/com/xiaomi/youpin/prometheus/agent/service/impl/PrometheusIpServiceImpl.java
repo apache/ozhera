@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 @Slf4j
 @Service
@@ -76,6 +77,8 @@ public class PrometheusIpServiceImpl  implements PrometheusIpServiceExtension {
 
     @NacosValue(value = "${jaeger_query_token}")
     private String jaegerQueryToken;
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -345,12 +348,15 @@ public class PrometheusIpServiceImpl  implements PrometheusIpServiceExtension {
         }
     }
 
-    private synchronized ApiClient getClient() {
+    private ApiClient getClient() {
+        lock.lock();
         try {
             return Config.defaultClient();
         } catch (IOException e) {
             log.error("getClient error : {}",e.getMessage());
             return null;
+        } finally {
+            lock.unlock();
         }
     }
 

@@ -7,7 +7,7 @@
     <groupId>run.mone</groupId>
     <artifactId>ozhera-operator</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-jdk21-SNAPSHOT</version>
     <modules>
         <module>ozhera-operator-common</module>
         <module>ozhera-operator-service</module>
@@ -31,7 +31,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.24</version>
+                <version>1.18.30</version>
             </dependency>
 
             <dependency>
@@ -50,8 +50,6 @@
     </dependencyManagement>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
         <!-- Replace it with the absolute path of your own hera-operator project. -->
         <maven.jcommonDirectory>~/</maven.jcommonDirectory>
     </properties>
@@ -114,6 +112,17 @@
                     <mapping>
                         <java>SLASHSTAR_STYLE</java>
                     </mapping>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerVersion>21</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
         </plugins>

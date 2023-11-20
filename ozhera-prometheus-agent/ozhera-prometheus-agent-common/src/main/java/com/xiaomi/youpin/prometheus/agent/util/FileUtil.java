@@ -6,34 +6,48 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 public class FileUtil {
+
+    private static ReentrantLock lock = new ReentrantLock();
+
     @SneakyThrows
-    public static synchronized String LoadFile(String path) {
-        log.info("FileUtil LoadFile path: {}", path);
-        File file = new File(path);
-        if (!file.exists() || !isCanReadFile(file)) {
-            //Unreadable, non-existent, then exit.
-            return "";
+    public static String LoadFile(String path) {
+        lock.lock();
+        try {
+            log.info("FileUtil LoadFile path: {}", path);
+            File file = new File(path);
+            if (!file.exists() || !isCanReadFile(file)) {
+                //Unreadable, non-existent, then exit.
+                return "";
+            }
+            String content = FileUtils.readFileToString(file, "UTF-8");
+            return content;
+        }finally {
+            lock.unlock();
         }
-        String content = FileUtils.readFileToString(file, "UTF-8");
-        return content;
     }
 
     @SneakyThrows
-    public static synchronized String WriteFile(String path, String content) {
-        log.info("FileUtil WriteFile path: {}", path);
-        File file = new File(path);
-        if (!file.exists() || !isCanWriteFile(file)) {
-            //Does not exist, cannot be written, then exit.
-            return "";
+    public static String WriteFile(String path, String content) {
+        lock.lock();
+        try {
+            log.info("FileUtil WriteFile path: {}", path);
+            File file = new File(path);
+            if (!file.exists() || !isCanWriteFile(file)) {
+                //Does not exist, cannot be written, then exit.
+                return "";
+            }
+            if (path.equals("/usr/local/etc/prometheus.yml")) {
+                log.info("checkNullFile path: {},content: {}", path, content);
+            }
+            FileUtils.write(file, content);
+            return "success";
+        }finally {
+            lock.unlock();
         }
-        if (path.equals("/usr/local/etc/prometheus.yml")) {
-            log.info("checkNullFile path: {},content: {}", path, content);
-        }
-        FileUtils.write(file, content);
-        return "success";
     }
 
     //Check file existence
@@ -46,11 +60,16 @@ public class FileUtil {
 
     //Delete file.
     @SneakyThrows
-    public static synchronized boolean DeleteFile(String path) {
-        log.info("FileUtil DeleteFile path: {}", path);
-        File file = new File(path);
-        boolean delete = file.delete();
-        return delete;
+    public static boolean DeleteFile(String path) {
+        lock.lock();
+        try {
+            log.info("FileUtil DeleteFile path: {}", path);
+            File file = new File(path);
+            boolean delete = file.delete();
+            return delete;
+        }finally {
+            lock.unlock();
+        }
     }
 
     //Check the readability of the document.
@@ -71,22 +90,32 @@ public class FileUtil {
 
     //Rename file
     @SneakyThrows
-    public static synchronized boolean RenameFile(String oldPath, String newPath) {
-        log.info("FileUtil RenameFile oldPath: {},newPath: {}", oldPath, newPath);
-        File file = new File(oldPath);
-        if (!file.exists()) {
-            return false;
+    public static boolean RenameFile(String oldPath, String newPath) {
+        lock.lock();
+        try {
+            log.info("FileUtil RenameFile oldPath: {},newPath: {}", oldPath, newPath);
+            File file = new File(oldPath);
+            if (!file.exists()) {
+                return false;
+            }
+            boolean res = file.renameTo(new File(newPath));
+            return res;
+        }finally {
+            lock.unlock();
         }
-        boolean res = file.renameTo(new File(newPath));
-        return res;
     }
 
     @SneakyThrows
-    public static synchronized void GenerateFile(String path) {
-        log.info("FileUtil GenerateFile path: {}", path);
-        File file = new File(path);
-        if (!file.exists()) {
-            file.createNewFile();
+    public static void GenerateFile(String path) {
+        lock.lock();
+        try {
+            log.info("FileUtil GenerateFile path: {}", path);
+            File file = new File(path);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        }finally {
+            lock.unlock();
         }
     }
 

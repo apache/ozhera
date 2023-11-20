@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
@@ -57,6 +58,8 @@ public class PrometheusClient implements Client {
 
     public static final Gson gson = new Gson();
     private List<Scrape_configs> localConfigs = new ArrayList<>();
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -159,39 +162,49 @@ public class PrometheusClient implements Client {
 
     }
 
-    private synchronized ArrayList<Scrape_configs> mergeDbAndFileJobs(PrometheusConfig prometheusConfig) {
-        if (prometheusConfig == null || prometheusConfig.getScrape_configs().size() == 0 || prometheusConfig.getGlobal() == null) {
-            //If the configuration is faulty, end it directly
-            log.error("prometheusConfig null and return");
-            return null;
+    private ArrayList<Scrape_configs> mergeDbAndFileJobs(PrometheusConfig prometheusConfig) {
+        lock.lock();
+        try {
+            if (prometheusConfig == null || prometheusConfig.getScrape_configs().size() == 0 || prometheusConfig.getGlobal() == null) {
+                //If the configuration is faulty, end it directly
+                log.error("prometheusConfig null and return");
+                return null;
+            }
+            //Compare the prometheus data with the data to be reloaded
+            List<Scrape_configs> promScrapeConfig = prometheusConfig.getScrape_configs();
+            HashMap<String, Scrape_configs> configMap = new HashMap<>();
+            promScrapeConfig.forEach(item -> {
+                configMap.put(item.getJob_name(), item);
+            });
+            //The job in the file will be overwritten by db. db prevails
+            localConfigs.forEach(item -> {
+                configMap.put(item.getJob_name(), item);
+            });
+            ArrayList<Scrape_configs> configList = new ArrayList<>();
+            configMap.forEach((k, v) -> {
+                configList.add(v);
+            });
+            log.info("prometheusYMLJobNum: {},dbPEndingJobNum: {} after merge JobNum: {}", promScrapeConfig.size(),
+                    localConfigs.size(), configList.size());
+            return configList;
+        }finally {
+            lock.unlock();
         }
-        //Compare the prometheus data with the data to be reloaded
-        List<Scrape_configs> promScrapeConfig = prometheusConfig.getScrape_configs();
-        HashMap<String, Scrape_configs> configMap = new HashMap<>();
-        promScrapeConfig.forEach(item -> {
-            configMap.put(item.getJob_name(), item);
-        });
-        //The job in the file will be overwritten by db. db prevails
-        localConfigs.forEach(item -> {
-            configMap.put(item.getJob_name(), item);
-        });
-        ArrayList<Scrape_configs> configList = new ArrayList<>();
-        configMap.forEach((k, v) -> {
-            configList.add(v);
-        });
-        log.info("prometheusYMLJobNum: {},dbPEndingJobNum: {} after merge JobNum: {}", promScrapeConfig.size(),
-                localConfigs.size(), configList.size());
-        return configList;
     }
 
-    private synchronized PrometheusConfig getPrometheusConfig(String path) {
-        log.info("PrometheusClient getPrometheusConfig path : {}", path);
-        String content = FileUtil.LoadFile(path);
-        PrometheusConfig prometheusConfig = YamlUtil.toObject(content, PrometheusConfig.class);
-        log.info("PrometheusClient config : {}", prometheusConfig);
-        //System.out.println(content);
-        // Convert to Prometheus configuration class
-        return prometheusConfig;
+    private PrometheusConfig getPrometheusConfig(String path) {
+        lock.lock();
+        try {
+            log.info("PrometheusClient getPrometheusConfig path : {}", path);
+            String content = FileUtil.LoadFile(path);
+            PrometheusConfig prometheusConfig = YamlUtil.toObject(content, PrometheusConfig.class);
+            log.info("PrometheusClient config : {}", prometheusConfig);
+            //System.out.println(content);
+            // Convert to Prometheus configuration class
+            return prometheusConfig;
+        }finally {
+            lock.unlock();
+        }
     }
 
     private void writePrometheusConfig2Yaml(PrometheusConfig prometheusConfig) {

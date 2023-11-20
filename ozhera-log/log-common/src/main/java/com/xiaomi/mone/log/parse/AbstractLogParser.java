@@ -1,9 +1,16 @@
 package com.xiaomi.mone.log.parse;
 
+import cn.hutool.core.util.ClassUtil;
+import cn.hutool.core.util.ReflectUtil;
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author wtt
@@ -11,12 +18,30 @@ import java.util.Objects;
  * @description
  * @date 2023/10/31 16:32
  */
+@Slf4j
 public abstract class AbstractLogParser implements LogParser {
 
     protected LogParserData parserData;
 
+    private List<FieldInterceptor> fieldInterceptors = Lists.newArrayList();
+
     public AbstractLogParser(LogParserData parserData) {
         this.parserData = parserData;
+        createFieldInterceptors();
+    }
+
+    private void createFieldInterceptors() {
+        try {
+            Set<Class<?>> implementationClasses = ClassUtil.scanPackageBySuper(PACKAGE_NAME, FieldInterceptor.class);
+
+            fieldInterceptors = implementationClasses.stream()
+                    .map(ReflectUtil::newInstance)
+                    .filter(obj -> obj instanceof FieldInterceptor)
+                    .map(obj -> (FieldInterceptor) obj)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("createFieldInterceptors", e);
+        }
     }
 
     @Override
@@ -26,20 +51,16 @@ public abstract class AbstractLogParser implements LogParser {
         wrapMap(parseData, parserData, ip, lineNum, fileName, collectStamp);
         checkMessageExist(parseData, logData);
         validRet(parseData, logData);
-        handleImproperTraceId(parseData);
+
+        fieldInterceptors.stream().forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
         return parseData;
     }
 
-    private void handleImproperTraceId(Map<String, Object> parseData) {
-        if (parseData.containsKey(TRACE_ID_KEY)) {
-            Object traceIdValue = parseData.get(TRACE_ID_KEY);
-            if (traceIdValue instanceof String) {
-                String traceId = (String) traceIdValue;
-                if (traceId.startsWith(TRACE_ID_KEY + "=")) {
-                    parseData.put(TRACE_ID_KEY, traceId.substring(TRACE_ID_KEY.length() + 1));
-                }
-            }
-        }
+    @Override
+    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
+        Map<String, Object> parseData = doParseSimple(logData, collectStamp);
+        fieldInterceptors.stream().forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        return parseData;
     }
 
     protected void validTimestamp(Map<String, Object> ret, Long collectStamp) {
@@ -106,4 +127,5 @@ public abstract class AbstractLogParser implements LogParser {
 
     public abstract Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
 
+    public abstract Map<String, Object> doParseSimple(String logData, Long collectStamp);
 }

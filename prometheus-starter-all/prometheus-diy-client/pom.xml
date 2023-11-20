@@ -5,7 +5,7 @@
     <parent>
         <artifactId>prometheus-starter-all</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0-opensource-SNAPSHOT</version>
+        <version>1.0-opensource-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,9 +17,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <compilerVersion>21</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
         </plugins>

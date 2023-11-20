@@ -44,48 +44,48 @@ public enum AlarmPresetMetrics {
     /**
      * 业务指标-http
      */
-    http_error_times("http_error_times","Http调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    http_availability("http_availability","Http调入可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    http_error_times("http_error_times","Http调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    http_availability("http_availability","Http调入可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
     http_qps("http_qps","Http调入qps", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, "116"),
     http_cost("http_cost","Http调入平均耗时", MetricsUnit.UNIT_MS, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, "128"),
-    http_slow_query("http_slow_query","Http调入慢查询", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    http_slow_query("http_slow_query","Http调入慢查询", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
-    http_client_error_times("http_client_error_times","Http调出异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    http_client_availability("http_client_availability","Http调出可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    http_client_error_times("http_client_error_times","Http调出异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    http_client_availability("http_client_availability","Http调出可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
     http_client_qps("http_client_qps","Http调出qps", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, "172"),
     http_client_cost("http_client_cost","Http调出平均耗时", MetricsUnit.UNIT_MS, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, "173"),
-    http_client_slow_query("http_client_slow_query","Http调出慢查询", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    http_client_slow_query("http_client_slow_query","Http调出慢查询", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
     /**
      * 业务指标-dobbo
      */
 
-    dubbo_provider_error_times("dubbo_provider_error_times","Dubbo调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    dubbo_provider_availability("dubbo_provider_availability","Dubbo调入可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    dubbo_provider_error_times("dubbo_provider_error_times","Dubbo调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    dubbo_provider_availability("dubbo_provider_availability","Dubbo调入可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
     dubbo_provider_qps("dubbo_provider_qps","Dubbo调入qps", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, "118"),
     dubbo_provider_cost("dubbo_provider_cost","Dubbo调入平均耗时", MetricsUnit.UNIT_MS, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, "169"),
-    dubbo_provider_slow_query("dubbo_provider_slow_query","Dubbo调入慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    dubbo_provider_slow_query("dubbo_provider_slow_query","Dubbo调入慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
-    dubbo_error_times("dubbo_error_times","Dubbo调出异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    dubbo_availability("dubbo_availability","Dubbo调出可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    dubbo_error_times("dubbo_error_times","Dubbo调出异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    dubbo_availability("dubbo_availability","Dubbo调出可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
     dubbo_qps("dubbo_qps","Dubbo调出qps", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, "150"),
     dubbo_cost("dubbo_cost","Dubbo调出平均耗时", MetricsUnit.UNIT_MS, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, "130"),
-    dubbo_slow_query("dubbo_slow_query","Dubbo调出慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    dubbo_slow_query("dubbo_slow_query","Dubbo调出慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
-    dubbo_sla_error_times("dubbo_sla_error_times","DubboSLA异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    dubbo_sla_availability("dubbo_sla_availability","DubboSLA可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    dubbo_sla_error_times("dubbo_sla_error_times","DubboSLA异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    dubbo_sla_availability("dubbo_sla_availability","DubboSLA可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
 
     /**
      * 业务指标-db
      */
-    db_error_times("db_error_times","mysql异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    db_availability("db_availability","mysql可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+    db_error_times("db_error_times","mysql异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    db_availability("db_availability","mysql可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
 //    db_avg_time_cost("db_avg_time_cost","DB平均响应时间"),
-    db_slow_query("db_slow_query","mysql慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    db_slow_query("db_slow_query","mysql慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
 
-    redis_error_times("redis_error_times","redis异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
-    redis_slow_query("redis_slow_query","redis慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+    redis_error_times("redis_error_times","redis异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
+    redis_slow_query("redis_slow_query","redis慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
     ;
     private String code;

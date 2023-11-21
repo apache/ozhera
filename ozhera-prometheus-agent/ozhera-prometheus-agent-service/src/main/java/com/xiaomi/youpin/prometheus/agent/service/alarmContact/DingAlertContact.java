@@ -15,6 +15,7 @@ import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.Random;
 //ding ding alert
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
 public class DingAlertContact extends BaseAlertContact {
 
     @Autowired

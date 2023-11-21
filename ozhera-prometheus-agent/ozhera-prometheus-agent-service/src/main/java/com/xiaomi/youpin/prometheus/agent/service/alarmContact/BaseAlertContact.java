@@ -106,7 +106,7 @@ public abstract class BaseAlertContact {
                     return tab.message;
                 }
             }
-            return null; // 如果没有匹配的code，则返回null或者抛出异常
+            return null;
         }
     }
 }

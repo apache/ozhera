@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 /**
@@ -73,6 +74,9 @@ public class ConsumerService {
 
     private CopyOnWriteArrayList<String> firstList = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<String> secondList = new CopyOnWriteArrayList<>();
+
+    private ReentrantLock firstLock = new ReentrantLock();
+    private ReentrantLock secondLock = new ReentrantLock();
 
     private static final int BATCH_ROCKSDB_COUNT = 20;
 
@@ -191,13 +195,16 @@ public class ConsumerService {
             });
 
             MutableObject<String> mo = new MutableObject<>();
-            synchronized (firstList) {
+            firstLock.lock();
+            try{
                 firstList.add(m);
                 if (j >= BATCH_ROCKSDB_COUNT) {
                     String msg = Joiner.on("").join(firstList);
                     mo.setValue(msg);
                     firstList.clear();
                 }
+            }finally {
+                firstLock.unlock();
             }
 
             if (j >= BATCH_ROCKSDB_COUNT) {
@@ -214,13 +221,16 @@ public class ConsumerService {
             });
 
             MutableObject<String> mo = new MutableObject<>();
-            synchronized (secondList) {
+            secondLock.lock();
+            try{
                 secondList.add(m);
                 if (j >= BATCH_ROCKSDB_COUNT) {
                     String msg = Joiner.on("").join(secondList);
                     mo.setValue(msg);
                     secondList.clear();
                 }
+            }finally {
+                secondLock.unlock();
             }
 
             if (j >= BATCH_ROCKSDB_COUNT) {

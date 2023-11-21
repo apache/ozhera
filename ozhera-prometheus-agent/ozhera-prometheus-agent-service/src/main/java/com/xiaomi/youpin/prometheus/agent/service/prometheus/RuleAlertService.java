@@ -14,24 +14,15 @@ import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
 import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
-import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.DingAlertContact;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.FeishuAlertContact;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.MailAlertContact;
-import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
-import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
-import com.xiaomi.youpin.prometheus.agent.util.MailUtil;
 import com.xiaomi.youpin.prometheus.agent.vo.PageDataVo;
-import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.nutz.lang.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -46,7 +37,7 @@ public class RuleAlertService {
     @Autowired
     MailAlertContact mailAlertContact;
 
-    @Autowired
+    @Autowired(required = false)
     DingAlertContact dingAlertContact;
 
     @NacosValue(value = "${hera.alertmanager.url}", autoRefreshed = true)

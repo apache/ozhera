@@ -42,7 +42,7 @@ public class RuleSilenceService {
     @NacosValue(value = "${hera.alert.type}", autoRefreshed = true)
     private String alertTYPE;
 
-    @Autowired
+    @Autowired(required = false)
     DingAlertContact dingAlertContact;
 
     @Autowired
@@ -96,7 +96,7 @@ public class RuleSilenceService {
         }
 
         //Call back different update cards according to different alert types
-        updateCardByAlertType(param.getUserId(),param.getContent(),param.getExpectedSilenceTime(),param.getOutTrackId(),param.getCallbackTitle());
+        updateCardByAlertType(param.getUserId(), param.getContent(), param.getExpectedSilenceTime(), param.getOutTrackId(), param.getCallbackTitle());
         return Result.success("ok");
     }
 
@@ -172,10 +172,10 @@ public class RuleSilenceService {
         }
     }
 
-    private void updateCardByAlertType(String userId,String content,String expectedSilenceTime,String carBizId,String callbackTitle) {
+    private void updateCardByAlertType(String userId, String content, String expectedSilenceTime, String carBizId, String callbackTitle) {
         switch (alertTYPE) {
             case "dingding":
-                dingAlertContact.updateDingDingCard(userId,content,expectedSilenceTime,carBizId,callbackTitle);
+                dingAlertContact.updateDingDingCard(userId, content, expectedSilenceTime, carBizId, callbackTitle);
                 break;
             case "feishu":
                 break;

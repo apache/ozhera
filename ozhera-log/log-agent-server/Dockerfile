@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:21-jdk-bookworm
 
 ENV APP_HOME /opt/app
 
@@ -6,8 +6,10 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-COPY target/log-agent-server-1.0-SNAPSHOT.jar ${APP_HOME}
+COPY target/log-agent-server-*.jar ${APP_HOME}/log-agent-server.jar
 
 WORKDIR ${APP_HOME}
 
-ENTRYPOINT ["java", "-jar", "log-agent-server-1.0-SNAPSHOT.jar"]
+ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-agent-server.jar"]

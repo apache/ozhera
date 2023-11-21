@@ -20,7 +20,6 @@ import cn.hutool.core.util.StrUtil;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.utils.IndexUtils;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,9 +32,8 @@ import java.util.stream.Collectors;
  * @Description: Custom expression parsing
  */
 @Data
-@NoArgsConstructor
 @Slf4j
-public class CustomLogParser implements LogParser {
+public class CustomLogParser extends AbstractLogParser {
 
     private boolean isParsePattern;
 
@@ -43,28 +41,22 @@ public class CustomLogParser implements LogParser {
 
     private Gson gson = new Gson();
 
-    private LogParserData parserData;
-
     private String keyValueList;
 
     private List<String> logPerComments;
 
     public CustomLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
     }
 
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        extractTimeStamp(ret, logData, collectStamp);
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        checkMessageExist(ret, logData);
-        return ret;
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+        return doParseSimple(logData, collectStamp);
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
         String originData = logData;
         if (logData == null) {
@@ -79,7 +71,7 @@ public class CustomLogParser implements LogParser {
             }
             String originLog = logData;
             if (StringUtils.isBlank(keyValueList) && CollectionUtil.isEmpty(logPerComments)) {
-                ret.put(esKeyMap_MESSAGE, logData);
+                ret.put(ES_KEY_MAP_MESSAGE, logData);
                 return ret;
             }
             List<String> logDataArray = parseLogData(logData);
@@ -92,7 +84,7 @@ public class CustomLogParser implements LogParser {
                 ret.put(logPerComments.get(i), StringUtils.isNotEmpty(value) ? value.trim() : value);
             }
             if (ret.values().stream().map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-                ret.put(esKeyMap_logSource, originLog);
+                ret.put(ES_KEY_MAP_LOG_SOURCE, originLog);
             }
             /**
              * Pocket does not include esKeyMap_timestamp, esKeyMap_topic, esKeyMap_tag, esKeyMap_logstoreName
@@ -102,7 +94,7 @@ public class CustomLogParser implements LogParser {
                 ret.put(esKeyMap_timestamp, time);
             }
         } catch (Exception e) {
-            ret.put(esKeyMap_logSource, originData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, originData);
         }
         return ret;
     }

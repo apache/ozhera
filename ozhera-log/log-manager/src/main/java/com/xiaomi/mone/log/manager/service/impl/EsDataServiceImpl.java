@@ -19,9 +19,11 @@ import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.es.EsClient;
+import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
 import com.xiaomi.mone.log.api.model.vo.TraceLogQuery;
 import com.xiaomi.mone.log.api.service.LogDataService;
+import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.exception.CommonError;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
@@ -32,9 +34,11 @@ import com.xiaomi.mone.log.manager.dao.MilogSpaceDao;
 import com.xiaomi.mone.log.manager.domain.EsCluster;
 import com.xiaomi.mone.log.manager.domain.SearchLog;
 import com.xiaomi.mone.log.manager.domain.TraceLog;
+import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
 import com.xiaomi.mone.log.manager.model.dto.EsStatisticResult;
 import com.xiaomi.mone.log.manager.model.dto.LogDTO;
 import com.xiaomi.mone.log.manager.model.dto.LogDataDTO;
+import com.xiaomi.mone.log.manager.model.pojo.MilogEsClusterDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
@@ -47,6 +51,7 @@ import com.xiaomi.mone.log.manager.service.EsDataService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import com.xiaomi.mone.log.parse.LogParser;
+import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
@@ -68,13 +73,20 @@ import org.springframework.util.StopWatch;
 import run.mone.excel.ExportExcel;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.xiaomi.mone.log.common.Constant.DEFAULT_OPERATOR;
 import static com.xiaomi.mone.log.common.Constant.GSON;
 import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getKeyColonPrefix;
 import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getKeyList;
+import static com.xiaomi.mone.log.parse.LogParser.*;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
 
@@ -101,6 +113,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     @Resource
     private SearchLog searchLog;
 
+    @Resource
+    private MilogEsClusterMapper milogEsClusterMapper;
+
     @Value(value = "$hera.url")
     private String heraUrl;
 
@@ -118,8 +133,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     private Set<String> hidenFiledSet = new HashSet<>();
 
     public static List<Pair<String, String>> requiredFields = Lists.newArrayList(
-            Pair.of("message", "text"),
-            Pair.of("logsource", "text")
+            Pair.of(ES_KEY_MAP_MESSAGE, "text"),
+            Pair.of(ES_KEY_MAP_LOG_SOURCE, "text"),
+            Pair.of(ES_KEY_MAP_TAIL_ID, "INT")
     );
 
     {
@@ -144,57 +160,146 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
      */
     @Override
     public Result<LogDTO> logQuery(LogQuery logQuery) {
-        String logInfo = String.format("queryText:%s, user:%s, logQuery:%s", logQuery.getFullTextSearch(), MoneUserContext.getCurrentUser().getUser(), logQuery);
+        String operator = MoneUserContext.getCurrentUser() != null ? MoneUserContext.getCurrentUser().getUser() : DEFAULT_OPERATOR;
+
+        String logInfo = String.format("queryText:%s, user:%s, logQuery:%s", logQuery.getFullTextSearch(), operator, logQuery);
         log.info("query simple param:{}", logInfo);
 
         StopWatch stopWatch = new StopWatch("HERA-LOG-QUERY");
-        SearchRequest searchRequest = null;
+
         try {
             MilogLogStoreDO milogLogstoreDO = logstoreDao.queryById(logQuery.getStoreId());
             if (milogLogstoreDO == null) {
                 log.warn("[EsDataService.logQuery] not find logStore:[{}]", logQuery.getLogstore());
                 return Result.failParam("not found[" + logQuery.getLogstore() + "]The corresponding data");
             }
-            EsService esService = esCluster.getEsService(milogLogstoreDO.getEsClusterId());
 
-            String esIndexName = commonExtensionService.getSearchIndex(logQuery.getStoreId(), milogLogstoreDO.getEsIndex());
-            if (esService == null || StringUtils.isEmpty(esIndexName)) {
-                log.warn("[EsDataService.logQuery] logStore:[{}] configuration exceptions", logQuery.getLogstore());
-                return Result.failParam("logStore configuration exceptions");
-            }
-            List<String> keyList = getKeyList(milogLogstoreDO.getKeyList(), milogLogstoreDO.getColumnTypeList());
-            // Build query parameters
-            BoolQueryBuilder boolQueryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(milogLogstoreDO.getKeyList()));
-            SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, boolQueryBuilder);
+            MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(milogLogstoreDO.getEsClusterId());
+            LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
 
-            searchRequest = new SearchRequest(new String[]{esIndexName}, builder);
-            // query
-            stopWatch.start("search-query");
-            SearchResponse searchResponse = esService.search(searchRequest);
-            stopWatch.stop();
             LogDTO dto = new LogDTO();
-            dto.setSourceBuilder(builder);
-            if (stopWatch.getLastTaskTimeMillis() > 7 * 1000) {
-                log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
+            List<String> keyList = getKeyList(milogLogstoreDO.getKeyList(), milogLogstoreDO.getColumnTypeList());
+
+            if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
+                return dorisDataQuery(logQuery, milogLogstoreDO, dto);
+            } else {
+                return elasticDataQuery(milogLogstoreDO, logQuery, dto, keyList, stopWatch);
             }
-
-            //Result transformation
-            stopWatch.start("data-assemble");
-            transformSearchResponse(searchResponse, dto, keyList);
-            stopWatch.stop();
-
-            if (stopWatch.getTotalTimeMillis() > 15 * 1000) {
-                log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis());
-            }
-
-            return Result.success(dto);
-        } catch (ElasticsearchStatusException e) {
-            log.error("Log query error, log search error, error type[{}], logQuery:[{}], searchRequest:[{}], user:[{}]", e.status(), logQuery, searchRequest, MoneUserContext.getCurrentUser(), e);
-            return Result.failParam("If the permissions of ES resources are configured incorrectly, check the username and password or token");
         } catch (Throwable e) {
-            log.error("Log query error, log search error,logQuery:[{}],searchRequest:[{}],user:[{}]", logQuery, searchRequest, MoneUserContext.getCurrentUser(), e);
-            return Result.failParam("Search term input error, please check");
+            log.error("Log query error, log search error,logQuery:[{}],user:[{}]", logQuery, MoneUserContext.getCurrentUser(), e);
+            return Result.failParam(e.getMessage());
         }
+    }
+
+    private Result<LogDTO> dorisDataQuery(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO, LogDTO dto) {
+        try {
+            DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + milogLogstoreDO.getEsClusterId());
+            List<Map<String, Object>> tableColumnDTOS = queryResult(logQuery, milogLogstoreDO, dataSource);
+            dorisDataToLog(tableColumnDTOS, dto);
+            return Result.success(dto);
+        } catch (Exception e) {
+            log.error("Doris data query error", e);
+            return Result.failParam(e.getMessage());
+        }
+    }
+
+    private Result<LogDTO> elasticDataQuery(MilogLogStoreDO milogLogstoreDO, LogQuery logQuery,
+                                            LogDTO dto, List<String> keyList, StopWatch stopWatch) throws IOException {
+        EsService esService = esCluster.getEsService(milogLogstoreDO.getEsClusterId());
+
+        String esIndexName = commonExtensionService.getSearchIndex(logQuery.getStoreId(), milogLogstoreDO.getEsIndex());
+        if (esService == null || StringUtils.isEmpty(esIndexName)) {
+            log.warn("[EsDataService.logQuery] logStore:[{}] configuration exceptions", logQuery.getLogstore());
+            return Result.failParam("logStore configuration exceptions");
+        }
+        // Build query parameters
+        BoolQueryBuilder boolQueryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(milogLogstoreDO.getKeyList()));
+        SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, boolQueryBuilder);
+
+        SearchRequest searchRequest = new SearchRequest(new String[]{esIndexName}, builder);
+        // query
+        stopWatch.start("search-query");
+        SearchResponse searchResponse = esService.search(searchRequest);
+        stopWatch.stop();
+
+        dto.setSourceBuilder(builder);
+        if (stopWatch.getLastTaskTimeMillis() > 7 * 1000) {
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
+        }
+        //Result transformation
+        stopWatch.start("data-assemble");
+        transformSearchResponse(searchResponse, dto, keyList);
+        stopWatch.stop();
+
+        if (stopWatch.getTotalTimeMillis() > 15 * 1000) {
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis());
+        }
+        return Result.success(dto);
+    }
+
+    private void dorisDataToLog(List<Map<String, Object>> tableColumnDTOS, LogDTO logDTO) {
+        List<LogDataDTO> logDataList = Lists.newArrayList();
+        for (Map<String, Object> columnMap : tableColumnDTOS) {
+
+            LogDataDTO logData = new LogDataDTO();
+
+            logData.setValue(LogParser.esKeyMap_timestamp, columnMap.get(LogParser.esKeyMap_timestamp));
+            for (String key : columnMap.keySet()) {
+                if (!hidenFiledSet.contains(key)) {
+                    logData.setValue(key, columnMap.get(key));
+                }
+            }
+            logData.setIp(columnMap.get(LogParser.esKeyMap_logip) == null ? "" : String.valueOf(columnMap.get(LogParser.esKeyMap_logip)));
+            logData.setFileName(columnMap.get(LogParser.esKyeMap_fileName) == null ? "" : String.valueOf(columnMap.get(LogParser.esKyeMap_fileName)));
+            logData.setLineNumber(columnMap.get(LogParser.esKeyMap_lineNumber) == null ? "" : String.valueOf(columnMap.get(LogParser.esKeyMap_lineNumber)));
+            logData.setTimestamp(columnMap.get(LogParser.esKeyMap_timestamp) == null ? "" : String.valueOf(columnMap.get(LogParser.esKeyMap_timestamp)));
+            logData.setLogOfString(JSON.toJSONString(logData.getLogOfKV()));
+            // Package highlighted
+            logDataList.add(logData);
+        }
+        logDTO.setThisSortValue(null);
+        logDTO.setLogDataDTOList(logDataList);
+    }
+
+    private List<Map<String, Object>> queryResult(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO, DataSource dataSource) throws SQLException {
+        List<Map<String, Object>> columns = new ArrayList<>();
+
+        String querySql = buildQuerySql(logQuery, milogLogstoreDO);
+
+        try (Statement statement = dataSource.getConnection().createStatement();
+             ResultSet resultSet = statement.executeQuery(querySql)) {
+
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> dataMap = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    dataMap.put(metaData.getColumnName(i), resultSet.getObject(i));
+                }
+                columns.add(dataMap);
+            }
+        }
+        return columns;
+    }
+
+    private String buildQuerySql(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+        String sqlPrefix = String.format("timestamp >= %s AND timestamp <= %s", logQuery.getStartTime(), logQuery.getEndTime());
+
+        if (StringUtils.isNotEmpty(logQuery.getTail())) {
+            String tailIdFields = Arrays.stream(logQuery.getTail().split(",")).map(tail -> org.apache.commons.lang3.StringUtils.wrap(tail, "\"")).collect(Collectors.joining(","));
+            String tailSql = String.format(" AND tail IN (%s)", tailIdFields);
+            sqlPrefix += tailSql;
+        }
+
+        String sortSql = StringUtils.isNotEmpty(logQuery.getSortKey()) ? String.format("ORDER BY %s", logQuery.getSortKey()) : "";
+        if (StringUtils.isNotEmpty(sortSql) && !logQuery.getAsc()) {
+            sortSql += " DESC";
+        }
+        String limitSql = String.format("LIMIT %s, %s", (logQuery.getPage() - 1) * logQuery.getPageSize(), logQuery.getPageSize());
+
+        return String.format("SELECT * FROM %s WHERE %s AND %s %s %s",
+                milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch(), sortSql, limitSql);
     }
 
     private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, BoolQueryBuilder boolQueryBuilder) {

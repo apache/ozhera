@@ -40,4 +40,5 @@ public class QuickQueryVO implements Serializable {
     private Long tailId;
     private String tailName;
     private Integer isFavourite;
+    private String deploySpace;
 }

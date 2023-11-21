@@ -1,9 +1,9 @@
-FROM openjdk:8-jre
-MAINTAINER zhangsan@qq.com
+FROM openjdk:21-jdk-bookworm
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
 RUN mkdir -p /home/work/app-server/
 RUN mkdir -p /home/work/log/app-server/
-COPY ./target/app-server-1.4-SNAPSHOT.jar /home/work/app-server/app-server-1.4-SNAPSHOT.jar
-ENTRYPOINT ["java","-jar","-Xms512M","-Xmx512M","-XX:+UseG1GC","-XX:+PrintReferenceGC","-XX:+PrintGCDetails","-XX:+PrintGCDateStamps","-XX:+PrintHeapAtGC","-Xloggc:/home/work/log/app-server/gc.log","/home/work/app-server/app-server-1.4-SNAPSHOT.jar"]
+COPY ./target/app-server-1.4-jdk21-SNAPSHOT.jar /home/work/app-server/app-server-1.4-SNAPSHOT.jar
+
+ENTRYPOINT ["sh","-c","java -XX:+UseZGC --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/sun.reflect=ALL-UNNAMED --add-opens java.base/java.xml=ALL-UNNAMED --add-exports java.base/sun.reflect.annotation=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED -Duser.timezone=Asia/Shanghai -jar /home/work/app-server/app-server-1.4-SNAPSHOT.jar"]

@@ -1,5 +1,6 @@
 package com.xiaomi.hera.trace.etl.es.config;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.mone.es.EsClient;
 import com.xiaomi.mone.es.EsProcessor;
 import com.xiaomi.mone.es.ProcessorConf;
@@ -22,17 +23,17 @@ public class EsProcessConfig {
     @Resource(name = "jaegerEsClient")
     private EsClient esClient;
 
-    @Value("${es.bulk_actions}")
+    @NacosValue("${es.bulk_actions}")
     private int bulkActions;
-    @Value("${es.byte_size}")
+    @NacosValue("${es.byte_size}")
     private int byteSize;
-    @Value("${es.concurrent_request}")
+    @NacosValue("${es.concurrent_request}")
     private int concurRequest;
-    @Value("${es.flush_interval}")
+    @NacosValue("${es.flush_interval}")
     private int flushInterval;
-    @Value("${es.retry_num}")
+    @NacosValue("${es.retry_num}")
     private int retryNum;
-    @Value("${es.retry_interval}")
+    @NacosValue("${es.retry_interval}")
     private int retryInterval;
 
     @Bean

@@ -15,9 +15,7 @@
  */
 package com.xiaomi.mone.log.parse;
 
-import com.gliwka.hyperscan.util.PatternFilter;
 import com.xiaomi.mone.log.utils.IndexUtils;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,37 +29,22 @@ import java.util.regex.Pattern;
  * @description
  */
 @Slf4j
-@NoArgsConstructor
-public class RegexLogParser implements LogParser {
+public class RegexLogParser extends AbstractLogParser {
 
-    private LogParserData parserData;
-    private PatternFilter filter;
     private Pattern pattern;
 
     public RegexLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
         pattern = Pattern.compile(parserData.getParseScript(), Pattern.MULTILINE);
-//        List<Pattern> patterns = Lists.newArrayList();
-//        patterns.add(pattern);
-//        try {
-//            this.filter = new PatternFilter(patterns);
-//        } catch (Exception e) {
-//            this.filter = null;
-//        }
     }
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        validRet(ret, logData);
-        extractTimeStamp(ret, logData, collectStamp);
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        checkMessageExist(ret, logData);
-        return ret;
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+        return doParseSimple(logData, collectStamp);
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
         if (logData == null || logData.length() == 0) {
             return ret;
@@ -85,10 +68,10 @@ public class RegexLogParser implements LogParser {
                 }
                 ret.put(keyNameList.get(i), StringUtils.isNotEmpty(value) ? value.trim() : value);
             }
-            validTimestamp(ret, logData, collectStamp);
+            validTimestamp(ret, collectStamp);
         } catch (Exception e) {
             // If an exception occurs, the original log is kept to the logsource field
-            ret.put(esKeyMap_logSource, logData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
         return ret;
     }

@@ -102,7 +102,7 @@ public class TraceLog {
             EsService esService = esCluster.getEsService(esIndexDO.getClusterId());
             if (esService == null) {
                 countDownLatch.countDown();
-                log.warn("[Esdata.getTraceLog] es client [{}] is not generated", Constant.ES_SERV_BEAN_PRE + esIndexDO.getClusterId());
+                log.warn("[Esdata.getTraceLog] es client [{}] is not generated", Constant.LOG_STORAGE_SERV_BEAN_PRE + esIndexDO.getClusterId());
                 continue;
             }
             SearchRequest searchRequest = new SearchRequest(esIndexDO.getIndexName());

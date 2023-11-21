@@ -99,7 +99,6 @@ public class MilogConfigController {
     /**
      * ********* milogLogstore **********
      */
-
     @RequestMapping(path = "/milog/store/new")
     public Result<String> newLogStore(@RequestParam("param") LogStoreParam param) {
         return logStoreService.newLogStore(param);

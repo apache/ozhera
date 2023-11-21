@@ -53,8 +53,8 @@ public class EsCluster {
         if (esClusterId == null) {
             return null;
         }
-        if (Ioc.ins().containsBean(Constant.ES_SERV_BEAN_PRE + esClusterId)) {
-            return Ioc.ins().getBean(Constant.ES_SERV_BEAN_PRE + esClusterId);
+        if (Ioc.ins().containsBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + esClusterId)) {
+            return Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + esClusterId);
         } else {
             return null;
         }
@@ -70,8 +70,8 @@ public class EsCluster {
         if (curEsCluster == null) {
             return null;
         }
-        if (Ioc.ins().containsBean(Constant.ES_SERV_BEAN_PRE + curEsCluster.getId())) {
-            return Ioc.ins().getBean(Constant.ES_SERV_BEAN_PRE + curEsCluster.getId());
+        if (Ioc.ins().containsBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + curEsCluster.getId())) {
+            return Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + curEsCluster.getId());
         } else {
             return null;
         }

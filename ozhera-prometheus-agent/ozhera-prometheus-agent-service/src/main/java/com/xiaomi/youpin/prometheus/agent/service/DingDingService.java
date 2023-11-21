@@ -26,9 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author zhangxiaowei6
@@ -59,9 +57,17 @@ public class DingDingService {
     @NacosValue(value = "${dingding.callbackUrl}", autoRefreshed = true)
     private String callbackUrl;
 
+    @NacosValue(value = "${hera.alert.whiteList}", autoRefreshed = true)
+    private String whiteListStr;
+
+    @NacosValue(value = "${dingding.user.type}", autoRefreshed = true)
+    private String dingdingUserType;
+
     private final String ACCESS_TOKEN = "dingding_access_token";
 
     private final String DINGDING_USER_INFO_URL = "https://oapi.dingtalk.com/topapi/v2/user/get";
+
+    private final Map<String, String> whiteListMap = new HashMap<>();
 
     private Object getDingDingAccessToken() {
 
@@ -83,6 +89,25 @@ public class DingDingService {
         dingCardClient = new com.aliyun.dingtalkcard_1_0.Client(dingConfig);
         dingOauthClient = new com.aliyun.dingtalkoauth2_1_0.Client(dingConfig);
         //registerDingDingCallBack();
+        //fill in white list
+        if (!StringUtils.isBlank(whiteListStr)) {
+            List<String> whiteList = Arrays.asList(whiteListStr.split(",", -1));
+            log.info("DingDingService init whiteList is :{}", whiteList);
+            if (whiteList.size() % 2 != 0) {
+                log.error("DingDingService sendDingDing whiteList error , because whiteList size is not even");
+                return;
+            }
+            //fill in map
+            for (int i = 0; i < whiteList.size(); i = i + 2) {
+                whiteListMap.put(whiteList.get(i), whiteList.get(i + 1));
+            }
+        }
+        //user type judge
+        if (!dingdingUserType.equals("userId") && !dingdingUserType.equals("unionId")) {
+            log.error("DingDingService.userType not valid, userType: {}",dingdingUserType);
+            //set default value
+            dingdingUserType = "userId";
+        }
     }
 
     private String getAccessToken() {
@@ -117,21 +142,25 @@ public class DingDingService {
             log.error("DingDingService registerDingDingCallBack token is null");
             return;
         }
-        com.aliyun.dingtalkcard_1_0.models.RegisterCallbackHeaders registerCallbackHeaders = new com.aliyun.dingtalkcard_1_0.models.RegisterCallbackHeaders();
+        com.aliyun.dingtalkcard_1_0.models.RegisterCallbackHeaders registerCallbackHeaders =
+                new com.aliyun.dingtalkcard_1_0.models.RegisterCallbackHeaders();
         registerCallbackHeaders.setXAcsDingtalkAccessToken(token);
 
-        com.aliyun.dingtalkcard_1_0.models.RegisterCallbackRequest registerCallbackRequest = new com.aliyun.dingtalkcard_1_0.models.RegisterCallbackRequest()
-                .setCallbackRouteKey("hera-route-key")
-                .setCallbackUrl(callbackUrl);
+        com.aliyun.dingtalkcard_1_0.models.RegisterCallbackRequest registerCallbackRequest =
+                new com.aliyun.dingtalkcard_1_0.models.RegisterCallbackRequest()
+                        .setCallbackRouteKey("hera-route-key")
+                        .setCallbackUrl(callbackUrl);
         try {
-            RegisterCallbackResponse registerDingDingCallbackResponse = dingCardClient.registerCallbackWithOptions(registerCallbackRequest, registerCallbackHeaders, new RuntimeOptions());
+            RegisterCallbackResponse registerDingDingCallbackResponse = dingCardClient.
+                    registerCallbackWithOptions(registerCallbackRequest, registerCallbackHeaders, new RuntimeOptions());
             log.info("registerDingDingCallbackResponse:{}", registerDingDingCallbackResponse);
         } catch (Exception e) {
             log.error("DingDingService registerDingDingCallBack err:{}", e);
         }
     }
 
-    public void sendDingDing(String content, String[] unionIds,String cardBizId) {
+    public void sendDingDing(String content, String[] unionIds, String cardBizId) {
+        log.info("sendDingDing param content: {}, unionIds: {}, cardBizId: {}", content, unionIds, cardBizId);
         String token = getAccessToken();
         if (token == null) {
             log.error("DingDingService sendDingDing token is null");
@@ -144,13 +173,16 @@ public class DingDingService {
             unions.add(union);
         });*/
         for (String uid : unionIds) {
+            if (whiteListMap.containsKey(uid)) {
+                uid = whiteListMap.get(uid);
+            }
             SendRobotInteractiveCardHeaders sendRobotInteractiveCardHeaders = new SendRobotInteractiveCardHeaders();
             sendRobotInteractiveCardHeaders.setXAcsDingtalkAccessToken(token);
             SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions sendOptions =
                     new SendRobotInteractiveCardRequest.SendRobotInteractiveCardRequestSendOptions();
             SendRobotInteractiveCardRequest sendRobotInteractiveCardRequest = new SendRobotInteractiveCardRequest()
                     .setCardTemplateId("StandardCard")
-                    .setSingleChatReceiver("{\"unionId\":\"" + uid + "\"}")
+                    .setSingleChatReceiver("{\""+ dingdingUserType +"\":\"" + uid + "\"}")
                     .setCardBizId(cardBizId)
                     .setRobotCode(robotCode)
                     .setCardData(content)
@@ -158,7 +190,8 @@ public class DingDingService {
                     .setPullStrategy(false)
                     .setCallbackUrl(callbackUrl);
             try {
-                dingClient.sendRobotInteractiveCardWithOptions(sendRobotInteractiveCardRequest, sendRobotInteractiveCardHeaders, new RuntimeOptions());
+                dingClient.sendRobotInteractiveCardWithOptions(sendRobotInteractiveCardRequest,
+                        sendRobotInteractiveCardHeaders, new RuntimeOptions());
             } catch (Exception e) {
                 log.error("DingDingService sendDingDing err:{}", e);
             }
@@ -186,8 +219,9 @@ public class DingDingService {
                 // .setUnionIdPrivateDataMap("{\"unionId0001\":{\"xxxx\":\"xxxx\"}}")
                 .setUpdateOptions(updateOptions);
         try {
-            dingClient.updateRobotInteractiveCardWithOptions(updateRobotInteractiveCardRequest, updateRobotInteractiveCardHeaders, new RuntimeOptions());
-        }  catch (TeaException err) {
+            dingClient.updateRobotInteractiveCardWithOptions(updateRobotInteractiveCardRequest,
+                    updateRobotInteractiveCardHeaders, new RuntimeOptions());
+        } catch (TeaException err) {
             if (!com.aliyun.teautil.Common.empty(err.code) && !com.aliyun.teautil.Common.empty(err.message)) {
                 log.error("DingDingService updateDingDingCard TeaException:{}", err);
             }

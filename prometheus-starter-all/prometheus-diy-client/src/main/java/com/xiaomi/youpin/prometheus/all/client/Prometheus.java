@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author zhangxiaowei6
@@ -20,8 +21,8 @@ public class Prometheus implements MetricsManager {
     public Map<String, Object> prometheusMetrics;
     public Map<String, Object> prometheusTypeMetrics;
 
-    private byte[] lock = new byte[0];
-    private byte[] typeLock = new byte[0];
+    private ReentrantLock lock = new ReentrantLock();
+    private ReentrantLock typeLock = new ReentrantLock();
 
     public Prometheus() {
         this.prometheusMetrics = new ConcurrentHashMap<>();
@@ -33,10 +34,13 @@ public class Prometheus implements MetricsManager {
         if (prometheusTypeMetrics.containsKey(metricName)) {
             return (XmCounter) prometheusTypeMetrics.get(metricName);
         }
-        synchronized (typeLock) {
+        typeLock.lock();
+        try{
             PrometheusCounter prometheusCounter = new PrometheusCounter(getCounter(metricName, labelName), labelName, null);
             prometheusTypeMetrics.put(metricName, prometheusCounter);
             return prometheusCounter;
+        }finally {
+            typeLock.unlock();
         }
     }
 
@@ -45,10 +49,13 @@ public class Prometheus implements MetricsManager {
         if (prometheusTypeMetrics.containsKey(metricName)) {
             return (XmGauge) prometheusTypeMetrics.get(metricName);
         }
-        synchronized (typeLock) {
+        typeLock.lock();
+        try{
             PrometheusGauge prometheusGauge = new PrometheusGauge(getGauge(metricName, labelName), labelName, null);
             prometheusTypeMetrics.put(metricName, prometheusGauge);
             return prometheusGauge;
+        }finally {
+            typeLock.unlock();
         }
 
     }
@@ -58,10 +65,13 @@ public class Prometheus implements MetricsManager {
         if (prometheusTypeMetrics.containsKey(metricName)) {
             return (XmHistogram) prometheusTypeMetrics.get(metricName);
         }
-        synchronized (typeLock) {
+        typeLock.lock();
+        try{
             PrometheusHistogram prometheusHistogram = new PrometheusHistogram(getHistogram(metricName, bucket, labelNames), labelNames, null);
             prometheusTypeMetrics.put(metricName, prometheusHistogram);
             return prometheusHistogram;
+        }finally {
+            typeLock.unlock();
         }
     }
 
@@ -76,7 +86,8 @@ public class Prometheus implements MetricsManager {
                 return (Counter) prometheusMetrics.get(metricName);
             }
 
-            synchronized (lock) {
+            lock.lock();
+            try{
                 //No need to register one first
                 List<String> mylist = new ArrayList<>(Arrays.asList(labelName));
                 mylist.add(Metrics.APPLICATION);
@@ -90,6 +101,8 @@ public class Prometheus implements MetricsManager {
 
                 prometheusMetrics.put(metricName, newCounter);
                 return newCounter;
+            }finally {
+                lock.unlock();
             }
         } catch (Throwable throwable) {
             log.warn(throwable.getMessage());
@@ -107,7 +120,8 @@ public class Prometheus implements MetricsManager {
                 // log.debug("already have metric:" + metricName);
                 return (Gauge) prometheusMetrics.get(metricName);
             }
-            synchronized (lock) {
+            lock.lock();
+            try{
                 //No need to register one first
                 List<String> mylist = new ArrayList<>(Arrays.asList(labelName));
                 mylist.add(Metrics.APPLICATION);
@@ -121,6 +135,8 @@ public class Prometheus implements MetricsManager {
 
                 prometheusMetrics.put(metricName, newGauge);
                 return newGauge;
+            }finally {
+                lock.unlock();
             }
         } catch (Throwable throwable) {
             log.warn(throwable.getMessage());
@@ -140,7 +156,8 @@ public class Prometheus implements MetricsManager {
                 return (Histogram) prometheusMetrics.get(metricName);
             }
 
-            synchronized (lock) {
+            lock.lock();
+            try{
                 //No need to register one first
                 List<String> mylist = new ArrayList<>(Arrays.asList(labelNames));
                 mylist.add(Metrics.APPLICATION);
@@ -154,6 +171,8 @@ public class Prometheus implements MetricsManager {
                         .register();
                 prometheusMetrics.put(metricName, newHistogram);
                 return newHistogram;
+            }finally {
+                lock.unlock();
             }
         } catch (Throwable throwable) {
             log.warn(throwable.getMessage());

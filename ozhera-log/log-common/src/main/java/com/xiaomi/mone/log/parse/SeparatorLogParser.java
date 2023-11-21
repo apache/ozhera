@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.parse;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,26 +27,19 @@ import java.util.stream.Collectors;
  * @description
  */
 @Slf4j
-@NoArgsConstructor
-public class SeparatorLogParser implements LogParser {
-
-    private LogParserData parserData;
+public class SeparatorLogParser extends AbstractLogParser {
 
     public SeparatorLogParser(LogParserData parserData) {
-        this.parserData = parserData;
+        super(parserData);
     }
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
-        Map<String, Object> ret = parseSimple(logData, collectStamp);
-        extractTimeStamp(ret, logData, collectStamp);
-        wrapMap(ret, parserData, ip, lineNum, fileName, collectStamp);
-        checkMessageExist(ret, logData);
-        return ret;
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+        return doParseSimple(logData, collectStamp);
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
         if (logData == null) {
             return ret;
@@ -63,7 +55,7 @@ public class SeparatorLogParser implements LogParser {
 
             List<String> logArray = parseLogData(logData, maxLength);
             if (0 == maxLength) {
-                ret.put(esKeyMap_MESSAGE, logData);
+                ret.put(ES_KEY_MAP_MESSAGE, logData);
                 return ret;
             }
             if (values.length == 1 && logArray.size() == 1 && maxLength == 1) {
@@ -99,7 +91,7 @@ public class SeparatorLogParser implements LogParser {
                     count++;
                     ret.put(esKeyMap_tail, parserData.getTailName());
                     continue;
-                } else if (kTsplit[0].equals(esKeyMap_logSource)) {
+                } else if (kTsplit[0].equals(ES_KEY_MAP_LOG_SOURCE)) {
                     count++;
                     continue;
                 }
@@ -132,10 +124,10 @@ public class SeparatorLogParser implements LogParser {
              * esKeyMap_topic,esKeyMap_tag,esKeyMap_logstoreName,esKeyMap_logSource are not visible to the user, i.e. do not exist in values, logArray
              */
             if (ret.values().stream().filter(Objects::nonNull).map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-                ret.put(esKeyMap_logSource, logData);
+                ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
             }
         } catch (Exception e) {
-            ret.put(esKeyMap_logSource, logData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
         return ret;
     }

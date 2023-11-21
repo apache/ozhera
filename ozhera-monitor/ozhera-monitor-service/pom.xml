@@ -5,16 +5,11 @@
     <parent>
         <groupId>run.mone</groupId>
         <artifactId>ozhera-monitor</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.2-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ozhera-monitor-service</artifactId>
-
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
 
     <dependencies>
 
@@ -33,7 +28,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>app-api</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -60,9 +55,9 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>com.alibaba.spring</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>1.0.10-mone-SNAPSHOT</version>
+            <version>1.0.10</version>
         </dependency>
 
         <dependency>
@@ -189,7 +184,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>5.0.6.RELEASE</version>
+            <version>5.3.29</version>
         </dependency>
 
         <dependency>
@@ -262,12 +257,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.squareup.okio</groupId>
-            <artifactId>okio</artifactId>
-            <version>1.17.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>run.mone</groupId>
             <artifactId>http</artifactId>
             <version>1.4-SNAPSHOT</version>
@@ -275,8 +264,8 @@
 
         <dependency>
             <groupId>run.mone</groupId>
-            <artifactId>hera-prometheus-agent-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>ozhera-prometheus-agent-api</artifactId>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
 

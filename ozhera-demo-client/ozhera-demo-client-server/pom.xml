@@ -5,7 +5,7 @@
     <parent>
         <artifactId>ozhera-demo-client</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,7 @@
                 </exclusion>
             </exclusions>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <!--Alibaba nacos-->
@@ -88,6 +88,10 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.prometheus</groupId>
+                    <artifactId>simpleclient</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -100,7 +104,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>prometheus-diy-starter</artifactId>
-            <version>0.0.1-opensource-SNAPSHOT</version>
+            <version>0.0.1-opensource-jdk21-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.nacos</groupId>
@@ -124,7 +128,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.5</version>
+                <version>2.7.15</version>
 
                 <configuration>
                     <mainClass>com.xiaomi.mone.hera.demo.client.bootstrap.HeraDemoClientBootstrap</mainClass>

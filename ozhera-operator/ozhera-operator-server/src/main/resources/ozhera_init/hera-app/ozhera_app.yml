@@ -17,8 +17,24 @@ spec:
     spec:
       containers:
       - name: hera-app-container
-        image: herahub/opensource-pub:hera-app-v1-release
+        image: herahub/opensource-pub:hera-app-v3-release
         resources:
           limits:
             cpu: '300m'
             memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hera-app
+  namespace: ozhera-namespace
+  labels:
+    app: hera-app
+spec:
+  selector:
+    app: hera-app
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8084

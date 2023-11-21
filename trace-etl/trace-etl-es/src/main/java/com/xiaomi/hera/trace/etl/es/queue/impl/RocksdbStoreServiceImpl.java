@@ -17,9 +17,9 @@
 package com.xiaomi.hera.trace.etl.es.queue.impl;
 
 import com.xiaomi.hera.trace.etl.es.queue.DiskStoreService;
-import com.xiaomi.hera.trace.etl.es.util.redis.RedisClientUtil;
 import org.rocksdb.CompactionStyle;
 import org.rocksdb.CompressionType;
+import org.rocksdb.InfoLogLevel;
 import org.rocksdb.Options;
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
@@ -29,8 +29,6 @@ import org.rocksdb.TtlDB;
 import org.rocksdb.util.SizeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -91,7 +89,11 @@ public class RocksdbStoreServiceImpl implements DiskStoreService {
                  */
                 .setMaxBytesForLevelMultiplier(3.0)
                 .setCompactionStyle(CompactionStyle.LEVEL)
-                .setWalTtlSeconds(60L);
+                .setWalTtlSeconds(60L)
+                // limit RocksDB logfile size
+                .setKeepLogFileNum(1)
+                .setMaxLogFileSize(1024 * 1024)
+                .setInfoLogLevel(InfoLogLevel.ERROR_LEVEL);
         try {
             rocksDB = TtlDB.open(options, path, 60, false);
         } catch (RocksDBException e) {

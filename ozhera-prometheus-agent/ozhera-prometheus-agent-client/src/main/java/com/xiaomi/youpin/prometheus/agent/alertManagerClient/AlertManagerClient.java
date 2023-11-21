@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
 
@@ -51,6 +52,8 @@ public class AlertManagerClient implements Client {
     private Map<String, List<Rule>> localRuleList = new HashMap<>();
 
     private static final Gson gson = new Gson();
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -159,7 +162,10 @@ public class AlertManagerClient implements Client {
         Map<String, String> labelMap = new HashMap<>();
         try {
             Arrays.stream(labels.split(",")).forEach(item -> {
-                String[] split = item.split("=");
+                String[] split = item.split("=",2);
+                if (split.length != 2) {
+                    return;
+                }
                 labelMap.put(split[0], split[1]);
             });
             return labelMap;
@@ -181,14 +187,19 @@ public class AlertManagerClient implements Client {
         return annotationMap;
     }
 
-    private synchronized AlertManagerConfig getRuleAlertConfig(String path) {
-        log.info("AlertManagerClient getRuleAlertConfig path : {}", path);
-        String content = FileUtil.LoadFile(path);
-        AlertManagerConfig alertManagerConfig = YamlUtil.toObject(content, AlertManagerConfig.class);
-        log.info("AlertManagerClient config : {}", alertManagerConfig);
-        //System.out.println(content);
-        //Convert to AlertManager configuration class.
-        return alertManagerConfig;
+    private AlertManagerConfig getRuleAlertConfig(String path) {
+        lock.lock();
+        try {
+            log.info("AlertManagerClient getRuleAlertConfig path : {}", path);
+            String content = FileUtil.LoadFile(path);
+            AlertManagerConfig alertManagerConfig = YamlUtil.toObject(content, AlertManagerConfig.class);
+            log.info("AlertManagerClient config : {}", alertManagerConfig);
+            //System.out.println(content);
+            //Convert to AlertManager configuration class.
+            return alertManagerConfig;
+        }finally {
+            lock.unlock();
+        }
     }
 
     private void writeAlertManagerConfig2Yaml(AlertManagerConfig alertManagerConfig) {

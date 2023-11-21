@@ -16,10 +16,10 @@
 package com.xiaomi.mone.log.stream.job;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.log.model.EsInfo;
 import com.xiaomi.mone.log.model.LogtailConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;
 import com.xiaomi.mone.log.model.SinkConfig;
+import com.xiaomi.mone.log.model.StorageInfo;
 import com.xiaomi.mone.log.stream.common.LogStreamConstants;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
 import com.xiaomi.mone.log.stream.job.extension.SinkJob;
@@ -90,9 +90,9 @@ public class JobManager {
     }
 
     private void startConsumerJob(String type, String ak, String sk, String clusterInfo, LogtailConfig
-            logtailConfig, String keyList, String logStoreName, String esIndex, EsInfo esInfo, Long logStoreId, Long logSpaceId) {
+            logtailConfig, String keyList, String logStoreName, String esIndex, StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
         try {
-            SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId);
+            SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId, storageType);
             log.warn("##startConsumerJob## spaceId:{}, storeId:{}, tailId:{}", sinkJobConfig.getLogSpaceId(), sinkJobConfig.getLogStoreId(), sinkJobConfig.getLogTailId());
 
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
@@ -119,7 +119,7 @@ public class JobManager {
     }
 
 
-    private SinkJobConfig buildSinkJobConfig(String type, String ak, String sk, String clusterInfo, LogtailConfig logtailConfig, String keyList, String logStoreName, String esIndex, EsInfo esInfo, Long logStoreId, Long logSpaceId) {
+    private SinkJobConfig buildSinkJobConfig(String type, String ak, String sk, String clusterInfo, LogtailConfig logtailConfig, String keyList, String logStoreName, String esIndex, StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
         SinkJobConfig sinkJobConfig = SinkJobConfig.builder()
                 .mqType(type)
                 .ak(ak)
@@ -134,10 +134,10 @@ public class JobManager {
                 .logStoreName(logStoreName)
                 .sinkChain(this.getSinkChain())
                 .tail(logtailConfig.getTail())
-                .tailId(logtailConfig.getLogtailId())
-                .esInfo(esInfo)
+                .storageInfo(esInfo)
                 .parseType(logtailConfig.getParseType())
                 .jobType(SinkJobEnum.NORMAL_JOB.name())
+                .storageType(storageType)
                 .build();
         sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
         sinkJobConfig.setLogStoreId(logStoreId);
@@ -146,7 +146,7 @@ public class JobManager {
     }
 
     public synchronized void startJob(LogtailConfig logtailConfig, String esIndex, String keyList, String logStoreName,
-                                      String tail, EsInfo esInfo, Long logStoreId, Long logSpaceId) {
+                                      StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
         try {
             String ak = logtailConfig.getAk();
             String sk = logtailConfig.getSk();
@@ -156,7 +156,7 @@ public class JobManager {
                 log.info("start job error,ak or sk or logtailConfig null,ak:{},sk:{},logtailConfig:{}", ak, sk, new Gson().toJson(logtailConfig));
                 return;
             }
-            startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId);
+            startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId, storageType);
         } catch (Exception e) {
             log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, esIndex), e);
         }

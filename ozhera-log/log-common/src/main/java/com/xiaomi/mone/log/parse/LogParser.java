@@ -16,14 +16,12 @@
 package com.xiaomi.mone.log.parse;
 
 import cn.hutool.core.date.DateUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateParser;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @Author: wtt
@@ -52,13 +50,21 @@ public interface LogParser {
     String esKeyMap_topic = "mqtopic";
     String esKeyMap_tag = "mqtag";
     String esKeyMap_logstoreName = "logstore";
-    String esKeyMap_logSource = "logsource";
-    String esKeyMap_MESSAGE = "message";
+    String ES_KEY_MAP_LOG_SOURCE = "logsource";
+    String ES_KEY_MAP_MESSAGE = "message";
     String esKeyMap_tail = "tail";
     String ES_KEY_MAP_TAIL_ID = "tailId";
     String esKeyMap_logip = "logip";
     String esKeyMap_lineNumber = "linenumber";
     String esKyeMap_fileName = "filename";
+    String TRACE_ID_KEY = "traceId";
+    String PACKAGE_NAME = "com.xiaomi.mone.log";
+
+    Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
+
+    Map<String, Object> parseSimple(String logData, Long collectStamp);
+
+    List<String> parseLogData(String logData) throws Exception;
 
     /**
      * Compatible with 22-10-19 11:14:29 of this kind
@@ -80,75 +86,5 @@ public interface LogParser {
             }
         }
         return (null != timeStamp && timeStamp.toString().length() == TIME_STAMP_MILLI_LENGTH) ? timeStamp : Instant.now().toEpochMilli();
-    }
-
-    Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
-
-    Map<String, Object> parseSimple(String logData, Long collectStamp);
-
-    List<String> parseLogData(String logData) throws Exception;
-
-    default void wrapMap(Map<String, Object> ret, LogParserData parserData, String ip,
-                         Long lineNum, String fileName, Long collectStamp) {
-        ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? getTimestampFromString("", collectStamp) : collectStamp);
-        ret.put(esKeyMap_topic, parserData.getTopicName());
-        ret.put(esKeyMap_tag, parserData.getMqTag());
-        ret.put(esKeyMap_logstoreName, parserData.getLogStoreName());
-        ret.put(esKeyMap_tail, parserData.getTailName());
-        ret.put(esKeyMap_logip, ip);
-        ret.put(esKeyMap_lineNumber, lineNum);
-        ret.put(esKyeMap_fileName, fileName);
-    }
-
-    /**
-     * if message not exist,add it,Full messages cannot exist at the same time as logsource, reducing the storage of data volume
-     */
-    default void checkMessageExist(Map<String, Object> ret, String originData) {
-        if (!ret.containsKey(esKeyMap_MESSAGE)) {
-            ret.put(esKeyMap_MESSAGE, originData);
-            ret.remove(esKeyMap_logSource);
-        }
-    }
-
-    /**
-     * Time extraction
-     */
-    default void extractTimeStamp(Map<String, Object> ret, String logData, Long collectStamp) {
-        /**
-         * The first [2022 XXXX] in extracted text, the first default is time processing
-         */
-        if (!ret.containsKey(esKeyMap_timestamp) && logData.startsWith(LOG_PREFIX)) {
-            String timeStamp = StringUtils.substringBetween(logData, LOG_PREFIX, LOG_SUFFFIX);
-            Long time = getTimestampFromString(timeStamp, collectStamp);
-            ret.put(esKeyMap_timestamp, time);
-        }
-        /**
-         * Special handling, only dates starting with a date in the file such as yyyy-mm-dd HH:mm:ss will be extracted
-         */
-        if (!ret.containsKey(esKeyMap_timestamp) && logData.startsWith(specialTimePrefix)) {
-            String timeStamp = StringUtils.substring(logData, 0, specialTimeLength);
-            Long time = getTimestampFromString(timeStamp, collectStamp);
-            ret.put(esKeyMap_timestamp, time);
-        }
-    }
-
-    default void validTimestamp(Map<String, Object> ret, String logData, Long collectStamp) {
-        /**
-         * If the user configures the parse timestamp field, the time format is checked to be correct, and the incorrect time is set to the current time
-         */
-        if (ret.containsKey(esKeyMap_timestamp)) {
-            Long time = getTimestampFromString(ret.get(esKeyMap_timestamp).toString(), collectStamp);
-            ret.put(esKeyMap_timestamp, time);
-        }
-    }
-
-    /**
-     * Field configuration error check If the value corresponding to the key is empty in the result,
-     * indicating that the corresponding key has not been extracted, the complete log is retained
-     */
-    default void validRet(Map<String, Object> ret, String logData) {
-        if (ret.values().stream().filter(Objects::nonNull).map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-            ret.put(esKeyMap_logSource, logData);
-        }
     }
 }

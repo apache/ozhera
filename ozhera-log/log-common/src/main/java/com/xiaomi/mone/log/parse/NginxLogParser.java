@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.parse;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,25 +29,25 @@ import java.util.regex.Pattern;
  * @description
  */
 @Slf4j
-@NoArgsConstructor
-public class NginxLogParser implements LogParser {
+public class NginxLogParser extends AbstractLogParser {
 
     private RegexLogParser regexLogParser;
 
     public NginxLogParser(LogParserData parserData) {
+        super(parserData);
         String regexParseScript = generateRegexFromNginxScript(parserData.getParseScript());
         parserData.setParseScript(regexParseScript);
         this.regexLogParser = new RegexLogParser(parserData);
     }
 
     @Override
-    public Map<String, Object> parse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
+    public Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName) {
         return this.regexLogParser.parse(logData, ip, lineNum, collectStamp, fileName);
     }
 
     @Override
-    public Map<String, Object> parseSimple(String logData, Long collectStamp) {
-        return this.regexLogParser.parseSimple(logData, collectStamp);
+    public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
+        return this.regexLogParser.doParseSimple(logData, collectStamp);
     }
 
     public String generateRegexFromNginxScript(String nginxFormatStr) {

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>trace-etl</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -54,25 +54,25 @@
         <dependency>
             <artifactId>trace-etl-api</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>trace-etl-common</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>trace-etl-dao</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>trace-etl-domain</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -223,11 +223,6 @@
 
         <dependency>
             <groupId>run.mone</groupId>
-            <artifactId>hera-tspandata</artifactId>
-            <version>2.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>run.mone</groupId>
             <artifactId>log</artifactId>
             <version>1.7-SNAPSHOT</version>
         </dependency>
@@ -235,6 +230,11 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.21.0-GA</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.5</version>
         </dependency>
     </dependencies>
 

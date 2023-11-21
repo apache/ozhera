@@ -151,7 +151,7 @@ public class Constant {
     /**
      * ES client bean name prefix
      */
-    public static String ES_SERV_BEAN_PRE = "esServiceBean_";
+    public static String LOG_STORAGE_SERV_BEAN_PRE = "logStorageServiceBean_";
 
     /**
      * ES computer room

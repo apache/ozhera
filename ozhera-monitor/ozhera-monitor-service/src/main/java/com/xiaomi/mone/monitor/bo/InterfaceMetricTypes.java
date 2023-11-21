@@ -18,6 +18,7 @@ public enum InterfaceMetricTypes {
     instance("instance"),
     matrix_deploy_unit("matrix_deploy_unit"),
     proxy_mife("proxy_mife"),
+    thread_pool("thread_pool"),
     ;
 
     private String name;

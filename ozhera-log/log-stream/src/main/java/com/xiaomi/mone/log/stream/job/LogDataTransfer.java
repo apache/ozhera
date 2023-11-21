@@ -104,7 +104,7 @@ public class LogDataTransfer {
     }
 
     private void sendMessage(Map<String, Object> dataMap) throws Exception {
-        dataMap.putIfAbsent(ES_KEY_MAP_TAIL_ID, sinkJobConfig.getTailId());
+        dataMap.putIfAbsent(ES_KEY_MAP_TAIL_ID, sinkJobConfig.getLogTailId());
         if (!logSendFilter.sendMessageSwitch(dataMap)) {
             return;
         }

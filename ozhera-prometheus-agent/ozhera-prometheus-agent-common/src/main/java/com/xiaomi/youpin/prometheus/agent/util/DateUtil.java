@@ -27,4 +27,25 @@ public class DateUtil {
         return utcTime;
     }
 
+    @SneakyThrows
+    public static long ISO8601UTCTOTimeStamp(String utcTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = sdf.parse(utcTime);
+        return date.getTime();
+    }
+
+    @SneakyThrows
+    public static String ISO8601UTCTOCST(String utcTime) {
+        SimpleDateFormat sdfUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = sdfUTC.parse(utcTime);
+
+        SimpleDateFormat sdfCST = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdfCST.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        String cstTime = sdfCST.format(date);
+
+        return cstTime;
+    }
+
 }

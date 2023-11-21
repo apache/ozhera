@@ -5,7 +5,7 @@
     <parent>
         <artifactId>trace-etl</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,7 +17,7 @@
         <dependency>
             <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.mybatis.spring.boot</groupId>
@@ -46,7 +46,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.5</version>
+                <version>2.7.15</version>
                 <configuration>
                     <mainClass>com.xiaomi.hera.trace.etl.nginx.bootstrap.TraceEtlNginxBootstrap</mainClass>
                 </configuration>

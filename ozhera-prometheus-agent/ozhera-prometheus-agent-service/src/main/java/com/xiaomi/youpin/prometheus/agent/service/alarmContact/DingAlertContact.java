@@ -10,6 +10,7 @@ import com.xiaomi.youpin.prometheus.agent.result.alertManager.CommonLabels;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
 import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
+import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,16 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author zhangxiaowei6
  * @Date 2023/9/13 17:24
+ */
+
+/**
+ * @author zhangxiaowei6
+ * @Date 2023/11/15 20:01
  */
 //ding ding alert
 @Slf4j
@@ -42,9 +49,10 @@ public class DingAlertContact extends BaseAlertContact {
 
     public static final Gson gson = new Gson();
 
+    public static final Random random = new Random();
+
     @Override
     public void Reach(AlertManagerFireResult fireResult) {
-        List<Alerts> alerts = fireResult.getAlerts();
         GroupLabels groupLabels = fireResult.getGroupLabels();
         String alertName = groupLabels.getAlertname();
         log.info("SendAlert dingdingReach begin send AlertName :{}", alertName);
@@ -68,10 +76,15 @@ public class DingAlertContact extends BaseAlertContact {
                     alertOp = "";
                     alertValue = "";
                 }
+                //Generate alarm jump url
+                String generateAlarmJumpUrl = GenerateAlarmUrl(alert.getLabels().getDetailRedirectUrl(), alert);
+                log.info("DingAlertContact.generateAlarmJumpUrl: {}",generateAlarmJumpUrl);
                 map.put("alert_op", alertOp);
                 map.put("alert_value", alertValue);
                 map.put("application", alert.getLabels().getApplication());
                 map.put("silence_url", silenceUrl);
+                map.put("detailRedirectUrl",generateAlarmJumpUrl);
+                map.put("startTime", DateUtil.ISO8601UTCTOCST(alert.getStartsAt()));
                 CommonLabels commonLabels = fireResult.getCommonLabels();
                 Class clazz = commonLabels.getClass();
                 Field[] fields = clazz.getDeclaredFields();
@@ -96,6 +109,9 @@ public class DingAlertContact extends BaseAlertContact {
                 filterName(finalMap);
                 finalMap.forEach(
                         (k, v) -> {
+                            if (k.equals("detailRedirectUrl")) {
+                                return;
+                            }
                             sb.append("**").append(k).append("**").append(": ").append(v).append("\n");
                         });
 
@@ -111,7 +127,9 @@ public class DingAlertContact extends BaseAlertContact {
                 finalMap.put("silence1d", silencePrefix + "1d");
                 finalMap.put("silence3d", silencePrefix + "3d");
                 String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                dingDingService.sendDingDing(freeMarkerRes, principals, alert.getLabels().getAlertname() + "||" + System.currentTimeMillis());
+                int randomNumber = random.nextInt(1000);
+                dingDingService.sendDingDing(freeMarkerRes, principals, alert.getLabels().getAlertname() +
+                        "||" + System.currentTimeMillis() + randomNumber);
             } catch (Exception e) {
                 log.error("SendAlert.feishuReach error:{}", e);
             }
@@ -121,7 +139,8 @@ public class DingAlertContact extends BaseAlertContact {
     }
 
     public void updateDingDingCard(String userId, String content, String expectedSilenceTime, String carBizId,String callbackTitle) {
-        log.info("DingAlertContact.updateDingDingCard begin userId:{},content:{},expectedSilenceTime:{},carBizId:{}", userId, content, expectedSilenceTime, carBizId);
+        log.info("DingAlertContact.updateDingDingCard begin userId:{},content:{},expectedSilenceTime:{},carBizId:{}",
+                userId, content, expectedSilenceTime, carBizId);
         Map<String, Object> finalMap = new HashMap<>();
         finalMap.put("content", content);
         finalMap.put("callbackTitle",callbackTitle);

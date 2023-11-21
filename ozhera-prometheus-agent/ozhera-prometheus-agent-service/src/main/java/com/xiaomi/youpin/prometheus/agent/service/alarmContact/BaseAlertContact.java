@@ -3,6 +3,7 @@ package com.xiaomi.youpin.prometheus.agent.service.alarmContact;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -72,10 +73,40 @@ public abstract class BaseAlertContact {
         String serverIp = alerts.getLabels().getServerIp() == null ? "serverIp" : alerts.getLabels().getServerIp();
         String pod = alerts.getLabels().getPod() == null ? "pod" : alerts.getLabels().getPod();
         String serverEnv = alerts.getLabels().getServerEnv() == null ? "serverEnv" : alerts.getLabels().getServerEnv();
+        String metric = alerts.getLabels().getMetrics() == null ? "metric" : alerts.getLabels().getMetrics();
+        String metric_flag = alerts.getLabels().getMetrics_flag() == null ? "metric_flag" : alerts.getLabels().getMetrics_flag();
+        if (!"metric_flag".equals(metric_flag)) {
+            metric_flag = activeTab.getMessageByCode(Integer.parseInt(metric_flag));
+        }
         sb.append(prefix).append("&var-Node=").append(ip).append("&ip=").append(serverIp).append("&var-pod=").append(pod)
                 .append("&var-instance=").append(serverIp).append("&serverEnv=").append(serverEnv).append("&heraEnv=")
                 .append(serverEnv).append("&startTime=").append(startTime).append("&endTime=").append(endTime).append("&from=")
-                .append(startTime).append("&to=").append(endTime).append("&orgId=1").append("&refresh=10s");
+                .append(startTime).append("&to=").append(endTime).append("&metric=").append(metric).append("&activeTab=")
+                .append(metric_flag).append("&orgId=1").append("&refresh=10s");
         return sb.toString();
+    }
+
+
+    enum activeTab {
+        exception(1, "exception"),
+        slowQuery(2, "slowQuery"),
+        resource(4, "resource"),
+        ;
+        private int code;
+        private String message;
+
+        activeTab(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public static String getMessageByCode(int code) {
+            for (activeTab tab : activeTab.values()) {
+                if (tab.code == code) {
+                    return tab.message;
+                }
+            }
+            return null;
+        }
     }
 }

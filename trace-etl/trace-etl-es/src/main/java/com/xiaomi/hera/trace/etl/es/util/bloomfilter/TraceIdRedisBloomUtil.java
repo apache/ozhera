@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 @Slf4j
@@ -32,6 +33,8 @@ public class TraceIdRedisBloomUtil {
     public static volatile BloomFilter<CharSequence> localBloomFilter;
 
     private Funnel<CharSequence> charSequenceFunnel = Funnels.stringFunnel(Charset.defaultCharset());
+
+    private ReentrantLock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -51,8 +54,13 @@ public class TraceIdRedisBloomUtil {
         return true;
     }
 
-    public synchronized void addBatch(String traceId) {
-        TraceIdRedisBloomUtil.localBloomFilter.put(traceId);
+    public void addBatch(String traceId) {
+        lock.lock();
+        try {
+            TraceIdRedisBloomUtil.localBloomFilter.put(traceId);
+        }finally {
+            lock.unlock();
+        }
     }
 
     private void updateLocalBloomTimer() {

@@ -37,6 +37,7 @@ public class MiLogResource implements Serializable {
     private Long id;
     private Integer operateCode;
     private Integer resourceCode;
+    private String storageType;
     private String alias;
     private String clusterName;
     private String regionEn;

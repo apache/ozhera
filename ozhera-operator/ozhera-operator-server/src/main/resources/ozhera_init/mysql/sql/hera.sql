@@ -724,6 +724,7 @@ CREATE TABLE `milog_app_topic_rel`
 CREATE TABLE `milog_es_cluster`
 (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `log_storage_type1` varchar(50) COLLATE utf8mb4_bin DEFAULT 'elasticsearch' COMMENT 'Log storage type',
     `tag`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'cluster type',
     `name`         varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'cluster name',
     `region`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'region',

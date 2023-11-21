@@ -346,6 +346,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             if (null != esInfo) {
                 sinkConfig.setEsIndex(logStoreDO.getEsIndex());
                 sinkConfig.setEsInfo(buildEsInfo(esInfo));
+                sinkConfig.setStorageType(esInfo.getLogStorageType());
             } else {
                 log.info("assembleSinkConfig esInfo is null,logStoreId:{}", logStoreDO.getId());
             }

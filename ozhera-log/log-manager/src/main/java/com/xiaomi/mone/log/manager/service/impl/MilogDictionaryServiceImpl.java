@@ -19,6 +19,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
@@ -42,6 +43,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,6 +84,7 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
      *                        1006:Computer room information
      *                        1007:Deployment method
      *                        1008:Resource tab page number
+     *                        1009:LogStorageTypeEnum type
      * @return
      */
     @Override
@@ -120,10 +123,22 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
                     break;
                 case 1008:
                     dictionaryDTO.put(code, dictionaryExtensionService.queryResourceTypeDictionary());
+                    break;
+                case 1009:
+                    dictionaryDTO.put(code, queryLogStorageTypeDictionary());
             }
         });
         log.debug("return val：{}", new Gson().toJson(dictionaryDTO));
         return Result.success(dictionaryDTO);
+    }
+
+    private List queryLogStorageTypeDictionary() {
+        return Arrays.stream(LogStorageTypeEnum.values()).map(data -> {
+            DictionaryDTO dictionaryDTO = new DictionaryDTO();
+            dictionaryDTO.setLabel(data.name());
+            dictionaryDTO.setValue(data.name().toLowerCase());
+            return dictionaryDTO;
+        }).collect(Collectors.toList());
     }
 
     private List<DictionaryDTO<?>> queryStoreTailByEnName(String nameEn) {

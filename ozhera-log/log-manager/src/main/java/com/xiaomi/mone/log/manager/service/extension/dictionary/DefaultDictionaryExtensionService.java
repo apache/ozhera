@@ -16,10 +16,7 @@
 package com.xiaomi.mone.log.manager.service.extension.dictionary;
 
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.api.enums.DeployWayEnum;
-import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
-import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
-import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
+import com.xiaomi.mone.log.api.enums.*;
 import com.xiaomi.mone.log.manager.dao.MilogMiddlewareConfigDao;
 import com.xiaomi.mone.log.manager.model.dto.DictionaryDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
@@ -131,8 +128,8 @@ public class DefaultDictionaryExtensionService implements DictionaryExtensionSer
 
     @Override
     public List<DictionaryDTO<?>> queryResourceTypeDictionary() {
-        return generateCommonDictionary(middlewareEnum -> MiddlewareEnum.ROCKETMQ == middlewareEnum |
-                MiddlewareEnum.ELASTICSEARCH == middlewareEnum);
+        return generateCommonDictionary(middlewareEnum -> ResourceEnum.MQ == middlewareEnum |
+                ResourceEnum.STORAGE == middlewareEnum);
     }
 
     @Override
@@ -140,12 +137,12 @@ public class DefaultDictionaryExtensionService implements DictionaryExtensionSer
         return Lists.newArrayList();
     }
 
-    private List<DictionaryDTO<?>> generateCommonDictionary(Predicate<MiddlewareEnum> filter) {
+    private List<DictionaryDTO<?>> generateCommonDictionary(Predicate<ResourceEnum> filter) {
         List<DictionaryDTO> rDictionaryDTOS = Arrays.stream(MachineRegionEnum.values())
                 .map(machineRegionEnum ->
                         DictionaryDTO.Of(machineRegionEnum.getEn(), machineRegionEnum.getCn()))
                 .collect(Collectors.toList());
-        return Arrays.stream(MiddlewareEnum.values())
+        return Arrays.stream(ResourceEnum.values())
                 .filter(filter)
                 .map(middlewareEnum -> {
                     DictionaryDTO<Integer> dictionaryDTO = new DictionaryDTO<>();

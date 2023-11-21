@@ -5,7 +5,7 @@
     <parent>
         <artifactId>trace-etl</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0-jdk21-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,15 +15,9 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.13.5</version>
-        </dependency>
-
-        <dependency>
             <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
 
@@ -55,7 +49,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-rocketmq-extension</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -90,20 +84,16 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <compilerArgs>
-                        <arg>--add-modules=jdk.incubator.concurrent</arg>
-                        <arg>--enable-preview</arg>
-                    </compilerArgs>
-                    <compilerVersion>20</compilerVersion>
-                    <source>20</source>
-                    <target>20</target>
+                    <compilerVersion>21</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.5</version>
+                <version>2.7.15</version>
                 <configuration>
                     <mainClass>com.xiaomi.hera.trace.etl.bootstrap.TraceEtlBootstrap</mainClass>
                 </configuration>

@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>run.mone</groupId>
     <artifactId>trace-etl</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-jdk21-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -38,7 +38,7 @@
         <log4j.version>2.18.0</log4j.version>
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.10</logback.version>
-        <lombok.version>1.18.28</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <!--java20 is comparing the reasonable versions of Spring Boot and Spring. issue#19-->
         <springboot.version>2.7.15</springboot.version>
         <spring.version>5.3.29</spring.version>
@@ -188,18 +188,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <fork>true</fork>
-                    <verbose>true</verbose>
-                    <encoding>UTF-8</encoding>
-                    <compilerArguments>
-                        <sourcepath>
-                            ${project.basedir}/src/main/java
-                        </sourcepath>
-                    </compilerArguments>
+                    <compilerVersion>21</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
         </plugins>

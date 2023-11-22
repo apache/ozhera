@@ -21,9 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.api.enums.LogTypeEnum;
-import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
-import com.xiaomi.mone.log.api.enums.OperateEnum;
+import com.xiaomi.mone.log.api.enums.*;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
 import com.xiaomi.mone.log.api.model.bo.ResourcePage;
 import com.xiaomi.mone.log.api.model.vo.EsIndexVo;
@@ -53,9 +51,9 @@ import com.xiaomi.mone.log.manager.service.MilogMiddlewareConfigService;
 import com.xiaomi.mone.log.manager.service.extension.resource.ResourceExtensionService;
 import com.xiaomi.mone.log.manager.service.extension.resource.ResourceExtensionServiceFactory;
 import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
@@ -214,7 +212,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryMiddlewareConfigByCondition(mqCnd, pager);
         Integer mqResourceTotal = milogMiddlewareConfigDao.queryMiddlewareConfigCountByCondition(mqCnd);
 
-        Long esResourceTotal = queryEsResource(milogMiddlewareConfigs, resourcePage);
+        Long esResourceTotal = queryStorageResource(milogMiddlewareConfigs, resourcePage);
 
 //        milogMiddlewareConfigs = userShowAuthority(milogMiddlewareConfigs);
         milogMiddlewareConfigs = resourceExtensionService.userShowAuthority(milogMiddlewareConfigs);
@@ -225,8 +223,9 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private Cnd generateMqQueryCnd(ResourcePage resourcePage) {
         Cnd cnd = Cnd.NEW();
-        if (null != resourcePage.getResourceCode()) {
-            cnd.andEX("type", EQUAL_OPERATE, resourcePage.getResourceCode());
+        if (null != resourcePage.getResourceCode() &&
+                Objects.equals(ResourceEnum.MQ.getCode(), resourcePage.getResourceCode())) {
+            cnd.andEX("type", "in", resourceExtensionService.getMqResourceCodeList());
         }
         if (null != resourcePage.getRegionEnCode()) {
             cnd.andEX("region_en", EQUAL_OPERATE, resourcePage.getRegionEnCode());
@@ -240,7 +239,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
     /**
      * Dealing with ES resources, due to historical principles, ES resources are in separate tables and we need to combine data
      */
-    private Long queryEsResource(List<MilogMiddlewareConfig> milogMiddlewareConfigs, ResourcePage resourcePage) {
+    private Long queryStorageResource(List<MilogMiddlewareConfig> milogMiddlewareConfigs, ResourcePage resourcePage) {
         Long count = 0L;
         if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(resourcePage.getResourceCode())) {
             PageDTO page = new PageDTO<MilogEsClusterDO>(resourcePage.getPage(), resourcePage.getPageSize());
@@ -273,15 +272,24 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (StringUtils.isNotBlank(errInfos)) {
             return Result.failParam(errInfos);
         }
-        checkAlias(miLogResource, OperateEnum.queryByCode(miLogResource.getOperateCode()));
-        if (OperateEnum.ADD_OPERATE == OperateEnum.queryByCode(miLogResource.getOperateCode())) {
-            addResource(miLogResource);
-        }
-        if (OperateEnum.UPDATE_OPERATE == OperateEnum.queryByCode(miLogResource.getOperateCode())) {
-            updateResource(miLogResource);
-        }
-        if (OperateEnum.DELETE_OPERATE == OperateEnum.queryByCode(miLogResource.getOperateCode())) {
-            deleteResource(miLogResource.getResourceCode(), miLogResource.getId());
+        OperateEnum operateEnum = OperateEnum.queryByCode(miLogResource.getOperateCode());
+        checkAlias(miLogResource, operateEnum);
+
+        switch (operateEnum) {
+            case ADD_OPERATE:
+                addResource(miLogResource);
+                break;
+
+            case UPDATE_OPERATE:
+                updateResource(miLogResource);
+                break;
+
+            case DELETE_OPERATE:
+                deleteResource(miLogResource.getResourceCode(), miLogResource.getStorageType(), miLogResource.getId());
+                break;
+
+            default:
+                break;
         }
         return Result.success(SUCCESS_MESSAGE);
     }
@@ -295,8 +303,8 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         miLogResource.setServiceUrl(serviceUrl);
     }
 
-    private void deleteResource(Integer resourceCode, Long id) {
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(resourceCode)) {
+    private void deleteResource(Integer resourceCode, String storageType, Long id) {
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourceCode)) {
             milogEsClusterMapper.deleteById(id);
             deleteEsIndex(id);
             return;
@@ -435,7 +443,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         milogMiddlewareConfigs = resourceExtensionService.currentUserConfigFilter(milogMiddlewareConfigs);
         List valueKeyObjs = milogMiddlewareConfigs.stream().map(milogMiddlewareConfig -> new ValueKeyObj(milogMiddlewareConfig.getId(), milogMiddlewareConfig.getAlias())).collect(Collectors.toList());
         if (Objects.equals(MiddlewareEnum.ELASTICSEARCH.getCode(), code)) {
-            configResource.setEsResourceList(valueKeyObjs);
+            configResource.setStorageResourceList(valueKeyObjs);
             return;
         }
         configResource.setMqResourceList(valueKeyObjs);
@@ -443,7 +451,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     @Override
     public ResourceInfo resourceDetail(Integer resourceCode, Long id) {
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(resourceCode)) {
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourceCode)) {
             return wrapEsResourceInfo(id);
         }
         MilogMiddlewareConfig milogMiddlewareConfig = milogMiddlewareConfigDao.queryById(id);
@@ -468,8 +476,8 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(id);
         if (null != esClusterDO) {
             List<MilogEsIndexDO> milogEsIndexDOS = milogEsIndexMapper.selectList(new QueryWrapper<MilogEsIndexDO>().eq("cluster_id", esClusterDO.getId()));
-            List<EsIndexVo> multipleEsIndex = milogEsIndexDOS.stream().map(MilogEsIndexDO::getLogType).distinct().sorted(Integer::compareTo).map(getIntegerEsIndexVoFunction(milogEsIndexDOS)).collect(Collectors.toList());
-
+            List<EsIndexVo> multipleEsIndex = milogEsIndexDOS.stream().map(MilogEsIndexDO::getLogType)
+                    .distinct().sorted((val1, val2) -> null != val1 && null != val2 ? val1.compareTo(val2) : 0).map(getIntegerEsIndexVoFunction(milogEsIndexDOS)).collect(Collectors.toList());
             return esClusterDO.configToResourceVO(multipleEsIndex);
         }
         return ResourceInfo.builder().build();
@@ -535,9 +543,13 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         miLogResource.setLabels(resourceDeptLabels);
         resourceExtensionService.addResourcePreProcessing(resourceDeptLabels, miLogResource);
 
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(miLogResource.getResourceCode())) {
-            checkEsAddressPortOperate(miLogResource);
-            addEsResourceInfo(miLogResource);
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), miLogResource.getResourceCode())) {
+            if (StringUtils.equalsIgnoreCase(LogStorageTypeEnum.ELASTICSEARCH.name(), miLogResource.getStorageType())) {
+                checkEsAddressPortOperate(miLogResource);
+                addEsResourceInfo(miLogResource);
+                return;
+            }
+            addOtherResourceInfo(miLogResource);
             return;
         }
 
@@ -549,6 +561,16 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
         resourceExtensionService.addResourcePostProcessing(milogMiddlewareConfig);
         milogMiddlewareConfigDao.addMiddlewareConfig(milogMiddlewareConfig);
+    }
+
+    private void addOtherResourceInfo(MiLogResource miLogResource) {
+        MilogEsClusterDO esClusterDO = MilogEsClusterDO.miLogEsResourceToConfig(miLogResource);
+        wrapBaseCommon(esClusterDO, OperateEnum.ADD_OPERATE);
+        resourceExtensionService.addEsResourcePreProcessing(esClusterDO);
+        milogEsClusterMapper.insert(esClusterDO);
+
+        //Add the ES client
+        esPlugin.initializeLogStorage(esClusterDO);
     }
 
     private void addEsResourceInfo(MiLogResource miLogResource) {
@@ -563,7 +585,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
     }
 
     private void checkAlias(MiLogResource resource, OperateEnum operateEnum) {
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(resource.getResourceCode())) {
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), resource.getResourceCode())) {
             List<MilogEsClusterDO> logEsClusterDOS = milogEsClusterMapper.selectByAlias(resource.getAlias());
             if (operateEnum == OperateEnum.ADD_OPERATE && CollectionUtils.isNotEmpty(logEsClusterDOS)) {
                 throw new MilogManageException("alias has exists,please refill");
@@ -611,17 +633,27 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
      */
     private void updateResource(MiLogResource miLogResource) {
 
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(miLogResource.getResourceCode())) {
-            boolean changed = authenticationInChanged(milogEsClusterMapper.selectById(miLogResource.getId()), miLogResource);
-            checkEsAddressPortOperate(miLogResource);
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), miLogResource.getResourceCode())) {
+            if (StringUtils.equalsIgnoreCase(LogStorageTypeEnum.ELASTICSEARCH.name(), miLogResource.getStorageType())) {
+                boolean changed = authenticationInChanged(milogEsClusterMapper.selectById(miLogResource.getId()), miLogResource);
+                checkEsAddressPortOperate(miLogResource);
+                MilogEsClusterDO esClusterDO = MilogEsClusterDO.miLogEsResourceToConfig(miLogResource);
+                esClusterDO.setId(miLogResource.getId());
+                resourceExtensionService.addEsResourcePreProcessing(esClusterDO);
+                milogEsClusterMapper.updateById(esClusterDO);
+                handleEsIndexStore(miLogResource, esClusterDO.getId(), changed);
+                // Modify the ES client information
+                esPlugin.initializeLogStorage(esClusterDO);
+                return;
+            }
             MilogEsClusterDO esClusterDO = MilogEsClusterDO.miLogEsResourceToConfig(miLogResource);
             esClusterDO.setId(miLogResource.getId());
             resourceExtensionService.addEsResourcePreProcessing(esClusterDO);
             milogEsClusterMapper.updateById(esClusterDO);
-            handleEsIndexStore(miLogResource, esClusterDO.getId(), changed);
-            // Modify the ES client information
+            // Modify the storage client information
             esPlugin.initializeLogStorage(esClusterDO);
             return;
+
         }
 
         updateCompareMqInfo(miLogResource);

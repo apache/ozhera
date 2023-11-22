@@ -49,5 +49,5 @@ public class ResourceInfo extends CommonVo implements Serializable {
     private String database;
     private List<String> labels;
     private List<EsIndexVo> multipleEsIndex;
-
+    private String storageType;
 }

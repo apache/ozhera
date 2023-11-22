@@ -52,7 +52,7 @@ public class ResourceUserSimple {
     /**
      * After displaying the ES resource list, the list is filtered
      */
-    private List<ValueKeyObj<Integer>> esResourceList;
+    private List<ValueKeyObj<Integer>> storageResourceList;
 
 
 }

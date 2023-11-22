@@ -133,4 +133,9 @@ public class DefaultResourceExtensionService implements ResourceExtensionService
 
     }
 
+    @Override
+    public List<Integer> getMqResourceCodeList() {
+        return Lists.newArrayList(MiddlewareEnum.ROCKETMQ.getCode(), MiddlewareEnum.KAFKA.getCode());
+    }
+
 }

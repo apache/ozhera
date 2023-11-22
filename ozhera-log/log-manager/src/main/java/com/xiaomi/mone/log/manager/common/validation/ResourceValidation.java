@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.manager.common.validation;
 
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
@@ -84,13 +85,14 @@ public class ResourceValidation {
         if (StringUtils.isBlank(miLogResource.getRegionEn())) {
             errorInfos.add("Region code cannot be empty");
         }
+
         boolean esIndexExist = MiddlewareEnum.ELASTICSEARCH.getCode().equals(miLogResource.getResourceCode()) &&
                 CollectionUtils.isEmpty(miLogResource.getMultipleEsIndex());
-        if (esIndexExist) {
+        if (esIndexExist && StringUtils.equalsIgnoreCase(LogStorageTypeEnum.ELASTICSEARCH.name(), miLogResource.getStorageType())) {
             errorInfos.add("ES index information cannot be empty");
         }
-        if(MiddlewareEnum.ROCKETMQ.getCode().equals(miLogResource.getResourceCode()) &&
-                StringUtils.isEmpty(miLogResource.getClusterName())){
+        if (MiddlewareEnum.ROCKETMQ.getCode().equals(miLogResource.getResourceCode()) &&
+                StringUtils.isEmpty(miLogResource.getClusterName())) {
             errorInfos.add("MQ address information cannot be empty");
         }
         return errorInfos.stream().collect(Collectors.joining(SYMBOL_COMMA));

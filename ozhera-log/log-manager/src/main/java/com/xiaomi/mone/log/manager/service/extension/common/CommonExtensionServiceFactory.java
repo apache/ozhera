@@ -34,7 +34,7 @@ public class CommonExtensionServiceFactory {
 
     public static CommonExtensionService getCommonExtensionService() {
         factualServiceName = Config.ins().get("common.extension.service", DEFAULT_COMMON_EXTENSION_SERVICE_KEY);
-        log.info("DictionaryExtensionServiceFactory factualServiceName:{}", factualServiceName);
+        log.debug("DictionaryExtensionServiceFactory factualServiceName:{}", factualServiceName);
         return Ioc.ins().getBean(factualServiceName);
     }
 }

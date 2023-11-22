@@ -223,8 +223,9 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private Cnd generateMqQueryCnd(ResourcePage resourcePage) {
         Cnd cnd = Cnd.NEW();
-        if (null != resourcePage.getResourceCode()) {
-            cnd.andEX("type", EQUAL_OPERATE, resourcePage.getResourceCode());
+        if (null != resourcePage.getResourceCode() &&
+                Objects.equals(ResourceEnum.MQ.getCode(), resourcePage.getResourceCode())) {
+            cnd.andEX("type", "in", resourceExtensionService.getMqResourceCodeList());
         }
         if (null != resourcePage.getRegionEnCode()) {
             cnd.andEX("region_en", EQUAL_OPERATE, resourcePage.getRegionEnCode());

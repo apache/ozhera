@@ -34,7 +34,7 @@ public class DictionaryExtensionServiceFactory {
 
     public static DictionaryExtensionService getDictionaryExtensionService() {
         factualServiceName = Config.ins().get("directory.extension.service", DEFAULT_DICTIONARY_EXTENSION_SERVICE_KEY);
-        log.info("DictionaryExtensionServiceFactory factualServiceName:{}", factualServiceName);
+        log.debug("DictionaryExtensionServiceFactory factualServiceName:{}", factualServiceName);
         return Ioc.ins().getBean(factualServiceName);
     }
 }

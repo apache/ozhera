@@ -34,7 +34,7 @@ public class StoreExtensionServiceFactory {
 
     public static StoreExtensionService getStoreExtensionService() {
         factualServiceName = Config.ins().get("store.extension.service", DEFAULT_STORE_EXTENSION_SERVICE_KEY);
-        log.info("StoreExtensionServiceFactory factualServiceName:{}", factualServiceName);
+        log.debug("StoreExtensionServiceFactory factualServiceName:{}", factualServiceName);
         return Ioc.ins().getBean(factualServiceName);
     }
 }

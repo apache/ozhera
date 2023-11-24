@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -35,10 +36,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.agent.channel.memory.AgentMemoryService.MEMORY_DIR;
 import static com.xiaomi.mone.log.common.Constant.GSON;
-import static com.xiaomi.mone.log.common.PathUtils.SEPARATOR;
+import static com.xiaomi.mone.log.common.Constant.SYMBOL_MULTI;
+import static com.xiaomi.mone.log.common.PathUtils.*;
 
 /**
  * @author wtt
@@ -99,7 +102,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         this.logPattern = input.getLogPattern();
         this.linePrefix = input.getLinePrefix();
 
-        List<String> patterns = getPatternsWithRetry();
+        List<String> patterns = PathUtils.parseLevel5Directory(logPattern);
         log.info("channel start, logPattern:{}，fileList:{}, channelId:{}, instanceId:{}", logPattern, GSON.toJson(patterns), channelId, instanceId());
 
         channelMemory = memoryService.getMemory(channelId);
@@ -115,36 +118,6 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         log.warn("channelId:{}, channelInstanceId:{} start success! channelDefine:{}", channelId, instanceId(), GSON.toJson(this.channelDefine));
 
     }
-
-    private List<String> getPatternsWithRetry() {
-        List<String> patterns = PathUtils.parseLevel5Directory(logPattern);
-
-        if (CollectionUtils.isEmpty(patterns)) {
-            int maxRetries = 10;  // Maximum number of retries
-            int retryIntervalMillis = 1000;  // Retry interval (milliseconds)
-
-            for (int retryCount = 1; retryCount <= maxRetries; retryCount++) {
-                try {
-                    Thread.sleep(retryIntervalMillis);
-                } catch (InterruptedException e) {
-                    log.error("Sleep error", e);
-                }
-
-                patterns = PathUtils.parseLevel5Directory(logPattern);
-
-                if (CollectionUtils.isNotEmpty(patterns)) {
-                    break;  // Find matching file, exit and try again
-                }
-
-                if (retryCount == maxRetries) {
-                    log.info("Config pattern: {}, current files not exist after {} retries", logPattern, maxRetries);
-                }
-            }
-        }
-
-        return patterns;
-    }
-
 
     private void startCollectFile(Long channelId, Input input, String ip) {
         try {
@@ -184,7 +157,21 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     }
 
     private String buildFileExpression(String logPattern) {
-        return ChannelUtil.buildSingleTimeExpress(logPattern);
+        String[] expressSplit = logPattern.split(",");
+        if (expressSplit.length == 1) {
+            return ChannelUtil.buildSingleTimeExpress(logPattern);
+        }
+        List<String> expressions = Arrays.stream(expressSplit)
+                .map(ChannelUtil::buildSingleTimeExpress)
+                .map(s -> {
+                    String multipleFileName = StringUtils.substringAfterLast(s, SEPARATOR);
+                    return multipleFileName.contains(PATH_WILDCARD) ? s : s + SYMBOL_MULTI;
+                })
+                .distinct()
+                .toList();
+        return expressions.size() == 1 ?
+                expressions.get(0) :
+                expressions.stream().collect(Collectors.joining("|", MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX));
     }
 
     private void monitorFileChanges(HeraFileMonitor monitor, String monitorPath, Pattern pattern) {
@@ -201,11 +188,18 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     }
 
     private List<String> buildMonitorPaths(String filePathExpressName) {
-        String monitorPath = StringUtils.substringBeforeLast(filePathExpressName, SEPARATOR);
-        if (!monitorPath.endsWith(SEPARATOR)) {
-            monitorPath = String.format("%s%s", monitorPath, SEPARATOR);
-        }
-        return PathUtils.buildMultipleDirectories(monitorPath);
+        String[] pathExpress = filePathExpressName.split(",");
+
+        List<String> monitorPaths = Arrays.stream(pathExpress)
+                .map(express -> {
+                    String monitorPath = StringUtils.substringBeforeLast(express, SEPARATOR);
+                    return monitorPath.endsWith(SEPARATOR) ? monitorPath : monitorPath + SEPARATOR;
+                })
+                .flatMap(monitorPath -> PathUtils.buildMultipleDirectories(monitorPath).stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        return monitorPaths;
     }
 
 

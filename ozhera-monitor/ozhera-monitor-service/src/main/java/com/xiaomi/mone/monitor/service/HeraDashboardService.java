@@ -280,6 +280,14 @@ public class HeraDashboardService {
                 Result customizeJobJsonRes = jobService.createJob(null, "Hera", customizeJobJson, "初始化创建自定义监控");
                 log.info("HeraDashboardService.createDefaultScrapeJob customize res: {}", customizeJobJsonRes.getData());
             }
+            //create golang runtime monitor
+            Result golangRuntimeResult = jobService.searchJobByName(null, "hera", DashboardConstant.DEFAULT_GOLANG_RUNTIME_JOB_NAME);
+            if (golangRuntimeResult.getData().equals("null")) {
+                log.info("golangRuntimeResult job begin create");
+                String golangRuntimeJobJson = FreeMarkerUtil.getContent(HERA_SCRAPE_JOB_TEMPLATE, "golangRuntimeScrapeJob.ftl", new HashMap<>());
+                Result golangRuntimeJobJsonRes = jobService.createJob(null, "Hera", golangRuntimeJobJson, "初始化创建golang Runtime监控");
+                log.info("HeraDashboardService.createDefaultScrapeJob golang runtime res: {}", golangRuntimeJobJsonRes.getData());
+            }
         } catch (Exception e) {
             log.error("HeraDashboardService.createDefaultScrapeJob error :{}", e.getMessage());
         }

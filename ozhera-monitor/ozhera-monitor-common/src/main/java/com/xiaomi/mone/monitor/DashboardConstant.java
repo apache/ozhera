@@ -38,6 +38,8 @@ public class DashboardConstant {
     public static final String DEFAULT_NODE_JOB_NAME = "mione-china-node-k8s";
     public static final String DEFAULT_CUSTOMIZE_JOB_NAME = "mione-china-customize";
 
+    public static final String DEFAULT_GOLANG_RUNTIME_JOB_NAME = "mione-golang-runtime";
+
     public static final String DEFAULT_MIMONITOR_NACOS_CONFIG = "mimonitor_open_config";
     public static final String DEFAULT_MIMONITOR_NACOS_GROUP = "DEFAULT_GROUP";
 
@@ -48,5 +50,7 @@ public class DashboardConstant {
     public static final String HERA_METRICS_PREFIX = "hera";
 
     public static final String HERA_METRICS_INNER_PREFIX = "jaeger";
+
+
 
 }

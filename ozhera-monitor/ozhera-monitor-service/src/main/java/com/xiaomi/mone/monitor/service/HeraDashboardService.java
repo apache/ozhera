@@ -202,9 +202,32 @@ public class HeraDashboardService {
                 int insertRes = grafanaTemplateDao.insert(template);
                 log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-java模板", insertRes);
             } catch (IOException e) {
-                log.error("HeraDashboardService.createDefaultDashboardTemplate error :{}", e.getMessage());
+                log.error("HeraDashboardService.createDefaultDashboardTemplate java template error :{}", e.getMessage());
             }
         }
+
+        //create golang biz template
+        GrafanaTemplate grafanaGoTemplate = grafanaTemplateDao.fetchOneByName("hera-golang模板");
+        if (grafanaGoTemplate == null) {
+            try {
+                String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, DashboardConstant.GOLANG_File_NAME);
+                GrafanaTemplate template = new GrafanaTemplate();
+                template.setName("hera-golang模板");
+                template.setCreateTime(new Date());
+                template.setUpdateTime(new Date());
+                template.setLanguage(1);
+                template.setPlatform(0);
+                template.setAppType(0);
+                template.setTemplate(content);
+                template.setDeleted(false);
+                template.setPanelIdList(DashboardConstant.DEFAULT_GOLANG_ID_LIST);
+                int insertRes = grafanaTemplateDao.insert(template);
+                log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", "hera-golang模板", insertRes);
+            } catch (IOException e) {
+                log.error("HeraDashboardService.createDefaultDashboardTemplate golang template error :{}", e.getMessage());
+            }
+        }
+
     }
 
     //request prometheus-agent create biz、docker、node、jvm ...etc prometheus job

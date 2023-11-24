@@ -1985,1611 +1985,696 @@
 "title":"Runtime Golang",
 "type":"row"
 },
-{
-"cacheTimeout":null,
-"colorBackground":false,
-"colorValue":true,
-"colors":[
-"rgba(245, 54, 54, 0.9)",
-"#5195ce",
-"rgba(50, 172, 45, 0.97)"
-],
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"decimals":1,
-"editable":true,
-"error":false,
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"format":"s",
-"gauge":{
-"maxValue":100,
-"minValue":0,
-"show":false,
-"thresholdLabels":false,
-"thresholdMarkers":true
-},
-"gridPos":{
-"h":3,
-"w":6,
-"x":0,
-"y":116
-},
-"height":"",
-"id":52,
-"interval":null,
-"links":[
-
-],
-"mappingType":1,
-"mappingTypes":[
-{
-"name":"value to text",
-"value":1
-},
-{
-"name":"range to text",
-"value":2
-}
-],
-"maxDataPoints":100,
-"nullPointMode":"null as zero",
-"nullText":null,
-"postfix":"",
-"postfixFontSize":"50%",
-"prefix":"",
-"prefixFontSize":"70%",
-"rangeMaps":[
-{
-"from":"null",
-"text":"N/A",
-"to":"null"
-}
-],
-"sparkline":{
-"fillColor":"rgba(31, 118, 189, 0.18)",
-"full":false,
-"lineColor":"rgb(31, 120, 193)",
-"show":false
-},
-"tableColumn":"",
-"targets":[
-{
-"exemplar":true,
-"expr":"process_uptime_seconds{application=\"$application\", serverIp=~\"$instance\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":2,
-"legendFormat":"",
-"metric":"",
-"refId":"A",
-"step":14400
-}
-],
-"thresholds":"",
-"title":"Uptime",
-"type":"singlestat",
-"valueFontSize":"80%",
-"valueMaps":[
-{
-"op":"=",
-"text":"N/A",
-"value":"null"
-}
-],
-"valueName":"current"
-},
-{
-"cacheTimeout":null,
-"colorBackground":false,
-"colorValue":true,
-"colors":[
-"rgba(50, 172, 45, 0.97)",
-"rgba(237, 129, 40, 0.89)",
-"rgba(245, 54, 54, 0.9)"
-],
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"decimals":1,
-"editable":true,
-"error":false,
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"format":"percent",
-"gauge":{
-"maxValue":100,
-"minValue":0,
-"show":true,
-"thresholdLabels":false,
-"thresholdMarkers":true
-},
-"gridPos":{
-"h":6,
-"w":5,
-"x":6,
-"y":116
-},
-"id":58,
-"interval":null,
-"links":[
-
-],
-"mappingType":1,
-"mappingTypes":[
-{
-"name":"value to text",
-"value":1
-},
-{
-"name":"range to text",
-"value":2
-}
-],
-"maxDataPoints":100,
-"nullPointMode":"null as zero",
-"nullText":null,
-"postfix":"",
-"postfixFontSize":"50%",
-"prefix":"",
-"prefixFontSize":"70%",
-"rangeMaps":[
-{
-"from":"null",
-"text":"N/A",
-"to":"null"
-}
-],
-"sparkline":{
-"fillColor":"rgba(31, 118, 189, 0.18)",
-"full":false,
-"lineColor":"rgb(31, 120, 193)",
-"show":false
-},
-"tableColumn":"",
-"targets":[
-{
-"exemplar":true,
-"expr":"sum(jvm_memory_used_bytes{application=\"$application\", serverIp=~\"$instance\", area=\"heap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",serverIp=~\"$instance\", area=\"heap\"})",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"",
-"refId":"A",
-"step":14400
-}
-],
-"thresholds":"70,90",
-"title":"Heap Used",
-"type":"singlestat",
-"valueFontSize":"70%",
-"valueMaps":[
-{
-"op":"=",
-"text":"N/A",
-"value":"null"
-}
-],
-"valueName":"current"
-},
-{
-"cacheTimeout":null,
-"colorBackground":false,
-"colorValue":true,
-"colors":[
-"rgba(50, 172, 45, 0.97)",
-"rgba(237, 129, 40, 0.89)",
-"rgba(245, 54, 54, 0.9)"
-],
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"decimals":1,
-"editable":true,
-"error":false,
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"format":"percent",
-"gauge":{
-"maxValue":100,
-"minValue":0,
-"show":true,
-"thresholdLabels":false,
-"thresholdMarkers":true
-},
-"gridPos":{
-"h":6,
-"w":5,
-"x":11,
-"y":116
-},
-"id":60,
-"interval":null,
-"links":[
-
-],
-"mappingType":2,
-"mappingTypes":[
-{
-"name":"value to text",
-"value":1
-},
-{
-"name":"range to text",
-"value":2
-}
-],
-"maxDataPoints":100,
-"nullPointMode":"connected",
-"nullText":null,
-"postfix":"",
-"postfixFontSize":"50%",
-"prefix":"",
-"prefixFontSize":"70%",
-"rangeMaps":[
-{
-"from":"null",
-"text":"N/A",
-"to":"null"
-},
-{
-"from":"-99999999999999999999999999999999",
-"text":"N/A",
-"to":"0"
-}
-],
-"sparkline":{
-"fillColor":"rgba(31, 118, 189, 0.18)",
-"full":false,
-"lineColor":"rgb(31, 120, 193)",
-"show":false
-},
-"tableColumn":"",
-"targets":[
-{
-"exemplar":true,
-"expr":"sum(jvm_memory_used_bytes{application=\"$application\", serverIp=~\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",serverIp=~\"$instance\", area=\"nonheap\"})",
-"format":"time_series",
-"interval":"",
-"intervalFactor":2,
-"legendFormat":"",
-"refId":"A",
-"step":14400
-}
-],
-"thresholds":"70,90",
-"title":"Non-Heap Used",
-"type":"singlestat",
-"valueFontSize":"70%",
-"valueMaps":[
-{
-"op":"=",
-"text":"N/A",
-"value":"null"
-},
-{
-"op":"=",
-"text":"x",
-"value":""
-}
-],
-"valueName":"current"
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":6,
-"w":8,
-"x":16,
-"y":116
-},
-"hiddenSeries":false,
-"id":66,
-"legend":{
-"alignAsTable":false,
-"avg":false,
-"current":false,
-"max":false,
-"min":false,
-"rightSide":false,
-"show":true,
-"sideWidth":100,
-"total":false,
-"values":false,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"process_files_open_files{application=\"$application\", serverIp=~\"$instance\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Open Files",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"process_files_max_files{application=\"$application\", serverIp=~\"$instance\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Max Files",
-"refId":"B"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"Process Open Files",
-"description": "Open Files => 打开文件数       \nMax Files =>  最大文件数     \n",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:435",
-"format":"locale",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:436",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"cacheTimeout":null,
-"colorBackground":false,
-"colorValue":true,
-"colors":[
-"rgba(245, 54, 54, 0.9)",
-"#5195ce",
-"rgba(50, 172, 45, 0.97)"
-],
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"decimals":null,
-"editable":true,
-"error":false,
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"format":"dateTimeAsIso",
-"gauge":{
-"maxValue":100,
-"minValue":0,
-"show":false,
-"thresholdLabels":false,
-"thresholdMarkers":true
-},
-"gridPos":{
-"h":3,
-"w":6,
-"x":0,
-"y":119
-},
-"height":"",
-"id":56,
-"interval":null,
-"links":[
-
-],
-"mappingType":1,
-"mappingTypes":[
-{
-"name":"value to text",
-"value":1
-},
-{
-"name":"range to text",
-"value":2
-}
-],
-"maxDataPoints":100,
-"nullPointMode":"connected",
-"nullText":null,
-"postfix":"",
-"postfixFontSize":"50%",
-"prefix":"",
-"prefixFontSize":"70%",
-"rangeMaps":[
-{
-"from":"null",
-"text":"N/A",
-"to":"null"
-}
-],
-"sparkline":{
-"fillColor":"rgba(31, 118, 189, 0.18)",
-"full":false,
-"lineColor":"rgb(31, 120, 193)",
-"show":false
-},
-"tableColumn":"",
-"targets":[
-{
-"exemplar":true,
-"expr":"process_start_time_seconds{application=\"$application\", serverIp=~\"$instance\"}*1000",
-"format":"time_series",
-"interval":"",
-"intervalFactor":2,
-"legendFormat":"",
-"metric":"",
-"refId":"A",
-"step":14400
-}
-],
-"thresholds":"",
-"title":"Start time",
-"type":"singlestat",
-"valueFontSize":"70%",
-"valueMaps":[
-{
-"op":"=",
-"text":"N/A",
-"value":"null"
-}
-],
-"valueName":"current"
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":7,
-"w":12,
-"x":0,
-"y":122
-},
-"hiddenSeries":false,
-"id":95,
-"legend":{
-"alignAsTable":true,
-"avg":true,
-"current":true,
-"max":true,
-"min":true,
-"show":true,
-"total":false,
-"values":true,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"system_cpu_usage{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-System CPU Usage",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"process_cpu_usage{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Process CPU Usage",
-"refId":"B"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"宿主机 CPU Usage",
-"description": "system.cpu.usage是以纳秒为单位的主机累积 CPU 使用率，包括用户、系统、空闲 CPU 模式。（/proc/stat CPU 行的总和）\n\nprocess.cpu.usage是 JVM 进程的 CPU 使用率",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:607",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:608",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":7,
-"w":12,
-"x":12,
-"y":122
-},
-"hiddenSeries":false,
-"id":96,
-"legend":{
-"alignAsTable":true,
-"avg":true,
-"current":true,
-"max":true,
-"min":true,
-"show":true,
-"total":false,
-"values":true,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"system_load_average_1m{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Load Average [1m]",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"system_cpu_count{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-CPU Core Size",
-"refId":"B"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"宿主机 Load Average",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:692",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:693",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"decimals":0,
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":8,
-"w":12,
-"x":0,
-"y":129
-},
-"hiddenSeries":false,
-"id":50,
-"legend":{
-"alignAsTable":true,
-"avg":true,
-"current":true,
-"max":true,
-"min":true,
-"show":true,
-"total":false,
-"values":true,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"jvm_classes_loaded_classes{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Classes Loaded",
-"refId":"A"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"Classes Loaded",
-"description": "已加载类个数",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:777",
-"decimals":0,
-"format":"locale",
-"label":"",
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:778",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":8,
-"w":12,
-"x":12,
-"y":129
-},
-"hiddenSeries":false,
-"id":82,
-"legend":{
-"avg":false,
-"current":false,
-"max":false,
-"min":false,
-"show":true,
-"total":false,
-"values":false,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"jvm_buffer_memory_used_bytes{serverIp=~\"$instance\", application=\"$application\", id=\"direct\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Used Bytes",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"jvm_buffer_total_capacity_bytes{serverIp=~\"$instance\", application=\"$application\", id=\"direct\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Capacity Bytes",
-"refId":"B"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"Direct Buffers",
-"description": "Used Bytes => 缓冲内存使用大小         \nCapacity Bytes => 缓冲容量大小",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:947",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:948",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":8,
-"w":12,
-"x":0,
-"y":137
-},
-"hiddenSeries":false,
-"id":68,
-"legend":{
-"alignAsTable":true,
-"avg":true,
-"current":true,
-"max":true,
-"min":true,
-"show":true,
-"total":false,
-"values":true,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"jvm_threads_daemon_threads{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Daemon",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"jvm_threads_live_threads{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Live",
-"refId":"B"
-},
-{
-"exemplar":true,
-"expr":"jvm_threads_peak_threads{serverIp=~\"$instance\", application=\"$application\"}",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-Peak",
-"refId":"C"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"Threads",
-"description": "daemon => 守护线程         \nlive =>  存活线程         \npeak => 线程峰值",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:1032",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:1033",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
-{
-"aliasColors":{
-
-},
-"bars":false,
-"dashLength":10,
-"dashes":false,
-"datasource":{
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig":{
-"defaults":{
-
-},
-"overrides":[
-
-]
-},
-"fill":1,
-"fillGradient":0,
-"gridPos":{
-"h":8,
-"w":12,
-"x":12,
-"y":137
-},
-"hiddenSeries":false,
-"id":78,
-"legend":{
-"avg":false,
-"current":false,
-"max":false,
-"min":false,
-"show":true,
-"total":false,
-"values":false,
-"sideWidth": 250
-},
-"lines":true,
-"linewidth":1,
-"links":[
-
-],
-"nullPointMode":"null as zero",
-"options":{
-"alertThreshold":true
-},
-"percentage":false,
-"pluginVersion":"7.5.3",
-"pointradius":5,
-"points":false,
-"renderer":"flot",
-"seriesOverrides":[
-
-],
-"spaceLength":10,
-"stack":false,
-"steppedLine":false,
-"targets":[
-{
-"exemplar":true,
-"expr":"irate(jvm_gc_memory_allocated_bytes_total{serverIp=~\"$instance\", application=\"$application\"}[$interval])",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-allocated",
-"refId":"A"
-},
-{
-"exemplar":true,
-"expr":"irate(jvm_gc_memory_promoted_bytes_total{serverIp=~\"$instance\", application=\"$application\"}[$interval])",
-"format":"time_series",
-"interval":"",
-"intervalFactor":1,
-"legendFormat":"{{ip}}-promoted",
-"refId":"B"
-},
-{
-"exemplar": true,
-"expr": "sum(jvm_memory_used_bytes{serverIp=~\"$instance\", application=\"$application\",area=\"nonheap\"}) by (ip)",
-"hide": false,
-"interval": "",
-"legendFormat": "{{ip}}--nonheap-used",
-"refId": "C"
-},
-{
-"exemplar": true,
-"expr": "sum(jvm_memory_used_bytes{serverIp=~\"$instance\", application=\"$application\",area=\"heap\"}) by (ip)",
-"hide": false,
-"interval": "",
-"legendFormat": "{{ip}}--heap-used",
-"refId": "D"
-}
-],
-"thresholds":[
-
-],
-"timeFrom":null,
-"timeRegions":[
-
-],
-"timeShift":null,
-"title":"Memory Allocate/Promote",
-"description": "allocated  =>  gc分配的内存大小       \npromoted  =>  gc晋升到下一代的内存大小        ",
-"tooltip":{
-"shared":true,
-"sort":2,
-"value_type":"individual"
-},
-"type":"graph",
-"xaxis":{
-"buckets":null,
-"mode":"time",
-"name":null,
-"show":true,
-"values":[
-
-]
-},
-"yaxes":[
-{
-"$$hashKey":"object:1117",
-"format":"bytes",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-},
-{
-"$$hashKey":"object:1118",
-"format":"short",
-"label":null,
-"logBase":1,
-"max":null,
-"min":null,
-"show":true
-}
-],
-"yaxis":{
-"align":false,
-"alignLevel":null
-}
-},
 
 {
-"id": 74,
+"id": 95,
 "gridPos": {
-"h": 10,
+"h": 7,
 "w": 12,
 "x": 0,
-"y": 145
+"y": 122
 },
-"type": "timeseries",
-"title": "GC Count And Rate [1m]",
+"type": "graph",
+"title": "Goroutines",
 "datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
+"uid": "${prometheusUid}",
+"type": "prometheus"
 },
+"thresholds": [],
 "pluginVersion": "9.2.0-pre",
-"links": [],
-"fieldConfig": {
-"defaults": {
-"custom": {
-"drawStyle": "line",
-"lineInterpolation": "linear",
-"barAlignment": 0,
-"lineWidth": 1,
-"fillOpacity": 10,
-"gradientMode": "none",
-"spanNulls": false,
-"showPoints": "never",
-"pointSize": 5,
-"stacking": {
-"mode": "none",
-"group": "A"
-},
-"axisPlacement": "auto",
-"axisLabel": "",
-"axisColorMode": "text",
-"scaleDistribution": {
-"type": "linear"
-},
-"axisCenteredZero": false,
-"hideFrom": {
-"tooltip": false,
-"viz": false,
-"legend": false
-},
-"thresholdsStyle": {
-"mode": "off"
-}
-},
-"color": {
-"mode": "palette-classic"
-},
-"mappings": [],
-"thresholds": {
-"mode": "absolute",
-"steps": [
-{
-"value": null,
-"color": "green"
-},
-{
-"value": 80,
-"color": "red"
-}
-]
-},
-"unit": "locale"
-},
-"overrides": []
-},
-"options": {
-"tooltip": {
-"mode": "multi",
-"sort": "desc"
-},
 "legend": {
-"showLegend": true,
-"displayMode": "table",
-"placement": "bottom",
-"calcs": [
-"mean",
-"max",
-"min",
-"sum"
-],
-"width": 250
-}
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
 },
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
 "targets": [
 {
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
 "exemplar": true,
-"expr": "clamp_min(irate(jvm_gc_pause_seconds_count{serverIp=~\"$instance\", application=\"$application\"}[1m]),0)",
-"format": "time_series",
-"hide": false,
-"interval": "10s",
-"intervalFactor": 1,
-"legendFormat": "{{ip}}-{{action}} --{{cause}} GC变化率",
-"range": true,
-"refId": "A"
-},
-{
+"expr": "sum(runtime_go_goroutines{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"interval": "",
+"legendFormat": "{{serverIp}}-goroutines",
+"refId": "A",
 "datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "delta(jvm_gc_pause_seconds_count{serverIp=~\"$instance\", application=\"$application\"}[1m])",
-"hide": false,
-"legendFormat": "{{ip}}-{{action}} --{{cause}}  -- 1m  GC次数",
-"range": true,
-"refId": "B"
-},
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "delta(jvm_gc_pause_seconds_count{serverIp=~\"$instance\", application=\"$application\",action=~\"end of major GC|endofminorGC\"}[1m])",
-"hide": false,
-"legendFormat": "{{ip}} -- {{action}} --{{cause}} 1m FullGC次数",
-"range": true,
-"refId": "C"
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
 }
 ],
 "timeFrom": null,
-"timeShift": null
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
 },
-
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
 {
-"id": 76,
+"$$hashKey": "object:493",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:494",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 96,
 "gridPos": {
-"h": 10,
+"h": 7,
 "w": 12,
 "x": 12,
-"y": 145
+"y": 122
 },
-"type": "timeseries",
-"title": "GC STW And Max Time Cost [1m]",
+"type": "graph",
+"title": "Memory in Heap",
 "datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
+"uid": "${prometheusUid}",
+"type": "prometheus"
 },
+"thresholds": [],
 "pluginVersion": "9.2.0-pre",
-"links": [],
-"options": {
-"tooltip": {
-"mode": "multi",
-"sort": "desc"
-},
 "legend": {
-"showLegend": true,
-"displayMode": "table",
-"placement": "bottom",
-"calcs": [
-"mean",
-"max",
-"min",
-"sum"
-],
-"width": 250
-}
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
 },
-"targets": [
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"exemplar": true,
-"expr": "irate(jvm_gc_pause_seconds_sum{serverIp=~\"$instance\", application=\"$application\"}[1m])",
-"format": "time_series",
-"interval": "",
-"intervalFactor": 1,
-"legendFormat": "{{ip}}-{{action}} --{{cause}} STW耗时",
-"range": true,
-"refId": "A"
-},
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "max_over_time(jvm_gc_pause_seconds_max{serverIp=~\"$instance\", application=\"$application\"}[1m])",
-"hide": false,
-"legendFormat": "{{ip}}-{{action}} --{{cause}} 1m GC最大耗时",
-"range": true,
-"refId": "B"
-},
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "max_over_time(jvm_gc_pause_seconds_max{serverIp=~\"$instance\", application=\"$application\",action=~\"end of major GC|endofminorGC\"}[1m])",
-"hide": false,
-"legendFormat": "{{ip}}-{{action}} --{{cause}} 1m FullGC最大耗时",
-"range": true,
-"refId": "C"
-}
-],
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
 "fieldConfig": {
 "defaults": {
-"custom": {
-"drawStyle": "line",
-"lineInterpolation": "linear",
-"barAlignment": 0,
-"lineWidth": 1,
-"fillOpacity": 10,
-"gradientMode": "none",
-"spanNulls": false,
-"showPoints": "never",
-"pointSize": 5,
-"stacking": {
-"mode": "none",
-"group": "A"
-},
-"axisPlacement": "auto",
-"axisLabel": "",
-"axisColorMode": "text",
-"scaleDistribution": {
-"type": "linear"
-},
-"axisCenteredZero": false,
-"hideFrom": {
-"tooltip": false,
-"viz": false,
-"legend": false
-},
-"thresholdsStyle": {
-"mode": "off"
-}
-},
-"color": {
-"mode": "palette-classic"
-},
-"mappings": [],
-"thresholds": {
-"mode": "absolute",
-"steps": [
-{
-"value": null,
-"color": "green"
-},
-{
-"value": 80,
-"color": "red"
-}
-]
-},
-"unit": "s"
+"unit": "bytes"
 },
 "overrides": []
 },
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(runtime_go_mem_heap_alloc{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"interval": "",
+"legendFormat": "{{serverIp}}-alloc",
+"refId": "A",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+},
+{
+"exemplar": true,
+"expr": "sum(runtime_go_mem_heap_sys{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-sys",
+"refId": "B",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+},
+{
+"exemplar": true,
+"expr": "sum(runtime_go_mem_heap_idle{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-idle",
+"refId": "C",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+},
+{
+"exemplar": true,
+"expr": "sum(runtime_go_mem_heap_inuse{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-inuse",
+"refId": "D",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+}
+],
 "timeFrom": null,
-"timeShift": null
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:305",
+"format": "bytes",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:306",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 50,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 129
+},
+"type": "graph",
+"title": "Rates of Mem Allocation",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0-pre",
+"legend": {
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fieldConfig": {
+"defaults": {
+"unit": "binBps"
+},
+"overrides": []
+},
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(rate(runtime_go_mem_heap_alloc{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
+"interval": "",
+"legendFormat": "{{serverIp}}-alloc",
+"refId": "A",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:213",
+"format": "binBps",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:214",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 82,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 129
+},
+"type": "graph",
+"title": "GC Pause",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0-pre",
+"legend": {
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fieldConfig": {
+"defaults": {
+"unit": "ns"
+},
+"overrides": []
+},
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "\nhistogram_quantile(0.99,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"interval": "",
+"legendFormat": "{{serverIp}}-P99",
+"refId": "A",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+},
+{
+"exemplar": true,
+"expr": "\nhistogram_quantile(0.90,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-P90",
+"refId": "B",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+},
+{
+"exemplar": true,
+"expr": "\nhistogram_quantile(0.50,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-P50",
+"refId": "C",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:266",
+"format": "ns",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:267",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 68,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 137
+},
+"type": "graph",
+"title": "Number of Live Objects",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0-pre",
+"legend": {
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(runtime_go_mem_live_objects{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"interval": "",
+"legendFormat": "{{serverIp}}-live objects",
+"refId": "A",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:136",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:137",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 78,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 137
+},
+"type": "graph",
+"title": "Rate of Objects Allocated",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0-pre",
+"legend": {
+"alignAsTable": true,
+"avg": false,
+"current": false,
+"max": false,
+"min": false,
+"rightSide": false,
+"show": true,
+"total": false,
+"values": false
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fieldConfig": {
+"defaults": {
+"unit": "short"
+},
+"overrides": []
+},
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(rate(runtime_go_mem_heap_objects{serverEnv=~\"$serverEnv\",  application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
+"interval": "",
+"legendFormat": "{{serverIp}}-heap objects",
+"refId": "A",
+"datasource": {
+"uid": "${prometheusUid}",
+"type": "prometheus"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 0,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:189",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+},
+{
+"$$hashKey": "object:190",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
 },
 
 {
@@ -3810,195 +2895,6 @@
 "steppedLine": false,
 "timeFrom": null,
 "timeShift": null
-},
-
-{
-"id": 176,
-"gridPos": {
-"h": 10,
-"w": 12,
-"x": 0,
-"y": 163
-},
-"type": "timeseries",
-"title": "Heap Used Graph",
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig": {
-"defaults": {
-"custom": {
-"drawStyle": "line",
-"lineInterpolation": "smooth",
-"barAlignment": 0,
-"lineWidth": 1,
-"fillOpacity": 0,
-"gradientMode": "none",
-"spanNulls": false,
-"showPoints": "auto",
-"pointSize": 5,
-"stacking": {
-"mode": "none",
-"group": "A"
-},
-"axisPlacement": "auto",
-"axisLabel": "",
-"axisColorMode": "text",
-"scaleDistribution": {
-"type": "linear"
-},
-"axisCenteredZero": false,
-"hideFrom": {
-"tooltip": false,
-"viz": false,
-"legend": false
-},
-"thresholdsStyle": {
-"mode": "off"
-}
-},
-"color": {
-"mode": "palette-classic"
-},
-"mappings": [],
-"thresholds": {
-"mode": "absolute",
-"steps": [
-{
-"color": "green",
-"value": null
-},
-{
-"color": "red",
-"value": 80
-}
-]
-},
-"unit": "bytes"
-},
-"overrides": []
-},
-"options": {
-"tooltip": {
-"mode": "single",
-"sort": "none"
-},
-"legend": {
-"showLegend": true,
-"displayMode": "list",
-"placement": "bottom",
-"calcs": []
-}
-},
-"targets": [
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "sum(jvm_memory_used_bytes{application=\"$application\", serverIp=~\"$instance\", area=\"heap\"}) by (id)",
-"legendFormat": "__auto",
-"range": true,
-"refId": "A"
-}
-]
-},
-
-
-{
-"id": 178,
-"gridPos": {
-"h": 10,
-"w": 12,
-"x": 12,
-"y": 163
-},
-"type": "timeseries",
-"title": "Non-Heap Used Graph",
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"fieldConfig": {
-"defaults": {
-"custom": {
-"drawStyle": "line",
-"lineInterpolation": "smooth",
-"barAlignment": 0,
-"lineWidth": 2,
-"fillOpacity": 1,
-"gradientMode": "none",
-"spanNulls": false,
-"showPoints": "auto",
-"pointSize": 6,
-"stacking": {
-"mode": "none",
-"group": "A"
-},
-"axisPlacement": "auto",
-"axisLabel": "",
-"axisColorMode": "text",
-"scaleDistribution": {
-"type": "linear"
-},
-"axisCenteredZero": false,
-"hideFrom": {
-"tooltip": false,
-"viz": false,
-"legend": false
-},
-"thresholdsStyle": {
-"mode": "off"
-}
-},
-"color": {
-"mode": "palette-classic"
-},
-"mappings": [],
-"thresholds": {
-"mode": "absolute",
-"steps": [
-{
-"color": "green",
-"value": null
-},
-{
-"color": "red",
-"value": 80
-}
-]
-},
-"unit": "bytes"
-},
-"overrides": []
-},
-"options": {
-"tooltip": {
-"mode": "single",
-"sort": "none"
-},
-"legend": {
-"showLegend": true,
-"displayMode": "list",
-"placement": "bottom",
-"calcs": []
-}
-},
-"targets": [
-{
-"datasource": {
-"type": "prometheus",
-"uid": "${prometheusUid}"
-},
-"editorMode": "code",
-"expr": "sum(jvm_memory_used_bytes{application=\"$application\", serverIp=~\"$instance\", area=\"nonheap\"}) by (id)",
-"legendFormat": "__auto",
-"range": true,
-"refId": "A"
-}
-]
 },
 
 {
@@ -4533,5 +3429,5 @@
 "overwrite":false,
 "folderId":${folderId},
 "folderUid":"${folderUid}",
-"message":"hera V1.1"
+"message":"hera golang V1.0"
 }

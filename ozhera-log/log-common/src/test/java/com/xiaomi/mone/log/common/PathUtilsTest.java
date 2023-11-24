@@ -216,7 +216,7 @@ public class PathUtilsTest {
 
     @Test
     public void test81() {
-        String logPattern = "/home/work/log error-2022-08-04_05_1.log";
+        String logPattern = "/home/work/log/error-2022-08-04_05_1.log";
         Pattern pattern = Pattern.compile(logPattern);
 
         Assert.assertEquals(true, pattern.matcher("/home/work/log/aa/server.log").matches());

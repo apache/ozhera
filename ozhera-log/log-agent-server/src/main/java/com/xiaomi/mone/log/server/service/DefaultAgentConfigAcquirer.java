@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultAgentConfigAcquirer implements AgentConfigAcquirer {
 
-    @Reference(interfaceClass = AgentConfigService.class, group = "$dubbo.group", check = false, timeout = 5000)
+    @Reference(interfaceClass = AgentConfigService.class, group = "$dubbo.group", check = false, timeout = 10000)
     private AgentConfigService agentConfigService;
 
     @Override

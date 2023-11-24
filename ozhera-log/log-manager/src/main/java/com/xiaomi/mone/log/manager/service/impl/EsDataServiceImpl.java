@@ -135,7 +135,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     public static List<Pair<String, String>> requiredFields = Lists.newArrayList(
             Pair.of(ES_KEY_MAP_MESSAGE, "text"),
             Pair.of(ES_KEY_MAP_LOG_SOURCE, "text"),
-            Pair.of(ES_KEY_MAP_TAIL_ID, "INT")
+            Pair.of(ES_KEY_MAP_TAIL_ID, "integer")
     );
 
     {

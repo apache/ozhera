@@ -263,7 +263,7 @@ public class ChannelEngine {
             }
             ChannelService channelService;
             Input input = channelDefine.getInput();
-            boolean matchWildcard = StringUtils.substringAfterLast(input.getLogPattern(), SEPARATOR).contains(PATH_WILDCARD);
+            boolean matchWildcard = Arrays.stream(input.getLogPattern().split(",")).anyMatch(data -> StringUtils.substringAfterLast(data, SEPARATOR).contains(PATH_WILDCARD));
             if (matchWildcard) {
                 channelService = new WildcardChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain, memoryBasePath);
             } else {

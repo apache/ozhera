@@ -16,7 +16,6 @@ import com.xiaomi.mone.monitor.pojo.ReqErrorMetricsPOJO;
 import com.xiaomi.mone.monitor.pojo.ReqSlowMetricsPOJO;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
-import com.xiaomi.mone.monitor.service.AppMonitorService;
 import com.xiaomi.mone.monitor.service.alertmanager.AlarmExprService;
 import com.xiaomi.mone.monitor.service.alertmanager.AlertServiceAdapt;
 import com.xiaomi.mone.monitor.service.api.*;
@@ -59,9 +58,6 @@ public class AlarmService {
 
     @Autowired
     PrometheusService prometheusService;
-
-    @Autowired
-    AppMonitorService appMonitorService;
 
     @Autowired
     AlertServiceAdapt alertServiceAdapt;

@@ -33,6 +33,7 @@ public class JsonLogParser extends AbstractLogParser {
     // can solve the problem of converting long integers to scientific notation
     private static final Gson GSON = new GsonBuilder()
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .setLenient()
             .create();
 
     public JsonLogParser(LogParserData parserData) {

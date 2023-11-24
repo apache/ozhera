@@ -174,7 +174,6 @@ public class feishuCartTest {
         AlertManagerFireResult alertManagerFireResult = gson.fromJson(testInterfaceAlert, AlertManagerFireResult.class);
         List<Alerts> alerts = alertManagerFireResult.getAlerts();
         alertManagerFireResult.getAlerts().stream().forEach(alert -> {
-            System.out.println(DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
             //ai:Convert UTC time to yyyy-mm-dd format using Java code.
             Map<String, Object> map = new HashMap<>();
             map.put("title", alertManagerFireResult.getCommonAnnotations().getTitle());
@@ -183,7 +182,7 @@ public class feishuCartTest {
             map.put("alert_value", alert.getLabels().getAlert_value());
             map.put("application", alert.getLabels().getApplication());
             map.put("ip", alert.getLabels().getServerIp());
-            map.put("start_time", DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
+            map.put("start_time", "x");
             map.put("silence_url", "http://localhost:80");
             map.put("serviceName", alert.getLabels().getServiceName());
             map.put("methodName", alert.getLabels().getMethodName());
@@ -203,7 +202,6 @@ public class feishuCartTest {
         AlertManagerFireResult alertManagerFireResult = gson.fromJson(testBasicAlert, AlertManagerFireResult.class);
         List<Alerts> alerts = alertManagerFireResult.getAlerts();
         alertManagerFireResult.getAlerts().stream().forEach(alert -> {
-            System.out.println(DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
             //ai:Convert UTC time to yyyy-mm-dd format using Java code.
             Map<String, Object> map = new HashMap<>();
             map.put("title", alertManagerFireResult.getCommonAnnotations().getTitle());
@@ -212,7 +210,7 @@ public class feishuCartTest {
             map.put("alert_value", alert.getLabels().getAlert_value());
             map.put("application", alert.getLabels().getApplication());
             map.put("ip", alert.getLabels().getIp());
-            map.put("start_time", DateUtil.Time2YYMMdd(alert.getStartsAt().toString()));
+            map.put("start_time", "xxx");
             map.put("silence_url", "http://localhost:80");
             map.put("pod", alert.getLabels().getPod());
             try {

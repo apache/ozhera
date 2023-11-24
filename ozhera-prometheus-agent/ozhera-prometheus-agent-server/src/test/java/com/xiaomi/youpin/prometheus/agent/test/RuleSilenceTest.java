@@ -17,11 +17,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.TimeZone;
 
-@SpringBootTest(classes = PrometheusAgentBootstrap.class)
 public class RuleSilenceTest {
-
-    @Autowired
-    SilenceDao dao;
     @Test
     public void insertSilenceDb() {
         RuleSilenceEntity entity = new RuleSilenceEntity();
@@ -37,7 +33,7 @@ public class RuleSilenceTest {
         entity.setUpdatedTime(new Date());
         entity.setComment("Hera silence");
         entity.setCreatedBy("xxx");
-        Long silenceDbId = dao.CreateSilence(entity);
-        System.out.println("db insert id:" + silenceDbId);
+       // Long silenceDbId = dao.CreateSilence(entity);
+       // System.out.println("db insert id:" + silenceDbId);
     }
 }

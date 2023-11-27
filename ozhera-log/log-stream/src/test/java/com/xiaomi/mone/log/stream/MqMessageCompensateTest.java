@@ -34,6 +34,7 @@ public class MqMessageCompensateTest {
 
     @Test
     public void testRocketProduce() {
+
 //        String url = "127.0.0.1:9876";
 //        String topic = "";
 //        RocketMqMessageProduct rocketMqMessageProduct = new RocketMqMessageProduct();

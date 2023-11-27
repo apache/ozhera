@@ -18,8 +18,8 @@
     </modules>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <docean-plugin.common.version>1.4.0</docean-plugin.common.version>
@@ -110,7 +110,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.28</version>
+                <version>1.18.30</version>
             </dependency>
 
             <dependency>
@@ -144,8 +144,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-<!--            <version>1.18.4</version>-->
-            <!--            <scope>provided</scope>-->
         </dependency>
 
         <dependency>
@@ -170,13 +168,13 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>21</source>
+                    <target>21</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.28</version>
+                            <version>1.18.30</version>
                         </path>
                         <path>
                             <groupId>com.google.auto.service</groupId>

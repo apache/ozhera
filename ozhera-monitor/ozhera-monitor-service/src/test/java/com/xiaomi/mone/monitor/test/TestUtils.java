@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author gaoxihui
@@ -28,7 +30,7 @@ public class TestUtils {
 
         try {
             //获取工程路径
-            String content =  FreeMarkerUtil.getContent("/","eventflow.ftl",map);
+            String content = FreeMarkerUtil.getContent("/", "eventflow.ftl", map);
             System.out.println("返回的json" + "\n" + content + "\n");
         } catch (IOException | TemplateException e) {
             e.printStackTrace();

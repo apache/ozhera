@@ -34,7 +34,7 @@ public class MilogAgentServiceFactory {
 
     public static MilogAgentService getAgentExtensionService() {
         factualServiceName = Config.ins().get("agent.extension.service", DEFAULT_AGENT_EXTENSION_SERVICE_KEY);
-        log.info("StoreExtensionServiceFactory factualServiceName:{}", factualServiceName);
+        log.debug("StoreExtensionServiceFactory factualServiceName:{}", factualServiceName);
         return Ioc.ins().getBean(factualServiceName);
     }
 }

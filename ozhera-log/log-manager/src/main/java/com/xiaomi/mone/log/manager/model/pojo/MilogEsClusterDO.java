@@ -118,6 +118,7 @@ public class MilogEsClusterDO extends BaseCommon implements Serializable {
         milogMiddlewareConfig.setAlias(resource.getName());
         milogMiddlewareConfig.setClusterName(resource.clusterName);
         milogMiddlewareConfig.setType(MiddlewareEnum.ELASTICSEARCH.getCode());
+        milogMiddlewareConfig.setStorageType(resource.logStorageType);
         milogMiddlewareConfig.setRegionEn(resource.getArea());
         milogMiddlewareConfig.setServiceUrl(resource.getAddr());
         milogMiddlewareConfig.setAk(resource.getUser());
@@ -135,6 +136,7 @@ public class MilogEsClusterDO extends BaseCommon implements Serializable {
     public ResourceInfo configToResourceVO(List<EsIndexVo> multipleEsIndex) {
         return ResourceInfo.builder().id(this.id)
                 .alias(this.name)
+                .storageType(this.logStorageType)
                 .clusterName(this.clusterName)
                 .regionEn(this.area)
                 .regionCn(CommonExtensionServiceFactory.getCommonExtensionService().getMachineRoomName(this.area))
@@ -166,6 +168,7 @@ public class MilogEsClusterDO extends BaseCommon implements Serializable {
         clusterDO.setToken(resource.getEsToken());
         clusterDO.setDtCatalog(resource.getCatalog());
         clusterDO.setDtDatabase(resource.getDatabase());
+        clusterDO.setLogStorageType(resource.getStorageType());
         return clusterDO;
     }
 

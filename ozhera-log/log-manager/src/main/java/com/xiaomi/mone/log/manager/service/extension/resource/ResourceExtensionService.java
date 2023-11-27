@@ -57,4 +57,6 @@ public interface ResourceExtensionService {
     Integer getResourceCode();
 
     void deleteMqResourceProcessing(MilogLogTailDo mt, MilogLogStoreDO logStoreDO);
+
+    List<Integer> getMqResourceCodeList();
 }

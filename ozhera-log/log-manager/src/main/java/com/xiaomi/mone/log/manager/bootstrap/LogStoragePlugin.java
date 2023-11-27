@@ -60,19 +60,19 @@ public class LogStoragePlugin implements IPlugin {
 
     public void initializeLogStorage(MilogEsClusterDO cluster) {
         LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(cluster.getLogStorageType());
-        if (null == storageTypeEnum || LogStorageTypeEnum.ELASTICSEARCH == storageTypeEnum) {
-            try {
+        try {
+            if (null == storageTypeEnum || LogStorageTypeEnum.ELASTICSEARCH == storageTypeEnum) {
                 checkAddrUpdate(cluster);
                 EsService esService = createEsService(cluster);
                 registerEsService(cluster, esService);
                 log.info("ES client[{}]Generated successfully[{}]", cluster.getName(), Constant.LOG_STORAGE_SERV_BEAN_PRE + cluster.getId());
-            } catch (Exception e) {
-                log.error("init es cluster client error,cluster{}", GSON.toJson(cluster), e);
+            } else if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
+                DataSource dataSource = createDorisDataSource(cluster);
+                registerDorisDataSource(cluster, dataSource);
+                log.info("doris dataSource[{}]Generated successfully[{}]", cluster.getName(), Constant.LOG_STORAGE_SERV_BEAN_PRE + cluster.getId());
             }
-        } else if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
-            DataSource dataSource = createDorisDataSource(cluster);
-            registerDorisDataSource(cluster, dataSource);
-            log.info("doris dataSource[{}]Generated successfully[{}]", cluster.getName(), Constant.LOG_STORAGE_SERV_BEAN_PRE + cluster.getId());
+        } catch (Exception e) {
+            log.error("init storage client error,cluster{}", GSON.toJson(cluster), e);
         }
     }
 

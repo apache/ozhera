@@ -51,6 +51,8 @@ public class LogStoreParam {
      */
     private Long esResourceId;
 
+    private String storageType;
+
     private Boolean nameSameStatus = Boolean.FALSE;
 
     public boolean isMatrixAppStore() {

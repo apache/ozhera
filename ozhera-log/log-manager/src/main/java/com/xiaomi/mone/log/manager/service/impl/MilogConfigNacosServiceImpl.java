@@ -248,10 +248,10 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         MilogSpaceData existConfig = spaceConfigNacosProvider.getConfig(spaceId.toString());
         // New configuration
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type)) {
+            existConfig.setMilogSpaceId(spaceId);
             // The configuration is not configured yet, initialize the configuration
-            if (null == existConfig || null == existConfig.getSpaceConfig()) {
+            if (null == existConfig || CollectionUtils.isEmpty(existConfig.getSpaceConfig())) {
                 existConfig = new MilogSpaceData();
-                existConfig.setMilogSpaceId(spaceId);
                 List<SinkConfig> spaceConfigs = Lists.newArrayList();
                 spaceConfigs.add(assembleSinkConfig(storeId, tailId, motorRoomEn));
                 existConfig.setSpaceConfig(spaceConfigs);
@@ -346,6 +346,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             if (null != esInfo) {
                 sinkConfig.setEsIndex(logStoreDO.getEsIndex());
                 sinkConfig.setEsInfo(buildEsInfo(esInfo));
+                sinkConfig.setStorageType(esInfo.getLogStorageType());
             } else {
                 log.info("assembleSinkConfig esInfo is null,logStoreId:{}", logStoreDO.getId());
             }

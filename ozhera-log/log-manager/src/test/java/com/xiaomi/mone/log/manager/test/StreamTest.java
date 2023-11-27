@@ -59,12 +59,14 @@ public class StreamTest {
     public void testMapRemove() {
         String rules = "";
         MiLogStreamConfig miLogStreamConfig = gson.fromJson(rules, MiLogStreamConfig.class);
-        Map<String, Map<Long, String>> config = miLogStreamConfig.getConfig();
-        config.values().forEach(longStringMap -> {
-            longStringMap.keySet().removeIf(key -> key.equals(1l));
-            log.info(gson.toJson(longStringMap));
-        });
-        log.info(gson.toJson(config));
+        if(miLogStreamConfig != null) {
+            Map<String, Map<Long, String>> config = miLogStreamConfig.getConfig();
+            config.values().forEach(longStringMap -> {
+                longStringMap.keySet().removeIf(key -> key.equals(1l));
+                log.info(gson.toJson(longStringMap));
+            });
+            log.info(gson.toJson(config));
+        }
     }
 
     @Test

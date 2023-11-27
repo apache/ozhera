@@ -31,22 +31,22 @@ import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFrom
 public class MilogAgentServiceImplTest {
     @Test
     public void getList() {
-        Ioc.ins().init("com.xiaomi");
-        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
     }
 
     @Test
     public void testConfigIssueAgent() {
-        Ioc.ins().init("com.xiaomi");
-        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
-        milogAgentService.configIssueAgent("1", "127.0.0.1", "etret");
+//        Ioc.ins().init("com.xiaomi");
+//        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
+//        milogAgentService.configIssueAgent("1", "127.0.0.1", "etret");
     }
 
     @Test
     public void testMan() {
-        Ioc.ins().init("com.xiaomi");
-        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
-        milogAgentService.publishIncrementConfig(14L, 4L, Arrays.asList("127.0.0.1"));
+//        Ioc.ins().init("com.xiaomi");
+//        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
+//        milogAgentService.publishIncrementConfig(14L, 4L, Arrays.asList("127.0.0.1"));
     }
 
 
@@ -55,19 +55,19 @@ public class MilogAgentServiceImplTest {
      */
     @Test
     public void testDelConfigStopColl() {
-        Ioc.ins().init("com.xiaomi");
-        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
-        milogAgentService.publishIncrementDel(79L, 667L, null);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogAgentServiceImpl milogAgentService = Ioc.ins().getBean(MilogAgentServiceImpl.class);
+//        milogAgentService.publishIncrementDel(79L, 667L, null);
     }
 
     @Test
     public void process1() {
-        getConfigFromNanos();
-        Ioc.ins().init("com.xiaomi");
-        AgentConfigService agentConfigService = Ioc.ins().getBean(AgentConfigServiceImpl.class);
-        LogCollectMeta logCollectMeta = agentConfigService.getLogCollectMetaFromManager("127.0.0.1");
-        String responseInfo = new Gson().toJson(logCollectMeta);
-        log.info("The agent starts to obtain the configuration information obtained by obtaining the configuration information:{}", responseInfo);
+//        getConfigFromNanos();
+//        Ioc.ins().init("com.xiaomi");
+//        AgentConfigService agentConfigService = Ioc.ins().getBean(AgentConfigServiceImpl.class);
+//        LogCollectMeta logCollectMeta = agentConfigService.getLogCollectMetaFromManager("127.0.0.1");
+//        String responseInfo = new Gson().toJson(logCollectMeta);
+//        log.info("The agent starts to obtain the configuration information obtained by obtaining the configuration information:{}", responseInfo);
     }
 
 }

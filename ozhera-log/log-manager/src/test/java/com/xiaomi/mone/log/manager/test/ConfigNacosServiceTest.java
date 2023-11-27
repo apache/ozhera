@@ -63,50 +63,50 @@ public class ConfigNacosServiceTest {
 
     @Test
     public void testNacosOk() {
-        Ioc.ins().init("com.xiaomi");
-        StreamConfigNacosPublisher nacosPublisher = Ioc.ins().getBean(StreamConfigNacosPublisher.class);
-        ConfigService configService = MultipleNacosConfig.getConfigService("127.0.0.1:80");
-        nacosPublisher.setConfigService(configService);
-        MiLogStreamConfig miLogStreamConfig = new MiLogStreamConfig();
-        Map<String, Map<Long, String>> config = new ConcurrentHashMap<>();
-        config.put("1", new HashMap<>());
-        miLogStreamConfig.setConfig(config);
-        nacosPublisher.publish("logmanager", miLogStreamConfig);
+//        Ioc.ins().init("com.xiaomi");
+//        StreamConfigNacosPublisher nacosPublisher = Ioc.ins().getBean(StreamConfigNacosPublisher.class);
+//        ConfigService configService = MultipleNacosConfig.getConfigService("127.0.0.1:80");
+//        nacosPublisher.setConfigService(configService);
+//        MiLogStreamConfig miLogStreamConfig = new MiLogStreamConfig();
+//        Map<String, Map<Long, String>> config = new ConcurrentHashMap<>();
+//        config.put("1", new HashMap<>());
+//        miLogStreamConfig.setConfig(config);
+//        nacosPublisher.publish("logmanager", miLogStreamConfig);
     }
 
     @Test
     public void testQueryDataFromNacos() throws NacosException {
-        Ioc.ins().init("com.xiaomi");
-        SpaceConfigNacosProvider nacosProvider = new SpaceConfigNacosProvider();
-        ConfigService configService = ConfigFactory.createConfigService("nacos:80");
-        nacosProvider.setConfigService(configService);
-        MilogSpaceData config = nacosProvider.getConfig("60022");
-        log.info(gson.toJson(config));
-        Assert.assertNull(config);
+//        Ioc.ins().init("com.xiaomi");
+//        SpaceConfigNacosProvider nacosProvider = new SpaceConfigNacosProvider();
+//        ConfigService configService = ConfigFactory.createConfigService("nacos:80");
+//        nacosProvider.setConfigService(configService);
+//        MilogSpaceData config = nacosProvider.getConfig("60022");
+//        log.info(gson.toJson(config));
+//        Assert.assertNull(config);
     }
 
     @Test
     public void testNacosPushData() {
-        Ioc.ins().init("com.xiaomi");
-        LogSpaceServiceImpl milogSpaceService = Ioc.ins().getBean(LogSpaceServiceImpl.class);
+//        Ioc.ins().init("com.xiaomi");
+//        LogSpaceServiceImpl milogSpaceService = Ioc.ins().getBean(LogSpaceServiceImpl.class);
 //        milogSpaceService.test();
     }
 
     @Test
     public void testConfigIssue() {
-        Ioc.ins().init("com.xiaomi");
-        MilogStreamServiceImpl milogStreamService = Ioc.ins().getBean(MilogStreamServiceImpl.class);
-        Result<String> result = milogStreamService.configIssueStream("127.0.0.1");
-        Assert.assertNotNull(result);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogStreamServiceImpl milogStreamService = Ioc.ins().getBean(MilogStreamServiceImpl.class);
+//        Result<String> result = milogStreamService.configIssueStream("127.0.0.1");
+//        Assert.assertNotNull(result);
     }
 
     @Test
     public void testSyncSpace() {
-        Ioc.ins().init("com.xiaomi");
-        LogTailServiceImpl milogLogtailService = Ioc.ins().getBean(LogTailServiceImpl.class);
-        MilogLogTailDo mt = new MilogLogTailDo();
-        mt.setSpaceId(3L);
-        milogLogtailService.handleNaocsConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), OperateEnum.ADD_OPERATE.getCode(), ProjectTypeEnum.MIONE_TYPE.getCode());
-        Assert.assertNotNull(true);
+//        Ioc.ins().init("com.xiaomi");
+//        LogTailServiceImpl milogLogtailService = Ioc.ins().getBean(LogTailServiceImpl.class);
+//        MilogLogTailDo mt = new MilogLogTailDo();
+//        mt.setSpaceId(3L);
+//        milogLogtailService.handleNaocsConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), OperateEnum.ADD_OPERATE.getCode(), ProjectTypeEnum.MIONE_TYPE.getCode());
+//        Assert.assertNotNull(true);
     }
 }

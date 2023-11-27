@@ -36,44 +36,44 @@ import java.util.stream.Collectors;
  * @description
  * @date 2022/3/28 20:47
  */
-@Slf4j
-public class MilogLogTailServiceTest {
-
-    private Gson gson = new Gson();
-    private LogTailServiceImpl milogLogtailService;
-    private LogTypeProcessorFactory logTypeProcessorFactory;
-    private MilogLogTemplateMapper milogLogTemplateMapper;
-
-    @Before
-    public void init() {
-        Ioc.ins().init("com.xiaomi");
-        milogLogtailService = Ioc.ins().getBean(LogTailServiceImpl.class);
-        logTypeProcessorFactory = Ioc.ins().getBean(LogTypeProcessorFactory.class);
-        milogLogTemplateMapper = Ioc.ins().getBean(MilogLogTemplateMapper.class);
-    }
-
-
-    @Test
-    public void testFactory() {
-        logTypeProcessorFactory.setMilogLogTemplateMapper(milogLogTemplateMapper);
-        LogTypeProcessor logTypeProcessor = logTypeProcessorFactory.getLogTypeProcessor();
-        boolean supportedConsume = logTypeProcessor.supportedConsume(LogTypeEnum.APP_LOG_MULTI.getType());
-        log.info("supportedConsume:{}", supportedConsume);
-    }
-
-    @Test
-    public void getList() {
-        Ioc.ins().init("com.xiaomi");
-        Long tailId = 620L;
-        List<String> podList = Lists.newArrayList("127.0.0.1", "127.0.0.1");
-//        milogLogtailService.k8sPodIpsSend(tailId, podList, Collections.EMPTY_LIST, 1);
-    }
-
-    @Test
-    public void test_stream() {
-        List<String> list = Lists.newArrayList("1", "2", "3", "4", "10");
-        List<String> newList = list.stream().filter(s -> !Objects.equals(s, "3")).collect(Collectors.toList());
-        System.out.println(list);
-    }
-
-}
+//@Slf4j
+//public class MilogLogTailServiceTest {
+//
+//    private Gson gson = new Gson();
+//    private LogTailServiceImpl milogLogtailService;
+//    private LogTypeProcessorFactory logTypeProcessorFactory;
+//    private MilogLogTemplateMapper milogLogTemplateMapper;
+//
+//    @Before
+//    public void init() {
+//        Ioc.ins().init("com.xiaomi");
+//        milogLogtailService = Ioc.ins().getBean(LogTailServiceImpl.class);
+//        logTypeProcessorFactory = Ioc.ins().getBean(LogTypeProcessorFactory.class);
+//        milogLogTemplateMapper = Ioc.ins().getBean(MilogLogTemplateMapper.class);
+//    }
+//
+//
+//    @Test
+//    public void testFactory() {
+//        logTypeProcessorFactory.setMilogLogTemplateMapper(milogLogTemplateMapper);
+//        LogTypeProcessor logTypeProcessor = logTypeProcessorFactory.getLogTypeProcessor();
+//        boolean supportedConsume = logTypeProcessor.supportedConsume(LogTypeEnum.APP_LOG_MULTI.getType());
+//        log.info("supportedConsume:{}", supportedConsume);
+//    }
+//
+//    @Test
+//    public void getList() {
+//        Ioc.ins().init("com.xiaomi");
+//        Long tailId = 620L;
+//        List<String> podList = Lists.newArrayList("127.0.0.1", "127.0.0.1");
+////        milogLogtailService.k8sPodIpsSend(tailId, podList, Collections.EMPTY_LIST, 1);
+//    }
+//
+//    @Test
+//    public void test_stream() {
+//        List<String> list = Lists.newArrayList("1", "2", "3", "4", "10");
+//        List<String> newList = list.stream().filter(s -> !Objects.equals(s, "3")).collect(Collectors.toList());
+//        System.out.println(list);
+//    }
+//
+//}

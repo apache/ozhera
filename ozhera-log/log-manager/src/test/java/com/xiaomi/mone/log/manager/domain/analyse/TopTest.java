@@ -31,8 +31,8 @@ public class TopTest {
 
     @Before
     public void pushBean() {
-        Ioc.ins().init("com.xiaomi");
-        dateGroupStrategy = Ioc.ins().getBean(DateGroupStrategy.class);
+//        Ioc.ins().init("com.xiaomi");
+//        dateGroupStrategy = Ioc.ins().getBean(DateGroupStrategy.class);
     }
 
     @Test

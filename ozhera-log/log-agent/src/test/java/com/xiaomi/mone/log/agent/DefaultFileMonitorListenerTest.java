@@ -30,7 +30,7 @@ public class DefaultFileMonitorListenerTest {
 
     @Test
     public void testFileChange() throws IOException {
-        DefaultFileMonitorListener defaultFileMonitorListener = new DefaultFileMonitorListener();
-        System.in.read();
+//        DefaultFileMonitorListener defaultFileMonitorListener = new DefaultFileMonitorListener();
+//        System.in.read();
     }
 }

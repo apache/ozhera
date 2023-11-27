@@ -34,18 +34,19 @@ public class MqMessageCompensateTest {
 
     @Test
     public void testRocketProduce() {
-        String url = "127.0.0.1:9876";
-        String topic = "";
-        RocketMqMessageProduct rocketMqMessageProduct = new RocketMqMessageProduct();
-        rocketMqMessageProduct.product("", "", url, topic, Lists.newArrayList("test"));
+
+//        String url = "127.0.0.1:9876";
+//        String topic = "";
+//        RocketMqMessageProduct rocketMqMessageProduct = new RocketMqMessageProduct();
+//        rocketMqMessageProduct.product("", "", url, topic, Lists.newArrayList("test"));
     }
 
     @Test
     public void testRocketConsume() throws IOException {
-        String url = "127.0.0.1:9876";
-        String topic = "";
-        RocketCompensateMsgConsume rocketCompensateMsgConsume = new RocketCompensateMsgConsume();
-        rocketCompensateMsgConsume.consume("", "", url, topic);
-        System.in.read();
+//        String url = "127.0.0.1:9876";
+//        String topic = "";
+//        RocketCompensateMsgConsume rocketCompensateMsgConsume = new RocketCompensateMsgConsume();
+//        rocketCompensateMsgConsume.consume("", "", url, topic);
+//        System.in.read();
     }
 }

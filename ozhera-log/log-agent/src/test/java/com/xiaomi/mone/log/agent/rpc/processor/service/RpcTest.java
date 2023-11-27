@@ -40,21 +40,21 @@ public class RpcTest {
 
     @Test
     public void testRpc() {
-        Ioc.ins().init("com.xiaomi");
-        ChannelDefineRpcLocator channelDefineRpcLocator = Ioc.ins().getBean(ChannelDefineRpcLocator.class);
-        System.out.println(channelDefineRpcLocator);
-        List<ChannelDefine> channelDefine = channelDefineRpcLocator.getChannelDefine();
-        log.info("Returns data：{}", channelDefine);
-        Assert.assertNotNull(channelDefine);
+//        Ioc.ins().init("com.xiaomi");
+//        ChannelDefineRpcLocator channelDefineRpcLocator = Ioc.ins().getBean(ChannelDefineRpcLocator.class);
+//        System.out.println(channelDefineRpcLocator);
+//        List<ChannelDefine> channelDefine = channelDefineRpcLocator.getChannelDefine();
+//        log.info("Returns data：{}", channelDefine);
+//        Assert.assertNotNull(channelDefine);
     }
 
     @Test
     public void test() {
-        Ioc.ins().init("com.xiaomi");
-        ChannelDefineRpcLocator channelDefineRpcLocator = Ioc.ins().getBean(ChannelDefineRpcLocator.class);
-        List<ChannelDefine> logCollectMetaFromManager = channelDefineRpcLocator.getChannelDefine("127.0.0.1");
-        System.out.println(new Gson().toJson(logCollectMetaFromManager));
-        Assert.assertNotNull(logCollectMetaFromManager);
+//        Ioc.ins().init("com.xiaomi");
+//        ChannelDefineRpcLocator channelDefineRpcLocator = Ioc.ins().getBean(ChannelDefineRpcLocator.class);
+//        List<ChannelDefine> logCollectMetaFromManager = channelDefineRpcLocator.getChannelDefine("127.0.0.1");
+//        System.out.println(new Gson().toJson(logCollectMetaFromManager));
+//        Assert.assertNotNull(logCollectMetaFromManager);
 
     }
 

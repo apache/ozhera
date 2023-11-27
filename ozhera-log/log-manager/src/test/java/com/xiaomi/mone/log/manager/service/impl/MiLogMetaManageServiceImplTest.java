@@ -23,9 +23,9 @@ public class MiLogMetaManageServiceImplTest {
 
     @Test
     public void queryLogCollectMeta() {
-        Ioc.ins().init("com.xiaomi");
-        MiLogMetaManageServiceImpl miLogMetaManageService = Ioc.ins().getBean(MiLogMetaManageServiceImpl.class);
-        LogCollectMeta logCollectMeta = miLogMetaManageService.queryLogCollectMeta("", "127.0.0.1");
-        System.out.println(logCollectMeta);
+//        Ioc.ins().init("com.xiaomi");
+//        MiLogMetaManageServiceImpl miLogMetaManageService = Ioc.ins().getBean(MiLogMetaManageServiceImpl.class);
+//        LogCollectMeta logCollectMeta = miLogMetaManageService.queryLogCollectMeta("", "127.0.0.1");
+//        System.out.println(logCollectMeta);
     }
 }

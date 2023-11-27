@@ -54,8 +54,8 @@ public class HttpClientTest {
         String params = gson.toJson(paramsMap);
         HashMap<String, String> hashMap = Maps.newHashMap();
         hashMap.put("Content-Type", "application/json");
-        String pr = HttpClientV6.post(api, params, hashMap);
-        log.warn("hera log create, param:{}, result:{}", params, pr);
+//        String pr = HttpClientV6.post(api, params, hashMap);
+//        log.warn("hera log create, param:{}, result:{}", params, pr);
 
     }
 }

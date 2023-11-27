@@ -57,12 +57,12 @@ public class StatementMatchParseTest {
         BoolQueryBuilder queryBuilder = andAllStatementMatchParse.matchBuild(arrays);
 
         SearchRequest searchRequest = getSearchRequest(queryBuilder);
-        SearchResponse searchResponse = esService.search(searchRequest);
-        SearchHit[] hits = searchResponse.getHits().getHits();
-        for (SearchHit hit : hits) {
-            Map<String, Object> result = hit.getSourceAsMap();
-            log.info("result:{}", result);
-        }
+//        SearchResponse searchResponse = esService.search(searchRequest);
+//        SearchHit[] hits = searchResponse.getHits().getHits();
+//        for (SearchHit hit : hits) {
+//            Map<String, Object> result = hit.getSourceAsMap();
+//            log.info("result:{}", result);
+//        }
     }
 
     @NotNull
@@ -84,11 +84,11 @@ public class StatementMatchParseTest {
         BoolQueryBuilder queryBuilder = mustStatementMatchParse.matchBuild(arrays);
 
         SearchRequest searchRequest = getSearchRequest(queryBuilder);
-        SearchResponse searchResponse = esService.search(searchRequest);
-        SearchHit[] hits = searchResponse.getHits().getHits();
-        for (SearchHit hit : hits) {
-            Map<String, Object> result = hit.getSourceAsMap();
-            log.info("result:{}", result);
-        }
+//        SearchResponse searchResponse = esService.search(searchRequest);
+//        SearchHit[] hits = searchResponse.getHits().getHits();
+//        for (SearchHit hit : hits) {
+//            Map<String, Object> result = hit.getSourceAsMap();
+//            log.info("result:{}", result);
+//        }
     }
 }

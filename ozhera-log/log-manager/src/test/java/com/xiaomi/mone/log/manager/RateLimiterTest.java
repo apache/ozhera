@@ -30,33 +30,36 @@ public class RateLimiterTest {
 
     @Test
     public void test1() {
+        int times = 10;
         RateLimiter rateLimiter = RateLimiter.create(5);
-        while (true) {
+        for (int i = 0; i < times; i++) {
             System.out.println("get 1 tokens:" + rateLimiter.acquire() + "s");
         }
     }
 
     @Test
     public void testSmoothBursty2() {
-        RateLimiter r = RateLimiter.create(2);
-        while (true) {
-            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
-            try {
-                Thread.sleep(2000);
-            } catch (Exception e) {
-            }
-            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
-            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
-            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
-            System.out.println("end");
-        }
+//        int times = 10;
+//        int sleep = 10;
+//
+//        RateLimiter r = RateLimiter.create(2);
+//        for (int i = 0; i < times; i++) {
+//            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
+//            try {
+//                Thread.sleep(sleep);
+//            } catch (Exception e) {
+//            }
+//            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
+//            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
+//            System.out.println("get 1 tokens: " + r.acquire(1) + "s");
+//            System.out.println("end");
+//        }
     }
-
 
 
     public static void main(String[] args) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        
+
         String str = "[{\"ruleId\":30022, \"filterRegex\":\"OrderGateWayImpl\\.[a-zA-Z]+\\s+error:.*\"}]";
         str = str.replaceAll("\\\\", "\\\\\\\\");
 

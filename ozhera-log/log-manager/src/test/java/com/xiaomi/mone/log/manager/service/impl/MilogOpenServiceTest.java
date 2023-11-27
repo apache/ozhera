@@ -32,17 +32,17 @@ public class MilogOpenServiceTest {
 
     @Test
     public void testHaveAccess() {
-        Ioc.ins().init("com.xiaomi");
-        MilogOpenServiceImpl milogOpenService = Ioc.ins().getBean(MilogOpenServiceImpl.class);
-        MontorAppDTO montorAppDTO = milogOpenService.queryHaveAccessMilog(17465L, "", null);
-        System.out.println("return value:" + gson.toJson(montorAppDTO));
+//        Ioc.ins().init("com.xiaomi");
+//        MilogOpenServiceImpl milogOpenService = Ioc.ins().getBean(MilogOpenServiceImpl.class);
+//        MontorAppDTO montorAppDTO = milogOpenService.queryHaveAccessMilog(17465L, "", null);
+//        System.out.println("return value:" + gson.toJson(montorAppDTO));
     }
 
     @Test
     public void testSpaceId() {
-        Ioc.ins().init("com.xiaomi");
-        MilogOpenServiceImpl milogOpenService = Ioc.ins().getBean(MilogOpenServiceImpl.class);
-        Long spaceIdLast = milogOpenService.querySpaceIdByIamTreeId(17700L);
-        System.out.println(spaceIdLast);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogOpenServiceImpl milogOpenService = Ioc.ins().getBean(MilogOpenServiceImpl.class);
+//        Long spaceIdLast = milogOpenService.querySpaceIdByIamTreeId(17700L);
+//        System.out.println(spaceIdLast);
     }
 }

@@ -38,7 +38,7 @@ public class LimitTest {
                 System.out.println(new Date());
             }
         }).start();
-        System.in.read();
+//        System.in.read();
     }
 
     @Test

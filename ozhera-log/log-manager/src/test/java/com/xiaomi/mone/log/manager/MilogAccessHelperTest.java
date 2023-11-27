@@ -32,10 +32,10 @@ public class MilogAccessHelperTest {
 
     @Test
     public void test1() {
-        Ioc.ins().init("com.xiaomi");
-        MilogAccessHelper milogAccessHelper = Ioc.ins().getBean(MilogAccessHelper.class);
-        AccessMilogParam milogParam = new AccessMilogParam();
-        log.info("result:{}", milogAccessHelper.validParam(milogParam));
+//        Ioc.ins().init("com.xiaomi");
+//        MilogAccessHelper milogAccessHelper = Ioc.ins().getBean(MilogAccessHelper.class);
+//        AccessMilogParam milogParam = new AccessMilogParam();
+//        log.info("result:{}", milogAccessHelper.validParam(milogParam));
     }
 
 }

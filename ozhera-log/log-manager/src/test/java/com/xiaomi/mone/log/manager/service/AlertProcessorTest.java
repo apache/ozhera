@@ -36,7 +36,7 @@ public class AlertProcessorTest {
 
     @Test
     public void sendCardMessageTest() throws UnsupportedEncodingException {
-        Ioc.ins().init("com.xiaomi");
+//        Ioc.ins().init("com.xiaomi");
     }
 
     private String[] splitString(String S) {

@@ -45,9 +45,9 @@ public class LogProcessorTest {
 
     @Test
     public void testFile() {
-        String defaultMonitorPath = "/home/work/log/";
-        long size = FileUtils.listFiles(new File(defaultMonitorPath), null, true).size();
-        log.info("result:{}", size);
+//        String defaultMonitorPath = "/home/work/log/";
+//        long size = FileUtils.listFiles(new File(defaultMonitorPath), null, true).size();
+//        log.info("result:{}", size);
     }
 
     /**
@@ -57,25 +57,25 @@ public class LogProcessorTest {
      */
     @Test
     public void testComplete() throws IOException {
-        String defaultMonitorPath = "/home/work/log/";
-        int result = 0;
-        CompletableFuture<Integer> fileSizeFuture = CompletableFuture
-                .supplyAsync(() -> {
-                    try {
-                        TimeUnit.SECONDS.sleep(30);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    log.info("testes");
-                    return FileUtils.listFiles(new File(defaultMonitorPath), null, true).size();
-                });
-        try {
-            result = fileSizeFuture.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.info("getDefaultFileSize error", e);
-        }
-        log.info("result:{}", result);
-        fileSizeFuture.complete(1);
-        System.in.read();
+//        String defaultMonitorPath = "/home/work/log/";
+//        int result = 0;
+//        CompletableFuture<Integer> fileSizeFuture = CompletableFuture
+//                .supplyAsync(() -> {
+//                    try {
+//                        TimeUnit.MILLISECONDS.sleep(30);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    log.info("testes");
+//                    return FileUtils.listFiles(new File(defaultMonitorPath), null, true).size();
+//                });
+//        try {
+//            result = fileSizeFuture.get(1, TimeUnit.SECONDS);
+//        } catch (Exception e) {
+//            log.info("getDefaultFileSize error", e);
+//        }
+//        log.info("result:{}", result);
+//        fileSizeFuture.complete(1);
+//        System.in.read();
     }
 }

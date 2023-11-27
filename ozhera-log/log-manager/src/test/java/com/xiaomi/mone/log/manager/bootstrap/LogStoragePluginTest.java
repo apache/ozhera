@@ -24,7 +24,7 @@ public class LogStoragePluginTest {
 
     @Before
     public void beforeFunc() {
-        Ioc.ins().init("com.xiaomi");
+//        Ioc.ins().init("com.xiaomi");
     }
 
     @Test

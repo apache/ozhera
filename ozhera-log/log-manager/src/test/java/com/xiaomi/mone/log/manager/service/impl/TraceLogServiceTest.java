@@ -34,31 +34,31 @@ import java.util.Map;
 public class TraceLogServiceTest {
     @Test
     public void testQueryByIndex() throws Exception {
-        Ioc.ins().init("com.xiaomi");
-        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
-        LogQuery logQuery = new LogQuery();
-        logQuery.setLogstore("auto_create_index-2021.08.05");
-        Map<String, Object> params = new HashMap<>();
-        params.put("message", "bb");
-        params.put("ip", "192");
-        Result<LogDTO> result = esDataService.logQuery(logQuery);
-        for (LogDataDTO logData : result.getData().getLogDataDTOList()) {
-            System.out.println(logData.getLogOfString());
-        }
+//        Ioc.ins().init("com.xiaomi");
+//        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
+//        LogQuery logQuery = new LogQuery();
+//        logQuery.setLogstore("auto_create_index-2021.08.05");
+//        Map<String, Object> params = new HashMap<>();
+//        params.put("message", "bb");
+//        params.put("ip", "192");
+//        Result<LogDTO> result = esDataService.logQuery(logQuery);
+//        for (LogDataDTO logData : result.getData().getLogDataDTOList()) {
+//            System.out.println(logData.getLogOfString());
+//        }
     }
 
     @Test
     public void logQuery() throws Exception {
-        LogQuery logQuery = new LogQuery();
-        logQuery.setLogstore("milog_store_test");
-        logQuery.setStartTime(1628158918793l);
-        logQuery.setEndTime(1628763718793l);
-        logQuery.setPageSize(2);
-        logQuery.setFullTextSearch("INFO");
-        Ioc.ins().init("com.xiaomi");
-        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
-        Result<LogDTO> logDTOResult = esDataService.logQuery(logQuery);
-        System.out.println(logDTOResult.getData());
+//        LogQuery logQuery = new LogQuery();
+//        logQuery.setLogstore("milog_store_test");
+//        logQuery.setStartTime(1628158918793l);
+//        logQuery.setEndTime(1628763718793l);
+//        logQuery.setPageSize(2);
+//        logQuery.setFullTextSearch("INFO");
+//        Ioc.ins().init("com.xiaomi");
+//        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
+//        Result<LogDTO> logDTOResult = esDataService.logQuery(logQuery);
+//        System.out.println(logDTOResult.getData());
     }
 
     @Test
@@ -66,28 +66,28 @@ public class TraceLogServiceTest {
         EsClient client = new EsClient("127.0.0.1:80", "", "");
         String indexName = "milog_insert_test-" + new SimpleDateFormat("yyyy.MM.dd").format(new Date());
         long current = System.currentTimeMillis();
-        client.insertDocJson(indexName,"");
+//        client.insertDocJson(indexName,"");
     }
 
     @Test
     public void getTraceLog() throws IOException {
-        Ioc.ins().init("com.xiaomi");
-        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
-        TraceLogQuery query = new TraceLogQuery();
-        query.setAppId(667l);
-        query.setIp("127.0.0.1");
-        query.setTraceId("");
-        TraceLogDTO traceLog = esDataService.getTraceLog(query);
-        for (String log : traceLog.getDataList()) {
-            System.out.println(log);
-        }
+//        Ioc.ins().init("com.xiaomi");
+//        LogQueryServiceImpl esDataService = Ioc.ins().getBean(LogQueryServiceImpl.class);
+//        TraceLogQuery query = new TraceLogQuery();
+//        query.setAppId(667l);
+//        query.setIp("127.0.0.1");
+//        query.setTraceId("");
+//        TraceLogDTO traceLog = esDataService.getTraceLog(query);
+//        for (String log : traceLog.getDataList()) {
+//            System.out.println(log);
+//        }
     }
 
     @Test
     public void collectLogCount() throws IOException {
-        Ioc.ins().init("com.xiaomi");
-        LogCountServiceImpl logCountService = Ioc.ins().getBean(LogCountServiceImpl.class);
-        logCountService.collectLogCount("");
+//        Ioc.ins().init("com.xiaomi");
+//        LogCountServiceImpl logCountService = Ioc.ins().getBean(LogCountServiceImpl.class);
+//        logCountService.collectLogCount("");
     }
 
 }

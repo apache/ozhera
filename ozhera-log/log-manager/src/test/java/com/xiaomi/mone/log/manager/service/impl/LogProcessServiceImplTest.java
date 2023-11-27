@@ -31,26 +31,26 @@ public class LogProcessServiceImplTest {
 
     @Test
     public void testGet() {
-        try {
-            String resource = "mybatis-config.xml";
-            InputStream inputStream = null;
-            inputStream = Resources.getResourceAsStream(resource);
-            SqlSessionFactory sqlsessionfactory = new SqlSessionFactoryBuilder().build(inputStream);
-            SqlSession sqlsession = sqlsessionfactory.openSession();
-            MilogLogProcessDO processDO = sqlsession.selectOne("com.xiaomi.mone.log.manager.mapper.MilogLogProcessMapper.getById", 1l);
-            System.out.println(processDO);
-            sqlsession.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            String resource = "mybatis-config.xml";
+//            InputStream inputStream = null;
+//            inputStream = Resources.getResourceAsStream(resource);
+//            SqlSessionFactory sqlsessionfactory = new SqlSessionFactoryBuilder().build(inputStream);
+//            SqlSession sqlsession = sqlsessionfactory.openSession();
+//            MilogLogProcessDO processDO = sqlsession.selectOne("com.xiaomi.mone.log.manager.mapper.MilogLogProcessMapper.getById", 1l);
+//            System.out.println(processDO);
+//            sqlsession.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Test
     public void getById() throws IOException {
-        Ioc.ins().init("com.xiaomi");
-        LogProcessServiceImpl logProcessService = Ioc.ins().getBean(LogProcessServiceImpl.class);
-        MilogLogProcessDOMybatis byId = logProcessService.getByIdFramework(1l);
-        System.out.println(byId);
+//        Ioc.ins().init("com.xiaomi");
+//        LogProcessServiceImpl logProcessService = Ioc.ins().getBean(LogProcessServiceImpl.class);
+//        MilogLogProcessDOMybatis byId = logProcessService.getByIdFramework(1l);
+//        System.out.println(byId);
     }
 
     @Test

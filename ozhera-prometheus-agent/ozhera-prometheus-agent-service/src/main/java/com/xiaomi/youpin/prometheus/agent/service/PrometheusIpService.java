@@ -53,8 +53,8 @@ public class PrometheusIpService {
         headers.put("Content-Type", "application/json; charset=utf-8");
         try {
             String heraAppRes = HttpClientV2.get(url, headers, 10000);
-            GetAllPodIpRes getAllPodIpRes = gson.fromJson(heraAppRes, GetAllPodIpRes.class);
             log.info("getHeraAppPodIp heraAppRes : {} ", heraAppRes);
+            GetAllPodIpRes getAllPodIpRes = gson.fromJson(heraAppRes, GetAllPodIpRes.class);
             if (getAllPodIpRes == null || getAllPodIpRes.getCode() != 0) {
                 return res;
             }

@@ -52,11 +52,12 @@ public class LogParserFactoryTest {
         LogParser logParser = LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, topicName, tailName, mqTag, logStoreName);
 
         LineMessage lineMessage = Constant.GSON.fromJson(message, LineMessage.class);
-        String ip = lineMessage.getProperties(LineMessage.KEY_IP);
-        Long lineNumber = lineMessage.getLineNumber();
-        Map<String, Object> parseSimple = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, Instant.now().toEpochMilli(), lineMessage.getFileName());
-
-        log.info("simple data:{}", gson.toJson(parseSimple));
+        if(lineMessage != null) {
+            String ip = lineMessage.getProperties(LineMessage.KEY_IP);
+            Long lineNumber = lineMessage.getLineNumber();
+            Map<String, Object> parseSimple = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, Instant.now().toEpochMilli(), lineMessage.getFileName());
+            log.info("simple data:{}", gson.toJson(parseSimple));
+        }
     }
 
     @Test

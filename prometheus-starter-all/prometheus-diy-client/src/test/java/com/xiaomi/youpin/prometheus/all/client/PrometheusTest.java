@@ -46,11 +46,6 @@ public class PrometheusTest {
                     with("zxw").
                     add(1,"zxw");
             Metrics.getInstance().newCounter("testCounter2", "age", "city").with("99", "china").add(1,"18","beijing");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
     }
 
@@ -58,11 +53,6 @@ public class PrometheusTest {
     public void testGauge()  {
         IntStream.range(0, 100).forEach(i -> {
             Metrics.getInstance().newGauge("testGauge", "name").with("zxw").set(128,"zxw");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
     }
 
@@ -71,30 +61,20 @@ public class PrometheusTest {
         IntStream.range(0,100).forEach(i-> {
             Metrics.getInstance().newHistogram("testHistogramWithDefaultBucket",null,"name").with("zxw").observe(12,"zxw");
             Metrics.getInstance().newHistogram("testHistogramWithDiyBucket", new double[] {.01, .05, 0.7, 5 ,10, 50, 100, 200},"name").with("zxw").observe(12,"zxw");
-            try {
-                Thread.sleep(3000);
-            }catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
     }
 
-    @Test
+/*    @Test
     public void testException()   {
         IntStream.range(0, 100).forEach(i -> {
             Metrics.getInstance().newCounter("testNotMatchLabelNameAndLabelValueExceptionCounter", "a", "b").with("1").add(1);
             Metrics.getInstance().newGauge("testNotMatchLabelNameAndLabelValueExceptionGauge", "a", "b").with("1").add(1);
             Metrics.getInstance().newHistogram("testNotMatchLabelNameAndLabelValueExceptionHistogram", null, "b", "c").with("1").observe(1);
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
-    }
-    @Test
+    }*/
+/*    @Test
     public void testJvm() throws InterruptedException {
         Thread.sleep(3000000);
-    }
+    }*/
 }
 

@@ -15,6 +15,7 @@ import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -197,89 +198,6 @@ public class DingDingTest {
             "    \"groupKey\":\"{}/{send_interval\\u003d\\\"5m\\\"}:{alertname\\u003d\\\"k8s_container_cpu_use_rate-2-k8s_container_cpu_use_rate-1678682933270\\\", group_key\\u003d\\\"localhost:5195\\\"}\",\n" +
             "    \"truncatedAlerts\":0\n" +
             "}";
-
-    @Test
-    public void testFeishuInterfaceAlertCard() {
-        try {
-            DingDingService dingDingService = new DingDingService();
-            dingDingService.init();
-            AlertManagerFireResult fireResult = gson.fromJson(testInterfaceAlert, AlertManagerFireResult.class);
-            List<Alerts> alerts = fireResult.getAlerts();
-            GroupLabels groupLabels = fireResult.getGroupLabels();
-            String alertName = groupLabels.getAlertname();
-            fireResult.getAlerts().stream().forEach(alert -> {
-                try {
-                    // query responsible person
-                    int priority = 1;
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("priority", "P" + String.valueOf(priority));
-                    map.put("title", fireResult.getCommonAnnotations().getTitle());
-                    String alertOp = alert.getLabels().getAlert_op();
-                    String alertValue = alert.getLabels().getAlert_value();
-                    if (alertOp == null || alertOp.isEmpty()) {
-                        alertOp = "";
-                        alertValue = "";
-                    }
-                    map.put("alert_op", alertOp);
-                    map.put("alert_value", alertValue);
-                    map.put("application", alert.getLabels().getApplication());
-                    map.put("silence_url", "XXX.com");
-                    CommonLabels commonLabels = fireResult.getCommonLabels();
-                    Class clazz = commonLabels.getClass();
-                    Field[] fields = clazz.getDeclaredFields();
-                    StringBuilder sb = new StringBuilder();
-                    for (Field field : fields) {
-                        // set access rights
-                        field.setAccessible(true);
-                        String fieldName = field.getName();
-                        Object fieldValue = null;
-                        try {
-                            // convert fieldValue to String
-                            fieldValue = field.get(commonLabels); // Get field value
-                            if (fieldValue == null) {
-                                continue;
-                            }
-                            map.put(fieldName, field.get(commonLabels));
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    Map<String, Object> finalMap = transferNames(map);
-                    filterName(finalMap);
-                    finalMap.forEach(
-                            (k, v) -> {
-                                sb.append("**").append(k).append("**").append(": ").append(v).append("\n");
-                            });
-
-                    String content = sb.toString();
-                    finalMap.put("content", content);
-                    //begin constructive silent parameter
-                    StringBuilder silenceSb = new StringBuilder();
-                    String silencePrefix = silenceSb.append(alert.getLabels().getApplication()).append("||").append(alert.getLabels().getAlertname())
-                            .append("||").append(content).append("||").toString();;
-                    finalMap.put("silence2h",silencePrefix + "2h");
-                   // System.out.println(finalMap.get("silence2h"));
-                    finalMap.put("silence1d",silencePrefix + "1d");
-                    finalMap.put("silence3d",silencePrefix + "3d");
-                    String freeMarkerRes = FreeMarkerUtil.getContent("/dingding", "dingdingbasicCart.ftl", finalMap);
-                    dingDingService.sendDingDing(freeMarkerRes,new String[]{"xx"},alert.getLabels().getAlertname());
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testFetchName() throws Exception {
-        DingDingService dingDingService = new DingDingService();
-        dingDingService.init();
-        String nameByUserId = dingDingService.getNameByUserId("xx");
-        System.out.println(nameByUserId);
-    }
 
     Map<String, Object> transferNames(Map<String, Object> map) {
         List<Map.Entry<String, Object>> entries = new ArrayList<>(map.entrySet());

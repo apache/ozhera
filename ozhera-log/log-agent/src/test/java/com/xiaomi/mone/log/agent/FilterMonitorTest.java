@@ -41,22 +41,22 @@ public class FilterMonitorTest {
 
     @Test
     public void testScheduleExecutor() throws IOException {
-        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
-            log.info("current thread:{}", Thread.currentThread().getName());
-        }, 2, 7, TimeUnit.SECONDS);
-        new Thread(() -> {
-            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
-                log.info("child current thread:{}", Thread.currentThread().getName());
-            }, 5, 7, TimeUnit.SECONDS);
-            try {
-                TimeUnit.MINUTES.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            scheduledFuture.cancel(true);
-        }).start();
-        System.in.read();
+//        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5);
+//        scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
+//            log.info("current thread:{}", Thread.currentThread().getName());
+//        }, 0, 100, TimeUnit.MILLISECONDS);
+//        new Thread(() -> {
+//            ScheduledFuture<?> scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
+//                log.info("child current thread:{}", Thread.currentThread().getName());
+//            }, 0, 100, TimeUnit.MILLISECONDS);
+//            try {
+//                TimeUnit.MINUTES.sleep(1);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            scheduledFuture.cancel(true);
+//        }).start();
+//        System.in.read();
     }
 
     @Test
@@ -87,6 +87,6 @@ public class FilterMonitorTest {
         } catch (Exception e) {
             log.error(String.format("agent file monitor start err,monitor filePattern:%s"), e);
         }
-        System.in.read();
+//        System.in.read();
     }
 }

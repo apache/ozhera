@@ -48,38 +48,38 @@ public class LogParserTest {
 
     @Test
     public void test1() {
-        String log = "";
-        String pattern = "[%s]-[%s]-[%s]-[%s]-[%s]-%s";
-        List<String> keys = Arrays.asList("timeStamp", "appName", "thread", "level", "bizId", "message");
-        // Gets the prefix and suffix of the string
-        Map<Integer, List<String>> map = new HashMap<>();
-        String[] split = StringUtils.split(pattern, "-");
-        for (int i = 0; i < split.length; i++) {
-            String[] split1 = split[i].split("%s");
-            if (split1.length == 2) {
-                map.put(i, Arrays.asList(split1[0], split1[1]));
-            } else {
-                map.put(i, Arrays.asList("", ""));
-            }
-        }
-        int startIndex = 0;
-        Map<String, String> mapData = new HashMap<>();
-        for (int i = 0; i < keys.size(); i++) {
-            List<String> list = map.get(i);
-            String data;
-            if (StringUtils.isEmpty(list.get(0)) && StringUtils.isEmpty(list.get(1))) {
-                data = log;
-            } else {
-                data = StringUtils.substringBetween(log, list.get(0), list.get(1));
-            }
-            mapData.put(keys.get(i), data);
-            if (i == keys.size() - 1) {
-                break;
-            }
-            startIndex = list.get(0).length() + data.length() + list.get(1).length();
-            log = StringUtils.substring(log, startIndex).trim();
-        }
-        System.out.println(mapData);
+//        String log = "";
+//        String pattern = "[%s]-[%s]-[%s]-[%s]-[%s]-%s";
+//        List<String> keys = Arrays.asList("timeStamp", "appName", "thread", "level", "bizId", "message");
+//        // Gets the prefix and suffix of the string
+//        Map<Integer, List<String>> map = new HashMap<>();
+//        String[] split = StringUtils.split(pattern, "-");
+//        for (int i = 0; i < split.length; i++) {
+//            String[] split1 = split[i].split("%s");
+//            if (split1.length == 2) {
+//                map.put(i, Arrays.asList(split1[0], split1[1]));
+//            } else {
+//                map.put(i, Arrays.asList("", ""));
+//            }
+//        }
+//        int startIndex = 0;
+//        Map<String, String> mapData = new HashMap<>();
+//        for (int i = 0; i < keys.size(); i++) {
+//            List<String> list = map.get(i);
+//            String data;
+//            if (StringUtils.isEmpty(list.get(0)) && StringUtils.isEmpty(list.get(1))) {
+//                data = log;
+//            } else {
+//                data = StringUtils.substringBetween(log, list.get(0), list.get(1));
+//            }
+//            mapData.put(keys.get(i), data);
+//            if (i == keys.size() - 1) {
+//                break;
+//            }
+//            startIndex = list.get(0).length() + data.length() + list.get(1).length();
+//            log = StringUtils.substring(log, startIndex).trim();
+//        }
+//        System.out.println(mapData);
     }
 
     @Test

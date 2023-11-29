@@ -260,7 +260,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         }
         storeExtensionService.deleteStorePostProcessing(logStore);
         if (logStoreDao.deleteMilogSpace(id)) {
-            storeExtensionService.postProcessing(logStore, null, OperateEnum.ADD_OPERATE);
+            storeExtensionService.postProcessing(logStore, null, OperateEnum.DELETE_OPERATE);
             //Delete the configuration in NACOS
             logTailService.deleteConfigRemote(logStore.getSpaceId(), id, logStore.getMachineRoom(), LogStructureEnum.STORE);
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());

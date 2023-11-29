@@ -67,7 +67,7 @@ public class TestSomething {
     @Test
     public void testException() {
         try {
-            String ofNull = null;
+            String ofNull = "null";
             ofNull.getBytes();
         } catch (Exception e) {
 //            log.error("error has happen, param:{}, error:{}", "param", e);

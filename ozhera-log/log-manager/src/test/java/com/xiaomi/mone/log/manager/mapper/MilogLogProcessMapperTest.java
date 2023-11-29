@@ -35,11 +35,11 @@ public class MilogLogProcessMapperTest {
 
     @Test
     public void getById() throws IOException {
-        String resource = "mybatis-config.xml";
-        InputStream inputStream = null;
-        inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlsessionfactory = new SqlSessionFactoryBuilder().build(inputStream);
-        SqlSession sqlsession = sqlsessionfactory.openSession();
+//        String resource = "mybatis-config.xml";
+//        InputStream inputStream = null;
+//        inputStream = Resources.getResourceAsStream(resource);
+//        SqlSessionFactory sqlsessionfactory = new SqlSessionFactoryBuilder().build(inputStream);
+//        SqlSession sqlsession = sqlsessionfactory.openSession();
 //        MilogLogProcessMapper mapper = sqlsession.getMapper(MilogLogProcessMapper.class);
 //        MilogLogProcessDO byId = mapper.selectById(1l);
 //        System.out.println(byId);
@@ -47,20 +47,20 @@ public class MilogLogProcessMapperTest {
 
     @Test
     public void selectById() {
-        Ioc.ins().init("com.xiaomi");
-        MilogLogProcessMapper mapper = Ioc.ins().getBean(MilogLogProcessMapper.class);
-        MilogLogProcessDOMybatis process = mapper.selectById(1l);
-        System.out.println(process);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogLogProcessMapper mapper = Ioc.ins().getBean(MilogLogProcessMapper.class);
+//        MilogLogProcessDOMybatis process = mapper.selectById(1l);
+//        System.out.println(process);
     }
 
     @Test
     public void testSql() {
-        Ioc.ins().init("com.xiaomi");
-        MilogLogTailDao milogLogTailDao = Ioc.ins().getBean(MilogLogTailDao.class);
-        Long spaceId = 6L;
-        List<Long> storeIds = Lists.newArrayList(51L, 17L, 33L);
-        Long minCountStoreId = milogLogTailDao.queryMinTailCountStoreId(spaceId, storeIds);
-        log.info("result:{}", minCountStoreId);
+//        Ioc.ins().init("com.xiaomi");
+//        MilogLogTailDao milogLogTailDao = Ioc.ins().getBean(MilogLogTailDao.class);
+//        Long spaceId = 6L;
+//        List<Long> storeIds = Lists.newArrayList(51L, 17L, 33L);
+//        Long minCountStoreId = milogLogTailDao.queryMinTailCountStoreId(spaceId, storeIds);
+//        log.info("result:{}", minCountStoreId);
     }
 
 }

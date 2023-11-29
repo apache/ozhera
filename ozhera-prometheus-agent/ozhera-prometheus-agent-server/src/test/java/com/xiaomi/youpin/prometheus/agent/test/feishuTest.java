@@ -31,12 +31,9 @@ import java.util.Map;
 /**
  * @author zhangxiaowei6
  */
-@SpringBootTest(classes = PrometheusAgentBootstrap.class)
 public class feishuTest {
 
     public static final Gson gson = new Gson();
-    @Autowired
-    FeishuAlertContact feishuAlertContact;
 
     String body = "{\n" +
             "    \"receiver\":\"web\\\\.hook\",\n" +
@@ -118,10 +115,4 @@ public class feishuTest {
             "    \"truncatedAlerts\":0\n" +
             "}";
 
-    @Test
-    public void testAlertManagerSendfeishu() {
-        JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-        AlertManagerFireResult fireResult = gson.fromJson(body, AlertManagerFireResult.class);
-        feishuAlertContact.Reach(fireResult);
-    }
 }

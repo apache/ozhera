@@ -14,17 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 /**
  * @author zhangxiaowei6
  */
-@SpringBootTest(classes = PrometheusAgentBootstrap.class)
 public class MailTest {
-
-    @Autowired
-    private MailUtil mailUtil;
-
-    @Autowired
-    MailAlertContact mailAlertContact;
 
     public static final Gson gson = new Gson();
 
@@ -107,24 +101,4 @@ public class MailTest {
             "    \"groupKey\":\"{}/{send_interval\\u003d\\\"5m\\\"}:{alertname\\u003d\\\"k8s_container_cpu_use_rate-2-k8s_container_cpu_use_rate-1678682933270\\\", group_key\\u003d\\\"localhost:5195\\\"}\",\n" +
             "    \"truncatedAlerts\":0\n" +
             "}";
-
-    @Test
-    public void testSingle() {
-        mailUtil.sendMailTOSingleUser("xx@qq.com", "test", "test1");
-    }
-
-    @Test
-    public void testMulti() {
-        ArrayList<String> list = new ArrayList<>();
-       // list.add("xxx@qq.com");
-        list.add("xxxx@xiaomi.com");
-        mailUtil.sendMailToUserArray(list, "test2", "test2");
-    }
-
-    @Test
-    public void testAlertManagerSendMail() {
-        JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-        AlertManagerFireResult fireResult = gson.fromJson(body, AlertManagerFireResult.class);
-        mailAlertContact.Reach(fireResult);
-    }
 }

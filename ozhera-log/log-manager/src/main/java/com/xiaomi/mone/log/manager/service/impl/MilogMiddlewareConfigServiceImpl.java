@@ -216,14 +216,13 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
         Long esResourceTotal = queryStorageResource(milogMiddlewareConfigs, resourcePage);
 
-//        milogMiddlewareConfigs = userShowAuthority(milogMiddlewareConfigs);
         milogMiddlewareConfigs = resourceExtensionService.userShowAuthority(milogMiddlewareConfigs);
         List<ResourceInfo> resourceInfos = milogMiddlewareConfigs.stream().map(MilogMiddlewareConfig::configToResourceVO).collect(Collectors.toList());
 
         return new PageInfo(resourcePage.getPage(), resourcePage.getPageSize(), mqResourceTotal + esResourceTotal.intValue(), resourceInfos);
     }
 
-    private Cnd generateMqQueryCnd(ResourcePage resourcePage) {
+    private Cnd buildMqQueryCnd(ResourcePage resourcePage) {
         Cnd cnd = Cnd.NEW();
         if (Objects.equals(ResourceEnum.MQ.getCode(), resourcePage.getResourceCode())) {
             cnd.andEX("type", "in", resourceExtensionService.getMqResourceCodeList());
@@ -245,7 +244,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
      */
     private Long queryStorageResource(List<MilogMiddlewareConfig> milogMiddlewareConfigs, ResourcePage resourcePage) {
         Long count = 0L;
-        if (MiddlewareEnum.ELASTICSEARCH.getCode().equals(resourcePage.getResourceCode())) {
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourcePage.getResourceCode())) {
             PageDTO page = new PageDTO<MilogEsClusterDO>(resourcePage.getPage(), resourcePage.getPageSize());
             Wrapper queryWrapper = generateEsQueryWrapper(resourcePage);
 

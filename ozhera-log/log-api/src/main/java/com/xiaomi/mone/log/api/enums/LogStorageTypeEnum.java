@@ -13,7 +13,7 @@ public enum LogStorageTypeEnum {
     CLICKEHOUSE;
 
     public static LogStorageTypeEnum queryByName(String name) {
-        if (null == name || name.length() == 0) {
+        if (null == name || name.isEmpty()) {
             return null;
         }
         for (LogStorageTypeEnum value : values()) {

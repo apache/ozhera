@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.nacos.NacosNaming;
-import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
+import com.xiaomi.mone.log.api.enums.MQSourceEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.manager.common.Utils;
 import com.xiaomi.mone.log.manager.dao.MilogAppMiddlewareRelDao;
@@ -394,10 +394,8 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
             logtailConfig.setTag(tag);
             logtailConfig.setConsumerGroup(config.getConsumerGroup());
-            if (MiddlewareEnum.ROCKETMQ.getCode().equals(middlewareConfig.getType())) {
-                logtailConfig.setType(MiddlewareEnum.ROCKETMQ.getName());
-                logtailConfig.setClusterInfo(middlewareConfig.getNameServer());
-            }
+            logtailConfig.setType(MQSourceEnum.queryName(middlewareConfig.getType()));
+            logtailConfig.setClusterInfo(middlewareConfig.getNameServer());
             TailExtensionServiceFactory.getTailExtensionService().logTailConfigExtraField(logtailConfig, middlewareConfig);
         }
     }

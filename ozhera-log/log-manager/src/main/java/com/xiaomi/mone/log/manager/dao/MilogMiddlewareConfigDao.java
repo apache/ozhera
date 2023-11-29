@@ -131,6 +131,12 @@ public class MilogMiddlewareConfigDao {
         return dao.query(MilogMiddlewareConfig.class, cnd);
     }
 
+    public List<MilogMiddlewareConfig> queryByResourceCodes(List<Integer> resourceCodes, String regionCode) {
+        Cnd cnd = Cnd.where("type", "in", resourceCodes);
+        cnd.and("region_en", EQUAL_OPERATE, regionCode);
+        return dao.query(MilogMiddlewareConfig.class, cnd);
+    }
+
     public List<MilogMiddlewareConfig> selectByAlias(String alias) {
         Cnd cnd = Cnd.where("alias", EQUAL_OPERATE, alias);
         return dao.query(MilogMiddlewareConfig.class, cnd);

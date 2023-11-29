@@ -114,18 +114,22 @@ public class LogProcessServiceImpl implements LogProcessService {
         colProcessImperfect.parallelStream().forEach(collectDetail -> {
             String tailId = collectDetail.getTailId();
             if (StringUtils.isNotBlank(tailId)) {
-                MilogLogTailDo logTailDo = logtailDao.queryById(Long.valueOf(tailId));
-                if (logTailDo != null) {
-                    collectDetail.setTailName(logTailDo.getTail());
-                }
+                try {
+                    MilogLogTailDo logTailDo = logtailDao.queryById(Long.valueOf(tailId));
+                    if (logTailDo != null) {
+                        collectDetail.setTailName(logTailDo.getTail());
+                    }
 
-                // Update the map with the latest details
-                tailIdToDetailMap.merge(tailId, collectDetail, (existingDetail, newDetail) -> {
-                    existingDetail.getIpList().addAll(newDetail.getIpList());
-                    existingDetail.getIpList().stream().distinct().collect(Collectors.toList());
-                    existingDetail.getFileProgressDetails().addAll(newDetail.getFileProgressDetails());
-                    return existingDetail;
-                });
+                    // Update the map with the latest details
+                    tailIdToDetailMap.merge(tailId, collectDetail, (existingDetail, newDetail) -> {
+                        existingDetail.getIpList().addAll(newDetail.getIpList());
+                        existingDetail.getIpList().stream().distinct().collect(Collectors.toList());
+                        existingDetail.getFileProgressDetails().addAll(newDetail.getFileProgressDetails());
+                        return existingDetail;
+                    });
+                } catch (Exception e) {
+                    log.error("process data error", e);
+                }
             }
         });
 

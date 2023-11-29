@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.extension.store;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
@@ -35,8 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
 
+import static com.xiaomi.mone.log.common.Constant.YES;
 import static com.xiaomi.mone.log.manager.service.extension.store.StoreExtensionService.DEFAULT_STORE_EXTENSION_SERVICE_KEY;
 
 /**
@@ -75,36 +76,42 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
     @Override
     public void storeResourceBinding(MilogLogStoreDO storeDO, LogStoreParam storeParam, OperateEnum operateEnum) {
         if (StringUtils.isNotEmpty(storeDO.getEsIndex()) && null != storeDO.getMqResourceId() && null != storeDO.getEsClusterId()) {
-            //Custom resources operate
+            //custom resources operate
             customResources(storeDO, storeParam);
             return;
         }
-//        bindMqResource(storeDO, storeParam);
+        bindMqResource(storeDO, storeParam);
         bindStorageResource(storeDO, storeParam);
     }
 
     private void bindStorageResource(MilogLogStoreDO storeDO, LogStoreParam storeParam) {
-        MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(storeParam.getEsResourceId());
-        LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
-        if (storageTypeEnum == LogStorageTypeEnum.DORIS) {
-            return;
-        }
         ResourceUserSimple resourceUserConfig = resourceConfigService.userResourceList(storeParam.getMachineRoom(), storeParam.getLogType());
         if (resourceUserConfig.getInitializedFlag()) {
-            //Select the ES cluster
-            if (null == storeParam.getEsResourceId()) {
-                List<MilogEsClusterDO> esClusterDOS = milogEsClusterMapper.selectList(Wrappers.lambdaQuery());
-                storeParam.setEsResourceId(esClusterDOS.get(esClusterDOS.size() - 1).getId());
+            // select the ES cluster
+            storeParam.setEsResourceId(storeParam.getEsResourceId() != null ? storeParam.getEsResourceId() : getDefaultEsClusterId());
+
+            MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(storeParam.getEsResourceId());
+            LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
+            if (storageTypeEnum == LogStorageTypeEnum.DORIS) {
+                return;
             }
+
             EsInfoDTO esInfo = esIndexTemplate.getEsInfo(storeParam.getEsResourceId(), storeParam.getLogType(), null);
-            storeParam.setEsIndex(esInfo.getIndex());
+            storeParam.setEsIndex(StringUtils.defaultIfBlank(storeParam.getEsIndex(), esInfo.getIndex()));
             storeDO.setEsClusterId(esInfo.getClusterId());
-            if (StringUtils.isEmpty(storeParam.getEsIndex())) {
-                storeDO.setEsIndex(esInfo.getIndex());
-            } else {
-                storeDO.setEsIndex(storeParam.getEsIndex());
-            }
+            storeDO.setEsIndex(storeParam.getEsIndex());
         }
+    }
+
+    private Long getDefaultEsClusterId() {
+        LambdaQueryWrapper<MilogEsClusterDO> lambdaQueryWrapper = Wrappers.lambdaQuery();
+        lambdaQueryWrapper.eq(MilogEsClusterDO::getIsDefault, YES);
+
+        return milogEsClusterMapper.selectList(lambdaQueryWrapper)
+                .stream()
+                .map(MilogEsClusterDO::getId)
+                .reduce((first, second) -> second)
+                .orElse(null);
     }
 
     private void bindMqResource(MilogLogStoreDO storeDO, LogStoreParam storeParam) {

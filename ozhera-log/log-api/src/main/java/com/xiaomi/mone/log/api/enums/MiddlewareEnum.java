@@ -22,7 +22,8 @@ import java.util.Arrays;
 /**
  * @author wtt
  * @version 1.0
- * @description
+ * @description this should be associated with MQSourceEnum,
+ * and values shouldn't be added arbitrarily
  * @date 2021/9/17 15:57
  */
 @Getter

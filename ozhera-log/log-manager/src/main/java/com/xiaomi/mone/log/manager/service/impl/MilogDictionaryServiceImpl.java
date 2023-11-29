@@ -85,6 +85,7 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
      *                        1007:Deployment method
      *                        1008:Resource tab page number
      *                        1009:LogStorageTypeEnum type
+     *                        1010:mq type
      * @return
      */
     @Override
@@ -105,7 +106,7 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
                     dictionaryDTO.put(code, dictionaryExtensionService.queryMiddlewareConfigDictionary(StringUtils.isNotEmpty(dictionaryParam.getNameEn()) ? dictionaryParam.getNameEn() : MachineRegionEnum.CN_MACHINE.getEn()));
                     break;
                 case 1002:
-                    dictionaryDTO.put(code, dictionaryExtensionService.queryMqTypeDictionary());
+                    dictionaryDTO.put(code, dictionaryExtensionService.queryResourceDictionary());
                     break;
                 case 1003:
                     dictionaryDTO.put(code, queryAllRocketMqTopic(dictionaryParam.getMiddlewareId()));
@@ -126,6 +127,8 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
                     break;
                 case 1009:
                     dictionaryDTO.put(code, queryLogStorageTypeDictionary());
+                case 1010:
+                    dictionaryDTO.put(code, dictionaryExtensionService.queryMQDictionary());
             }
         });
         log.debug("return val：{}", new Gson().toJson(dictionaryDTO));

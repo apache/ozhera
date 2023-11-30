@@ -25,4 +25,6 @@ public class MqConfig<T> implements Serializable {
     private Function<T, Boolean> consumerMethod;
     private Function<List<T>, Boolean> batchConsumerMethod;
 
+    private int maxPollRecords;
+
 }

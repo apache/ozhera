@@ -1,24 +1,23 @@
 package com.xiaomi.hera.trace.etl.es.consumer;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.xiaomi.hera.trace.etl.api.service.MQExtension;
+import com.xiaomi.hera.trace.etl.bo.MqConfig;
 import com.xiaomi.hera.trace.etl.es.util.pool.ConsumerPool;
 import com.xiaomi.hera.trace.etl.util.ThriftUtil;
 import com.xiaomi.hera.tspandata.TSpanData;
-import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.thrift.TDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,52 +25,48 @@ import java.util.concurrent.TimeUnit;
  * @Author dingtao
  * @Date 2021/11/5 10:05 am
  */
-@Component
-public class TraceSpanConsumer {
+@Service
+@ConditionalOnProperty(name = "mq", havingValue = "kafka")
+@Slf4j
+public class KafkaTraceSpanConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger(TraceSpanConsumer.class);
-
-    @Value("${mq.rocketmq.group}")
+    @Value("${mq.consumer.group}")
     private String group;
 
-    @NacosValue("${mq.rocketmq.nameseraddr}")
+    @NacosValue("${mq.nameseraddr}")
     private String nameSerAddr;
 
-    @Value("${mq.rocketmq.es.topic}")
+    @Value("${mq.es.topic}")
     private String topicName;
 
     @Autowired
     private ConsumerService consumerService;
 
+    @Autowired
+    private MQExtension mq;
+
     @PostConstruct
     public void takeMessage() throws MQClientException {
-        // init rocketmq consumer
-        log.info("init consumer start ...");
-        DefaultMQPushConsumer consumer=new DefaultMQPushConsumer(group);
-        consumer.setNamesrvAddr(nameSerAddr);
-        consumer.subscribe(topicName,"*");
-        consumer.registerMessageListener(new TraceEtlMessageListener());
-        consumer.start();
-        log.info("init consumer end ...");
-    }
 
-    private class TraceEtlMessageListener implements MessageListenerConcurrently {
+        MqConfig<ConsumerRecords<String, String>> config = new MqConfig<>();
+        config.setNameSerAddr(nameSerAddr);
 
-        @Override
-        public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-            if(list == null || list.isEmpty()){
-                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-            }
+        config.setConsumerGroup(group);
+        config.setConsumerTopicName(topicName);
+
+        config.setConsumerMethod((records)->{
             try {
-                for(MessageExt message : list) {
-                    ConsumerPool.CONSUMER_POOL.submit(new ConsumerRunner(message.getBody()));
+                for (ConsumerRecord<String, String> message : records) {
+                    ConsumerPool.CONSUMER_POOL.submit(new ConsumerRunner(message.value().getBytes(StandardCharsets.ISO_8859_1)));
                     await();
                 }
             } catch (Throwable t) {
                 log.error("consumer message error", t);
             }
-            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-        }
+            return true;
+        });
+
+        mq.initMq(config);
     }
 
     private void await() {

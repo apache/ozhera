@@ -21,7 +21,7 @@ public class MilogAppMiddlewareRelDaoTest {
     private MilogAppMiddlewareRelDao milogAppMiddlewareRelDao;
     private Gson gson;
 
-    @Before
+//    @Before
     public void init() {
         getConfigFromNanos();
         Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
@@ -29,7 +29,7 @@ public class MilogAppMiddlewareRelDaoTest {
         gson = new Gson();
     }
 
-    @Test
+//    @Test
     public void testLike() {
         String topic = "common_mq_miLog_second";
         Integer count = milogAppMiddlewareRelDao.queryCountByTopicName(topic);

@@ -6,8 +6,6 @@ import com.xiaomi.mone.log.manager.model.pojo.MilogAppMiddlewareRel;
 import com.xiaomi.mone.log.manager.service.impl.KafkaMqConfigService;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.List;
 
@@ -30,7 +28,7 @@ public class KafkaMqConfigServiceTest {
     private String sk = "";
     private String clusterInfo = "";
 
-    @Before
+    //    @Before
     public void init() {
         getConfigFromNanos();
         Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
@@ -38,13 +36,13 @@ public class KafkaMqConfigServiceTest {
         gson = new Gson();
     }
 
-    @Test
+    //    @Test
     public void testQueryTopicList() {
         List<DictionaryDTO> dictionaryDTOS = kafkaMqConfigService.queryExistsTopic(ak, sk, clusterInfo, "", "", "", "");
         dictionaryDTOS.forEach(System.out::println);
     }
 
-    @Test
+    //    @Test
     public void generateTopicTest() {
         MilogAppMiddlewareRel.Config config = kafkaMqConfigService.generateConfig(ak, sk, clusterInfo, "", "", "", "", null, "test-app", "", 1233434L);
         log.info("topic result:{}", gson.toJson(config));

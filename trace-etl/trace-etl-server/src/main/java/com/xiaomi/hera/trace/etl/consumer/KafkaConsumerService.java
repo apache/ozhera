@@ -81,7 +81,9 @@ public class KafkaConsumerService {
                     }
                     producerRecordList.add(new ProducerRecord<>(esTopicName, traceId, message.value()));
                 }
-                mq.send(producerRecordList);
+                if(producerRecordList.size() > 0) {
+                    mq.send(producerRecordList);
+                }
                 return true;
             } finally {
                 enterManager.getProcessNum().decrementAndGet();

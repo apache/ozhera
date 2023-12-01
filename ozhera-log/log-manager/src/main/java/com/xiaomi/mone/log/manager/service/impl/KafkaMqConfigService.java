@@ -54,12 +54,11 @@ public class KafkaMqConfigService implements MqConfigService, CommonRocketMqServ
             List<NewTopic> topics = Lists.newArrayList(topicName).stream().map(topic -> new NewTopic(topic, Optional.of(1),
                     Optional.of((short) 1))).collect(Collectors.toList());
             CreateTopicsResult result = adminClient.createTopics(topics);
-//            Set<String> topicsList = getTopicList(adminClient);
-            // 等待主题创建完成
+            // Wait for the theme to be created
             Map<String, KafkaFuture<Void>> values = result.values();
             for (Map.Entry<String, KafkaFuture<Void>> entry : values.entrySet()) {
                 try {
-                    entry.getValue().get(); // 等待创建操作完成
+                    entry.getValue().get(); // Wait for the creation operation to complete
                     log.info("Topic:{},created successfully.", entry.getKey());
                 } catch (InterruptedException | ExecutionException e) {
                     log.error("Failed to create topic:{}", entry.getKey(), e);

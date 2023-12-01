@@ -22,12 +22,12 @@ public class KafkaUtils {
 
     public static Properties getVpc9094KafkaProperties(String nameServer, String userName, String password) {
         String saslMechanism = "PLAIN";
-        // 设置 Kafka 服务器地址
+        // Set Kafka server address
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, nameServer);
-        //接入协议，
+        //access protocol，
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
-        // 设置SASL账号
+        // Set up SASL account
         if (StringUtils.isNotEmpty(userName) && StringUtils.isNotEmpty(password)) {
             String prefix = "org.apache.kafka.common.security.scram.ScramLoginModule";
             if ("PLAIN".equalsIgnoreCase(saslMechanism)) {
@@ -36,36 +36,36 @@ public class KafkaUtils {
             String jaasConfig = String.format("%s required username=\"%s\" password=\"%s\";", prefix, userName, password);
             props.put(SaslConfigs.SASL_JAAS_CONFIG, jaasConfig);
         }
-        // scram 方式和plain方式区别
+        // The difference between scram mode and plain mode
         props.put(SaslConfigs.SASL_MECHANISM, saslMechanism);
         return props;
     }
 
     public static Properties getDefaultKafkaProperties(String nameServer) {
-        // 设置 Kafka 服务器地址
+        // Set Kafka server address
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, nameServer);
-        //请求的最长等待时间
+        //Maximum wait time for requests
         props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 30 * 1000);
-        //设置客户端内部重试次数
+        //Set the number of client internal retries
         props.put(ProducerConfig.RETRIES_CONFIG, 5);
-        //设置客户端内部重试间隔
+        //Set client internal retry interval
         props.put(ProducerConfig.RECONNECT_BACKOFF_MS_CONFIG, 3000);
         return props;
     }
 
     public static Properties getSslKafkaProperties(String nameServer, String userName, String password, String sslLocation) {
         String saslMechanism = "PLAIN";
-        // 设置 Kafka 服务器地址
+        // Set Kafka server address
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, nameServer);
 
         props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, sslLocation);
-        //根证书store的密码，保持不变
+        //The password of the root certificate store, remains unchanged
         props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "KafkaOnsClient");
-        //接入协议，目前支持使用SASL_SSL协议接入
+        //Access protocol, currently supports access using SASL SSL protocol
         props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-        // 设置SASL账号
+        // Set up SASL account
         if (!StringUtils.isEmpty(userName) && !StringUtils.isEmpty(password)) {
             String prefix = "org.apache.kafka.common.security.scram.ScramLoginModule";
             if ("PLAIN".equalsIgnoreCase(saslMechanism)) {

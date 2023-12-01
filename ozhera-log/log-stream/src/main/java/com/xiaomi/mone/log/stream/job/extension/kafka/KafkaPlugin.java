@@ -61,20 +61,17 @@ public class KafkaPlugin implements MQPlugin {
         } else {
             props.putAll(KafkaUtils.getDefaultKafkaProperties(clusterInfo));
         }
-        //两次poll之间的最大允许间隔
-        //可更加实际拉去数据和客户的版本等设置此值，默认30s
+        //The maximum allowed interval between two polls
+        //This value can be set more realistically to pull data and customer versions. The default is 30 s.
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
-        //每次poll的最大数量
-        //注意该值不要改得太大，如果poll太多数据，而不能在下次poll之前消费完，则会触发一次负载均衡，产生卡顿
+        //Be careful not to change this value too much. If too much data is polled and cannot be consumed before the next poll, a load balancing will be triggered, causing lag.
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 30);
-        //消息的反序列化方式
+        //How messages are deserialized
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        //属于同一个组的消费实例，会负载消费消息
+        //Consumer instances belonging to the same group will load consumer messages
         props.put(ConsumerConfig.GROUP_ID_CONFIG, config.getConsumerGroup());
-        //构造消息对象，也即生成一个消费实例
-
-        //hostname校验改成空
+        //Change hostname verification to empty
         props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
         return new KafkaConsumer<>(props);
     }

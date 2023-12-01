@@ -19,7 +19,7 @@ public class MessageSenderFactory {
         MqMessageProduct mqMessageProduct = new RocketMqMessageProduct();
         String storageType = sinkJobConfig.getStorageType();
         LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(storageType);
-        if (null == sinkJobConfig) {
+        if (null == storageTypeEnum) {
             return getEsMessageSender(sinkJobConfig, mqMessageProduct);
         }
         switch (storageTypeEnum) {

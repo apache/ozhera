@@ -246,7 +246,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private synchronized MilogSpaceData dealSpaceConfigByRule(
             String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType) {
         MilogSpaceData existConfig = spaceConfigNacosProvider.getConfig(spaceId.toString());
-        // New configuration
+        // new configuration
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type)) {
             // The configuration is not configured yet, initialize the configuration
             if (null == existConfig || CollectionUtils.isEmpty(existConfig.getSpaceConfig())) {

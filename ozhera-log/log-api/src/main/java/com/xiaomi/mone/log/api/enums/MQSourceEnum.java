@@ -2,6 +2,7 @@ package com.xiaomi.mone.log.api.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -12,16 +13,19 @@ import java.util.Objects;
  */
 @Getter
 public enum MQSourceEnum {
-    ROCKETMQ(1, "rocketmq"),
-    KAFKA(2, "kafka");
+    ROCKETMQ(1, "rocketmq", "RocketMQService"),
+    KAFKA(2, "kafka", "KafkaService");
 
     private final Integer code;
     private final String name;
 
+    private final String serviceName;
 
-    MQSourceEnum(Integer code, String name) {
+
+    MQSourceEnum(Integer code, String name, String serviceName) {
         this.code = code;
         this.name = name;
+        this.serviceName = serviceName;
     }
 
     public static String queryName(Integer code) {
@@ -31,5 +35,17 @@ public enum MQSourceEnum {
             }
         }
         return ROCKETMQ.getName();
+    }
+
+    public static MQSourceEnum queryByName(String name) {
+        if (name == null || "".equals(name)) {
+            return null;
+        }
+        return Arrays.stream(MQSourceEnum.values()).sequential().filter(sourceEnum -> {
+            if (sourceEnum.getName().equals(name)) {
+                return true;
+            }
+            return false;
+        }).findFirst().orElse(null);
     }
 }

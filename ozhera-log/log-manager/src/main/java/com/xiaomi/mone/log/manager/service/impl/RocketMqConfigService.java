@@ -106,6 +106,11 @@ public class RocketMqConfigService implements MqConfigService, CommonRocketMqSer
         return commonTagTopicNames;
     }
 
+    @Override
+    public boolean CreateGroup(String ak, String sk, String nameServer) {
+        return false;
+    }
+
     public boolean createSubscribeGroup(String serviceUrl, String authorization, String orgId,
                                         Long spaceId, Long storeId, Long tailId, Long milogAppId) {
         return false;

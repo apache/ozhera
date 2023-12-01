@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.stream.plugin.mq;
+package com.xiaomi.mone.log.stream.job.extension;
 
 import lombok.Data;
 

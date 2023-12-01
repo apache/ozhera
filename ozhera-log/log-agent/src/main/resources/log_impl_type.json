@@ -9,5 +9,6 @@
   "FREE": "com.xiaomi.mone.log.agent.input.FreeLogInput",
   "ORIGIN_LOG": "com.xiaomi.mone.log.agent.input.OriginLogInput",
   "rocketmq": "com.xiaomi.mone.log.agent.extension.RmqOutput",
-  "talos": "com.xiaomi.mone.log.agent.output.TalosOutput"
+  "talos": "com.xiaomi.mone.log.agent.output.TalosOutput",
+  "kafka": "com.xiaomi.mone.log.agent.extension.KafkaOutput"
 }

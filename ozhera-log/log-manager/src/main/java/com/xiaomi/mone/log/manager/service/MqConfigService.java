@@ -66,8 +66,7 @@ public interface MqConfigService {
             name = PinYin4jUtils.getAllPinyin(name);
         }
         // Handle special characters
-        List<String> collect = ReUtil.RE_KEYS.stream()
-                .map(character -> character.toString()).collect(Collectors.toList());
+        List<String> collect = ReUtil.RE_KEYS.stream().map(Object::toString).toList();
         String topicName = String.format("%s_%s", id, name);
         topicName = StrUtil.removeAny(topicName, collect.toArray(new String[0]));
         return topicName;
@@ -87,4 +86,7 @@ public interface MqConfigService {
      */
     List<String> createCommonTagTopic(String ak, String sk, String nameServer, String serviceUrl,
                                       String authorization, String orgId, String teamId);
+
+
+    boolean CreateGroup(String ak, String sk, String nameServer);
 }

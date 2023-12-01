@@ -207,7 +207,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (null == resourcePage.getResourceCode()) {
             return PageInfo.emptyPageInfo();
         }
-        Cnd mqCnd = generateMqQueryCnd(resourcePage);
+        Cnd mqCnd = buildMqQueryCnd(resourcePage);
 
         Pager pager = new Pager(resourcePage.getPage(), resourcePage.getPageSize());
 

@@ -13,12 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.stream.plugin.mq.rocketmq;
+package com.xiaomi.mone.log.stream.job.extension.rocketmq;
 
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
-import com.xiaomi.mone.log.stream.plugin.mq.MQPlugin;
+import com.xiaomi.mone.log.stream.job.extension.MQPlugin;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

@@ -30,7 +30,7 @@ import java.util.Arrays;
 public enum MiddlewareEnum {
 
     ROCKETMQ(1, "rocketmq", "RocketMQService"),
-    KAFKA(2, "kafka", "KafkaMQService"),
+    KAFKA(2, "kafka", "KafkaService"),
     NCOS(3, "nacos", ""),
     ELASTICSEARCH(4, "elasticsearch", ""),
     HDFS(5, "hdfs", ""),

@@ -110,6 +110,7 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
                     break;
                 case 1003:
                     dictionaryDTO.put(code, queryAllRocketMqTopic(dictionaryParam.getMiddlewareId()));
+                    break;
                 case 1004:
                     dictionaryDTO.put(code, dictionaryExtensionService.queryAppType());
                     break;
@@ -127,8 +128,10 @@ public class MilogDictionaryServiceImpl implements MilogDictionaryService {
                     break;
                 case 1009:
                     dictionaryDTO.put(code, queryLogStorageTypeDictionary());
+                    break;
                 case 1010:
                     dictionaryDTO.put(code, dictionaryExtensionService.queryMQDictionary());
+                    break;
             }
         });
         log.debug("return val：{}", new Gson().toJson(dictionaryDTO));

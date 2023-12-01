@@ -115,8 +115,7 @@ public class Constant {
 
     public static final String COMMON_MQ_PREFIX = "common_mq_miLog";
 
-    public static final List<String> COMMON_MQ_SUFFIX = new ArrayList<>(Arrays.asList("first", "second", "third"));
-    ;
+    public static final List<String> COMMON_MQ_SUFFIX = new ArrayList<>(Arrays.asList("first", "second", "third", "fourth", "fifth"));
 
     public static final Integer COMMON_MQ_PARTITION_NUM = 2;
 

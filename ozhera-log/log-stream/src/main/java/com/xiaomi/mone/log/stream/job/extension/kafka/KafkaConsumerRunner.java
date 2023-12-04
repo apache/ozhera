@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.errors.WakeupException;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.xiaomi.mone.log.utils.DateUtils.getTime;
@@ -53,11 +53,8 @@ public class KafkaConsumerRunner implements Runnable {
                     log.error("kafka consumer error", e);
                 }
             }
-        } catch (WakeupException e) {
-            // Ignore exception if closing
-            if (!closed.get()) {
-                throw e;
-            }
+        } catch (Exception e) {
+            log.error("KafkaConsumerRunner send exception", e);
         } finally {
             consumer.close();
         }
@@ -66,6 +63,6 @@ public class KafkaConsumerRunner implements Runnable {
     // shutdown hook which can be called from a separate thread
     public void shutdown() {
         closed.set(true);
-        consumer.wakeup();
+        consumer.close(20, TimeUnit.SECONDS);
     }
 }

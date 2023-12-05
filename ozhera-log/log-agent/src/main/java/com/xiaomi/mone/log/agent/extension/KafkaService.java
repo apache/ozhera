@@ -40,8 +40,19 @@ public class KafkaService implements OutPutService {
 
     @Override
     public boolean compare(Output oldOutPut, Output newOutPut) {
+        if (!Objects.equals(oldOutPut.getOutputType(), newOutPut.getOutputType())) {
+            return false;
+        }
 
-        return false;
+        // Assuming the OutputType is the discriminant property
+        if (oldOutPut instanceof KafkaOutput && newOutPut instanceof KafkaOutput) {
+            KafkaOutput oldRmqOutput = (KafkaOutput) oldOutPut;
+            KafkaOutput newRmqOutput = (KafkaOutput) newOutPut;
+            return oldRmqOutput.equals(newRmqOutput);
+        }
+
+        // If not KafkaOutput, use general equals comparison
+        return Objects.equals(oldOutPut, newOutPut);
     }
 
     @Override

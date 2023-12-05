@@ -43,36 +43,7 @@ public class InputSimilarComparator implements SimilarComparator<Input> {
         if (oldInput == newInput) {
             return true;
         }
-        boolean isSimilar = false;
-        String type = oldInput.getType();
-        switch (type) {
-            case "APP_LOG":
-            case "APP_LOG_MULTI":
-            case "APP_LOG_SIGNAL":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "MIS_APP_LOG":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "NGINX":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "OPENTELEMETRY":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "DOCKER":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "ORIGIN_LOG":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            case "FREE":
-                isSimilar = baseSimilarCompare(newInput);
-                break;
-            default:
-                break;
-        }
-        return isSimilar;
+        return baseSimilarCompare(newInput);
     }
 
     private boolean baseSimilarCompare(Input newInput) {

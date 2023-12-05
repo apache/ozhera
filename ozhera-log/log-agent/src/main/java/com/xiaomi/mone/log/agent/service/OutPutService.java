@@ -23,11 +23,11 @@ public interface OutPutService {
     /**
      * comparison of old and new configurations to determine the life of production
      *
-     * @param oldOutPut
-     * @param newOutPut
+     * @param oldOutput
+     * @param newOutput
      * @return
      */
-    boolean compare(Output oldOutPut, Output newOutPut);
+    boolean compare(Output oldOutput, Output newOutput);
 
     /**
      * configuration check

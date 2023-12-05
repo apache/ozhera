@@ -66,10 +66,11 @@ public class KafkaService implements OutPutService {
     public MsgExporter exporterTrans(Output output) throws Exception {
         KafkaOutput kafkaOutput = (KafkaOutput) output;
         String nameSrvAddr = kafkaOutput.getClusterInfo();
-        Producer mqProducer = producerMap.get(nameSrvAddr);
+        String key = getKey(nameSrvAddr, kafkaOutput.getTopic(), kafkaOutput.getTag());
+        Producer mqProducer = producerMap.get(key);
         if (null == mqProducer) {
             mqProducer = initMqProducer(kafkaOutput);
-            producerMap.put(String.valueOf(nameSrvAddr), mqProducer);
+            producerMap.put(key, mqProducer);
         }
 
         KafkaExporter rmqExporter = new KafkaExporter(mqProducer, output.getTag());
@@ -77,6 +78,10 @@ public class KafkaService implements OutPutService {
         rmqExporter.setBatchSize(kafkaOutput.getBatchExportSize());
 
         return rmqExporter;
+    }
+
+    private String getKey(String nameSrvAddr, String topic, String tag) {
+        return String.format("%s-%s", nameSrvAddr, topic, tag);
     }
 
     private Producer initMqProducer(KafkaOutput output) {
@@ -105,9 +110,11 @@ public class KafkaService implements OutPutService {
     @Override
     public void removeMQ(Output output) {
         KafkaOutput kafkaOutput = (KafkaOutput) output;
-        if (null != producerMap.get(kafkaOutput.getClusterInfo())) {
+        String key = getKey(kafkaOutput.getClusterInfo(), kafkaOutput.getTopic(), kafkaOutput.getTag());
+        if (null != producerMap.get(key)) {
             producerMap.get(kafkaOutput.getClusterInfo()).close();
         }
+        producerMap.remove(key);
     }
 
     @Override

@@ -11,7 +11,7 @@ public class MilinePrometheusService extends PrometheusService{
 
     @Override
     public String getServiceName() {
-        String serviceName = System.getenv("mione.app.name");
+        String serviceName = System.getenv("MIONE_PROJECT_NAME");
         if (StringUtils.isEmpty(serviceName)) {
             String property = System.getProperty("otel.resource.attributes");
             if (StringUtils.isEmpty(property)) {
@@ -35,7 +35,7 @@ public class MilinePrometheusService extends PrometheusService{
 
     @Override
     public String getPort() {
-        String port = System.getenv("PROMETHEUS_PORT");
+        String port = System.getenv("OZHERA_PROMETHEUS_PORT");
         if (null == port) {
             port = DEFAULT_PORT;
         }

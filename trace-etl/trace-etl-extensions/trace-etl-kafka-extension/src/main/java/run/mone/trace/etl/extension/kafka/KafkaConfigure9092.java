@@ -1,5 +1,6 @@
 package run.mone.trace.etl.extension.kafka;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -8,6 +9,9 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import java.util.Properties;
 
 public class KafkaConfigure9092 implements KafkaConfigure {
+
+    @NacosValue("${kafka.poll.records}")
+    private int kafkaPollRecords;
 
     @Override
     public Properties createProducerProperties(MqConfig<ConsumerRecords<String, String>> config) {
@@ -39,7 +43,7 @@ public class KafkaConfigure9092 implements KafkaConfigure {
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         //每次poll的最大数量
         //注意该值不要改得太大，如果poll太多数据，而不能在下次poll之前消费完，则会触发一次负载均衡，产生卡顿
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 30);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaPollRecords);
         //消息的反序列化方式
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

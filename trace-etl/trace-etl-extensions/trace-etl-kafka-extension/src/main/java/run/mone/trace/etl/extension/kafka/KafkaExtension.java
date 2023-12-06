@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,6 +43,8 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
 
     private String topic;
 
+    private KafkaConsumer<String, String> consumer;
+
     @Override
     public void initMq(MqConfig<ConsumerRecords<String, String>> config) {
         log.info("init rocketmq");
@@ -57,11 +60,11 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
 
             Properties props = kafkaConfigure.createProducerProperties(config);
 
-            // 设置批量发送的条数
-            props.put("request.required.acks", "0");
-            props.put("batch.size", 2000);
-            props.put("linger.ms", 100);
-            props.put("buffer.memory", 33554432);
+            props.put(ProducerConfig.ACKS_CONFIG, "0");
+            props.put(ProducerConfig.BATCH_SIZE_CONFIG, 563840);
+            props.put(ProducerConfig.LINGER_MS_CONFIG, 1000);
+            props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+//            props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
 
             producer = new KafkaProducer<>(props);
 
@@ -82,7 +85,7 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
             Properties props = kafkaConfigure.createConsumerProperties(config);
 
             //构造消息对象，也即生成一个消费实例
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+            consumer = new KafkaConsumer<>(props);
             //设置消费组订阅的Topic，可以订阅多个
             //如果GROUP_ID_CONFIG是一样，则订阅的Topic也建议设置成一样
             List<String> subscribedTopics = new ArrayList<String>();
@@ -93,12 +96,7 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
 
             Executors.newSingleThreadExecutor().submit(() -> {
                 while (true) {
-                    try {
-                        ConsumerRecords<String, String> records = consumer.poll(1000);
-                        config.getConsumerMethod().apply(records);
-                    } catch (Throwable t) {
-                        log.error("consumer message error , ", t);
-                    }
+                    consumer(config);
                 }
             });
             log.info("init consumer end ...");
@@ -108,6 +106,15 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
         }
     }
 
+
+     private void consumer(MqConfig<ConsumerRecords<String, String>> config){
+         try {
+             ConsumerRecords<String, String> records = consumer.poll(1000);
+             config.getConsumerMethod().apply(records);
+         } catch (Throwable t) {
+             log.error("consumer message error , ", t);
+         }
+     }
     @Override
     public void send(ProducerRecord<String, String> message) {
         send(Collections.singletonList(message));
@@ -119,7 +126,7 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
             for (ProducerRecord<String, String> message : messages) {
                 producer.send(message);
             }
-            producer.flush();
+//            producer.flush();
         } catch (Throwable t) {
             log.error("send message error, ", t);
         }

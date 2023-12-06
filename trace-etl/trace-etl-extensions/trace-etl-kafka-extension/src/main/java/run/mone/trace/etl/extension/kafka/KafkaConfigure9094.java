@@ -46,6 +46,9 @@ public class KafkaConfigure9094 implements KafkaConfigure {
     @NacosValue("${java.security.auth.login.config.scram}")
     private String configScramLocation;
 
+    @NacosValue("${kafka.poll.records}")
+    private int kafkaPollRecords;
+
 
     private void configureSaslPlain() {
         //如果用-D或者其它方式设置过，这里不再设置
@@ -129,7 +132,7 @@ public class KafkaConfigure9094 implements KafkaConfigure {
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000);
         //每次poll的最大数量
         //注意该值不要改得太大，如果poll太多数据，而不能在下次poll之前消费完，则会触发一次负载均衡，产生卡顿
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 30);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaPollRecords);
         //消息的反序列化方式
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

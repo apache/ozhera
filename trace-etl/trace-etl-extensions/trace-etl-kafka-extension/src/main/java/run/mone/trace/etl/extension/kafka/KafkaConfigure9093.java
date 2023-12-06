@@ -36,6 +36,9 @@ public class KafkaConfigure9093 implements KafkaConfigure {
     @NacosValue("${kafka.password}")
     private String saslPassword;
 
+    @NacosValue("${kafka.poll.records}")
+    private int kafkaPollRecords;
+
     private void configureSasl() {
         if (null == System.getProperty("java.security.auth.login.config")
                 && StringUtils.isEmpty(saslUserName)
@@ -126,7 +129,7 @@ public class KafkaConfigure9093 implements KafkaConfigure {
         props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, 32000);
         //每次poll的最大数量
         //注意该值不要改得太大，如果poll太多数据，而不能在下次poll之前消费完，则会触发一次负载均衡，产生卡顿
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 30);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaPollRecords);
         //消息的反序列化方式
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

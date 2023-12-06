@@ -26,7 +26,7 @@ public class MilinePrometheusService extends PrometheusService{
 
     @Override
     public String getServerIp() {
-        String serverIp = System.getenv("host.ip");
+        String serverIp = System.getenv("POD_IP");
         if(serverIp == null){
             serverIp = System.getProperty("otel.service.ip");
         }

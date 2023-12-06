@@ -47,6 +47,7 @@ public class PrometheusConfigure {
             String serviceName = prometheusService.getServiceName();
             String port = prometheusService.getPort();
             String serverIp = prometheusService.getServerIp();
+            log.info("prometheus init, serviceName is : "+serviceName+", port is : "+port+", serverIp is : "+serverIp);
             registNacos(nacosAddr, serviceName, serverIp, port);
             Metrics.getInstance().init(serverEnv, serviceName);
             startHttpServer(port);

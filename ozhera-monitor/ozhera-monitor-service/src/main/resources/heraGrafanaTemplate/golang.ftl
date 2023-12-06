@@ -2037,7 +2037,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(runtime_go_goroutines{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_goroutines{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "interval": "",
 "legendFormat": "{{serverIp}}-goroutines",
 "refId": "A",
@@ -2144,7 +2144,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(runtime_go_mem_heap_alloc{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_mem_heap_alloc_bytes{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "interval": "",
 "legendFormat": "{{serverIp}}-alloc",
 "refId": "A",
@@ -2155,7 +2155,7 @@
 },
 {
 "exemplar": true,
-"expr": "sum(runtime_go_mem_heap_sys{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_mem_heap_sys_bytes{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "hide": false,
 "interval": "",
 "legendFormat": "{{serverIp}}-sys",
@@ -2167,7 +2167,7 @@
 },
 {
 "exemplar": true,
-"expr": "sum(runtime_go_mem_heap_idle{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_mem_heap_idle_bytes{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "hide": false,
 "interval": "",
 "legendFormat": "{{serverIp}}-idle",
@@ -2179,7 +2179,7 @@
 },
 {
 "exemplar": true,
-"expr": "sum(runtime_go_mem_heap_inuse{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_mem_heap_inuse_bytes{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "hide": false,
 "interval": "",
 "legendFormat": "{{serverIp}}-inuse",
@@ -2287,7 +2287,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(rate(runtime_go_mem_heap_alloc{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
+"expr": "sum(rate(process_runtime_go_mem_heap_alloc_bytes{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
 "interval": "",
 "legendFormat": "{{serverIp}}-alloc",
 "refId": "A",
@@ -2394,7 +2394,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "\nhistogram_quantile(0.99,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"expr": "\nhistogram_quantile(0.99,\nsum(rate(process_runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
 "interval": "",
 "legendFormat": "{{serverIp}}-P99",
 "refId": "A",
@@ -2405,7 +2405,7 @@
 },
 {
 "exemplar": true,
-"expr": "\nhistogram_quantile(0.90,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"expr": "\nhistogram_quantile(0.90,\nsum(rate(process_runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
 "hide": false,
 "interval": "",
 "legendFormat": "{{serverIp}}-P90",
@@ -2417,7 +2417,7 @@
 },
 {
 "exemplar": true,
-"expr": "\nhistogram_quantile(0.50,\nsum(rate(runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
+"expr": "\nhistogram_quantile(0.50,\nsum(rate(process_runtime_go_gc_pause_ns_bucket{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}[2m])) by (le, serverIp))",
 "hide": false,
 "interval": "",
 "legendFormat": "{{serverIp}}-P50",
@@ -2519,7 +2519,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(runtime_go_mem_live_objects{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
+"expr": "sum(process_runtime_go_mem_live_objects{serverEnv=~\"$serverEnv\", application=\"$application\", serverIp=~\"$instance\"}) by (serverIp)",
 "interval": "",
 "legendFormat": "{{serverIp}}-live objects",
 "refId": "A",
@@ -2626,7 +2626,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(rate(runtime_go_mem_heap_objects{serverEnv=~\"$serverEnv\",  application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
+"expr": "sum(rate(process_runtime_go_mem_heap_objects{serverEnv=~\"$serverEnv\",  application=\"$application\", serverIp=~\"$instance\"}[2m])) by (serverIp)",
 "interval": "",
 "legendFormat": "{{serverIp}}-heap objects",
 "refId": "A",

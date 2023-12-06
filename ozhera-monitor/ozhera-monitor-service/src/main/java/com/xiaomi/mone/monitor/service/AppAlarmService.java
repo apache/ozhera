@@ -353,7 +353,11 @@ public class AppAlarmService {
              * check permission for current user.
              */
             AppMonitor app = null;
-            app = appMonitorDao.getMyApp(param.getProjectId(), param.getIamId(), param.getUser(), AppViewType.MyApp);
+            if(param.getStrategyType().equals(AlarmStrategyType.TESLA.getCode())){
+                app = appMonitorDao.getByIamTreeId(param.getIamId());
+            }else{
+                app = appMonitorDao.getMyApp(param.getProjectId(), param.getIamId(), param.getUser(), AppViewType.MyApp);
+            }
 
             if (app == null) {
                 log.error("batchAddRulesWithStrategy# current user has not permission for projectId={} param:{}", param.getProjectId(),param.toString());

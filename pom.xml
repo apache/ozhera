@@ -4,60 +4,44 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.15</version>
-    </parent>
-
     <groupId>run.mone</groupId>
-    <artifactId>ozhera-app</artifactId>
-    <version>1.4-jdk21-SNAPSHOT</version>
+    <artifactId>ozhera</artifactId>
+    <version>1.4.0-jdk21-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>app-api</module>
-        <module>app-server</module>
-        <module>app-service</module>
-        <module>app-common</module>
+        <module>ozhera-app</module>
+        <module>ozhera-demo-client</module>
+        <module>ozhera-demo-server</module>
+        <module>ozhera-log</module>
+        <module>ozhera-monitor</module>
+        <module>ozhera-operator</module>
+        <module>ozhera-prometheus-agent</module>
+        <module>ozhera-tspandata</module>
+        <module>ozhera-webhook</module>
+        <module>prometheus-starter-all</module>
+        <module>trace-etl</module>
     </modules>
 
     <properties>
-        <hera-app.release.version>1.4-jdk21-SNAPSHOT</hera-app.release.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <ozhera.project.version>1.4.0-jdk21-SNAPSHOT</ozhera.project.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- inner module -->
             <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-api</artifactId>
-                <version>${hera-app.release.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>2.7.15</version>
             </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-common</artifactId>
-                <version>${hera-app.release.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-service</artifactId>
-                <version>${hera-app.release.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-server</artifactId>
-                <version>${hera-app.release.version}</version>
-            </dependency>
-            <!-- inner module -->
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>infra-result</artifactId>
                 <version>1.4-SNAPSHOT</version>
             </dependency>
-
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -106,7 +90,6 @@
 
         </plugins>
     </build>
-
 
     <distributionManagement>
         <snapshotRepository>

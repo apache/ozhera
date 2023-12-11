@@ -1,6 +1,5 @@
 package com.xiaomi.mione.prometheus.starter.all.factory;
 
-import com.xiaomi.mione.prometheus.starter.all.service.MatrixPrometheusService;
 import com.xiaomi.mione.prometheus.starter.all.service.MilinePrometheusService;
 import com.xiaomi.mione.prometheus.starter.all.service.PrometheusService;
 import org.apache.commons.lang3.StringUtils;
@@ -22,8 +21,6 @@ public class ServiceFactory {
         switch (platform) {
             case Const.MILINE:
                 return new MilinePrometheusService();
-            case Const.MATRIX:
-                return new MatrixPrometheusService();
             default:
                 throw new IllegalArgumentException("platform is invalid");
         }

@@ -96,7 +96,6 @@ public class RmqExporter implements MsgExporter {
             String appName = tSpanData.getExtra().getServiceName();
             Message message = new Message();
             message.setBody(bytes);
-            String s = new String(bytes, StandardCharsets.ISO_8859_1);
             message.setTopic(this.rmqTopic);
 
             // Calculate the message queue based on the appName

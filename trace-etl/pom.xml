@@ -44,7 +44,7 @@
         <spring.version>5.3.29</spring.version>
         <junit.version>4.12</junit.version>
         <!-- Replace it with the absolute path of your own trace-etl project. issue#19-->
-        <maven.jcommonDirectory>/Users/ericgreen/mycode/ozhera/trace-etl</maven.jcommonDirectory>
+        <maven.jcommonDirectory>~</maven.jcommonDirectory>
     </properties>
 
     <dependencyManagement>

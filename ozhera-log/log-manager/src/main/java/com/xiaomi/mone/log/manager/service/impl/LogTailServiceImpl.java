@@ -597,6 +597,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     public void compareIpToHandle(Long tailId, String logPath, List<String> exitIps, List<String> newIps) {
+        if (null == milogAgentService) {
+            init();
+        }
         List<String> expandIps = newIps.stream().filter(ip -> !exitIps.contains(ip)).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(expandIps)) {
             // Scaling --- synchronous configuration

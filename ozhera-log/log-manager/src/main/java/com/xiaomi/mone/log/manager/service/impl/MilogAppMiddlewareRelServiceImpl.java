@@ -31,12 +31,15 @@ import com.xiaomi.mone.log.manager.service.MqConfigService;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.xiaomi.mone.log.common.Constant.COMMON_MQ_PREFIX;
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_CONSUMER_GROUP;
 
 /**
@@ -60,6 +63,8 @@ public class MilogAppMiddlewareRelServiceImpl implements MilogAppMiddlewareRelSe
 
     private MqConfigService mqConfigService;
 
+    @Resource
+    private MilogAppMiddlewareRelDao middlewareRelDao;
 
     @Override
     public void bindingTailConfigRel(Long tailId, Long milogAppId, Long middlewareConfigId, String topicName) {
@@ -97,7 +102,9 @@ public class MilogAppMiddlewareRelServiceImpl implements MilogAppMiddlewareRelSe
         if (null != wareConfig) {
             if (StringUtils.isEmpty(topicName)) {
                 List<String> commonTagTopicNames = Utils.generateCommonTagTopicName(StringUtils.EMPTY);
-                topicName = commonTagTopicNames.get(Utils.getRandomNum(commonTagTopicNames.size()));
+//                topicName = commonTagTopicNames.get(Utils.getRandomNum(commonTagTopicNames.size()));
+                //find the least used
+                topicName = findLeastUsedCommonTopic(commonTagTopicNames);
             }
             MilogAppMiddlewareRel.Config config = new MilogAppMiddlewareRel.Config();
             config.setTopic(topicName);
@@ -115,6 +122,19 @@ public class MilogAppMiddlewareRelServiceImpl implements MilogAppMiddlewareRelSe
             throw new MilogManageException("If the current organization does not configure MQ configuration information, configure the resource configuration information of the current department");
         }
     }
+
+    private String findLeastUsedCommonTopic(List<String> existTopics) {
+        List<String> commonTopics = existTopics.stream()
+                .filter(s -> s.startsWith(COMMON_MQ_PREFIX))
+                .sorted((a, b) -> middlewareRelDao.queryCountByTopicName(a)
+                        .compareTo(middlewareRelDao.queryCountByTopicName(b)))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(commonTopics)) {
+            return commonTopics.get(0);
+        }
+        return StringUtils.EMPTY;
+    }
+
 
     private void handleTailMqRel(Long tailId, Long milogAppId, MilogMiddlewareConfig wareConfig, MilogAppMiddlewareRel.Config config) {
         MilogLogTailDo milogLogtailDo = milogLogtailDao.queryById(tailId);

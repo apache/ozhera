@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
+import com.xiaomi.mone.log.api.enums.ResourceEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
 import com.xiaomi.youpin.docean.anno.Component;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +92,7 @@ public class ResourceValidation {
         if (esIndexExist && StringUtils.equalsIgnoreCase(LogStorageTypeEnum.ELASTICSEARCH.name(), miLogResource.getStorageType())) {
             errorInfos.add("ES index information cannot be empty");
         }
-        if (MiddlewareEnum.ROCKETMQ.getCode().equals(miLogResource.getResourceCode()) &&
+        if (ResourceEnum.MQ.getCode().equals(miLogResource.getResourceCode()) &&
                 StringUtils.isEmpty(miLogResource.getClusterName())) {
             errorInfos.add("MQ address information cannot be empty");
         }

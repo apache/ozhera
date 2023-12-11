@@ -30,6 +30,7 @@ import com.xiaomi.mone.log.api.model.vo.ResourceUserSimple;
 import com.xiaomi.mone.log.api.model.vo.ValueKeyObj;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.Result;
+import com.xiaomi.mone.log.exception.CommonError;
 import com.xiaomi.mone.log.manager.bootstrap.LogStoragePlugin;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
@@ -58,6 +59,7 @@ import org.jetbrains.annotations.NotNull;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
 import org.nutz.dao.pager.Pager;
+import org.nutz.dao.util.cri.IsNull;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -99,7 +101,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private ResourceExtensionService resourceExtensionService;
 
-    List<Integer> accurateTypes = Arrays.asList(MiddlewareEnum.ROCKETMQ.getCode());
+    private List<Integer> accurateTypes = Arrays.stream(MQSourceEnum.values()).map(MQSourceEnum::getCode).toList();
 
     public void init() {
         resourceExtensionService = ResourceExtensionServiceFactory.getResourceExtensionService();
@@ -205,15 +207,12 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (null == resourcePage.getResourceCode()) {
             return PageInfo.emptyPageInfo();
         }
-        List<MilogMiddlewareConfig> milogMiddlewareConfigs = Lists.newArrayList();
-        Integer mqResourceTotal = 0;
-        if (Objects.equals(ResourceEnum.MQ.getCode(), resourcePage.getResourceCode())) {
-            Cnd mqCnd = buildMqQueryCnd(resourcePage);
-            Pager pager = new Pager(resourcePage.getPage(), resourcePage.getPageSize());
+        Cnd mqCnd = buildMqQueryCnd(resourcePage);
 
-            milogMiddlewareConfigs = milogMiddlewareConfigDao.queryMiddlewareConfigByCondition(mqCnd, pager);
-            mqResourceTotal = milogMiddlewareConfigDao.queryMiddlewareConfigCountByCondition(mqCnd);
-        }
+        Pager pager = new Pager(resourcePage.getPage(), resourcePage.getPageSize());
+
+        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryMiddlewareConfigByCondition(mqCnd, pager);
+        Integer mqResourceTotal = milogMiddlewareConfigDao.queryMiddlewareConfigCountByCondition(mqCnd);
 
         Long esResourceTotal = queryStorageResource(milogMiddlewareConfigs, resourcePage);
 
@@ -225,12 +224,17 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private Cnd buildMqQueryCnd(ResourcePage resourcePage) {
         Cnd cnd = Cnd.NEW();
-        cnd.andEX("type", "in", resourceExtensionService.getMqResourceCodeList());
+        if (Objects.equals(ResourceEnum.MQ.getCode(), resourcePage.getResourceCode())) {
+            cnd.andEX("type", "in", resourceExtensionService.getMqResourceCodeList());
+        }
         if (null != resourcePage.getRegionEnCode()) {
             cnd.andEX("region_en", EQUAL_OPERATE, resourcePage.getRegionEnCode());
         }
         if (StringUtils.isNotBlank(resourcePage.getAliasName())) {
             cnd.andEX("alias", LIKE_OPERATE, String.format("%s%s%s", "%", resourcePage.getAliasName(), "%"));
+        }
+        if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourcePage.getResourceCode())) {
+            cnd.and(new IsNull("id"));
         }
         return cnd;
     }
@@ -284,7 +288,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
                 break;
 
             case DELETE_OPERATE:
-                deleteResource(miLogResource.getResourceCode(), miLogResource.getStorageType(), miLogResource.getId());
+                deleteResource(miLogResource.getResourceCode(), miLogResource.getId());
                 break;
 
             default:
@@ -302,13 +306,16 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         miLogResource.setServiceUrl(serviceUrl);
     }
 
-    private void deleteResource(Integer resourceCode, String storageType, Long id) {
+    private void deleteResource(Integer resourceCode, Long id) {
         if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourceCode)) {
             milogEsClusterMapper.deleteById(id);
             deleteEsIndex(id);
             return;
         }
-        deleteMiddlewareConfig(id);
+        Result result = deleteMiddlewareConfig(id);
+        if (result.getCode() != CommonError.Success.getCode()) {
+            throw new MilogManageException(result.getMessage());
+        }
     }
 
     @Override
@@ -373,7 +380,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
         if (initializedStatus && showStatus) {
 
-            List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCode(resourceExtensionService.getResourceCode(), regionCode);
+            List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCodes(resourceExtensionService.getMqResourceCodeList(), regionCode);
             queryCurrentUserResourceList(resourceUserSimple, milogMiddlewareConfigs, resourceExtensionService.getResourceCode());
 
             List<MilogMiddlewareConfig> middlewareConfigEss = getESConfigs(regionCode);
@@ -394,7 +401,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
      * Query whether the resources under the current user have been initialized
      */
     private Boolean queryResourceInitialized(ResourceUserSimple configResource, String regionCode, Integer logTypeCode) {
-        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCode(resourceExtensionService.getResourceCode(), regionCode);
+        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCodes(resourceExtensionService.getMqResourceCodeList(), regionCode);
         List<MilogMiddlewareConfig> middlewareMqConfigs = resourceExtensionService.currentUserConfigFilter(milogMiddlewareConfigs);
 
         List<MilogEsClusterDO> esClusterDOS = milogEsClusterMapper.selectList(Wrappers.lambdaQuery());
@@ -462,7 +469,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     @Override
     public MilogMiddlewareConfig queryMiddlewareConfigDefault(String regionCode) {
-        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCode(MiddlewareEnum.ROCKETMQ.getCode(), regionCode);
+        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryByResourceCodes(resourceExtensionService.getMqResourceCodeList(), regionCode);
         List<MilogMiddlewareConfig> middlewareMqConfigs = resourceExtensionService.currentUserConfigFilter(milogMiddlewareConfigs);
 
         if (CollectionUtils.isNotEmpty(middlewareMqConfigs)) {

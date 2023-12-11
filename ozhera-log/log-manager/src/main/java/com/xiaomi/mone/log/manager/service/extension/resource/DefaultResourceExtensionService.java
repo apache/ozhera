@@ -17,6 +17,7 @@ package com.xiaomi.mone.log.manager.service.extension.resource;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.log.api.enums.MQSourceEnum;
 import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
 import com.xiaomi.mone.log.api.model.vo.ResourceUserSimple;
@@ -24,11 +25,11 @@ import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.model.pojo.*;
 import com.xiaomi.mone.log.manager.service.impl.RocketMqConfigService;
 import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -78,9 +79,9 @@ public class DefaultResourceExtensionService implements ResourceExtensionService
 
     @Override
     public void addResourceMiddleProcessing(MiLogResource miLogResource) {
-        mqConfigService.createCommonTagTopic(miLogResource.getAk(), miLogResource.getSk(), miLogResource.getClusterName(),
-                miLogResource.getServiceUrl(), StringUtils.EMPTY, miLogResource.getOrgId(),
-                miLogResource.getBrokerName());
+//        mqConfigService.createCommonTagTopic(miLogResource.getAk(), miLogResource.getSk(), miLogResource.getClusterName(),
+//                miLogResource.getServiceUrl(), StringUtils.EMPTY, miLogResource.getOrgId(),
+//                miLogResource.getBrokerName());
     }
 
     @Override
@@ -135,7 +136,7 @@ public class DefaultResourceExtensionService implements ResourceExtensionService
 
     @Override
     public List<Integer> getMqResourceCodeList() {
-        return Lists.newArrayList(MiddlewareEnum.ROCKETMQ.getCode(), MiddlewareEnum.KAFKA.getCode());
+        return Arrays.stream(MQSourceEnum.values()).map(MQSourceEnum::getCode).collect(Collectors.toList());
     }
 
 }

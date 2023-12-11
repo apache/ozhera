@@ -15,13 +15,11 @@
  */
 package com.xiaomi.mone.log.manager.model.pojo;
 
-import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
 import com.xiaomi.mone.log.api.model.vo.ResourceInfo;
 import com.xiaomi.mone.log.manager.model.BaseCommon;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.nutz.dao.entity.annotation.*;
 
 import java.io.Serializable;
@@ -136,12 +134,13 @@ public class MilogMiddlewareConfig extends BaseCommon implements Serializable {
                 .clusterName(this.nameServer)
                 .serviceUrl(this.serviceUrl)
                 .brokerName(this.brokerName)
-                .storageType(StringUtils.isNotEmpty(storageType) ? storageType : LogStorageTypeEnum.ELASTICSEARCH.name().toLowerCase())
+                .storageType(this.storageType)
                 .ak(this.ak)
                 .sk(this.sk)
                 .orgId(this.orgId)
                 .teamId(this.teamId)
                 .labels(this.labels)
+                .mqType(this.type)
                 .ctime(this.getCtime())
                 .utime(this.getUtime())
                 .creator(this.getCreator())
@@ -152,7 +151,7 @@ public class MilogMiddlewareConfig extends BaseCommon implements Serializable {
     public static MilogMiddlewareConfig miLogMqResourceToConfig(MiLogResource resource) {
         MilogMiddlewareConfig milogMiddlewareConfig = new MilogMiddlewareConfig();
         milogMiddlewareConfig.setAlias(resource.getAlias());
-        milogMiddlewareConfig.setType(resource.getResourceCode());
+        milogMiddlewareConfig.setType(null == resource.getMqType() ? resource.getResourceCode() : resource.getMqType());
         milogMiddlewareConfig.setRegionEn(resource.getRegionEn());
         milogMiddlewareConfig.setNameServer(resource.getClusterName());
         milogMiddlewareConfig.setServiceUrl(resource.getServiceUrl());

@@ -32,7 +32,7 @@ public interface DictionaryExtensionService {
 
     List<DictionaryDTO<?>> queryMiddlewareConfigDictionary(String monitorRoomEn);
 
-    List<DictionaryDTO<?>> queryMqTypeDictionary();
+    List<DictionaryDTO<?>> queryResourceDictionary();
 
     List<DictionaryDTO<?>> queryAppType();
 
@@ -46,4 +46,6 @@ public interface DictionaryExtensionService {
 
     List<DictionaryDTO> queryExistsTopic(String ak, String sk, String nameServer, String serviceUrl,
                                          String authorization, String orgId, String teamId);
+
+    List<DictionaryDTO<?>> queryMQDictionary();
 }

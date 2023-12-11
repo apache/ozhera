@@ -21,6 +21,8 @@ import com.xiaomi.mone.log.manager.dao.MilogMiddlewareConfigDao;
 import com.xiaomi.mone.log.manager.model.dto.DictionaryDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.mone.log.manager.model.pojo.MilogMiddlewareConfig;
+import com.xiaomi.mone.log.manager.service.impl.KafkaMqConfigService;
+import com.xiaomi.mone.log.manager.service.impl.RocketMqConfigService;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,26 +48,31 @@ public class DefaultDictionaryExtensionService implements DictionaryExtensionSer
     @Resource
     private MilogMiddlewareConfigDao milogMiddlewareConfigDao;
 
+    @Resource
+    private RocketMqConfigService rocketMqConfigService;
+
+    @Resource
+    private KafkaMqConfigService kafkaMqConfigService;
+
     @Override
     public List<DictionaryDTO<?>> queryMiddlewareConfigDictionary(String monitorRoomEn) {
         List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryCurrentMontorRoomMQ(monitorRoomEn);
         List<DictionaryDTO<?>> dictionaryDTOS = Lists.newArrayList();
-        Arrays.stream(MiddlewareEnum.values())
-                .filter(middlewareEnum -> middlewareEnum == MiddlewareEnum.ROCKETMQ)
-                .forEach(middlewareEnum -> {
+        Arrays.stream(MQSourceEnum.values())
+                .forEach(sourceEnum -> {
                     DictionaryDTO dictionaryDTO = new DictionaryDTO<>();
-                    dictionaryDTO.setValue(middlewareEnum.getCode());
-                    dictionaryDTO.setLabel(middlewareEnum.getName());
+                    dictionaryDTO.setValue(sourceEnum.getCode());
+                    dictionaryDTO.setLabel(sourceEnum.getName());
                     if (CollectionUtils.isNotEmpty(milogMiddlewareConfigs)) {
-                        dictionaryDTO.setChildren(milogMiddlewareConfigs.stream().filter(middlewareConfig -> middlewareEnum.getCode().equals(middlewareConfig.getType())).map(middlewareConfig -> {
+                        dictionaryDTO.setChildren(milogMiddlewareConfigs.stream().filter(middlewareConfig -> sourceEnum.getCode().equals(middlewareConfig.getType())).map(middlewareConfig -> {
                             DictionaryDTO<Long> childDictionaryDTO = new DictionaryDTO<>();
                             childDictionaryDTO.setValue(middlewareConfig.getId());
                             childDictionaryDTO.setLabel(middlewareConfig.getAlias());
-//                    if (MiddlewareEnum.ROCKETMQ.getCode().equals(middlewareConfig.getType())) {
-//                        List<DictionaryDTO> existsTopic = rocketMqConfigService.queryExistsTopic(middlewareConfig.getAk(), middlewareConfig.getSk(),
-//                                middlewareConfig.getNameServer(), middlewareConfig.getServiceUrl(), middlewareConfig.getAuthorization(), middlewareConfig.getOrgId(), middlewareConfig.getTeamId());
-//                        childDictionaryDTO.setChildren(existsTopic);
-//                    }
+//                            if (MQSourceEnum.ROCKETMQ.getCode().equals(middlewareConfig.getType())) {
+//                                List<DictionaryDTO> existsTopic = rocketMqConfigService.queryExistsTopic(middlewareConfig.getAk(), middlewareConfig.getSk(),
+//                                        middlewareConfig.getNameServer(), middlewareConfig.getServiceUrl(), middlewareConfig.getAuthorization(), middlewareConfig.getOrgId(), middlewareConfig.getTeamId());
+//                                childDictionaryDTO.setChildren(existsTopic);
+//                            }
                             return childDictionaryDTO;
                         }).collect(Collectors.toList()));
                     }
@@ -75,7 +82,7 @@ public class DefaultDictionaryExtensionService implements DictionaryExtensionSer
     }
 
     @Override
-    public List<DictionaryDTO<?>> queryMqTypeDictionary() {
+    public List<DictionaryDTO<?>> queryResourceDictionary() {
         return generateCommonDictionary(middlewareEnum -> Boolean.TRUE);
     }
 
@@ -135,6 +142,19 @@ public class DefaultDictionaryExtensionService implements DictionaryExtensionSer
     @Override
     public List<DictionaryDTO> queryExistsTopic(String ak, String sk, String nameServer, String serviceUrl, String authorization, String orgId, String teamId) {
         return Lists.newArrayList();
+    }
+
+    @Override
+    public List<DictionaryDTO<?>> queryMQDictionary() {
+        return Arrays.stream(MQSourceEnum.values()).map(mqSourceEnum -> {
+            DictionaryDTO<Integer> dictionaryDTO = new DictionaryDTO<>();
+            dictionaryDTO.setValue(mqSourceEnum.getCode());
+            dictionaryDTO.setLabel(mqSourceEnum.getName());
+            if (MQSourceEnum.ROCKETMQ == mqSourceEnum) {
+                dictionaryDTO.setShowBrokerName(Boolean.TRUE);
+            }
+            return dictionaryDTO;
+        }).collect(Collectors.toList());
     }
 
     private List<DictionaryDTO<?>> generateCommonDictionary(Predicate<ResourceEnum> filter) {

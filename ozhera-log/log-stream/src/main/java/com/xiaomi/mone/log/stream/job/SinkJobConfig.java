@@ -54,4 +54,5 @@ public class SinkJobConfig extends LogConfig {
      * @see SinkJobEnum#name()
      */
     private String jobType;
+    private String consumerGroup;
 }

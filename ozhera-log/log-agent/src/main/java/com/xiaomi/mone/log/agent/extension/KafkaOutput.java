@@ -11,9 +11,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class KafkaOutput extends Output implements Serializable {
 
-    public static final String OUTPUT_KAFKAMQ = "kafkamq";
+    public static final String OUTPUT_KAFKAMQ = "kafka";
 
-    private String serviceName = "KafkaMQService";
+    private String serviceName = "KafkaService";
 
     /**
      * mq fill：namesrv_addr

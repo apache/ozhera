@@ -13,13 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.stream.job.extension.impl;
+package com.xiaomi.mone.log.stream.job.extension.rocketmq;
 
-import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
+import com.xiaomi.mone.log.api.enums.MQSourceEnum;
 import com.xiaomi.mone.log.stream.exception.StreamException;
 import com.xiaomi.mone.log.stream.job.LogDataTransfer;
 import com.xiaomi.mone.log.stream.job.extension.SinkJob;
-import com.xiaomi.mone.log.stream.plugin.mq.rocketmq.RocketmqConfig;
+import com.xiaomi.mone.log.stream.job.extension.rocketmq.RocketmqConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyStatus;
@@ -63,7 +63,7 @@ public class RocketMqSinkJob implements SinkJob {
                 for (MessageExt messageExt : list) {
                     Map<String, Object> m = null;
                     String msg = new String(messageExt.getBody());
-                    handleMessage.handleMessage(MiddlewareEnum.ROCKETMQ.getName(), msg, time);
+                    handleMessage.handleMessage(MQSourceEnum.ROCKETMQ.getName(), msg, time);
                 }
                 return ConsumeOrderlyStatus.SUCCESS;
             });

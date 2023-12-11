@@ -43,6 +43,9 @@ public class DictionaryDTO<T> {
     private boolean showDeploymentSpace;
     private boolean showMqConfig;
 
+    private boolean showOrgInfo;
+    private boolean showBrokerName;
+
     private List<DictionaryDTO> children;
 
     public DictionaryDTO(T value, String label, List<DictionaryDTO> children) {

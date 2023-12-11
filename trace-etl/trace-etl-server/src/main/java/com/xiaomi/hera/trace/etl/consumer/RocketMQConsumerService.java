@@ -11,9 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.thrift.TDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-import run.mone.docean.spring.extension.Extensions;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -24,22 +25,23 @@ import javax.annotation.Resource;
  * @date 2021/9/29 2:47 下午
  */
 @Service
+@ConditionalOnProperty(name = "mq", havingValue = "rocketMQ")
 @Slf4j
-public class ConsumerService {
+public class RocketMQConsumerService {
 
-    @Value("${mq.rocketmq.consumer.group}")
+    @Value("${mq.consumer.group}")
     private String consumerGroup;
 
-    @Value("${mq.rocketmq.producer.group}")
+    @Value("${mq.producer.group}")
     private String producerGroup;
 
-    @NacosValue("${mq.rocketmq.nameseraddr}")
+    @NacosValue("${mq.nameseraddr}")
     private String nameSerAddr;
 
-    @Value("${mq.rocketmq.server.topic}")
+    @Value("${mq.server.topic}")
     private String topicName;
 
-    @Value("${mq.rocketmq.es.topic}")
+    @Value("${mq.es.topic}")
     private String esTopicName;
 
     @Resource
@@ -48,12 +50,11 @@ public class ConsumerService {
     @Resource
     private IMetricsParseService metricsExporterService;
 
-    @Resource
-    private Extensions extensions;
+    @Autowired
+    private MQExtension mq;
 
     @PostConstruct
     public void takeMessage() throws MQClientException {
-        MQExtension<MessageExt> mq = extensions.get("mq");
 
         MqConfig<MessageExt> config = new MqConfig<>();
         config.setNameSerAddr(nameSerAddr);

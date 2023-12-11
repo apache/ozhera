@@ -43,8 +43,8 @@
         <springboot.version>2.7.15</springboot.version>
         <spring.version>5.3.29</spring.version>
         <junit.version>4.12</junit.version>
-        <!-- Replace it with the absolute path of your own hera-demo-server project. issue#19-->
-        <maven.jcommonDirectory>~/</maven.jcommonDirectory>
+        <!-- Replace it with the absolute path of your own trace-etl project. issue#19-->
+        <maven.jcommonDirectory>~</maven.jcommonDirectory>
     </properties>
 
     <dependencyManagement>

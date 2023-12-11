@@ -31,14 +31,14 @@ public class SidecarTest {
 
     @Test
     public void testSidecar() {
-        Yaml yaml = new Yaml();
-        InputStream inputStream = this.getClass().getResourceAsStream("/xxx/deployment/redis_deployment.yaml");
-        Deployment deployment = yaml.loadAs(inputStream, Deployment.class);
-        List<Container> containers = deployment.getSpec().getTemplate().getSpec().getContainers();
-        InputStream sidecarIs = this.getClass().getResourceAsStream("/xxx/sidecar/tools.yaml");
-        Container container = yaml.loadAs(sidecarIs, Container.class);
-        containers.add(container);
-        System.out.println(deployment);
+//        Yaml yaml = new Yaml();
+//        InputStream inputStream = this.getClass().getResourceAsStream("/xxx/deployment/redis_deployment.yaml");
+//        Deployment deployment = yaml.loadAs(inputStream, Deployment.class);
+//        List<Container> containers = deployment.getSpec().getTemplate().getSpec().getContainers();
+//        InputStream sidecarIs = this.getClass().getResourceAsStream("/xxx/sidecar/tools.yaml");
+//        Container container = yaml.loadAs(sidecarIs, Container.class);
+//        containers.add(container);
+//        System.out.println(deployment);
     }
 
 

@@ -31,6 +31,7 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.remoting.RPCHook;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_CONSUMER_GROUP;
@@ -52,14 +53,21 @@ public class RocketMQService implements OutPutService {
 
     @Override
     public boolean compare(Output oldOutput, Output newOutput) {
-        if (!oldOutput.getOutputType().equals(newOutput.getOutputType())) {
+        // Check if output types are equal
+        if (!Objects.equals(oldOutput.getOutputType(), newOutput.getOutputType())) {
             return false;
         }
-        RmqOutput newRmqOutput = (RmqOutput) newOutput;
-        RmqOutput oldRmqOutput = (RmqOutput) oldOutput;
-        if (newRmqOutput.equals(oldRmqOutput)) {
-            return true;
+
+        // Check if both are instances of RmqOutput
+        if (oldOutput instanceof RmqOutput && newOutput instanceof RmqOutput) {
+            RmqOutput oldRmqOutput = (RmqOutput) oldOutput;
+            RmqOutput newRmqOutput = (RmqOutput) newOutput;
+
+            // Use equals method for detailed comparison
+            return oldRmqOutput.equals(newRmqOutput);
         }
+
+        // If not both instances of RmqOutput, consider them not equal
         return false;
     }
 

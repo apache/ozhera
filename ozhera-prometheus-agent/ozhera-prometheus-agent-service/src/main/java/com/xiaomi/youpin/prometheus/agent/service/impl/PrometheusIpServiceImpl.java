@@ -59,6 +59,10 @@ public class PrometheusIpServiceImpl  implements PrometheusIpServiceExtension {
 
     public static final String ONLINE_K8S_NODE = "http://localhost";
 
+    public static final String CUSTOM_JOB_PREFIX = "prometheus_custom_server_";
+
+    public static final String CUSTOM_JOB_PORT_KEY = "ozhera_prometheus_port";
+
     private final Gson gson = new Gson();
 
     private List<Ips> starterIpsList = new ArrayList<>();
@@ -122,9 +126,9 @@ public class PrometheusIpServiceImpl  implements PrometheusIpServiceExtension {
                                 cache.putIfAbsent(it, tmpIps);
                             }
                         });
-                        List<String> starterAddrs = instances.stream().filter(it1 -> it1.getMetadata() != null && StringUtils.isNotEmpty(it1.getMetadata().get(PROMETHEUS_PORT))).map(it2 -> {
+                        List<String> starterAddrs = instances.stream().filter(it1 -> it1.getMetadata() != null && StringUtils.startsWith(it,CUSTOM_JOB_PREFIX)).map(it2 -> {
                             String ip = it2.getIp();
-                            String port = it2.getMetadata().get(PROMETHEUS_PORT);
+                            String port = it2.getMetadata().get(CUSTOM_JOB_PORT_KEY);
                             return ip + ":" + port;
                         }).collect(Collectors.toList());
 

@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>trace-etl-rocketmq-extension</module>
+        <module>trace-etl-kafka-extension</module>
     </modules>
 
     <properties>

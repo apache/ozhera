@@ -22,14 +22,15 @@ import java.util.Arrays;
 /**
  * @author wtt
  * @version 1.0
- * @description
+ * @description this should be associated with MQSourceEnum,
+ * and values shouldn't be added arbitrarily
  * @date 2021/9/17 15:57
  */
 @Getter
 public enum MiddlewareEnum {
 
     ROCKETMQ(1, "rocketmq", "RocketMQService"),
-    KAFKA(2, "kafka", "KafkaMQService"),
+    KAFKA(2, "kafka", "KafkaService"),
     NCOS(3, "nacos", ""),
     ELASTICSEARCH(4, "elasticsearch", ""),
     HDFS(5, "hdfs", ""),

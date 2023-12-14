@@ -255,10 +255,16 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         lastFileLineScheduledFuture = ExecutorUtil.scheduleAtFixedRate(() -> {
             Long appendTime = mLog.getAppendTime();
             if (appendTime != null && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
-                String remainMsg = mLog.takeRemainMsg2();
-                if (null != remainMsg) {
-                    log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
-                    wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
+                if (reentrantLock.tryLock()) {
+                    try {
+                        String remainMsg = mLog.takeRemainMsg2();
+                        if (null != remainMsg) {
+                            log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
+                            wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
+                        }
+                    } finally {
+                        reentrantLock.unlock();
+                    }
                 }
             }
         }, 30, 30, TimeUnit.SECONDS);

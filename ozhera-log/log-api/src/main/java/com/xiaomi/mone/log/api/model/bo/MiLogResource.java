@@ -52,6 +52,7 @@ public class MiLogResource implements Serializable {
     private String esToken;
     private String catalog;
     private String database;
+    private Integer mqType;
     private List<String> labels = new ArrayList<>(0);
     private List<EsIndexVo> multipleEsIndex = new ArrayList<>();
 }

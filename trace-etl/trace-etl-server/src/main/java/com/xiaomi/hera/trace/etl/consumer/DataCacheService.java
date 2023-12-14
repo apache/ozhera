@@ -80,7 +80,7 @@ public class DataCacheService {
                     enterManager.getMonitor().enter();
                     try {
                         while (enterManager.getProcessNum().get() > 0) {
-                            TimeUnit.MILLISECONDS.sleep(200);
+                            TimeUnit.MILLISECONDS.sleep(20);
                         }
                         call.change();
                     } finally {

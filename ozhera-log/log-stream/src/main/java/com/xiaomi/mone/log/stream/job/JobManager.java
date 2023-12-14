@@ -138,6 +138,7 @@ public class JobManager {
                 .parseType(logtailConfig.getParseType())
                 .jobType(SinkJobEnum.NORMAL_JOB.name())
                 .storageType(storageType)
+                .consumerGroup(logtailConfig.getConsumerGroup())
                 .build();
         sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
         sinkJobConfig.setLogStoreId(logStoreId);

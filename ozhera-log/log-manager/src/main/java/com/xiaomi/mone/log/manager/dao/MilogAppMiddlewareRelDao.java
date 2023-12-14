@@ -142,7 +142,7 @@ public class MilogAppMiddlewareRelDao {
     }
 
     public Integer queryCountByTopicName(String topicName) {
-        Sql sql = Sqls.queryRecord("SELECT count(1) as count FROM `milog_app_middleware_rel` where config ->'$.topic' = @topicName");
+        Sql sql = Sqls.queryRecord("SELECT count(1) as count FROM `milog_app_middleware_rel` where config like '%' || @topicName || '%'");
         sql.params().set("topicName", topicName);
         LinkedList<Record> records = (LinkedList<Record>) dao.execute(sql).getResult();
         int access = records.get(0).getInt("count");

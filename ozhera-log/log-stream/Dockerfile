@@ -6,6 +6,8 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
+COPY mix.4096.client.truststore.jks ${APP_HOME}/mix.4096.client.truststore.jks
+
 COPY target/log-stream-*.jar ${APP_HOME}/log-stream.jar
 
 WORKDIR ${APP_HOME}

@@ -66,9 +66,7 @@ public class LogTail {
 
         List<MilogLogTailDo> milogLogtailDos = milogLogtailDao.queryTailsByStoreId(storeId);
         if (CollectionUtils.isNotEmpty(milogLogtailDos)) {
-            milogLogtailDos.forEach(milogLogtailDo -> {
-                tailExtensionService.updateSendMsg(milogLogtailDo, milogLogtailDo.getIps(), supportedConsume);
-            });
+            milogLogtailDos.forEach(milogLogtailDo -> tailExtensionService.updateSendMsg(milogLogtailDo, milogLogtailDo.getIps(), supportedConsume));
         }
     }
 }

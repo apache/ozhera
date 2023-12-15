@@ -158,6 +158,12 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>easy</artifactId>
+            <version>1.4-jdk21-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 

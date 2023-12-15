@@ -132,10 +132,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
     private Set<String> hidenFiledSet = new HashSet<>();
 
-    public static List<Pair<String, String>> requiredFields = Lists.newArrayList(
-            Pair.of(ES_KEY_MAP_MESSAGE, "text"),
-            Pair.of(ES_KEY_MAP_LOG_SOURCE, "text"),
-            Pair.of(ES_KEY_MAP_TAIL_ID, "integer")
+    public static List<Pair<String, Pair<String, Integer>>> requiredFields = Lists.newArrayList(
+            Pair.of(ES_KEY_MAP_MESSAGE, Pair.of("text", 1)),
+            Pair.of(ES_KEY_MAP_LOG_SOURCE, Pair.of("text", 1)),
+            Pair.of(ES_KEY_MAP_TAIL_ID, Pair.of("integer", 3))
     );
 
     {
@@ -336,7 +336,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     // highlight
     private HighlightBuilder getHighlightBuilder(List<String> keyList) {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
-        for (Pair<String, String> requiredField : requiredFields) {
+        for (Pair<String, Pair<String, Integer>> requiredField : requiredFields) {
             if (!keyList.contains(requiredField.getKey())) {
                 keyList.add(requiredField.getKey());
             }

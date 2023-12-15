@@ -48,6 +48,7 @@ public class RocketMQSerivce {
             "hear_log_message_compensate",
             "mone_hera_staging_trace_etl_server",
             "mone_hera_staging_trace_etl_es",
+            "mone_hera_jaeger_exporter",
             "hera_meta_data_staging"};
 
     public void createTopic(String namesrvAddr) {

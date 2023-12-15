@@ -39,7 +39,7 @@ import java.util.Map;
 public class PrometheusConfigure {
 
     private static final String PROMETHEUS_CUSTOM_SERVER_KEY = "prometheus_custom_server_";
-    private static final String PROMETHEUS_CUSTOM_PORT_KEY = "prometheus_port";
+    private static final String PROMETHEUS_CUSTOM_PORT_KEY = "ozhera_prometheus_port";
 
     public static void init(String nacosAddr, String serverEnv) {
         try {
@@ -47,6 +47,7 @@ public class PrometheusConfigure {
             String serviceName = prometheusService.getServiceName();
             String port = prometheusService.getPort();
             String serverIp = prometheusService.getServerIp();
+            log.info("prometheus init, serviceName is : "+serviceName+", port is : "+port+", serverIp is : "+serverIp);
             registNacos(nacosAddr, serviceName, serverIp, port);
             Metrics.getInstance().init(serverEnv, serviceName);
             startHttpServer(port);

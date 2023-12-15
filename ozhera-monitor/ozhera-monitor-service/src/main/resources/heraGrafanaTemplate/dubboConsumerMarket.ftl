@@ -232,7 +232,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "label_values(jvm_classes_loaded_classes{},application)",
+"definition": "label_values(container_last_seen{},application)",
 "hide": 0,
 "includeAll": false,
 "label": "服务名",
@@ -240,7 +240,7 @@
 "name": "application",
 "options": [],
 "query": {
-"query": "label_values(jvm_classes_loaded_classes{},application)",
+"query": "label_values(container_last_seen{},application)",
 "refId": "StandardVariableQuery"
 },
 "refresh": 1,

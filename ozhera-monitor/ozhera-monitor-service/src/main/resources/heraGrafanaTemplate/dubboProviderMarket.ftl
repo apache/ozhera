@@ -232,7 +232,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "label_values(jvm_classes_loaded_classes{system=\"mione\"},application)",
+"definition": "label_values(container_last_seen{system=\"mione\"},application)",
 "hide": 0,
 "includeAll": false,
 "label": "服务名",
@@ -240,7 +240,7 @@
 "name": "application",
 "options": [],
 "query": {
-"query": "label_values(jvm_classes_loaded_classes{system=\"mione\"},application)",
+"query": "label_values(container_last_seen{system=\"mione\"},application)",
 "refId": "StandardVariableQuery"
 },
 "refresh": 1,

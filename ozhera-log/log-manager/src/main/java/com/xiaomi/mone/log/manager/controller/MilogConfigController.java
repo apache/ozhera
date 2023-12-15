@@ -358,4 +358,10 @@ public class MilogConfigController {
                                                                     @RequestParam(value = "logTypeCode") Integer logTypeCode) {
         return logStoreService.queryDeptExIndexList(regionCode, logTypeCode);
     }
+
+
+    @RequestMapping(path = "/log/store/config/redistribute", method = "get")
+    public Result<String> redistributeStoreConfig(@RequestParam(value = "storeId") Long storeId) {
+        return logStoreService.redistributeStoreConfig(storeId);
+    }
 }

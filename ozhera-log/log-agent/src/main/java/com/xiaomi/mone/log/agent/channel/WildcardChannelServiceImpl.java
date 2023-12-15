@@ -210,7 +210,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             monitor.reg(monitorPath, filePath -> {
                 boolean matches = pattern.matcher(filePath).matches();
                 log.debug("file: {}, matches: {}", filePath, matches);
-                return true;
+                return matches;
             });
         } catch (IOException | InterruptedException e) {
             log.error("Error while monitoring files, monitorPath: {}", monitorPath, e);

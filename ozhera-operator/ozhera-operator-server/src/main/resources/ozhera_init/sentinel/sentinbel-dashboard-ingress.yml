@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: sentinel-dashboard
+  annotations:
+  name: sentinel-dashboard
+  namespace: hera-namespace
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sentinel-dashboard.demo.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: sentinel-dashboard
+                port:
+                  number: 8088
+            path: /
+            pathType: Prefix

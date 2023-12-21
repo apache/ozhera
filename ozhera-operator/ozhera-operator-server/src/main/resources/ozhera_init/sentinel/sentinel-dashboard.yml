@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentinel-dashboard
+  namespace: ozhera-namespace
+  labels:
+    app: sentinel-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sentinel-dashboard
+  template:
+    metadata:
+      labels:
+        app: sentinel-dashboard
+    spec:
+      containers:
+        - name: sentinel-dashboard-container
+          image: herahub/opensource-pub:sentinel-dashboard-v1.1
+          volumeMounts:
+            - name: log-path
+              mountPath: /home/work/log
+          resources:
+            limits:
+              cpu: '500m'
+              memory: 2Gi
+      volumes:
+        - name: log-path
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentinel-dashboard
+  namespace: ozhera-namespace
+  labels:
+    app: sentinel-dashboard
+spec:
+  ports:
+    - port: 8088
+      targetPort: 8088
+      protocol: TCP
+  selector:
+    app: sentinel-dashboard
+  clusterIP: None

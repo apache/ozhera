@@ -22,7 +22,7 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean</artifactId>
-            <version>1.4-java20-SNAPSHOT</version>
+            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -48,6 +48,12 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-config</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>run.mone</groupId>
+                    <artifactId>docean</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -156,12 +162,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>run.mone</groupId>
-            <artifactId>easy</artifactId>
-            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

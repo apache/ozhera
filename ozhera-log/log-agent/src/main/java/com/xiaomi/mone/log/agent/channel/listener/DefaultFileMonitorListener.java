@@ -25,12 +25,11 @@ import com.xiaomi.mone.log.agent.channel.file.MonitorFile;
 import com.xiaomi.mone.log.agent.common.ExecutorUtil;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.common.PathUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static com.xiaomi.mone.log.common.Constant.SYMBOL_COMMA;
 import static com.xiaomi.mone.log.common.PathUtils.*;
 
 /**
@@ -48,9 +48,8 @@ import static com.xiaomi.mone.log.common.PathUtils.*;
  * @description
  * @date 2022/8/4 15:09
  */
+@Slf4j
 public class DefaultFileMonitorListener implements FileMonitorListener {
-
-    private static Logger LOGGER = LoggerFactory.getLogger(DefaultFileMonitorListener.class);
 
     private static Gson gson = new Gson();
 
@@ -77,16 +76,16 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
 
     private final List<String> specialFileNameSuffixList = Lists.newArrayList("wf");
 
-    private static final int DEFAULT_FILE_SIZE = 50000;
+    private static final int DEFAULT_FILE_SIZE = 100000;
 
     public DefaultFileMonitorListener() {
         //Check if there are too many files, if there are more than 50,000 files,
         // then it cannot be monitored.
         long size = getDefaultFileSize();
-        LOGGER.info("defaultMonitorPath:{} file size:{}", defaultMonitorPath, size);
+        log.info("defaultMonitorPath:{} file size:{}", defaultMonitorPath, size);
         if (size < DEFAULT_FILE_SIZE) {
-            pathList.add(defaultMonitorPath);
             this.startFileMonitor(defaultMonitorPath);
+            pathList.add(defaultMonitorPath);
         }
     }
 
@@ -96,7 +95,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
         try {
             return fileSizeFuture.get(1, TimeUnit.SECONDS);
         } catch (Exception e) {
-            LOGGER.info("getDefaultFileSize error", e);
+            log.info("getDefaultFileSize error", e);
         }
         return DEFAULT_FILE_SIZE * 2;
     }
@@ -110,8 +109,8 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
         List<String> newMonitorDirectories = newMonitorDirectories(monitorPathList);
         for (String watchDirectory : newMonitorDirectories) {
             if (isValidWatch(watchDirectory)) {
-                pathList.add(watchDirectory);
                 startFileMonitor(watchDirectory);
+                pathList.add(watchDirectory);
             }
         }
         pathChannelServiceMap.put(monitorPathList, channelService);
@@ -130,7 +129,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     }
 
     private List<String> newMonitorDirectories(List<MonitorFile> monitorPathList) {
-        LOGGER.info("start newMonitorDirectories:{}", gson.toJson(monitorPathList));
+        log.info("start newMonitorDirectories:{}", gson.toJson(monitorPathList));
         List<String> newMonitorDirectories = Lists.newArrayList();
         Set<String> expressList = monitorPathList.stream().map(MonitorFile::getMonitorFileExpress).collect(Collectors.toSet());
         Set<String> realExpressList = Sets.newHashSet();
@@ -163,7 +162,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
             }
         }
         newMonitorDirectories = newMonitorDirectories.stream().distinct().collect(Collectors.toList());
-        LOGGER.info("end newMonitorDirectories:", gson.toJson(newMonitorDirectories));
+        log.info("end newMonitorDirectories:", gson.toJson(newMonitorDirectories));
         return newMonitorDirectories;
     }
 
@@ -180,19 +179,23 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("removeChannelService file listener,monitorPathList:{}", gson.toJson(channelService.getMonitorPathList()), e);
+            log.error("removeChannelService file listener,monitorPathList:{}", gson.toJson(channelService.getMonitorPathList()), e);
         }
     }
 
     public void startFileMonitor(String monitorFilePath) {
-        LOGGER.debug("startFileMonitor,monitorFilePath:{}", monitorFilePath);
+        log.debug("startFileMonitor,monitorFilePath:{}", monitorFilePath);
+        if (pathList.stream().anyMatch(monitorFilePath::startsWith)) {
+            log.info("current path has started,monitorFilePath:{},pathList:{}", monitorFilePath, String.join(SYMBOL_COMMA, pathList));
+            return;
+        }
         Future<?> fileMonitorFuture = ExecutorUtil.submit(() -> {
             new FileMonitor().watch(monitorFilePath, monitorList, changedFilePath -> {
                 try {
                     if (FileUtil.isDirectory(changedFilePath)) {
                         return;
                     }
-                    LOGGER.info("monitor changedFilePath：{}", changedFilePath);
+                    log.info("monitor changedFilePath：{}", changedFilePath);
                     List<String> filterSuffixList = judgeSpecialFileNameSuffix(changedFilePath);
                     if (CollectionUtils.isNotEmpty(filterSuffixList)) {
                         specialFileSuffixChanged(changedFilePath, filterSuffixList);
@@ -200,7 +203,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                     }
                     ordinaryFileChanged(changedFilePath);
                 } catch (Exception e) {
-                    LOGGER.error("FileMonitor error,monitorFilePath:{},changedFilePath:{}", monitorFilePath, changedFilePath, e);
+                    log.error("FileMonitor error,monitorFilePath:{},changedFilePath:{}", monitorFilePath, changedFilePath, e);
                 }
             });
         });
@@ -227,10 +230,10 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                     if (monitorFile.isCollectOnce()) {
                         reOpenFilePath = changedFilePath;
                     }
-                    LOGGER.info("【change file path reopen】started,changedFilePath:{},realFilePath:{},monitorFileExpress:{}",
+                    log.info("【change file path reopen】started,changedFilePath:{},realFilePath:{},monitorFileExpress:{}",
                             changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress());
                     channelServiceEntry.getValue().reOpen(reOpenFilePath);
-                    LOGGER.info("【end change file path】 end,changedFilePath:{},realFilePath:{},monitorFileExpress:{},InstanceId:{}",
+                    log.info("【end change file path】 end,changedFilePath:{},realFilePath:{},monitorFileExpress:{},InstanceId:{}",
                             changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress(), channelServiceEntry.getValue().instanceId());
                 }
             }

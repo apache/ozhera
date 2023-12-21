@@ -41,7 +41,7 @@ public class KafkaConsumerRunner implements Runnable {
                     //This data must be consumed before the next poll, and the total time taken shall not exceed SESSION_TIMEOUT_MS_CONFIG
                     for (ConsumerRecord<String, String> record : records) {
                         if (StringUtils.equals(record.key(), handleMessage.getSinkJobConfig().getTag())) {
-                            log.info("Thread:{} Consume partition:{} offset:{},message:{}",
+                            log.debug("Thread:{} Consume partition:{} offset:{},message:{}",
                                     Thread.currentThread().getName(), record.partition(),
                                     record.offset(), record.value());
                             String time = getTime();

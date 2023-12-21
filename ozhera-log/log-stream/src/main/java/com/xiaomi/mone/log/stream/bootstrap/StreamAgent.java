@@ -39,7 +39,7 @@ public class StreamAgent {
             log.info("start");
             if (EsPlugin.InitEsConfig()) {
                 SnapShotSwitch.setIsSnapShot(FALSE);
-                configManager.listenMilogStreamConfig();
+                configManager.listenLogStreamConfig();
             } else {
                 System.exit(1);
             }

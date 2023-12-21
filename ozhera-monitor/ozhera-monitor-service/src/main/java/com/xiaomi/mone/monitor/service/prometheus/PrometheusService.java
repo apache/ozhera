@@ -467,10 +467,10 @@ public class PrometheusService {
                     sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
                     break;
                 case "httpError":
-                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone,errorCode) ");
                     break;
                 case "httpClientError":
-                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone) ");
+                    sb.append(" by (serverIp,application,methodName,serviceName,serverEnv,serverZone,errorCode) ");
                     break;
                 case "redisError":
                     sb.append(" by (serverIp,application,method,serverEnv,serverZone) ");

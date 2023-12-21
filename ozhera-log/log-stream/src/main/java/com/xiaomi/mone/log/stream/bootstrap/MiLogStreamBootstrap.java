@@ -22,6 +22,7 @@ package com.xiaomi.mone.log.stream.bootstrap;
 
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.plugin.nacos.NacosNaming;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
@@ -49,11 +50,21 @@ public class MiLogStreamBootstrap {
 
     private static void serviceRegister(String serviceName) {
         String server_addr = Config.ins().get("nacos_config_server_addr", "");
+        NacosNaming nacosNaming = getNacosNaming(server_addr);
         try {
-            getNacosNaming(server_addr).registerInstance(serviceName, buildInstance(serviceName));
+            nacosNaming.registerInstance(serviceName, buildInstance(serviceName));
         } catch (Exception e) {
             log.error("register stream service error,nacos address:{}", server_addr, e);
         }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                log.info("stop");
+                nacosNaming.deregisterInstance(serviceName, getIp(),
+                        Integer.parseInt(Config.ins().get("service_port", DEFAULT_SERVER_PORT)));
+            } catch (Exception e) {
+                //ignore
+            }
+        }));
     }
 
     private static OkHttpClient getOkHttpClient() {

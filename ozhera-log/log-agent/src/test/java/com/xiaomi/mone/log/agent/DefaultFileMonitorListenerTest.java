@@ -31,6 +31,7 @@ public class DefaultFileMonitorListenerTest {
     @Test
     public void testFileChange() throws IOException {
 //        DefaultFileMonitorListener defaultFileMonitorListener = new DefaultFileMonitorListener();
+//        defaultFileMonitorListener.startFileMonitor("/home/work/log/test");
 //        System.in.read();
     }
 }

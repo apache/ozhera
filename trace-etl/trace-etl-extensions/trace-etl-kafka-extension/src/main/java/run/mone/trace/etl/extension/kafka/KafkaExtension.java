@@ -64,7 +64,7 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
             props.put(ProducerConfig.BATCH_SIZE_CONFIG, 563840);
             props.put(ProducerConfig.LINGER_MS_CONFIG, 1000);
             props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-//            props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+            props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
 
             producer = new KafkaProducer<>(props);
 
@@ -83,6 +83,7 @@ public class KafkaExtension implements MQExtension<ProducerRecord<String, String
             log.info("init consumer start ...");
 
             Properties props = kafkaConfigure.createConsumerProperties(config);
+            props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
 
             //构造消息对象，也即生成一个消费实例
             consumer = new KafkaConsumer<>(props);

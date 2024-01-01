@@ -122,18 +122,18 @@
 },
 {
 "exemplar": true,
-"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_dubboConsumerError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0)) / (sum(sum_over_time(${env}_${serviceName}_dubboBisTotalCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
+"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_grpcClientError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0)) / (sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
 "hide": false,
 "interval": "",
-"legendFormat": "Dubbo调出",
+"legendFormat": "gRPC调出",
 "refId": "D"
 },
 {
 "exemplar": true,
-"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_dubboProviderError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0) ) / (sum(sum_over_time(${env}_${serviceName}_dubboMethodCalledCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
+"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_grpcServerError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0) ) / (sum(sum_over_time(${env}_${serviceName}_grpcServer_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
 "hide": false,
 "interval": "",
-"legendFormat": "Dubbo调入",
+"legendFormat": "gRPC调入",
 "refId": "E"
 }
 ],
@@ -1708,7 +1708,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_bucket{serverIp=~\"$instance\",application=\"$application\"}[30s])) by (le,serviceName,serverIp))",
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_bucket{serverIp=~\"$instance\",application=\"$application\"}[30s])) by (le,serviceName,serverIp))",
 "interval": "",
 "legendFormat": "{{serverIp}}-{{serviceName}}",
 "refId": "A",
@@ -1810,7 +1810,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)\n/\nsum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)\n/\nsum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
 "interval": "",
 "legendFormat": "{{serverIp}}-{{serviceName}}",
 "refId": "A",
@@ -1869,7 +1869,7 @@
 "y": 74
 },
 "type": "graph",
-"title": "gRPC入 Top10 RT",
+"title": "gRPC调入 Top10 RT",
 "datasource": {
 "type": "prometheus",
 "uid": "${prometheusUid}"
@@ -1912,7 +1912,7 @@
 "targets": [
 {
 "exemplar": true,
-"expr": "topk(10, sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
+"expr": "topk(10, sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
 "interval": "",
 "legendFormat": "{{serverIp}}-{{serviceName}}",
 "refId": "A",

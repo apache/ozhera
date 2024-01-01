@@ -34,5 +34,29 @@
 "value": "Http",
 "appParamName": "var-application",
 "url": "${httpMarket}"
+},{
+"label": "gRPC Provider 接口总览",
+"value": "gRPCProviderView",
+"appParamName": "var-application",
+"url": "${grpcProviderOverview}",
+"timeRangeP":true
+},{
+"label": "gRPC Provider 接口大盘",
+"value": "gRPCProvider",
+"appParamName": "var-application",
+"url": "${grpcProviderMarket}",
+"type": "gRPCProvider"
+},{
+"label": "gRPC Consumer 接口总览",
+"value": "gRPCConsumerView",
+"appParamName": "var-application",
+"url": "${grpcConsumerOverview}",
+"timeRangeP":true
+},{
+"label": "gRPC Consumer 接口大盘",
+"value": "gRPCConsumer",
+"appParamName": "var-application",
+"url": "${grpcConsumerMarket}",
+"type": "gRPCConsumer"
 }
 ]

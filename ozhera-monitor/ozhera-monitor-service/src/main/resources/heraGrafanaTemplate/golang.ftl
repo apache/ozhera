@@ -122,18 +122,18 @@
 },
 {
 "exemplar": true,
-"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_dubboConsumerError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0)) / (sum(sum_over_time(${env}_${serviceName}_dubboBisTotalCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
+"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_grpcClientError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0)) / (sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
 "hide": false,
 "interval": "",
-"legendFormat": "Dubbo调出",
+"legendFormat": "gRPC调出",
 "refId": "D"
 },
 {
 "exemplar": true,
-"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_dubboProviderError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0) ) / (sum(sum_over_time(${env}_${serviceName}_dubboMethodCalledCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
+"expr": "clamp_min(1 - ((sum(sum_over_time(${env}_${serviceName}_grpcServerError_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),0) ) / (sum(sum_over_time(${env}_${serviceName}_grpcServer_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (application) or clamp_max( absent(notExists{application=\"$application\"}),1) )),0)",
 "hide": false,
 "interval": "",
-"legendFormat": "Dubbo调入",
+"legendFormat": "gRPC调入",
 "refId": "E"
 }
 ],
@@ -537,18 +537,18 @@
 },
 {
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_dubboBisTotalCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (serverIp)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (serverIp)",
 "hide": false,
 "interval": "",
-"legendFormat": "{{serverIp}}-Dubbo调出",
+"legendFormat": "{{serverIp}}-gRPC调出",
 "refId": "B"
 },
 {
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_dubboMethodCalledCount_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (serverIp)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcServer_total{application=\"$application\",serverIp=~\"$instance\"}[30s])) by (serverIp)",
 "hide": false,
 "interval": "",
-"legendFormat": "{{serverIp}}-Dubbo调入",
+"legendFormat": "{{serverIp}}-gRPC调入",
 "refId": "C"
 }
 ],
@@ -1118,6 +1118,848 @@
 "yaxis":{
 "align":false,
 "alignLevel":null
+}
+},
+{
+"id": 150,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 50
+},
+"type": "graph",
+"title": "gRPC调出 QPS",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverIp=~\"$instance\"}[30s])/30)",
+"interval": "",
+"legendFormat": "total",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+},
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcClient_total{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serviceName,serverIp)",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "B",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:1801",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:1802",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 126,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 50
+},
+"type": "graph",
+"title": "gRPC调出 P99-RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "histogram_quantile(0.99,sum(sum_over_time(staging_hera_grpcClientTimeCost_bucket{serverIp=~\"$instance\",application=\"$application\"}[30s])) by (le,serviceName,serverIp))",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:762",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:763",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 130,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 58
+},
+"type": "graph",
+"title": "gRPC调出 AVG-RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)/sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:1418",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:1419",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 122,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 58
+},
+"type": "graph",
+"title": "gRPC调出 Top10 RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "topk(10, sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_${serviceName}_grpcClientTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:474",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:475",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+
+{
+"id": 118,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 66
+},
+"type": "graph",
+"title": "gRPC调入 QPS",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcServer_total{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)",
+"interval": "",
+"legendFormat": "total",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+},
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcServer_total{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serviceName,serverIp)",
+"hide": false,
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "B",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:278",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:279",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 163,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 66
+},
+"type": "graph",
+"title": "gRPC调入 P99-RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"description": "",
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_bucket{serverIp=~\"$instance\",application=\"$application\"}[30s])) by (le,serviceName,serverIp))",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:121",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": "0",
+"show": true
+},
+{
+"$$hashKey": "object:122",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 169,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 0,
+"y": 74
+},
+"type": "graph",
+"title": "gRPC调入 AVG-RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)\n/\nsum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:1418",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:1419",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
+}
+},
+{
+"id": 168,
+"gridPos": {
+"h": 8,
+"w": 12,
+"x": 12,
+"y": 74
+},
+"type": "graph",
+"title": "gRPC调入 Top10 RT",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"thresholds": [],
+"pluginVersion": "9.2.0",
+"legend": {
+"alignAsTable": true,
+"avg": true,
+"current": true,
+"max": true,
+"min": false,
+"rightSide": true,
+"show": true,
+"sideWidth": 250,
+"total": false,
+"values": true
+},
+"aliasColors": {},
+"bars": false,
+"dashLength": 10,
+"dashes": false,
+"fill": 1,
+"fillGradient": 0,
+"hiddenSeries": false,
+"lines": true,
+"linewidth": 1,
+"nullPointMode": "null as zero",
+"options": {
+"alertThreshold": true
+},
+"percentage": false,
+"pointradius": 2,
+"points": false,
+"renderer": "flot",
+"seriesOverrides": [],
+"spaceLength": 10,
+"stack": false,
+"steppedLine": false,
+"targets": [
+{
+"exemplar": true,
+"expr": "topk(10, sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_${serviceName}_grpcServerTimeCost_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
+"interval": "",
+"legendFormat": "{{serverIp}}-{{serviceName}}",
+"refId": "A",
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+}
+}
+],
+"timeFrom": null,
+"timeRegions": [],
+"timeShift": null,
+"tooltip": {
+"shared": true,
+"sort": 2,
+"value_type": "individual"
+},
+"xaxis": {
+"buckets": null,
+"mode": "time",
+"name": null,
+"show": true,
+"values": []
+},
+"yaxes": [
+{
+"$$hashKey": "object:474",
+"format": "ms",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": 0,
+"show": true
+},
+{
+"$$hashKey": "object:475",
+"format": "short",
+"label": null,
+"logBase": 1,
+"max": null,
+"min": null,
+"show": true
+}
+],
+"yaxis": {
+"align": false,
+"alignLevel": null
 }
 },
 {
@@ -3429,5 +4271,5 @@
 "overwrite":false,
 "folderId":${folderId},
 "folderUid":"${folderUid}",
-"message":"hera golang V1.0"
+"message":"hera golang V1.1"
 }

@@ -928,7 +928,7 @@
 "spaceLength": 10,
 "targets": [
 {
-"expr": "topk(10, sum(sum_over_time(${env}_jaeger_dubboProviderCount_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_jaeger_dubboProviderCount_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
+"expr": "topk(10, sum(sum_over_time(${env}_${serviceName}_dubboProviderCount_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName) / sum(sum_over_time(${env}_${serviceName}_dubboProviderCount_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30)by(serverIp,serviceName))",
 "legendFormat": "{{serverIp}}-{{serviceName}}",
 "interval": "",
 "exemplar": true,
@@ -1031,7 +1031,7 @@
 "spaceLength": 10,
 "targets": [
 {
-"expr": "sum(sum_over_time(${env}_jaeger_dubboProviderCount_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)\n/\nsum(sum_over_time(${env}_jaeger_dubboProviderCount_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_dubboProviderCount_sum{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by(serverIp,serviceName)\n/\nsum(sum_over_time(${env}_${serviceName}_dubboProviderCount_count{serverIp=~\"$instance\",application=\"$application\"}[30s])/30) by (serverIp,serviceName)",
 "legendFormat": "{{serverIp}}-{{serviceName}}",
 "interval": "",
 "exemplar": true,

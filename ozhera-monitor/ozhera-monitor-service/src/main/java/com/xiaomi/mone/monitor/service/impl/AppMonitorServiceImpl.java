@@ -42,6 +42,11 @@ public class AppMonitorServiceImpl implements AppMonitorServiceExtension {
     private String httpOverview = "/d/Hera-HTTPServer-overview/hera-httpserver-zong-lan?orgId=1&kiosk&theme=light";
     private String httpMarket = "/d/Hera-HTTPServerMarket/hera-httpserverda-pan?orgId=1&kiosk&theme=light";
 
+    private String grpcProviderOverview = "/d/hera-grpcprovider-overview/hera-grpcproviderzong-lan?orgId=1&kiosk&theme=light";
+    private String grpcProviderMarket = "/d/hera-grpcproviderMarket/hera-grpcproviderda-pan?orgId=1&kiosk&theme=light";
+    private String grpcConsumerOverview = "/d/hera-grpcconsumer-overview/hera-grpcconsumerzong-lan?orgId=1&kiosk&theme=light";
+    private String grpcConsumerMarket = "/d/hera-grpcconsumerMarket/hera-grpcconsumerda-pan?orgId=1&kiosk&theme=light";
+
     private static final Gson gson = new Gson();
 
     public Result getResourceUsageUrlForK8s(Integer appId, String appName) {
@@ -61,6 +66,11 @@ public class AppMonitorServiceImpl implements AppMonitorServiceExtension {
         map.put("dubboConsumerMarket", grafanaDomain + dubboConsumerMarket);
         map.put("httpOverview", grafanaDomain + httpOverview);
         map.put("httpMarket", grafanaDomain + httpMarket);
+        map.put("grpcProviderOverview", grafanaDomain + grpcProviderOverview);
+        map.put("grpcProviderMarket", grafanaDomain + grpcProviderMarket);
+        map.put("grpcConsumerOverview", grafanaDomain + grpcConsumerOverview);
+        map.put("grpcConsumerMarket", grafanaDomain + grpcConsumerMarket);
+
         try {
             log.info("grafanaInterfaceList map:{}", map);
             String data = FreeMarkerUtil.getContentExceptJson("/heraGrafanaTemplate", "grafanaInterfaceList.ftl", map);
@@ -92,7 +102,7 @@ public class AppMonitorServiceImpl implements AppMonitorServiceExtension {
     @Override
     public Boolean checkCreateParam(AppMonitor appMonitor) {
 
-        if(appMonitor.getProjectId() == null || StringUtils.isBlank(appMonitor.getProjectName())){
+        if (appMonitor.getProjectId() == null || StringUtils.isBlank(appMonitor.getProjectName())) {
             return false;
         }
         return true;
@@ -100,15 +110,15 @@ public class AppMonitorServiceImpl implements AppMonitorServiceExtension {
 
     @Override
     public Boolean checkAppModifyStrategySearchCondition(HeraAppInfoModifyMessage message) {
-        if(message.getAppId() == null){
-            log.error("checkAppModifyStrategySearchCondition appId is null message : {}",message);
+        if (message.getAppId() == null) {
+            log.error("checkAppModifyStrategySearchCondition appId is null message : {}", message);
             return false;
         }
         return true;
     }
 
     @Override
-    public void changeAlarmServiceToZone(Integer pageSize,String appName) {
+    public void changeAlarmServiceToZone(Integer pageSize, String appName) {
 
     }
 

@@ -22,7 +22,8 @@ public class DashboardConstant {
 
     public static List<String> GRAFANA_SRE_TEMPLATES = Arrays.asList("nodeMonitor", "dockerMonitor", "serviceMarket",
             "resourceUtilization", "dubboProviderOverview", "dubboProviderMarket", "dubboConsumerOverview",
-            "dubboConsumerMarket", "httpServerMarket", "httpServerOverview", "heraSLA");
+            "dubboConsumerMarket", "httpServerMarket", "httpServerOverview", "heraSLA", "grpcConsumerMarket",
+            "grpcConsumerOverview", "grpcProviderMarket", "grpcProviderOverview");
     public static final String JAEGER_QUERY_File_NAME = "jaegerQuery.ftl";
     public static final String GOLANG_File_NAME = "golang.ftl";
     public static final String DEFAULT_PANEL_ID_LIST = "110,148,152,112,116,118,150,122,120,126,124,130,128,132,134," +
@@ -50,7 +51,6 @@ public class DashboardConstant {
     public static final String HERA_METRICS_PREFIX = "hera";
 
     public static final String HERA_METRICS_INNER_PREFIX = "jaeger";
-
 
 
 }

@@ -79,7 +79,7 @@ public class FilterChain {
             } else {
                 return 0;
             }
-        }).collect(Collectors.toList());
+        }).toList();
         CopyOnWriteArrayList<MilogFilter> filters = new CopyOnWriteArrayList<>();
         for (FilterConf conf : sortedConf) {
             switch (conf.getName()) {

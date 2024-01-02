@@ -37,7 +37,7 @@ public class Down {
         Map<String, String> param = new HashMap<>();
         param.put("name", path);
         mvcRequest.setParams(param);
-        new Download().download(mvcContext, mvcRequest, mvcResponse);
+        Download.download(mvcContext, mvcRequest, mvcResponse);
     }
 
 }

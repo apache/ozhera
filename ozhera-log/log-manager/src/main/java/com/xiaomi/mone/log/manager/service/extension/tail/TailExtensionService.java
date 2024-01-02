@@ -36,7 +36,7 @@ public interface TailExtensionService {
 
     boolean tailHandlePreprocessingSwitch(MilogLogStoreDO milogLogStore, LogTailParam param);
 
-    boolean bindMqResourceSwitch(Integer appType);
+    boolean bindMqResourceSwitch(MilogLogStoreDO logStore, Integer appType);
 
     boolean bindPostProcessSwitch(Long storeId);
 
@@ -58,7 +58,7 @@ public interface TailExtensionService {
 
     List<MilogAppEnvDTO> getEnInfosByAppId(AppBaseInfo appBaseInfo, Long milogAppId, Integer deployWay);
 
-    boolean decorateTailDTOValId(Integer appType);
+    boolean decorateTailDTOValId(Integer logType, Integer appType);
 
     List<String> getStreamMachineUniqueList(Integer projectTypeCode, String motorRoomEn);
 

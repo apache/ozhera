@@ -528,17 +528,22 @@ public class ChannelServiceImpl extends AbstractChannelService {
         fileReopenLock.lock();
         try {
             //Judging the number of openings, it can only be reopened once within 10 seconds.
-            if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < 10 * 1000) {
+            final long REOPEN_THRESHOLD = 10 * 1000;
+
+            if (reOpenMap.containsKey(filePath) && Instant.now().toEpochMilli() - reOpenMap.get(filePath) < REOPEN_THRESHOLD) {
                 log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
                         "last time opening time.:{}", filePath, reOpenMap.get(filePath));
                 return;
             }
+
             reOpenMap.put(filePath, Instant.now().toEpochMilli());
             log.info("reOpen file:{}", filePath);
+
             if (collectOnce) {
                 handleAllFileCollectMonitor(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
                 return;
             }
+
             ILogFile logFile = logFileMap.get(filePath);
             String tailPodIp = getTailPodIp(filePath);
             String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
@@ -547,19 +552,34 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
                 log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
             } else {
-                // Normal log segmentation
-                try {
-                    //Delay 5 seconds to split files
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    log.error("sleep error");
-                }
-                logFile.setReOpen(true);
-                LogFile file = (LogFile) logFile;
-                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath, file.getFile(), file.getBeforePointerHashCode());
+                handleExistingLogFileWithRetry(logFile, filePath, ip);
             }
         } finally {
             fileReopenLock.unlock();
+        }
+    }
+
+    private void handleExistingLogFileWithRetry(ILogFile logFile, String filePath, String ip) {
+        LogFile file = (LogFile) logFile;
+
+        int maxRetries = 60;
+        int currentRetries = 0;
+
+        while (currentRetries < maxRetries) {
+            if (file.getPointer() < file.getMaxPointer()) {
+                // Normal log segmentation
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    log.error("handleExistingLogFileWithRetry Sleep error", e);
+                }
+
+                currentRetries++;
+            } else {
+                logFile.setReOpen(true);
+                log.info("file reOpen: channelId:{},ip:{},path:{}", getChannelId(), ip, filePath, file.getFile(), file.getBeforePointerHashCode());
+                break;
+            }
         }
     }
 

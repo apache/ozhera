@@ -15,8 +15,6 @@
  */
 package com.xiaomi.mone.log.stream.config;
 
-import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.thread.ThreadFactoryBuilder;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -39,7 +37,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
@@ -65,6 +64,8 @@ public class MilogConfigListener {
     private Map<Long, LogtailConfig> oldLogTailConfigMap = new ConcurrentHashMap<>();
     private Map<Long, SinkConfig> oldSinkConfigMap = new ConcurrentHashMap<>();
 
+    private ReentrantLock buildDataLock = new ReentrantLock();
+
     public MilogConfigListener(Long spaceId, String dataId, String group, MilogSpaceData milogSpaceData, NacosConfig nacosConfig) {
         this.spaceId = spaceId;
         this.dataId = dataId;
@@ -76,26 +77,31 @@ public class MilogConfigListener {
         nacosConfig.addListener(dataId, group, listener);
     }
 
-    private synchronized void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
-        if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
-            List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
-            compareOldStoreJobStop(sinkConfigs);
-            for (SinkConfig sinkConfig : sinkConfigs) {
-                compareOldTailIdJobStop(sinkConfig);
-                if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
-                    //Whether the submission store information changes, the change stops
-                    if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
-                        restartPerTail(sinkConfig, milogSpaceData);
+    private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
+        buildDataLock.lock();
+        try {
+            if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
+                List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
+                compareOldStoreJobStop(sinkConfigs);
+                for (SinkConfig sinkConfig : sinkConfigs) {
+                    compareOldTailIdJobStop(sinkConfig);
+                    if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
+                        //Whether the submission store information changes, the change stops
+                        if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
+                            restartPerTail(sinkConfig, milogSpaceData);
+                        } else {
+                            comparePerTailHandle(sinkConfig, milogSpaceData);
+                        }
                     } else {
-                        comparePerTailHandle(sinkConfig, milogSpaceData);
+                        newStoreStart(sinkConfig, milogSpaceData);
                     }
-                } else {
-                    newStoreStart(sinkConfig, milogSpaceData);
                 }
+            } else {
+                // Restart all
+                initNewJob(newMilogSpaceData);
             }
-        } else {
-            // Restart all
-            initNewJob(newMilogSpaceData);
+        } finally {
+            buildDataLock.unlock();
         }
     }
 
@@ -251,12 +257,7 @@ public class MilogConfigListener {
         oldLogTailConfigMap.put(logTailConfig.getLogtailId(), logTailConfig);
     }
 
-    private static ExecutorService THREAD_POOL = ExecutorBuilder.create()
-            .setCorePoolSize(20)
-            .setMaxPoolSize(30)
-            .setWorkQueue(new LinkedBlockingQueue<>(1000000))
-            .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("Listen-tail-Pool-").build())
-            .build();
+    private static ExecutorService THREAD_POOL = Executors.newVirtualThreadPerTaskExecutor();
 
     @NotNull
     private Listener getListener(String dataId, MilogSpaceData milogSpaceData) {

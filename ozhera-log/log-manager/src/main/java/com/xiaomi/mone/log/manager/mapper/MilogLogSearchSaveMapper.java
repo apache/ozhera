@@ -46,7 +46,7 @@ public interface MilogLogSearchSaveMapper extends BaseMapper<MilogLogSearchSaveD
 
     Integer isMyFavouriteStore(@Param(value = "creator") String creator, @Param(value = "storeId") Long storeId);
 
-    Integer isMyFavouriteTail(@Param(value = "creator") String creator, @Param(value = "tailId") String tailId);
+    Integer isMyFavouriteTail(@Param(value = "creator") String creator, @Param(value = "tailId") Long tailId);
 
     List<MilogLogSearchSaveDO> getAll();
 }

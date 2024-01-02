@@ -4,9 +4,11 @@ import com.google.gson.JsonObject;
 import com.xiaomi.mone.app.model.HeraAppBaseInfo;
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gaoxihui
@@ -43,6 +45,8 @@ public class HeraAppMessage implements Serializable {
 
     private Integer delete;
 
+    private Map<String,String> env;
+
     public HeraAppBaseInfo baseInfo(){
 
         HeraAppBaseInfo heraAppBaseInfo = new HeraAppBaseInfo();
@@ -52,7 +56,11 @@ public class HeraAppMessage implements Serializable {
         heraAppBaseInfo.setAppName(this.getAppName());
         heraAppBaseInfo.setAppCname(this.getAppCname());
 
-        heraAppBaseInfo.setAppLanguage(this.getAppLanguage());
+        if(env != null && StringUtils.isNotBlank(env.get("appLanguage"))){
+            heraAppBaseInfo.setAppLanguage(env.get("appLanguage"));
+        }else{
+            heraAppBaseInfo.setAppLanguage(this.getAppLanguage());
+        }
         heraAppBaseInfo.setPlatformType(this.getPlatformType());
         heraAppBaseInfo.setAppType(this.getAppType());
         heraAppBaseInfo.setEnvsMap(this.getEnvMapping() == null ? "" : this.getEnvMapping().toString());

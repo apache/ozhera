@@ -72,4 +72,6 @@ public class Metric implements Serializable {
     private String type;
     private String destApp;
 
+    // http client and server error status code
+    private String errorCode;
 }

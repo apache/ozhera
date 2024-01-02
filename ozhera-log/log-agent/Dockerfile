@@ -12,6 +12,6 @@ COPY target/log-agent-*.jar ${APP_HOME}/log-agent.jar
 
 WORKDIR ${APP_HOME}
 
-ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED"
+ENV JAVA_OPTS="--enable-preview --add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-agent.jar"]

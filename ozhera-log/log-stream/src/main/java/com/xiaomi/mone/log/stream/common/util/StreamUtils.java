@@ -76,7 +76,7 @@ public class StreamUtils {
         return instance;
     }
 
-    private static String getIp() {
+    public static String getIp() {
         return System.getenv(TESLA_HOST_KEY) == null ? NetUtils.getLocalHost() : System.getenv(TESLA_HOST_KEY);
     }
 

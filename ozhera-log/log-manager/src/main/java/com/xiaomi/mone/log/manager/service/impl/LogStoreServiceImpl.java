@@ -148,10 +148,10 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
     private void checkRequiredFieldExist(MilogLogStoreDO storeDO, LogStoreParam cmd) {
         String keyList = storeDO.getKeyList();
         String columnTypeList = storeDO.getColumnTypeList();
-        for (Pair<String, String> requiredField : requiredFields) {
+        for (Pair<String, Pair<String, Integer>> requiredField : requiredFields) {
             if (!keyList.contains(requiredField.getKey())) {
-                keyList = String.format("%s,%s:1", keyList, requiredField.getKey());
-                columnTypeList = String.format("%s,%s", columnTypeList, requiredField.getValue());
+                keyList = String.format("%s,%s:%s", keyList, requiredField.getKey(), requiredField.getValue().getValue());
+                columnTypeList = String.format("%s,%s", columnTypeList, requiredField.getKey());
             }
         }
         storeDO.setKeyList(keyList);
@@ -326,5 +326,13 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
             }).collect(Collectors.toList());
         }
         return Lists.newArrayList();
+    }
+
+    public Result<String> redistributeStoreConfig(Long storeId) {
+        if (null == storeId) {
+            return Result.failParam("storeId can not be empty");
+        }
+        logTail.handleStoreTail(storeId);
+        return Result.success(SUCCESS_MESSAGE);
     }
 }

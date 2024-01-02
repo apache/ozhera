@@ -130,7 +130,7 @@ public class ConfigManager {
             .setThreadFactory(ThreadFactoryBuilder.create().setNamePrefix("Listen-space-Pool-").build())
             .build();
 
-    public void listenMilogStreamConfig() {
+    public void listenLogStreamConfig() {
         nacosConfig.addListener(spaceDataId, DEFAULT_GROUP_ID, new Listener() {
             @Override
             public Executor getExecutor() {

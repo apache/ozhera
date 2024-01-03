@@ -23,6 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
         <docean-plugin.common.version>1.4-jdk21-SNAPSHOT</docean-plugin.common.version>
+        <docean.version>1.4-jdk21-SNAPSHOT</docean.version>
         <kafka.version>2.4.0</kafka.version>
     </properties>
 
@@ -31,7 +32,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean</artifactId>
-                <version>1.4-jdk21-SNAPSHOT</version>
+                <version>${docean.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>nacos</artifactId>
+                <version>${docean.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

@@ -22,7 +22,8 @@ public class DashboardConstant {
 
     public static List<String> GRAFANA_SRE_TEMPLATES = Arrays.asList("nodeMonitor", "dockerMonitor", "serviceMarket",
             "resourceUtilization", "dubboProviderOverview", "dubboProviderMarket", "dubboConsumerOverview",
-            "dubboConsumerMarket", "httpServerMarket", "httpServerOverview", "heraSLA");
+            "dubboConsumerMarket", "httpServerMarket", "httpServerOverview", "heraSLA", "grpcConsumerMarket",
+            "grpcConsumerOverview", "grpcProviderMarket", "grpcProviderOverview");
     public static final String JAEGER_QUERY_File_NAME = "jaegerQuery.ftl";
     public static final String GOLANG_File_NAME = "golang.ftl";
     public static final String DEFAULT_PANEL_ID_LIST = "110,148,152,112,116,118,150,122,120,126,124,130,128,132,134," +
@@ -31,7 +32,7 @@ public class DashboardConstant {
 
     public static final String DEFAULT_GOLANG_ID_LIST = "110,148,152,112,116,120,124,128,132,134," +
             "136,138,140,142,144,146,66,95,96,50,82,68,78,102,104,106,146,159,170,171," +
-            "172,173,174";
+            "172,173,174,150,126,130,122,118,163,169,168";
     public static final String DEFAULT_JAEGER_QUERY_JOB_NAME = "jaeger_query";
     public static final String DEFAULT_JVM_JOB_NAME = "mione-yewujiankong-china-jvm";
     public static final String DEFAULT_DOCKER_JOB_NAME = "mione-china-cadvisor-k8s";
@@ -50,7 +51,6 @@ public class DashboardConstant {
     public static final String HERA_METRICS_PREFIX = "hera";
 
     public static final String HERA_METRICS_INNER_PREFIX = "jaeger";
-
 
 
 }

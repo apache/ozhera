@@ -99,6 +99,22 @@ public class GrafanaTemplateDao {
         }
     }
 
+    public int deleteHard(int id) {
+        try {
+            //硬删除
+            GrafanaTemplate grafanaTemplate = grafanaTemplateMapper.selectByPrimaryKey(id);
+            int result = grafanaTemplateMapper.deleteByPrimaryKey(id);
+            if (result < 0) {
+                log.warn("[GrafanaTemplateDao.deleteHard] failed to delete id: {}", id);
+                return 0;
+            }
+            return result;
+        }catch (Exception e) {
+            log.error("[GrafanaTemplateDao.deleteHard] failed to delete id: {}, err: {}", id, e);
+            return 0;
+        }
+    }
+
     public List<GrafanaTemplate> list(int pageSize,int pageNo) {
         GrafanaTemplateExample aje = new GrafanaTemplateExample();
         aje.setOrderByClause("id desc");

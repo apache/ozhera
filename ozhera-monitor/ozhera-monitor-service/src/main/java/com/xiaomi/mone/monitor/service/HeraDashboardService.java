@@ -166,20 +166,19 @@ public class HeraDashboardService {
                     if (grafanaTemplate == null) {
                         //If it has not been created, it is created from the ftl file
                         try {
-                            String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, name + ".ftl");
-                            GrafanaTemplate template = new GrafanaTemplate();
-                            template.setName(name);
-                            template.setCreateTime(new Date());
-                            template.setUpdateTime(new Date());
-                            template.setLanguage(0);
-                            template.setPlatform(0);
-                            template.setAppType(1);
-                            template.setTemplate(content);
-                            template.setDeleted(false);
-                            int insertRes = grafanaTemplateDao.insert(template);
-                            log.info("HeraDashboardService.createDefaultDashboardTemplate name:{},insertRes:{}", name, insertRes);
+                            insertDashboardTemplate(name);
                         } catch (IOException e) {
                             log.error("HeraDashboardService.createDefaultDashboardTemplate error :{}", e.getMessage());
+                        }
+                    } else {
+                        // If it already exists, delete it from db first, then fetch the latest one from the template and create a new one
+                        int resCount = grafanaTemplateDao.deleteHard(grafanaTemplate.getId());
+                        if (resCount >= 1) {
+                            try {
+                                insertDashboardTemplate(name);
+                            } catch (IOException e) {
+                                log.error("HeraDashboardService.createDefaultDashboardTemplate Multiple create error :{}", e.getMessage());
+                            }
                         }
                     }
                 });
@@ -228,6 +227,21 @@ public class HeraDashboardService {
             }
         }
 
+    }
+
+    private void insertDashboardTemplate(String name) throws IOException {
+        String content = FreeMarkerUtil.getTemplateStr(HERA_GRAFANA_TEMPLATE, name + ".ftl");
+        GrafanaTemplate template = new GrafanaTemplate();
+        template.setName(name);
+        template.setCreateTime(new Date());
+        template.setUpdateTime(new Date());
+        template.setLanguage(0);
+        template.setPlatform(0);
+        template.setAppType(1);
+        template.setTemplate(content);
+        template.setDeleted(false);
+        int insertRes = grafanaTemplateDao.insert(template);
+        log.info("HeraDashboardService.insertDashboardTemplate name:{},insertRes:{}", name, insertRes);
     }
 
     //request prometheus-agent create biz、docker、node、jvm ...etc prometheus job

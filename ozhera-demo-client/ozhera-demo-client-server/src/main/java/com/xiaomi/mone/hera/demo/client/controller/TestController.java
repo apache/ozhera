@@ -2,6 +2,7 @@ package com.xiaomi.mone.hera.demo.client.controller;
 
 import com.xiaomi.hera.trace.annotation.Trace;
 import com.xiaomi.mone.hera.demo.client.api.service.DubboHealthService;
+import com.xiaomi.mone.hera.demo.client.grpc.GrpcClientService;
 import com.xiaomi.mone.hera.demo.client.util.HttpClientUtil;
 import com.xiaomi.youpin.prometheus.all.client.Metrics;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class TestController {
     @Autowired
     private DubboHealthService dubboHealthService;
     @Autowired
+    private GrpcClientService grpcClientService;
+    @Autowired
     private JedisPool jedisPooled;
 
     @PostConstruct
@@ -39,6 +42,7 @@ public class TestController {
                     sendGETReuqest("http://localhost:8085/remotehealth2");
                     sendGETReuqest("http://localhost:8085/testError");
                     sendGETReuqest("http://localhost:8085/customizedMetrics");
+                    sendGETReuqest("http://localhost:8085/grpcTest");
                 },
                 0,
                 15,
@@ -100,6 +104,14 @@ public class TestController {
         long duration = System.currentTimeMillis() - l;
         Metrics.getInstance().newHistogram("test_histogram",buckets).observe(duration);
         Metrics.getInstance().newGauge("test_gauge").set(duration);
+        return "ok";
+    }
+
+    @GetMapping("/grpcTest")
+    public Object grpcTest() {
+        grpcClientService.grpcNormal("ok");
+        grpcClientService.grpcSlow("ok");
+        grpcClientService.grpcError("ok");
         return "ok";
     }
 

@@ -40,9 +40,9 @@ public class JaegerTracerDomain {
     private String sql;
     private String dbName;
     /**
-     * dubbo
+     * dubbo\grpc
      */
-    private String dubboServiceName;
+    private String rpcServiceName;
     /**
      * rocketmq
      */
@@ -184,12 +184,12 @@ public class JaegerTracerDomain {
         this.dbName = dbName;
     }
 
-    public String getDubboServiceName() {
-        return dubboServiceName;
+    public String getRpcServiceName() {
+        return rpcServiceName;
     }
 
-    public void setDubboServiceName(String dubboServiceName) {
-        this.dubboServiceName = dubboServiceName;
+    public void setRpcServiceName(String rpcServiceName) {
+        this.rpcServiceName = rpcServiceName;
     }
 
     public String getKind() {

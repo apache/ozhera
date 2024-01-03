@@ -70,3 +70,16 @@ spec:
       protocol: TCP
   selector:
     app: hera-demo-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hera-demo-server-grpc
+  namespace: ozhera-namespace
+spec:
+  ports:
+    - port: 8998
+      targetPort: 8998
+      protocol: TCP
+  selector:
+    app: hera-demo-server

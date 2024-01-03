@@ -13,4 +13,5 @@ public class SpanType {
     public static final String REDIS = "redis";
     public static final String ROCKETMQ = "rocketmq";
     public static final String CUSTOMIZE_MTTHOD = "customizeMethod";
+    public static final String GRPC = "grpc";
 }

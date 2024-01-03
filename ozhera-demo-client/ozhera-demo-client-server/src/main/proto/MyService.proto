@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package com.xiaomi.mone.hera.demo.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.xiaomi.mone.hera.demo.grpc";
+option java_outer_classname = "HelloWorldProto";
+
+// The greeting service definition.
+service MyService {
+    rpc Normal (HelloRequest) returns (HelloReply) {
+    }
+    rpc Slow (HelloRequest) returns (HelloReply) {
+    }
+    rpc Error (HelloRequest) returns (HelloReply) {
+    }
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+    string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+    string message = 1;
+}

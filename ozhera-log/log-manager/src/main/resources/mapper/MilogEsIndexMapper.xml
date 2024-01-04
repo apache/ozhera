@@ -11,7 +11,7 @@
         WHERE
             idx.cluster_id = clu.id
         <if test="region != null and region != ''">
-            AND clu.region = #{region}
+            AND clu.area = #{region}
         </if>
     </select>
     <select id="selectAreaIndexList" resultType="com.xiaomi.mone.log.manager.model.pojo.MilogEsIndexDO">

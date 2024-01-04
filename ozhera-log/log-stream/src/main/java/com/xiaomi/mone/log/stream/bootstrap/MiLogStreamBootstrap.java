@@ -20,9 +20,7 @@ package com.xiaomi.mone.log.stream.bootstrap;
  * @Date 2021/6/22 13:58
  */
 
-import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.plugin.nacos.NacosNaming;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
@@ -32,43 +30,46 @@ import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.xiaomi.mone.log.common.Constant.DEFAULT_STREAM_SERVER_NAME;
-import static com.xiaomi.mone.log.stream.common.util.StreamUtils.*;
+import static com.xiaomi.mone.log.stream.common.util.StreamUtils.getConfigFromNacos;
 
 @Slf4j
 public class MiLogStreamBootstrap {
 
-    public static void main(String[] args) throws IOException {
-        getConfigFromNacos();
-        Ioc.ins().putBean(getOkHttpClient()).init("com.xiaomi.mone.log.stream", "com.xiaomi.youpin.docean");
+    public static void main(String[] args) {
+        try {
+            getConfigFromNacos();
+            initializeApplication();
+            startHealthCheckTask();
+            waitForUserInput();
+        } catch (IOException e) {
+            log.error("An error occurred in the main method.", e);
+        }
+    }
+
+    private static void initializeApplication() {
+        OkHttpClient okHttpClient = getOkHttpClient();
+        Ioc.ins().putBean(okHttpClient)
+                .init("com.xiaomi.mone.log.stream", "com.xiaomi.youpin.docean");
+    }
+
+    private static void startHealthCheckTask() {
         long initDelay = 0;
         long intervalTime = 2;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> log.info("I am health,time:{}", LocalDateTime.now()), initDelay, intervalTime, TimeUnit.MINUTES);
-        serviceRegister(Config.ins().get("app_name", DEFAULT_STREAM_SERVER_NAME));
+        Executors.newSingleThreadScheduledExecutor()
+                .scheduleAtFixedRate(() -> log.debug("I am healthy, time: {}", LocalDateTime.now()), initDelay, intervalTime, TimeUnit.MINUTES);
+    }
+
+    private static void waitForUserInput() throws IOException {
+        log.info("Press Enter to exit.");
         System.in.read();
     }
 
-    private static void serviceRegister(String serviceName) {
-        String server_addr = Config.ins().get("nacos_config_server_addr", "");
-        NacosNaming nacosNaming = getNacosNaming(server_addr);
-        try {
-            nacosNaming.registerInstance(serviceName, buildInstance(serviceName));
-        } catch (Exception e) {
-            log.error("register stream service error,nacos address:{}", server_addr, e);
-        }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                log.info("stop");
-                nacosNaming.deregisterInstance(serviceName, getIp(),
-                        Integer.parseInt(Config.ins().get("service_port", DEFAULT_SERVER_PORT)));
-            } catch (Exception e) {
-                //ignore
-            }
-        }));
-    }
-
     private static OkHttpClient getOkHttpClient() {
-        return new OkHttpClient().newBuilder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(5 * 60, TimeUnit.SECONDS).writeTimeout(5 * 60, TimeUnit.SECONDS).connectionPool(new ConnectionPool(50, 5, TimeUnit.MINUTES)).build();
+        return new OkHttpClient().newBuilder().connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(5 * 60, TimeUnit.SECONDS)
+                .writeTimeout(5 * 60, TimeUnit.SECONDS)
+                .connectionPool(new ConnectionPool(50, 5, TimeUnit.MINUTES))
+                .build();
     }
 
 }

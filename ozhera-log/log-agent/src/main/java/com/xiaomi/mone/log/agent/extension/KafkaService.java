@@ -103,7 +103,7 @@ public class KafkaService implements OutPutService {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, clusterInfo);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-
+        properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         return new KafkaProducer<>(properties);
     }
 

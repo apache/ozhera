@@ -20,6 +20,7 @@ import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.exception.CommonError;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
+import com.xiaomi.mone.log.manager.dao.MilogSpaceDao;
 import com.xiaomi.mone.log.manager.dao.MilogStoreSpaceAuthDao;
 import com.xiaomi.mone.log.manager.domain.Store;
 import com.xiaomi.mone.log.manager.mapper.MilogLogSearchSaveMapper;
@@ -31,6 +32,7 @@ import com.xiaomi.mone.log.manager.model.dto.SpaceTreeFavouriteDTO;
 import com.xiaomi.mone.log.manager.model.dto.StoreTreeDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogSearchSaveDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
+import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
 import com.xiaomi.mone.log.manager.model.vo.SearchSaveInsertCmd;
 import com.xiaomi.mone.log.manager.model.vo.SearchSaveUpdateCmd;
 import com.xiaomi.mone.log.manager.service.IMilogLogSearchSaveService;
@@ -45,7 +47,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author wanghaoyang
  * @since 2022-03-29
  */
@@ -57,7 +58,10 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
     private MilogLogSearchSaveMapper logSearchSaveMapper;
 
     @Resource
-    private MilogLogstoreDao logstoreDao;
+    private MilogLogstoreDao logStoreDao;
+
+    @Resource
+    private MilogSpaceDao logSpaceDao;
 
     @Resource
     private MilogStoreSpaceAuthDao storeSpaceAuthDao;
@@ -73,10 +77,23 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
 
     public Result<List<SearchSaveDTO>> list(Long storeId, Integer sort) {
         List<SearchSaveDTO> list = logSearchSaveMapper.selectByCreator(MoneUserContext.getCurrentUser().getUser(), sort);
-        if (CollectionUtils.isNotEmpty(list) && null != storeId) {
-            list = list.stream().filter(searchSaveDTO -> Objects.equals(storeId, searchSaveDTO.getStoreId())).collect(Collectors.toList());
+        List<SearchSaveDTO> result = new ArrayList<>();
+        for (SearchSaveDTO searchSaveDTO : list) {
+            Long storeIdInner = searchSaveDTO.getStoreId();
+            MilogLogStoreDO logStoreDO = logStoreDao.queryById(storeIdInner);
+            if (null != logStoreDO) {
+                searchSaveDTO.setSpaceId(logStoreDO.getSpaceId());
+                MilogSpaceDO spaceDO = logSpaceDao.queryById(logStoreDO.getSpaceId());
+                searchSaveDTO.setSpaceName(spaceDO.getSpaceName());
+                result.add(searchSaveDTO);
+            }
         }
-        return Result.success(list);
+        if (storeId != null) {
+            result = result.stream()
+                    .filter(searchSaveDTO -> Objects.equals(storeId, searchSaveDTO.getStoreId()))
+                    .collect(Collectors.toList());
+        }
+        return Result.success(result);
     }
 
     public SearchSaveDTO getById(Long id) {
@@ -183,9 +200,24 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
 
     public Result<List<SpaceTreeFavouriteDTO>> storeTree() {
         List<SpaceTreeFavouriteDTO> dtoList = new ArrayList<>();
-        com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpacePage = spaceAuthService.getUserPermSpace("", 0, Integer.MAX_VALUE);
-        List<MilogSpaceDTO> spaceDTOList = MilogSpaceConvert.INSTANCE.fromTpcPage(userPermSpacePage.getData()).getList();
-//        List<MilogSpaceDTO> spaceDTOList = space.getMilogSpaceByPage("", 0, Integer.MAX_VALUE).getList();
+        int pageNum = 1;
+        List<MilogSpaceDTO> spaceDTOList = new ArrayList<>();
+
+        while (true) {
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpace = spaceAuthService.getUserPermSpace("", pageNum, Integer.MAX_VALUE);
+
+            if (userPermSpace.getCode() != 0) {
+                return Result.fail(CommonError.UNAUTHORIZED);
+            }
+            List<NodeVo> list = userPermSpace.getData() != null ? userPermSpace.getData().getList() : null;
+
+            if (CollectionUtils.isEmpty(list)) {
+                break;
+            }
+            List<MilogSpaceDTO> spaceDTOListPage = MilogSpaceConvert.INSTANCE.fromTpcPage(userPermSpace.getData()).getList();
+            spaceDTOList.addAll(spaceDTOListPage);
+            pageNum++;
+        }
         if (CollectionUtils.isEmpty(spaceDTOList)) {
             return Result.success(dtoList);
         }
@@ -204,21 +236,20 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
             }
         }
         List<SearchSaveDTO> favouriteList = searchSaveMapper.selectByCreator(MoneUserContext.getCurrentUser().getUser(), FavouriteSearchEnum.STORE.getCode());
-        Set<Long> favouriteStoreIdSet = new HashSet<>();
+        Set<Long> favouriteStoreIdSet;
         if (favouriteList != null && !favouriteList.isEmpty()) {
             favouriteStoreIdSet = favouriteList.stream().map(SearchSaveDTO::getStoreId).collect(Collectors.toSet());
+        } else {
+            favouriteStoreIdSet = new HashSet<>();
         }
-        SpaceTreeFavouriteDTO dto;
-        List<MilogLogStoreDO> storeFerryList;
-        List<StoreTreeDTO> children;
-
-        for (MilogSpaceDTO space : spaceDTOList) {
-            dto = new SpaceTreeFavouriteDTO();
+        spaceDTOList.parallelStream().forEach(space -> {
+            List<StoreTreeDTO> children;
+            SpaceTreeFavouriteDTO dto = new SpaceTreeFavouriteDTO();
             dto.setValue(space.getId());
             dto.setLabel(space.getSpaceName());
 
             children = new ArrayList<>();
-            storeFerryList = spaceStoreMap.get(space.getId());
+            List<MilogLogStoreDO> storeFerryList = spaceStoreMap.get(space.getId());
             if (storeFerryList != null && !storeFerryList.isEmpty()) {
                 for (MilogLogStoreDO storeDO : storeFerryList) {
                     children.add(StoreTreeDTO.Of(storeDO.getId(), storeDO.getLogstoreName(), favouriteStoreIdSet.contains(storeDO.getId()) ? 1 : 0));
@@ -226,7 +257,7 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
             }
             dto.setChildren(children);
             dtoList.add(dto);
-        }
+        });
         return Result.success(dtoList);
     }
 

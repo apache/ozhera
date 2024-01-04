@@ -24,7 +24,7 @@ public class SearchSaveInsertCmd {
     /**
      * Multiple to, split
      */
-    private String tailId;
+    private Long tailId;
     private String name;
     private String queryText;
     private Long startTime;

@@ -27,37 +27,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Boolean.FALSE;
 
+/**
+ * @author wangtao
+ */
 @Service
 @Slf4j
-public class StreamAgent {
+public class StreamManage {
 
     @Resource
     private ConfigManager configManager;
 
     public void init() {
         try {
-            log.info("start");
+            log.info("Starting service initialization");
             if (EsPlugin.InitEsConfig()) {
                 SnapShotSwitch.setIsSnapShot(FALSE);
                 configManager.listenLogStreamConfig();
+                registerGracefulShutdownHook();
             } else {
-                System.exit(1);
+                log.error("Elasticsearch configuration initialization failed. Exiting application.");
+                System.exit(ExitStatus.FAILURE.getStatus());
             }
-            graceShutdown();
         } catch (Exception e) {
             log.error("Service initialization exception", e);
         }
     }
 
-    private void graceShutdown() {
-        //Close the operation
+    private void registerGracefulShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("stream shutdown!");
+            log.info("Graceful shutdown initiated for stream service");
             ConcurrentHashMap<Long, MilogConfigListener> listeners = configManager.getListeners();
-            listeners.values().forEach(milogConfigListener -> {
-                milogConfigListener.getJobManager().stopAllJob();
-            });
+            listeners.values().forEach(configListener -> configListener.getJobManager().stopAllJob());
         }));
     }
 
+    // define exit status constants or an enumeration
+    enum ExitStatus {
+        SUCCESS(0),
+        FAILURE(1);
+
+        private final int status;
+
+        ExitStatus(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+    }
 }

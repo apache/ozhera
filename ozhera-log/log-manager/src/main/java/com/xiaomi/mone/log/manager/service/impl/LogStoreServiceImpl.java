@@ -151,7 +151,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         for (Pair<String, Pair<String, Integer>> requiredField : requiredFields) {
             if (!keyList.contains(requiredField.getKey())) {
                 keyList = String.format("%s,%s:%s", keyList, requiredField.getKey(), requiredField.getValue().getValue());
-                columnTypeList = String.format("%s,%s", columnTypeList, requiredField.getKey());
+                columnTypeList = String.format("%s,%s", columnTypeList, requiredField.getValue().getKey());
             }
         }
         storeDO.setKeyList(keyList);

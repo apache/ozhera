@@ -22,11 +22,12 @@ import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
 import com.xiaomi.mone.log.api.model.vo.ResourceUserSimple;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
+import com.xiaomi.mone.log.manager.dao.MilogSpaceDao;
 import com.xiaomi.mone.log.manager.model.pojo.*;
-import com.xiaomi.mone.log.manager.service.impl.RocketMqConfigService;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ import static com.xiaomi.mone.log.manager.service.extension.resource.ResourceExt
 public class DefaultResourceExtensionService implements ResourceExtensionService {
 
     @Resource
-    private RocketMqConfigService mqConfigService;
+    private MilogSpaceDao logSpaceDao;
 
     @Override
     public List<MilogMiddlewareConfig> userShowAuthority(List<MilogMiddlewareConfig> configList) {
@@ -137,6 +138,25 @@ public class DefaultResourceExtensionService implements ResourceExtensionService
     @Override
     public List<Integer> getMqResourceCodeList() {
         return Arrays.stream(MQSourceEnum.values()).map(MQSourceEnum::getCode).collect(Collectors.toList());
+    }
+
+    @Override
+    public String queryHostName(String ip) {
+        return ip;
+    }
+
+    @Override
+    public List<Long> getSpaceIdsByNameExcluded(String spaceName) {
+        List<Long> spaceIds;
+        if (StringUtils.isNotBlank(spaceName)) {
+            List<MilogSpaceDO> spaceDOS = logSpaceDao.queryByName(spaceName);
+            spaceIds = spaceDOS.stream()
+                    .map(MilogSpaceDO::getId)
+                    .toList();
+        } else {
+            spaceIds = logSpaceDao.getAll().stream().map(MilogSpaceDO::getId).collect(Collectors.toList());
+        }
+        return spaceIds;
     }
 
 }

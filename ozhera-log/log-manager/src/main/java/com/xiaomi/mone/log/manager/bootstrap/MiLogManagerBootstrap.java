@@ -21,6 +21,7 @@ import com.xiaomi.youpin.docean.Aop;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.RequestMapping;
 import com.xiaomi.youpin.docean.aop.EnhanceInterceptor;
+import com.xiaomi.youpin.docean.common.Cons;
 import com.xiaomi.youpin.docean.config.HttpServerConfig;
 import com.xiaomi.youpin.docean.mvc.DoceanHttpServer;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,8 @@ public class MiLogManagerBootstrap {
         m.put(RequestMapping.class, new HttpRequestInterceptor());
         Aop.ins().init(m);
 
-        Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
+        Ioc.ins().putBean(Cons.AUTO_FIND_IMPL, "true")
+                .init("com.xiaomi.mone", "com.xiaomi.youpin");
         Config ins = Config.ins();
 
         int port = Integer.parseInt(ins.get("serverPort", ""));

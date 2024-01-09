@@ -51,9 +51,16 @@
             <artifactId>trace-etl-kafka-extension</artifactId>
             <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-rocketmq-extension</artifactId>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>trace-etl-doris-extension</artifactId>
             <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 

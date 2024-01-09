@@ -2,12 +2,12 @@ package com.xiaomi.hera.trace.etl.es.consumer;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.common.base.Joiner;
+import com.xiaomi.hera.trace.etl.api.service.DataSourceService;
 import com.xiaomi.hera.trace.etl.es.domain.FilterResult;
 import com.xiaomi.hera.trace.etl.es.domain.LocalStorages;
 import com.xiaomi.hera.trace.etl.es.queue.impl.RocksdbStoreServiceImpl;
 import com.xiaomi.hera.trace.etl.es.queue.impl.TeSnowFlake;
 import com.xiaomi.hera.trace.etl.es.util.bloomfilter.TraceIdRedisBloomUtil;
-import com.xiaomi.hera.trace.etl.service.WriteEsService;
 import com.xiaomi.hera.trace.etl.util.ExecutorUtil;
 import com.xiaomi.hera.trace.etl.util.MessageUtil;
 import com.xiaomi.hera.trace.etl.util.ThriftUtil;
@@ -58,7 +58,7 @@ public class ConsumerService {
     @Autowired
     private FilterService filterService;
     @Autowired
-    private WriteEsService writeEsService;
+    private DataSourceService writeEsService;
     @Autowired
     private TeSnowFlake snowFlake;
 
@@ -110,7 +110,7 @@ public class ConsumerService {
             if (tSpanData != null) {
                 if (traceIdRedisBloomUtil.isExistLocal(split[0])) {
                     // write into es
-                    writeEsService.insertJaegerSpan(tSpanData, split[1], split[2]);
+                    writeEsService.insertHeraSpan(tSpanData, split[1], split[2]);
                 } else if (RocksdbStoreServiceImpl.FIRST_ORDER.equals(order)) {
                     insertRocks(split[0], split[1], split[2], tSpanData, RocksdbStoreServiceImpl.SECOND_ORDER);
                 }
@@ -158,7 +158,7 @@ public class ConsumerService {
                     traceIdRedisBloomUtil.addBatch(traceId);
                 }
                 // write into es
-                writeEsService.insertJaegerSpan(tSpanData, serviceName, spanName);
+                writeEsService.insertHeraSpan(tSpanData, serviceName, spanName);
             } else {
                 insertRocks(traceId, serviceName, spanName, tSpanData, RocksdbStoreServiceImpl.FIRST_ORDER);
             }

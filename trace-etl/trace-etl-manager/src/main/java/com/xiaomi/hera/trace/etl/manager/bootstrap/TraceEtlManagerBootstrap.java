@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl"})
+@ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl", "run.mone.trace.etl"})
 @DubboComponentScan(basePackages = "com.xiaomi.hera.trace.etl")
 public class TraceEtlManagerBootstrap {
 

@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.manager.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -209,15 +210,18 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         }
         Cnd mqCnd = buildMqQueryCnd(resourcePage);
 
-        Pager pager = new Pager(resourcePage.getPage(), resourcePage.getPageSize());
+        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryMiddlewareConfigByCondition(mqCnd, null);
 
-        List<MilogMiddlewareConfig> milogMiddlewareConfigs = milogMiddlewareConfigDao.queryMiddlewareConfigByCondition(mqCnd, pager);
-        Integer mqResourceTotal = milogMiddlewareConfigDao.queryMiddlewareConfigCountByCondition(mqCnd);
+        List<MilogMiddlewareConfig> userShowAuthorityConfigs = resourceExtensionService.userShowAuthority(milogMiddlewareConfigs);
 
-        Long esResourceTotal = queryStorageResource(milogMiddlewareConfigs, resourcePage);
+        List<MilogMiddlewareConfig> pageList = CollectionUtil.page(resourcePage.getPage() - 1, resourcePage.getPageSize(), userShowAuthorityConfigs);
 
-        milogMiddlewareConfigs = resourceExtensionService.userShowAuthority(milogMiddlewareConfigs);
-        List<ResourceInfo> resourceInfos = milogMiddlewareConfigs.stream().map(MilogMiddlewareConfig::configToResourceVO).collect(Collectors.toList());
+        Integer mqResourceTotal = userShowAuthorityConfigs.size();
+
+        Long esResourceTotal = queryStorageResource(pageList, resourcePage);
+
+        pageList = resourceExtensionService.userShowAuthority(pageList);
+        List<ResourceInfo> resourceInfos = pageList.stream().map(MilogMiddlewareConfig::configToResourceVO).collect(Collectors.toList());
 
         return new PageInfo(resourcePage.getPage(), resourcePage.getPageSize(), mqResourceTotal + esResourceTotal.intValue(), resourceInfos);
     }
@@ -249,7 +253,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
             Wrapper queryWrapper = generateEsQueryWrapper(resourcePage);
 
             PageDTO<MilogEsClusterDO> esClusterPage = milogEsClusterMapper.selectPage(page, queryWrapper);
-            List<MilogMiddlewareConfig> configEsList = esClusterPage.getRecords().stream().map(MilogEsClusterDO::miLogEsResourceToConfig).collect(Collectors.toList());
+            List<MilogMiddlewareConfig> configEsList = esClusterPage.getRecords().stream().map(MilogEsClusterDO::miLogEsResourceToConfig).toList();
             milogMiddlewareConfigs.addAll(configEsList);
 
             count = milogEsClusterMapper.selectCount(queryWrapper);

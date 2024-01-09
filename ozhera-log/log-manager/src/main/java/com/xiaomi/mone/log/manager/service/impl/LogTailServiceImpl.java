@@ -147,7 +147,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     private QuickQueryVO applyQueryVO(MilogLogTailDo logTailDo) {
-        Integer isFavourite = searchSaveMapper.isMyFavouriteTail(MoneUserContext.getCurrentUser().getUser(), logTailDo.getId().toString());
+        Integer isFavourite = searchSaveMapper.isMyFavouriteTail(MoneUserContext.getCurrentUser().getUser(), logTailDo.getId());
         return applyQueryVO(logTailDo, isFavourite);
     }
 
@@ -212,7 +212,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         boolean supportedConsume = logTypeProcessor.supportedConsume(logStore.getLogType());
         try {
             if (null != milogLogtailDo) {
-                if (tailExtensionService.bindMqResourceSwitch(param.getAppType())) {
+                if (tailExtensionService.bindMqResourceSwitch(logStore, param.getAppType())) {
                     // tail creates a successful binding and MQ relationship
                     tailExtensionService.defaultBindingAppTailConfigRel(milogLogtailDo.getId(), param.getMilogAppId(), null == param.getMiddlewareConfigId() ? logStore.getMqResourceId() : param.getMiddlewareConfigId(), param.getTopicName(), param.getBatchSendSize());
                     /** Synchronize the information after creating a tail**/
@@ -306,15 +306,15 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         MilogLogTailDo tail = milogLogtailDao.queryById(id);
         if (null != tail) {
             // handle value list
-            MilogLogStoreDO milogLogstore = logStoreDao.queryById(tail.getStoreId());
-            if (null != milogLogstore && StringUtils.isNotEmpty(milogLogstore.getKeyList())) {
-                String keyList = milogLogstore.getKeyList();
+            MilogLogStoreDO logStore = logStoreDao.queryById(tail.getStoreId());
+            if (null != logStore && StringUtils.isNotEmpty(logStore.getKeyList())) {
+                String keyList = logStore.getKeyList();
                 String valueList = getKeyValueList(keyList, tail.getValueList());
                 tail.setValueList(valueList);
             }
             // Handle filterconf to rateLimit
             LogTailDTO logTailDTO = milogLogtailDO2DTO(tail);
-            if (tailExtensionService.decorateTailDTOValId(logTailDTO.getAppType().intValue())) {
+            if (tailExtensionService.decorateTailDTOValId(logStore.getLogType(), logTailDTO.getAppType().intValue())) {
                 decorateMilogTailDTO(logTailDTO);
             }
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), logTailDTO);
@@ -416,7 +416,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         if (isSucceed) {
             Integer appType = param.getAppType();
             boolean processSwitch = tailExtensionService.bindPostProcessSwitch(param.getStoreId());
-            if (tailExtensionService.bindMqResourceSwitch(appType) || processSwitch) {
+            if (tailExtensionService.bindMqResourceSwitch(logStoreDO, appType) || processSwitch) {
                 if (null != param.getMiddlewareConfigId()) {
                     tailExtensionService.defaultBindingAppTailConfigRel(param.getId(), param.getMilogAppId(), param.getMiddlewareConfigId(), param.getTopicName(), param.getBatchSendSize());
                 }

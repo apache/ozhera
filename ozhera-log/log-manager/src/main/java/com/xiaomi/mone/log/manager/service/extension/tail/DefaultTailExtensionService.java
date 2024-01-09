@@ -76,7 +76,7 @@ public class DefaultTailExtensionService implements TailExtensionService {
     }
 
     @Override
-    public boolean bindMqResourceSwitch(Integer appType) {
+    public boolean bindMqResourceSwitch(MilogLogStoreDO logStore, Integer appType) {
         return Objects.equals(ProjectTypeEnum.MIONE_TYPE.getCode().intValue(), appType);
     }
 
@@ -161,7 +161,7 @@ public class DefaultTailExtensionService implements TailExtensionService {
     }
 
     @Override
-    public boolean decorateTailDTOValId(Integer appType) {
+    public boolean decorateTailDTOValId(Integer logType, Integer appType) {
         return true;
     }
 

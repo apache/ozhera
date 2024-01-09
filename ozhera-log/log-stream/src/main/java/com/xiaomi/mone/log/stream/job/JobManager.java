@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 
@@ -49,6 +50,10 @@ public class JobManager {
     private SinkChain sinkChain = Ioc.ins().getBean(SinkChain.class);
 
     private Gson gson = new Gson();
+
+    private ReentrantLock stopLock = new ReentrantLock();
+
+    private ReentrantLock startLock = new ReentrantLock();
 
     public void closeJobs(MilogSpaceData milogSpaceData) {
         List<SinkConfig> configList = milogSpaceData.getSpaceConfig();
@@ -79,13 +84,16 @@ public class JobManager {
         jobs.remove(logtailConfig.getLogtailId());
     }
 
-    public synchronized void stopJob(LogtailConfig logtailConfig) {
+    public void stopJob(LogtailConfig logtailConfig) {
+        stopLock.lock();
         try {
             List<Long> jobKeys = jobs.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
             log.info("【stop job】,all jobs:{}", jobKeys);
             sinkJobsShutDown(logtailConfig);
         } catch (Exception e) {
             log.error(String.format("[JobManager.stopJob] stopJob err,logtailId:%s", logtailConfig.getLogtailId()), e);
+        } finally {
+            stopLock.unlock();
         }
     }
 
@@ -146,8 +154,9 @@ public class JobManager {
         return sinkJobConfig;
     }
 
-    public synchronized void startJob(LogtailConfig logtailConfig, String esIndex, String keyList, String logStoreName,
-                                      StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
+    public void startJob(LogtailConfig logtailConfig, String esIndex, String keyList, String logStoreName,
+                         StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
+        startLock.lock();
         try {
             String ak = logtailConfig.getAk();
             String sk = logtailConfig.getSk();
@@ -160,6 +169,8 @@ public class JobManager {
             startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId, storageType);
         } catch (Exception e) {
             log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, esIndex), e);
+        } finally {
+            startLock.unlock();
         }
     }
 

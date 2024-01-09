@@ -104,7 +104,10 @@ public class MilogAppMiddlewareRelServiceImpl implements MilogAppMiddlewareRelSe
                 List<String> commonTagTopicNames = Utils.generateCommonTagTopicName(StringUtils.EMPTY);
 //                topicName = commonTagTopicNames.get(Utils.getRandomNum(commonTagTopicNames.size()));
                 //find the least used
-                topicName = findLeastUsedCommonTopic(commonTagTopicNames);
+//                topicName = findLeastUsedCommonTopic(commonTagTopicNames);
+                instantiateMqConfigSubClass(MiddlewareEnum.queryByCode(wareConfig.getType()));
+                AppBaseInfo appBaseInfo = heraAppService.queryById(milogAppId);
+                topicName = mqConfigService.generateSimpleTopicName(id, appBaseInfo.getAppName());
             }
             MilogAppMiddlewareRel.Config config = new MilogAppMiddlewareRel.Config();
             config.setTopic(topicName);
@@ -186,6 +189,8 @@ public class MilogAppMiddlewareRelServiceImpl implements MilogAppMiddlewareRelSe
             case ROCKETMQ:
                 mqConfigService = Ioc.ins().getBean(RocketMqConfigService.class);
                 break;
+            case KAFKA:
+                mqConfigService = Ioc.ins().getBean(KafkaMqConfigService.class);
         }
     }
 }

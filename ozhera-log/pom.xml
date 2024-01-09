@@ -22,7 +22,9 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <docean-plugin.common.version>1.4.0</docean-plugin.common.version>
+        <docean-plugin.common.version>1.4-jdk21-SNAPSHOT</docean-plugin.common.version>
+        <docean.version>1.4-jdk21-SNAPSHOT</docean.version>
+        <kafka.version>2.4.0</kafka.version>
     </properties>
 
     <dependencyManagement>
@@ -30,7 +32,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean</artifactId>
-                <version>1.4.0</version>
+                <version>${docean.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>nacos</artifactId>
+                <version>${docean.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -75,13 +82,13 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-rocketmq</artifactId>
-                <version>1.4.1</version>
+                <version>${docean-plugin.common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>2.4.0</version>
+                <version>${kafka.version}</version>
             </dependency>
 
             <dependency>

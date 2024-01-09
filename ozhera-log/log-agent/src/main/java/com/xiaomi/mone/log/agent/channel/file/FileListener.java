@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.agent.channel.file;
 
 
+import com.xiaomi.mone.log.agent.common.ExecutorUtil;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ public class FileListener implements FileAlterationListener {
     @Override
     public void onFileCreate(File file) {
         log.info("onFileCreate:" + file.getAbsolutePath());
-        consumer.accept(file.getAbsolutePath());
+        ExecutorUtil.submit(() -> consumer.accept(file.getAbsolutePath()));
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.xiaomi.hera.trace.context.TraceIdUtil;
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
+import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.domain.Tpc;
 import com.xiaomi.mone.tpc.login.filter.DoceanReqUserFilter;
 import com.xiaomi.mone.tpc.login.util.ConstUtil;
@@ -94,11 +95,11 @@ public class HttpRequestInterceptor extends EnhanceInterceptor {
     }
 
     private void saveUserInfoThreadLocal(MvcContext mvcContext) {
-        if (!doceanReqUserFilter.doFilter(mvcContext)) {
-            return;
-//            throw new MilogManageException("please go to login");
-        }
         AuthUserVo userVo = (AuthUserVo) mvcContext.session().getAttribute(ConstUtil.TPC_USER);
+        if (null == userVo && !doceanReqUserFilter.doFilter(mvcContext)) {
+            throw new MilogManageException("please go to login");
+        }
+        userVo = (AuthUserVo) mvcContext.session().getAttribute(ConstUtil.TPC_USER);
         Tpc tpc = Ioc.ins().getBean(Tpc.class);
         MoneUserContext.setCurrentUser(userVo, tpc.isAdmin(userVo.getAccount(), userVo.getUserType()));
     }
@@ -120,6 +121,7 @@ public class HttpRequestInterceptor extends EnhanceInterceptor {
 
     @Override
     public void exception(AopContext context, Method method, Throwable ex) {
+        log.error("data exception,", ex);
         clearThreadLocal();
         super.exception(context, method, ex);
     }

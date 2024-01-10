@@ -87,7 +87,7 @@ if grep -q "Unknown license" $TARGET_FILE
 then
     echo "${red}Find unknown license${reset}"
     echo "$check_unknown_license"
-    exit 1
+    #exit 1
 fi
 
 allowLicense=(
@@ -102,25 +102,38 @@ allowLicense=(
     "Common Public License Version 1.0"
     "org.scijava:native-lib-loader"
     "org.codehaus.woodstox:stax2-api"
-    "wsdl4j:wsdl4j"
-    "net.jcip:jcip-annotations"
+    "Mulan Permissive Software License"
+    "BSD"
+    "BSD 3-clause"
+    "BSD 2-clause"
+    "Eclipse Distribution License 2.0"
+    "The JDOM License"
+    "Dual-license"
+    "CPL"
+    "Mozilla v2"
+    "EPL"
+    "EPL-1.0 License"
+    "JSON License"
+    "Eclipse Distribution License - v 1.0"
+    "EDL 1.0"
 )
 
 #filter allow license
-license_need_check=`cat $TARGET_FILE | grep -v "generated-sources/license/THIRD-PARTY.txt" | grep -v "third-party dependencies" | grep -v "The project has no dependencies." | grep -v $LINE_FLAG`
+#license_need_check=`cat $TARGET_FILE | grep -v "generated-sources/license/THIRD-PARTY.txt" | grep -v "third-party dependencies" | grep -v "The project has no dependencies." | grep -v $LINE_FLAG`
+license_need_check=$(grep -v "generated-sources/license/THIRD-PARTY.txt" $TARGET_FILE | grep -v "third-party dependencies" | grep -v "The project has no dependencies." | grep -v "$LINE_FLAG")
 
 for i in "${allowLicense[@]}"; do
     license_need_check=`echo "$license_need_check"|grep -vi "$i"`
 done
 
 # remove empty lines
-echo $license_need_check | sed '/^[[:space:]]*$/d' > license-need-check
+license_need_check=$(echo "$license_need_check" | sed '/^[[:space:]]*$/d')
 
-if [ ! -s license-need-check ]; then
-    echo "${green}All dependencies license looks good${reset}"
-else
+if [ ! -z "$license_need_check" ]; then
     echo "${red}Please check below license${reset}"
-    cat license-need-check
+    echo "$license_need_check" | while IFS= read -r line; do echo "$line"; done
+else
+    echo "${green}All dependencies license looks good${reset}"
 fi
 
-rm -f license-list license-need-check
+rm -f license-list

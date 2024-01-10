@@ -1,7 +1,6 @@
 package com.xiaomi.youpin.prometheus.agent.service;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.alibaba.nacos.common.util.Md5Utils;
 import com.aliyun.dingtalkcard_1_0.models.RegisterCallbackResponse;
 import com.aliyun.dingtalkim_1_0.Client;
 import com.aliyun.dingtalkim_1_0.models.SendRobotInteractiveCardHeaders;
@@ -13,13 +12,7 @@ import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
 import com.aliyun.tea.TeaException;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
-import com.dingtalk.api.DefaultDingTalkClient;
-import com.dingtalk.api.DingTalkClient;
-import com.dingtalk.api.request.OapiV2UserGetRequest;
-import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.google.common.cache.Cache;
-import com.taobao.api.ApiException;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,7 +231,8 @@ public class DingDingService {
     }
 
     public String getNameByUserId(String userId) {
-        String token = getAccessToken();
+        return "unKnown";
+        /*String token = getAccessToken();
         if (token == null) {
             log.error("DingDingService getNameByUserId token is null");
             return null;
@@ -254,6 +248,6 @@ public class DingDingService {
         } catch (ApiException e) {
             log.error("DingDingService getNameByUserId err:{}", e);
             return null;
-        }
+        }*/
     }
 }

@@ -245,12 +245,6 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
-            <artifactId>es</artifactId>
-            <version>1.5-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.14.2</version>
@@ -266,6 +260,12 @@
             <groupId>run.mone</groupId>
             <artifactId>ozhera-prometheus-agent-api</artifactId>
             <version>1.0.0-jdk21-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>storage-doris</artifactId>
+            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
 
 

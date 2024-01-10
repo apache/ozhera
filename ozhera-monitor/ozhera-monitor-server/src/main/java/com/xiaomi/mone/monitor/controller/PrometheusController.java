@@ -10,7 +10,7 @@ import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.AppAlarmService;
 import com.xiaomi.mone.monitor.service.HeraBaseInfoService;
-import com.xiaomi.mone.monitor.service.es.EsService;
+import com.xiaomi.mone.monitor.service.extension.MetricDetailService;
 import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.monitor.service.model.prometheus.MetricDetailQuery;
 import com.xiaomi.mone.monitor.service.model.prometheus.MiLogQuery;
@@ -52,13 +52,13 @@ public class PrometheusController {
     LogDataService logDataService;
     
     @Autowired
-    EsService esService;
-
-    @Autowired
     AppAlarmService appAlarmService;
 
     @Autowired
     HeraBaseInfoService heraBaseInfoService;
+
+    @Autowired
+    private MetricDetailService metricDetailService;
 
     @Value("${server.type}")
     private String env;
@@ -202,24 +202,7 @@ public class PrometheusController {
     @PostMapping("/prometheus/detail")
     public Result<PageData> detail(@RequestBody MetricDetailQuery param){
         log.info("PrometheusController detail param : {}",param);
-
-        try {
-
-            if(param.getAppSource() == null){
-                HeraAppBaseInfoModel byBindIdAndName = heraBaseInfoService.getByBindIdAndName(String.valueOf(param.getProjectId()), param.getProjectName());
-                if(byBindIdAndName != null){
-                    log.info("metric detail param no app source found! reset by db value : {},param:{}",byBindIdAndName.getPlatformType(),param);
-                    param.setAppSource(byBindIdAndName.getPlatformType());
-                }else{
-                    log.info("metric detail param no app source found! and no db info found! use china area index! param:{}",param);
-                }
-            }
-
-            return esService.query(param, param.getPage(), param.getPageSize());
-        } catch (Exception e) {
-            log.error("PrometheusController.detail Error" + e.getMessage(),e);
-            return Result.fail(ErrorCode.unknownError);
-        }
+        return metricDetailService.metricDetail(param);
     }
 
     @ResponseBody

@@ -16,12 +16,6 @@
             <groupId>run.mone</groupId>
             <artifactId>http</artifactId>
             <version>1.4-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

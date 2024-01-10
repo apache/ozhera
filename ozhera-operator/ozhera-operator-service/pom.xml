@@ -70,12 +70,6 @@
             <groupId>run.mone</groupId>
             <artifactId>nacos-client</artifactId>
             <version>1.2.1-mone-v3-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

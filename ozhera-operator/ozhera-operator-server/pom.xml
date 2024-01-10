@@ -21,13 +21,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-k8s</artifactId>
-            <version>1.4-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

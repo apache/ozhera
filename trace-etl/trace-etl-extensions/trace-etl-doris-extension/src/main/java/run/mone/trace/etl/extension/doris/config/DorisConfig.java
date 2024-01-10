@@ -11,7 +11,7 @@ public class DorisConfig {
 
     @Value("${doris.driver}")
     private String driver;
-    @Value("${doris.url}")
+    @NacosValue("${doris.url}")
     private String url;
     @NacosValue("${doris.username}")
     private String username;

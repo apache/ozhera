@@ -57,11 +57,11 @@ public class EsService {
     }
 
 
-    public Result query(String index, MetricDetailQuery param, Integer page, Integer pageSize) throws IOException {
+    public Result query(MetricDetailQuery param, Integer page, Integer pageSize) throws IOException {
 
         String exceptionTraceDomain = esExtensionService.getExceptionTraceDomain(param.getAppSource());
         Map<String, String> labels = param.convertEsParam(exceptionTraceDomain);
-
+        String index = esExtensionService.getIndex(param);
         if (StringUtils.isEmpty(index)) {
             log.error("EsService.query error! esIndex is empty!");
             return null;

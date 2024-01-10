@@ -9,6 +9,15 @@ public class TraceIdQueryVo {
     private Long startTime;
     private Long endTime;
     private String index;
+    private String traceId;
+
+    public String getTraceId() {
+        return traceId;
+    }
+
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
 
     public String getIndex() {
         return index;

@@ -91,6 +91,142 @@ public class MetricDetailQuery implements Serializable {
         return map;
     }
 
+    public String convertDorisSql(){
+
+        /*CREATE TABLE `hera_error_slow_trace` (
+          `traceId` varchar(256) NULL,
+          `functionName` varchar(256) NULL,
+          `errorCode` varchar(256) NULL,
+          `serviceName` varchar(256) NULL,
+          `type` varchar(256) NULL,
+          `url` varchar(256) NULL,
+          `duration` varchar(256) NULL,
+          `serverEnv` varchar(256) NULL,
+          `functionId` varchar(256) NULL,
+          `domain` varchar(256) NULL,
+          `host` varchar(256) NULL,
+          `dataSource` varchar(256) NULL,
+          `timestamp` bigint(20) NULL,
+          `errorType` varchar(256) NULL
+        )*/
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("select * from hera_error_slow_trace where 1=1 ");
+        sqlBuilder.append(" and serviceName='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("' ");
+        sqlBuilder.append(" and host='").append(serverIp).append("' ");
+        sqlBuilder.append(" and type='").append(type).append("' ");
+        sqlBuilder.append(" and errorType='").append(errorType).append("' ");
+
+        if(EsIndexDataType.http.name().equals(type)
+                ||EsIndexDataType.http_client.name().equals(type)
+                ||EsIndexDataType.mq_consumer.name().equals(type)
+                ||EsIndexDataType.mq_producer.name().equals(type)
+                ||EsIndexDataType.redis.name().equals(type) ){
+            sqlBuilder.append(" and url='").append(methodName).append("' ");
+        }
+
+        if(EsIndexDataType.dubbo_consumer.name().equals(type)
+                || EsIndexDataType.dubbo_provider.name().equals(type)
+                ||EsIndexDataType.grpc_client.name().equals(type)
+                ||EsIndexDataType.grpc_server.name().equals(type)
+                ||EsIndexDataType.thrift_client.name().equals(type)
+                ||EsIndexDataType.thrift_server.name().equals(type)
+                ||EsIndexDataType.apus_client.name().equals(type)
+                ||EsIndexDataType.apus_server.name().equals(type)
+        ){
+            sqlBuilder.append(" and url='").append(serviceName + "/" + methodName).append("' ");
+        }
+
+        if(EsIndexDataType.mysql.name().equals(type)
+                || EsIndexDataType.oracle.name().equals(type)
+                || EsIndexDataType.hbase.name().equals(type)
+                || EsIndexDataType.elasticsearch.name().equals(type)){
+            sqlBuilder.append(" and dataSource='").append(dataSource).append("' ");
+            sqlBuilder.append(" and url like '%").append(sql).append("%' ");
+        }
+
+        if(startTime != null){
+            sqlBuilder.append(" and timestamp>=").append(startTime).append(" ");
+        }
+
+        if(endTime != null){
+            sqlBuilder.append(" and timestamp<=").append(endTime).append(" ");
+        }
+
+        sqlBuilder.append(" order by timestamp desc ");
+
+        if(page == null || page.intValue() < 1){
+            page = 1;
+        }
+        if(pageSize == null || pageSize.intValue() < 1){
+            pageSize = 20;
+        }
+
+        sqlBuilder.append(" limit ").append((page-1)*pageSize).append(",").append(pageSize);
+
+
+
+        return sqlBuilder.toString();
+
+    }
+
+    public String convertDorisSqlCount(){
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("select count(1) as total from hera_error_slow_trace where 1=1 ");
+        sqlBuilder.append(" and serviceName='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("' ");
+        sqlBuilder.append(" and host='").append(serverIp).append("' ");
+        sqlBuilder.append(" and type='").append(type).append("' ");
+        sqlBuilder.append(" and errorType='").append(errorType).append("' ");
+
+        if(EsIndexDataType.http.name().equals(type)
+                ||EsIndexDataType.http_client.name().equals(type)
+                ||EsIndexDataType.mq_consumer.name().equals(type)
+                ||EsIndexDataType.mq_producer.name().equals(type)
+                ||EsIndexDataType.redis.name().equals(type) ){
+            sqlBuilder.append(" and url='").append(methodName).append("' ");
+        }
+
+        if(EsIndexDataType.dubbo_consumer.name().equals(type)
+                || EsIndexDataType.dubbo_provider.name().equals(type)
+                ||EsIndexDataType.grpc_client.name().equals(type)
+                ||EsIndexDataType.grpc_server.name().equals(type)
+                ||EsIndexDataType.thrift_client.name().equals(type)
+                ||EsIndexDataType.thrift_server.name().equals(type)
+                ||EsIndexDataType.apus_client.name().equals(type)
+                ||EsIndexDataType.apus_server.name().equals(type)
+        ){
+            sqlBuilder.append(" and url='").append(serviceName + "/" + methodName).append("' ");
+        }
+
+        if(EsIndexDataType.mysql.name().equals(type)
+                || EsIndexDataType.oracle.name().equals(type)
+                || EsIndexDataType.hbase.name().equals(type)
+                || EsIndexDataType.elasticsearch.name().equals(type)){
+            sqlBuilder.append(" and dataSource='").append(dataSource).append("' ");
+            sqlBuilder.append(" and url like '%").append(sql).append("%' ");
+        }
+
+        if(startTime != null){
+            sqlBuilder.append(" and timestamp>=").append(startTime).append(" ");
+        }
+
+        if(endTime != null){
+            sqlBuilder.append(" and timestamp<=").append(endTime).append(" ");
+        }
+
+        if(page == null || page.intValue() < 1){
+            page = 1;
+        }
+        if(pageSize == null || pageSize.intValue() < 1){
+            pageSize = 20;
+        }
+
+        sqlBuilder.append(" limit ").append((page-1)*pageSize).append(",").append(pageSize);
+
+        return sqlBuilder.toString();
+
+    }
 
     /**
      * //TODO 添加子类别（区分慢查询/异常 等待丁涛）、sql（对应url），errorCode，耗时-duration

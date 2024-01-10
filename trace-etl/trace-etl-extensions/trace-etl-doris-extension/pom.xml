@@ -5,17 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>run.mone</groupId>
-        <artifactId>trace-etl</artifactId>
+        <artifactId>trace-etl-extensions</artifactId>
         <version>1.0.0-jdk21-SNAPSHOT</version>
     </parent>
 
-    <artifactId>trace-etl-extensions</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>trace-etl-rocketmq-extension</module>
-        <module>trace-etl-kafka-extension</module>
-        <module>trace-etl-doris-extension</module>
-    </modules>
+    <artifactId>trace-etl-doris-extension</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -23,4 +17,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>trace-etl-service</artifactId>
+            <version>1.0.0-jdk21-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>storage-doris</artifactId>
+            <version>1.4-jdk21-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>

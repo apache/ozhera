@@ -8,6 +8,15 @@ package com.xiaomi.hera.trace.etl.domain.tracequery;
 public class TraceOperationsVo {
     private String service;
     private String source;
+    private String index;
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
 
     public String getService() {
         return service;

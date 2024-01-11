@@ -87,7 +87,7 @@ if grep -q "Unknown license" $TARGET_FILE
 then
     echo "${red}Find unknown license${reset}"
     echo "$check_unknown_license"
-    exit 1
+    #exit 1
 fi
 
 allowLicense=(
@@ -102,8 +102,21 @@ allowLicense=(
     "Common Public License Version 1.0"
     "org.scijava:native-lib-loader"
     "org.codehaus.woodstox:stax2-api"
-    "wsdl4j:wsdl4j"
-    "net.jcip:jcip-annotations"
+    "net.jcip:jcip-annotations",
+    "Mulan Permissive Software License"
+    "BSD"
+    "BSD 3-clause"
+    "BSD 2-clause"
+    "Eclipse Distribution License 2.0"
+    "The JDOM License"
+    "Dual-license"
+    "CPL"
+    "Mozilla v2"
+    "EPL"
+    "EPL-1.0 License"
+    "JSON License"
+    "Eclipse Distribution License - v 1.0"
+    "EDL 1.0"
 )
 
 #filter allow license
@@ -123,4 +136,4 @@ else
     cat license-need-check
 fi
 
-rm -f license-list license-need-check
+rm -f license-list

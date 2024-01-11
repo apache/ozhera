@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.xiaomi.mone.log.model.LogtailConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;
 import com.xiaomi.mone.log.model.SinkConfig;
-import com.xiaomi.mone.log.model.StorageInfo;
 import com.xiaomi.mone.log.stream.common.LogStreamConstants;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
 import com.xiaomi.mone.log.stream.job.extension.SinkJob;
@@ -98,9 +97,9 @@ public class JobManager {
     }
 
     private void startConsumerJob(String type, String ak, String sk, String clusterInfo, LogtailConfig
-            logtailConfig, String keyList, String logStoreName, String esIndex, StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
+            logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
         try {
-            SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId, storageType);
+            SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
             log.warn("##startConsumerJob## spaceId:{}, storeId:{}, tailId:{}", sinkJobConfig.getLogSpaceId(), sinkJobConfig.getLogStoreId(), sinkJobConfig.getLogTailId());
 
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
@@ -113,9 +112,9 @@ public class JobManager {
             startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
                     logtailConfig.getLogtailId());
 
-            log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex));
+            log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()));
         } catch (Throwable e) {
-            log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), esIndex), new RuntimeException(e));
+            log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()), new RuntimeException(e));
         }
     }
 
@@ -127,7 +126,8 @@ public class JobManager {
     }
 
 
-    private SinkJobConfig buildSinkJobConfig(String type, String ak, String sk, String clusterInfo, LogtailConfig logtailConfig, String keyList, String logStoreName, String esIndex, StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
+    private SinkJobConfig buildSinkJobConfig(String type, String ak, String sk, String clusterInfo,
+                                             LogtailConfig logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
         SinkJobConfig sinkJobConfig = SinkJobConfig.builder()
                 .mqType(type)
                 .ak(ak)
@@ -135,27 +135,27 @@ public class JobManager {
                 .clusterInfo(clusterInfo)
                 .topic(logtailConfig.getTopic())
                 .tag(logtailConfig.getTag())
-                .index(esIndex)
-                .keyList(keyList)
+                .index(sinkConfig.getEsIndex())
+                .keyList(sinkConfig.getKeyList())
                 .valueList(logtailConfig.getValueList())
                 .parseScript(logtailConfig.getParseScript())
-                .logStoreName(logStoreName)
+                .logStoreName(sinkConfig.getLogstoreName())
                 .sinkChain(this.getSinkChain())
                 .tail(logtailConfig.getTail())
-                .storageInfo(esInfo)
+                .storageInfo(sinkConfig.getEsInfo())
+                .columnList(sinkConfig.getColumnList())
                 .parseType(logtailConfig.getParseType())
                 .jobType(SinkJobEnum.NORMAL_JOB.name())
-                .storageType(storageType)
+                .storageType(sinkConfig.getStorageType())
                 .consumerGroup(logtailConfig.getConsumerGroup())
                 .build();
         sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
-        sinkJobConfig.setLogStoreId(logStoreId);
+        sinkJobConfig.setLogStoreId(sinkConfig.getLogstoreId());
         sinkJobConfig.setLogSpaceId(logSpaceId);
         return sinkJobConfig;
     }
 
-    public void startJob(LogtailConfig logtailConfig, String esIndex, String keyList, String logStoreName,
-                         StorageInfo esInfo, Long logStoreId, Long logSpaceId, String storageType) {
+    public void startJob(LogtailConfig logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
         startLock.lock();
         try {
             String ak = logtailConfig.getAk();
@@ -166,9 +166,9 @@ public class JobManager {
                 log.info("start job error,ak or sk or logtailConfig null,ak:{},sk:{},logtailConfig:{}", ak, sk, new Gson().toJson(logtailConfig));
                 return;
             }
-            startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, keyList, logStoreName, esIndex, esInfo, logStoreId, logSpaceId, storageType);
+            startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
         } catch (Exception e) {
-            log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, esIndex), e);
+            log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, sinkConfig.getEsIndex()), e);
         } finally {
             startLock.unlock();
         }

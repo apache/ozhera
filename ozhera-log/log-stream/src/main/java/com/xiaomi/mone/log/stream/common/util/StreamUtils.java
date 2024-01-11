@@ -23,12 +23,15 @@ import com.xiaomi.mone.log.common.NetUtils;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosNaming;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.xiaomi.mone.log.common.Constant.*;
 
@@ -107,5 +110,36 @@ public class StreamUtils {
         nacosConfig.init();
         nacosConfig.forEach((k, v) -> Config.ins().set(k, v));
         return nacosConfig;
+    }
+
+    public static JdbcInfo extractInfoFromJdbcUrl(String jdbcUrl) {
+        // Extract IP addresses and database names using regular expressions
+        String regex = "//([^:/]+)(:\\d+)?/([^?/]+)(\\?.*)?";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(jdbcUrl);
+
+        if (matcher.find()) {
+            String ip = matcher.group(1);
+            String port = matcher.group(2);
+            String dbName = matcher.group(3);
+
+            return new JdbcInfo(ip, port, dbName);
+        } else {
+            throw new IllegalArgumentException("Invalid JDBC URL: " + jdbcUrl);
+        }
+    }
+
+    @Getter
+    public static class JdbcInfo {
+        private final String ip;
+        private final String port;
+        private final String dbName;
+
+        public JdbcInfo(String ip, String port, String dbName) {
+            this.ip = ip;
+            this.port = port;
+            this.dbName = dbName;
+        }
+
     }
 }

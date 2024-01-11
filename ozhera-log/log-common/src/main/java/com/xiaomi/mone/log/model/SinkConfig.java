@@ -44,6 +44,11 @@ public class SinkConfig {
 
     private String storageType;
 
+    /**
+     * When the type is doris, the order of schema
+     */
+    private List<String> columnList;
+
     public void updateStoreParam(SinkConfig sinkConfig) {
         this.logstoreId = sinkConfig.getLogstoreId();
         this.logstoreName = sinkConfig.getLogstoreName();

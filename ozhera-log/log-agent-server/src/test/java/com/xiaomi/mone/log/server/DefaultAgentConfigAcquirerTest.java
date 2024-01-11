@@ -1,4 +1,4 @@
-///*
+package com.xiaomi.mone.log.server;///*
 // * Copyright 2020 Xiaomi
 // *
 // *  Licensed under the Apache License, Version 2.0 (the "License");

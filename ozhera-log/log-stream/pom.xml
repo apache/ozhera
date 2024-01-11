@@ -28,6 +28,12 @@
 
         <dependency>
             <groupId>run.mone</groupId>
+            <artifactId>storage-doris</artifactId>
+            <version>${docean-plugin.common.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
             <artifactId>docean</artifactId>
         </dependency>
 

@@ -19,6 +19,7 @@ import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsClusterDO;
+import com.xiaomi.mone.log.manager.service.extension.store.DorisLogStorageService;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.DOceanPlugin;
 import com.xiaomi.youpin.docean.plugin.IPlugin;
@@ -94,11 +95,11 @@ public class LogStoragePlugin implements IPlugin {
 
     private DataSource createDorisDataSource(MilogEsClusterDO cluster) {
         String addr = cluster.getAddr();
-        String sslConfig = "useSSL=false";
-        if (!addr.contains(sslConfig)) {
-            addr += "?" + sslConfig;
-        }
-        return new PooledDataSource(driverClass, addr, cluster.getUser(), cluster.getPwd());
+        PooledDataSource pooledDataSource = new PooledDataSource(driverClass, addr, cluster.getUser(), cluster.getPwd());
+        pooledDataSource.setPoolPingEnabled(true);
+        pooledDataSource.setPoolPingQuery("SELECT 1");
+        pooledDataSource.setPoolMaximumActiveConnections(20);
+        return pooledDataSource;
     }
 
     private void registerDorisDataSource(MilogEsClusterDO cluster, DataSource dataSource) {

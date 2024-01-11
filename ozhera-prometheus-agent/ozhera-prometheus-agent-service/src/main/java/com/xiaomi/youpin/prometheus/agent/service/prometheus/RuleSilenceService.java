@@ -18,7 +18,6 @@ import com.xiaomi.youpin.prometheus.agent.service.dto.SilenceAlertManagerReqBuil
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class RuleSilenceService {
 
         //Construct the silent request structure
         List<Matcher> matcherList = buildMatchers(param);
-        if (CollectionUtils.isEmpty(matcherList)) {
+        if (matcherList.isEmpty()) {
             return Result.fail(ErrorCode.invalidParamError);
         }
         RuleSilenceParam reqDto = new RuleSilenceParam();

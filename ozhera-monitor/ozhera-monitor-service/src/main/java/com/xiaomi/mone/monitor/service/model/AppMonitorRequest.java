@@ -3,7 +3,7 @@ package com.xiaomi.mone.monitor.service.model;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import lombok.Data;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+//import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2021/8/13 1:11 下午
  */
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppMonitorRequest implements Serializable {
 
     String appName;

@@ -102,7 +102,6 @@ allowLicense=(
     "Common Public License Version 1.0"
     "org.scijava:native-lib-loader"
     "org.codehaus.woodstox:stax2-api"
-    "wsdl4j:wsdl4j"
     "net.jcip:jcip-annotations",
     "Mulan Permissive Software License"
     "BSD"
@@ -112,16 +111,12 @@ allowLicense=(
     "The JDOM License"
     "Dual-license"
     "CPL"
-    "GNU"
-    "GPL"
     "Mozilla v2"
     "EPL"
     "EPL-1.0 License"
-    "LGPL"
     "JSON License"
     "Eclipse Distribution License - v 1.0"
     "EDL 1.0"
-    "io.openmessaging.storage:dledger"
 )
 
 #filter allow license
@@ -142,4 +137,4 @@ else
     echo "${green}All dependencies license looks good${reset}"
 fi
 
-# rm -f license-list
+rm -f license-list

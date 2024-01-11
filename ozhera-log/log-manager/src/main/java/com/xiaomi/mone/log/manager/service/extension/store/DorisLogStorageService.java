@@ -2,6 +2,7 @@ package com.xiaomi.mone.log.manager.service.extension.store;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
@@ -17,11 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.xiaomi.mone.log.common.Constant.GSON;
 
 /**
  * @author wtt
@@ -55,13 +56,14 @@ public class DorisLogStorageService implements LogStorageService {
         DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + storageData.getClusterId());
 
         String tableName = buildTableName(storageData.getClusterId(), storageData.getStoreId());
+        String createTableGrammar = buildCreateTableGrammar(tableName, storageData.getKeys(), storageData.getColumnTypes());
 
+        log.info("createTable,tableName:{},sql:{}", tableName, createTableGrammar);
         try (Statement statement = dataSource.getConnection().createStatement()) {
-            String createTableGrammar = buildCreateTableGrammar(tableName, storageData.getKeys(), storageData.getColumnTypes());
             statement.execute(createTableGrammar);
-
         } // Automatically closes statement
         catch (SQLException e) {
+            log.error("createTable error,data:{},tableName:{},sql:{}", GSON.toJson(storageData), tableName, createTableGrammar, e);
             throw new MilogManageException("createTable error:" + e.getMessage());
         }
         addLogStorageTable(storageData, tableName);
@@ -109,6 +111,7 @@ public class DorisLogStorageService implements LogStorageService {
             addColumns(connection, tableName, storageData.getKeys(), storageData.getUpdateKeys(), storageData.getUpdateColumnTypes());
             changeColumns(connection, tableName, storageData.getKeys(), storageData.getColumnTypes(), storageData.getUpdateKeys(), storageData.getUpdateColumnTypes());
         } catch (Exception e) {
+            log.error("updateTable error,data:{}", GSON.toJson(storageData), e);
             throw new MilogManageException("updateTable error:" + e.getMessage());
         }
         updateLogStorageTable(storageData, tableName);
@@ -213,6 +216,27 @@ public class DorisLogStorageService implements LogStorageService {
         }
         deleteLogStorageTable(storageData, tableName);
         return true;
+    }
+
+    @Override
+    public List<String> getColumnList(Long clusterId, String tableName) {
+        List<String> columnList = Lists.newArrayList();
+        DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + clusterId);
+        try {
+            Connection connection = dataSource.getConnection();
+            DatabaseMetaData metaData = connection.getMetaData();
+
+            try (ResultSet resultSet = metaData.getColumns(null, null, tableName, null)) {
+                while (resultSet.next()) {
+                    String columnName = resultSet.getString("COLUMN_NAME");
+                    columnList.add(columnName);
+                }
+            }
+        } catch (Exception e) {
+            log.error("getColumnList error,clusterId:{},tableName:{}", clusterId, tableName, e);
+        }
+        log.info("getColumnList,,clusterId:{},tableName:{},columnList:{}", clusterId, tableName, GSON.toJson(columnList));
+        return columnList;
     }
 
     private void deleteLogStorageTable(LogStorageData storageData, String tableName) {

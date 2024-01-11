@@ -105,7 +105,7 @@ public class DefaultResourceExtensionService implements ResourceExtensionService
         if (MoneUserContext.getCurrentUser().getIsAdmin()) {
             return middlewareConfigs.stream().filter(milogMiddlewareConfig -> Objects.equals(YES, milogMiddlewareConfig.getIsDefault())).collect(Collectors.toList());
         }
-        return middlewareConfigs.stream().filter(milogMiddlewareConfig -> !Objects.equals(YES, milogMiddlewareConfig.getIsDefault())).collect(Collectors.toList());
+        return middlewareConfigs;
     }
 
     @Override

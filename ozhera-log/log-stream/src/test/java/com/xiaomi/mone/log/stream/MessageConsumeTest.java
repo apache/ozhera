@@ -1,6 +1,7 @@
 package com.xiaomi.mone.log.stream;
 
 import com.xiaomi.mone.log.model.LogtailConfig;
+import com.xiaomi.mone.log.model.SinkConfig;
 import com.xiaomi.mone.log.model.StorageInfo;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
 import com.xiaomi.mone.log.stream.job.JobManager;
@@ -72,9 +73,8 @@ public class MessageConsumeTest {
         logtailConfig.setType(sinkJobConfig.getMqType());
 
         JobManager jobManager = new JobManager();
-        jobManager.startJob(logtailConfig, sinkJobConfig.getIndex(), sinkJobConfig.getKeyList(),
-                sinkJobConfig.getLogStoreName(), storageInfo, sinkJobConfig.getLogStoreId(),
-                sinkJobConfig.getLogSpaceId(), sinkJobConfig.getStorageType());
+        SinkConfig sinkConfig = new SinkConfig();
+        jobManager.startJob(logtailConfig, sinkConfig, sinkJobConfig.getLogSpaceId());
         System.in.read();
     }
 }

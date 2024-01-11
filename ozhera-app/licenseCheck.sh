@@ -91,9 +91,7 @@ then
 fi
 
 allowLicense=(
-    "CDDL"
     "Apache"
-    "Common Development and Distribution License"
     "Eclipse Public License"
     "MIT"
     "The 3-Clause BSD License"
@@ -102,22 +100,15 @@ allowLicense=(
     "Common Public License Version 1.0"
     "org.scijava:native-lib-loader"
     "org.codehaus.woodstox:stax2-api"
-    "wsdl4j:wsdl4j"
-    "net.jcip:jcip-annotations",
     "Mulan Permissive Software License"
     "BSD"
     "BSD 3-clause"
     "BSD 2-clause"
     "Eclipse Distribution License 2.0"
     "The JDOM License"
-    "Dual-license"
-    "CPL"
-    "GNU"
-    "GPL"
     "Mozilla v2"
     "EPL"
     "EPL-1.0 License"
-    "LGPL"
     "JSON License"
     "Eclipse Distribution License - v 1.0"
     "EDL 1.0"
@@ -140,5 +131,3 @@ if [ ! -z "$license_need_check" ]; then
 else
     echo "${green}All dependencies license looks good${reset}"
 fi
-
-rm -f license-list

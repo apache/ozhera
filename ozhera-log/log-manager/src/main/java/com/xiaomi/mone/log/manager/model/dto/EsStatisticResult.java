@@ -28,7 +28,7 @@ public class EsStatisticResult {
     private List<Long> counts;
     private String name;
     private Long totalCounts;
-    private BoolQueryBuilder queryBuilder;
+    private Object queryBuilder;
 
     public void calTotalCounts() {
         if (CollectionUtils.isEmpty(counts)) {

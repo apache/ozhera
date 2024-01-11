@@ -93,7 +93,7 @@ public class QueryDorisService {
     public TraceQueryResult<List<Trace>> getList(TraceListQueryVo vo) {
         try {
             log.info("search trace list param : " + vo);
-            String sql = "select " + TRACE_ID + " from " + HeraTraceTable.HERA_TRACE_SPAN_TABLE;
+            String sql = "select " + TRACE_ID + " , MAX(startTimeMillis) max_startTimeMillis from " + HeraTraceTable.HERA_TRACE_SPAN_TABLE;
             long startTime = vo.getStart() == null ? 0 : TimeUnit.MICROSECONDS.toMillis(vo.getStart());
             long endTime = vo.getEnd() == null ? 0 : TimeUnit.MICROSECONDS.toMillis(vo.getEnd());
             long minDuration = StringUtils.isEmpty(vo.getMinDuration()) ? 0 : TimeConverter.getMicro(vo.getMinDuration());
@@ -124,6 +124,7 @@ public class QueryDorisService {
             }
             sql += condition;
             sql += " group by " + TRACE_ID;
+            sql += " order by max_startTimeMillis desc";
             sql += " limit " + vo.getLimit();
 
             log.info("get traceIds sql : " + sql);

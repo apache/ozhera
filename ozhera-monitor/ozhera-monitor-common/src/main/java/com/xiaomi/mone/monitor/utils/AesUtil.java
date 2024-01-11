@@ -1,3 +1,4 @@
+/*
 package com.xiaomi.mone.monitor.utils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -18,12 +19,14 @@ public class AesUtil {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    /**
+    */
+/**
      * 加密
      *
      * @param content
      * @return
-     */
+     *//*
+
     public static String encrypt(String content, String key, String iv) {
         byte[] result = null;
         try {
@@ -38,12 +41,14 @@ public class AesUtil {
         return Base64.encodeBase64String(result);
     }
 
-    /**
+    */
+/**
      * 解密
      *
      * @param content
      * @return
-     */
+     *//*
+
     public static String decrypt(String content,String key,String iv) {
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -57,3 +62,4 @@ public class AesUtil {
         return "";
     }
 }
+*/

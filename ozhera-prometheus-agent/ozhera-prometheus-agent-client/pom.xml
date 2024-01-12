@@ -16,18 +16,18 @@
         <dependency>
             <artifactId>ozhera-prometheus-agent-common</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
+
         <dependency>
             <artifactId>ozhera-prometheus-agent-service</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient</artifactId>
-            <version>0.16.0</version>
         </dependency>
 
     </dependencies>

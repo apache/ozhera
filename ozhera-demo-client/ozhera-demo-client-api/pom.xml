@@ -18,7 +18,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>infra-common</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

@@ -116,4 +116,13 @@ public class KafkaExporter implements MsgExporter {
     public void setBatchSize(Integer batchSize) {
         this.batchSize = batchSize;
     }
+
+    @Override
+    public int batchExportSize() {
+        if (null == batchSize || batchSize < 0) {
+            return BATCH_EXPORT_SIZE;
+        }
+
+        return batchSize;
+    }
 }

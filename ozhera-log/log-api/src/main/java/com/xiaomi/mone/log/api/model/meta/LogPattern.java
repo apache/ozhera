@@ -43,7 +43,7 @@ public class LogPattern implements Serializable {
     /**
      * IP and directory correspondence
      */
-    private List<LogPattern.IPRel> ipDirectoryRel;
+    private List<IPRel> ipDirectoryRel;
 
     /**
      * LogTypeEnum.name()，

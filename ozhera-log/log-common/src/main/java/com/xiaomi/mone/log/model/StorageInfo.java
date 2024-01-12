@@ -47,11 +47,21 @@ public class StorageInfo {
 
     private String database;
 
+    private Integer port;
+
     public StorageInfo(Long id, String addr, String user, String pwd) {
         this.id = id;
         this.addr = addr;
         this.user = user;
         this.pwd = pwd;
+    }
+
+    public StorageInfo(Long id, String addr, String user, String pwd, Integer port) {
+        this.id = id;
+        this.addr = addr;
+        this.user = user;
+        this.pwd = pwd;
+        this.port = port;
     }
 
     public StorageInfo(Long id, String addr, String token, String catalog, String database) {

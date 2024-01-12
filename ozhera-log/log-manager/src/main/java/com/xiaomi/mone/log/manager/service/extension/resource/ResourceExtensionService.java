@@ -59,4 +59,8 @@ public interface ResourceExtensionService {
     void deleteMqResourceProcessing(MilogLogTailDo mt, MilogLogStoreDO logStoreDO);
 
     List<Integer> getMqResourceCodeList();
+
+    String queryHostName(String ip);
+
+    List<Long> getSpaceIdsByNameExcluded(String spaceName);
 }

@@ -25,6 +25,14 @@ public interface LogStorageService {
 
     boolean deleteTable(LogStorageData logStorageData);
 
+    /**
+     * get the schema collection of the table
+     *
+     * @param tableName
+     * @return
+     */
+    List<String> getColumnList(Long clusterId, String tableName);
+
 
     default String buildTableName(Long clusterId, Long storeId) {
         return String.format("%s_%s_%s", DORIS_TABLE_PREFIX, clusterId, storeId);
@@ -32,7 +40,7 @@ public interface LogStorageService {
 
     String BIGINT = "BIGINT";
     String VARCHAR = "VARCHAR(1024)";
-    String VARCHAR_LARGE = "VARCHAR(65533)";
+    String VARCHAR_LARGE = "STRING";
     List<String> Large_Field_Properties = Lists.newArrayList("message", "logsource");
 
 

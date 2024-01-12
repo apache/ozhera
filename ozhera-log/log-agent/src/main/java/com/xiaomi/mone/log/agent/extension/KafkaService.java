@@ -112,7 +112,7 @@ public class KafkaService implements OutPutService {
         KafkaOutput kafkaOutput = (KafkaOutput) output;
         String key = getKey(kafkaOutput.getClusterInfo(), kafkaOutput.getTopic(), kafkaOutput.getTag());
         if (null != producerMap.get(key)) {
-            producerMap.get(kafkaOutput.getClusterInfo()).close();
+            producerMap.get(key).close();
         }
         producerMap.remove(key);
     }

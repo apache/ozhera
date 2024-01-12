@@ -530,93 +530,6 @@ SET
 FOREIGN_KEY_CHECKS = 1;
 
 -- milog
-
--- ----------------------------
--- Table structure for alert
--- ----------------------------
-CREATE TABLE `alert`
-(
-    `id`             bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name`           varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `type`           varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `milog_app_id`   bigint(20) NULL DEFAULT NULL COMMENT 'milogApp table id',
-    `app`            varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `app_name`       varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `log_path`       varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `contacts`       varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `feishu_groups`  varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `job_id`         int(10) NULL DEFAULT NULL COMMENT 'data factory job Id',
-    `flink_job_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `arguments`      json NULL,
-    `status`         tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
-    `flink_cluster`  varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `ctime`          bigint(64) NOT NULL,
-    `utime`          bigint(64) NOT NULL,
-    `creator`        varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX            `alert_app_IDX`(`app`) USING BTREE,
-    INDEX            `alert_name_IDX`(`name`) USING BTREE,
-    INDEX            `alert_app_name_IDX`(`app_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
-
--- ----------------------------
--- Table structure for alert_condition
--- ----------------------------
-CREATE TABLE `alert_condition`
-(
-    `id`              bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alert_rule_id`   bigint(20) UNSIGNED NOT NULL,
-    `operation`       varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `value`           int(10) UNSIGNED NOT NULL DEFAULT 0,
-    `alert_level`     varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `period`          bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-    `sort_order`      bigint(20) UNSIGNED NULL DEFAULT 0,
-    `send_alert_time` bigint(20) UNSIGNED NULL DEFAULT 0,
-    `ctime`           bigint(20) UNSIGNED NOT NULL,
-    `utime`           bigint(20) UNSIGNED NOT NULL,
-    `creator`         varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
-
--- ----------------------------
--- Table structure for alert_log
--- ----------------------------
-CREATE TABLE `alert_log`
-(
-    `id`          bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alert_id`    bigint(20) UNSIGNED NOT NULL,
-    `app_name`    varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-    `start_time`  bigint(20) UNSIGNED NULL DEFAULT 0,
-    `end_time`    bigint(20) UNSIGNED NULL DEFAULT 0,
-    `ip`          varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `ctime`       bigint(20) UNSIGNED NOT NULL,
-    `utime`       bigint(20) UNSIGNED NOT NULL,
-    `alert_count` int(11) NULL DEFAULT 0,
-    `alert_level` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `log_path`    varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `content`     varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX         `alert_log_app_name_ip_starttime_IDX`(`app_name`, `ip`, `start_time`) USING BTREE,
-    INDEX         `alert_log_app_name_starttime_IDX`(`app_name`, `start_time`) USING BTREE,
-    INDEX         `alert_log_ip_starttime_IDX`(`ip`, `start_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
-
--- ----------------------------
--- Table structure for alert_rule
--- ----------------------------
-CREATE TABLE `alert_rule`
-(
-    `id`       bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `alert_id` bigint(20) UNSIGNED NOT NULL,
-    `regex`    varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `ctime`    bigint(20) UNSIGNED NOT NULL,
-    `utime`    bigint(20) UNSIGNED NOT NULL,
-    `creator`  varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `name`     varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT 'none',
-    PRIMARY KEY (`id`) USING BTREE,
-    INDEX      `alert_rule_alert_id_IDX`(`alert_id`) USING HASH
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
-
 -- ----------------------------
 -- Table structure for milog_analyse_dashboard
 -- ----------------------------
@@ -696,27 +609,6 @@ CREATE TABLE `milog_app_middleware_rel`
 ) ENGINE = InnoDB AUTO_INCREMENT = 167010 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
 
 -- ----------------------------
--- Table structure for milog_app_topic_rel
--- ----------------------------
-CREATE TABLE `milog_app_topic_rel`
-(
-    `id`          bigint(20) NOT NULL AUTO_INCREMENT,
-    `ctime`       bigint(20) NULL DEFAULT NULL COMMENT 'ctime',
-    `utime`       bigint(20) NULL DEFAULT NULL COMMENT 'utime',
-    `tenant_id`   bigint(20) NULL DEFAULT NULL COMMENT 'tenant_id',
-    `app_id`      bigint(20) NOT NULL COMMENT 'app_id',
-    `iam_tree_id` bigint(20) NULL DEFAULT NULL COMMENT 'Iam treeId',
-    `app_name`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'app_name',
-    `operator`    varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'operator',
-    `mq_config`   json NULL COMMENT 'mq_config, json style',
-    `source`      varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin  NOT NULL COMMENT 'app source',
-    `type`        smallint(6) NULL DEFAULT NULL COMMENT '0.mione project',
-    `tree_ids`    json NULL COMMENT 'mis ids',
-    `node_ips`    json NULL COMMENT 'node ips',
-    `creator`     varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    `updater`     varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
 
 -- ----------------------------
 -- Table structure for milog_es_cluster
@@ -786,23 +678,6 @@ CREATE TABLE `milog_log_num_alert`
     PRIMARY KEY (`id`) USING BTREE,
     INDEX        `day+appId`(`day`, `app_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
-
--- ----------------------------
--- Table structure for milog_log_process
--- ----------------------------
-CREATE TABLE `milog_log_process`
-(
-    `id`              bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Id',
-    `tailId`          bigint(20) NULL DEFAULT NULL COMMENT 'tailId',
-    `agent_id`        bigint(20) NULL DEFAULT NULL COMMENT 'agentId',
-    `ip`              varchar(256) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'ip',
-    `file_row_number` int(32) NULL DEFAULT NULL COMMENT 'file_row_number',
-    `pointer`         int(32) NULL DEFAULT NULL,
-    `collect_time`    bigint(20) NULL DEFAULT NULL COMMENT 'collect_time',
-    `ctime`           bigint(20) NULL DEFAULT NULL COMMENT 'ctime',
-    `utime`           bigint(20) NULL DEFAULT NULL COMMENT 'utime',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'Log collection progress';
 
 -- ----------------------------
 -- Table structure for milog_log_search_save
@@ -917,18 +792,6 @@ CREATE TABLE `milog_logstore`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
 
--- ----------------------------
--- Table structure for milog_matrix_esinfo
--- ----------------------------
-CREATE TABLE `milog_matrix_esinfo`
-(
-    `id`          bigint(20) NOT NULL AUTO_INCREMENT,
-    `cluster`     varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'cluster',
-    `es_catalog`  varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'catalog',
-    `es_database` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'default',
-    `es_token`    varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'ESToken',
-    PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
 
 -- ----------------------------
 -- Table structure for milog_middleware_config

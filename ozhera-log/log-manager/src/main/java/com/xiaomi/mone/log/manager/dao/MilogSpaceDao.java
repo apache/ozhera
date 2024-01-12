@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.EQUAL_OPERATE;
 
@@ -180,4 +181,13 @@ public class MilogSpaceDao {
         Cnd cnd = Cnd.where("id", "in", spaceIds);
         return dao.query(MilogSpaceDO.class, cnd);
     }
+
+    public List<MilogSpaceDO> queryByName(String name) {
+        Cnd cnd = Cnd.NEW();
+        if (StringUtils.isNotEmpty(name)) {
+            cnd = Cnd.where("space_name", "like", "%" + name + "%");
+        }
+        return this.dao.query(MilogSpaceDO.class, cnd);
+    }
+
 }

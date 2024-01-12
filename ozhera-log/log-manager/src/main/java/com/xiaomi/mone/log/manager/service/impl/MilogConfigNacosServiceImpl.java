@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.nacos.NacosNaming;
+import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.enums.MQSourceEnum;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.manager.common.Utils;
@@ -33,6 +34,7 @@ import com.xiaomi.mone.log.manager.domain.EsCluster;
 import com.xiaomi.mone.log.manager.model.pojo.*;
 import com.xiaomi.mone.log.manager.service.MilogConfigNacosService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
+import com.xiaomi.mone.log.manager.service.extension.store.DorisLogStorageService;
 import com.xiaomi.mone.log.manager.service.extension.tail.TailExtensionService;
 import com.xiaomi.mone.log.manager.service.extension.tail.TailExtensionServiceFactory;
 import com.xiaomi.mone.log.manager.service.nacos.DynamicConfigProvider;
@@ -93,6 +95,9 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private MilogAppMiddlewareRelDao milogAppMiddlewareRelDao;
     @Resource
     private MilogMiddlewareConfigDao milogMiddlewareConfigDao;
+
+    @Resource
+    private DorisLogStorageService dorisLogStorageService;
 
     @Value(value = "$europe.ip.key")
     private String europeIpKey;
@@ -286,8 +291,9 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                 if (null != currentStoreConfig) {
                     List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
                     if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
-                            logTailConfigs.stream().anyMatch(config -> config.getLogtailId().equals(tailId)))
+                            logTailConfigs.stream().anyMatch(config -> config.getLogtailId().equals(tailId))) {
                         logTailConfigs.removeIf(logtailConfig -> logtailConfig.getLogtailId().equals(tailId));
+                    }
                 }
             }
         }
@@ -348,6 +354,11 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                 sinkConfig.setEsIndex(logStoreDO.getEsIndex());
                 sinkConfig.setEsInfo(buildEsInfo(esInfo));
                 sinkConfig.setStorageType(esInfo.getLogStorageType());
+
+                LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esInfo.getLogStorageType());
+                if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
+                    sinkConfig.setColumnList(dorisLogStorageService.getColumnList(logStoreDO.getEsClusterId(), logStoreDO.getEsIndex()));
+                }
             } else {
                 log.info("assembleSinkConfig esInfo is null,logStoreId:{}", logStoreDO.getId());
             }

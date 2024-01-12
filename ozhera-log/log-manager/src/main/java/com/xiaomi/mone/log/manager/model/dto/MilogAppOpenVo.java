@@ -30,4 +30,7 @@ public class MilogAppOpenVo {
     private String label;
     private Long value;
     private String source;
+
+    private Long platform;
+    private String appId;
 }

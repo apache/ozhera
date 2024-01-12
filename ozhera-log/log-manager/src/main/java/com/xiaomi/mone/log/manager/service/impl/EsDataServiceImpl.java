@@ -27,6 +27,7 @@ import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.exception.CommonError;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
+import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.common.utils.ExportUtils;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
@@ -80,6 +81,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_OPERATOR;
@@ -132,6 +134,8 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
     private Set<String> hidenFiledSet = new HashSet<>();
 
+    private static Pattern pattern = Pattern.compile("\\\\b\\\\w+\\\\b:\\\\b\\\\w+\\\\b");
+
     public static List<Pair<String, Pair<String, Integer>>> requiredFields = Lists.newArrayList(
             Pair.of(ES_KEY_MAP_MESSAGE, Pair.of("text", 1)),
             Pair.of(ES_KEY_MAP_LOG_SOURCE, Pair.of("text", 1)),
@@ -173,10 +177,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                 log.warn("[EsDataService.logQuery] not find logStore:[{}]", logQuery.getLogstore());
                 return Result.failParam("not found[" + logQuery.getLogstore() + "]The corresponding data");
             }
-
-            MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(milogLogstoreDO.getEsClusterId());
-            LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
-
+            LogStorageTypeEnum storageTypeEnum = queryLogStorageTypeEnum(milogLogstoreDO.getEsClusterId());
             LogDTO dto = new LogDTO();
             List<String> keyList = getKeyList(milogLogstoreDO.getKeyList(), milogLogstoreDO.getColumnTypeList());
 
@@ -189,6 +190,12 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             log.error("Log query error, log search error,logQuery:[{}],user:[{}]", logQuery, MoneUserContext.getCurrentUser(), e);
             return Result.failParam(e.getMessage());
         }
+    }
+
+    private LogStorageTypeEnum queryLogStorageTypeEnum(Long esClusterId) {
+        MilogEsClusterDO esClusterDO = milogEsClusterMapper.selectById(esClusterId);
+        LogStorageTypeEnum storageTypeEnum = LogStorageTypeEnum.queryByName(esClusterDO.getLogStorageType());
+        return storageTypeEnum;
     }
 
     private Result<LogDTO> dorisDataQuery(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO, LogDTO dto) {
@@ -283,7 +290,34 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         return columns;
     }
 
-    private String buildQuerySql(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+    private static String buildQuerySql(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+        String sqlPrefix = getConditional(logQuery);
+        String sortSql = StringUtils.isNotEmpty(logQuery.getSortKey()) ? String.format("ORDER BY %s", logQuery.getSortKey()) : "";
+        if (StringUtils.isNotEmpty(sortSql) && !logQuery.getAsc()) {
+            sortSql += " DESC";
+        }
+        String limitSql = String.format("LIMIT %s, %s", (logQuery.getPage() - 1) * logQuery.getPageSize(), logQuery.getPageSize());
+        if (StringUtils.isNotEmpty(logQuery.getFullTextSearch())) {
+            return String.format("SELECT * FROM %s WHERE %s AND %s %s %s",
+                    milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch(), sortSql, limitSql);
+        } else {
+            return String.format("SELECT * FROM %s WHERE %s %s %s",
+                    milogLogstoreDO.getEsIndex(), sqlPrefix, sortSql, limitSql);
+        }
+    }
+
+    private static String buildQuerySqlConditional(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+        String sqlPrefix = getConditional(logQuery);
+        if (StringUtils.isNotEmpty(logQuery.getFullTextSearch())) {
+            return String.format("SELECT * FROM %s WHERE %s AND %s",
+                    milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch());
+        } else {
+            return String.format("SELECT * FROM %s WHERE %s ",
+                    milogLogstoreDO.getEsIndex(), sqlPrefix);
+        }
+    }
+
+    private static String getConditional(LogQuery logQuery) {
         String sqlPrefix = String.format("timestamp >= %s AND timestamp <= %s", logQuery.getStartTime(), logQuery.getEndTime());
 
         if (StringUtils.isNotEmpty(logQuery.getTail())) {
@@ -291,16 +325,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             String tailSql = String.format(" AND tail IN (%s)", tailIdFields);
             sqlPrefix += tailSql;
         }
-
-        String sortSql = StringUtils.isNotEmpty(logQuery.getSortKey()) ? String.format("ORDER BY %s", logQuery.getSortKey()) : "";
-        if (StringUtils.isNotEmpty(sortSql) && !logQuery.getAsc()) {
-            sortSql += " DESC";
-        }
-        String limitSql = String.format("LIMIT %s, %s", (logQuery.getPage() - 1) * logQuery.getPageSize(), logQuery.getPageSize());
-
-        return String.format("SELECT * FROM %s WHERE %s AND %s %s %s",
-                milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch(), sortSql, limitSql);
+        return sqlPrefix;
     }
+
 
     private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, BoolQueryBuilder boolQueryBuilder) {
         SearchSourceBuilder builder = new SearchSourceBuilder();
@@ -366,7 +393,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
     @Override
-    public Result<EsStatisticResult> EsStatistic(LogQuery logQuery) throws Exception {
+    public Result<EsStatisticResult> EsStatistic(LogQuery logQuery) {
         try {
             EsStatisticResult result = new EsStatisticResult();
             result.setName(constractEsStatisticRet(logQuery));
@@ -374,25 +401,18 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             if (logStore == null) {
                 return new Result<>(CommonError.UnknownError.getCode(), "not found logstore", null);
             }
+
             // get interval
             String interval = searchLog.esHistogramInterval(logQuery.getEndTime() - logQuery.getStartTime());
-            EsService esService = esCluster.getEsService(logStore.getEsClusterId());
             String esIndex = commonExtensionService.getSearchIndex(logStore.getId(), logStore.getEsIndex());
-            if (esService == null || StringUtils.isEmpty(esIndex)) {
-                return Result.failParam("Log Store or tail configuration exceptions");
-            }
-            if (!StringUtils.isEmpty(interval)) {
-                BoolQueryBuilder queryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(logStore.getKeyList()));
-                String histogramField = commonExtensionService.queryDateHistogramField(logQuery.getStoreId());
-                EsClient.EsRet esRet = esService.dateHistogram(esIndex, histogramField, interval, logQuery.getStartTime(), logQuery.getEndTime(), queryBuilder);
-                result.setCounts(esRet.getCounts());
-                result.setTimestamps(esRet.getTimestamps());
-                result.setQueryBuilder(queryBuilder);
-                result.calTotalCounts();
-                return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), result);
+
+            LogStorageTypeEnum storageTypeEnum = queryLogStorageTypeEnum(logStore.getEsClusterId());
+            if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
+                handleDorisStat(result, logQuery, logStore);
             } else {
-                return new Result<>(CommonError.UnknownError.getCode(), "The minimum time interval is 10s", null);
+                handleEsStat(result, logQuery, logStore, esIndex, interval);
             }
+            return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), result);
         } catch (ElasticsearchStatusException e) {
             log.error("Log query errors and log bar chart statistics report errors:[{}], Error type[{}], logQuery:[{}], user:[{}]", e, e.status(), logQuery, MoneUserContext.getCurrentUser(), e);
             return Result.failParam("ES resource permissions are misconfigured, please check the username password or token");
@@ -402,6 +422,60 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         }
 
     }
+
+    private void handleDorisStat(EsStatisticResult result, LogQuery logQuery, MilogLogStoreDO logStore) throws SQLException {
+        DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + logStore.getEsClusterId());
+        String querySql = buildQuerySqlConditional(logQuery, logStore);
+        String staticSql = buildDorisStatSql(querySql);
+        log.info("staticSql:{}", staticSql);
+        List<String> timestamps = Lists.newArrayList();
+        List<Long> counts = executeDorisStatQuery(dataSource, staticSql, timestamps);
+
+        result.setCounts(counts);
+        result.setTimestamps(timestamps);
+        result.setQueryBuilder(staticSql);
+        result.calTotalCounts();
+    }
+
+    private static String buildDorisStatSql(String querySql) {
+        return "SELECT DATE_FORMAT(FROM_UNIXTIME(`timestamp` / 1000), '%Y-%m-%d %H:%i:%s') AS time_bucket, " +
+                "COUNT(*) AS data_count " +
+                "FROM (" + querySql + ") data " +
+                "GROUP BY time_bucket " +
+                "ORDER BY time_bucket";
+    }
+
+    private List<Long> executeDorisStatQuery(DataSource dataSource, String staticSql, List<String> timestamps) throws SQLException {
+        List<Long> counts = new ArrayList<>();
+        try (Statement statement = dataSource.getConnection().createStatement();
+             ResultSet resultSet = statement.executeQuery(staticSql)) {
+
+            while (resultSet.next()) {
+                timestamps.add(resultSet.getString("time_bucket"));
+                counts.add(resultSet.getLong("data_count"));
+            }
+        }
+        return counts;
+    }
+
+    private void handleEsStat(EsStatisticResult result, LogQuery logQuery, MilogLogStoreDO logStore, String esIndex, String interval) throws IOException {
+        EsService esService = esCluster.getEsService(logStore.getEsClusterId());
+        if (esService == null || StringUtils.isEmpty(esIndex)) {
+            throw new MilogManageException("Log Store or tail configuration exceptions");
+        }
+        if (!StringUtils.isEmpty(interval)) {
+            BoolQueryBuilder queryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(logStore.getKeyList()));
+            String histogramField = commonExtensionService.queryDateHistogramField(logQuery.getStoreId());
+            EsClient.EsRet esRet = esService.dateHistogram(esIndex, histogramField, interval, logQuery.getStartTime(), logQuery.getEndTime(), queryBuilder);
+            result.setCounts(esRet.getCounts());
+            result.setTimestamps(esRet.getTimestamps());
+            result.setQueryBuilder(queryBuilder);
+            result.calTotalCounts();
+        } else {
+            throw new MilogManageException("The minimum time interval is 10s");
+        }
+    }
+
 
     public String constractEsStatisticRet(LogQuery logquery) {
         StringBuilder sb = new StringBuilder();

@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public interface HeraAppBaseInfoMapper extends BaseMapper<HeraAppBaseInfo> {
 
-    List<AppBaseInfo> queryAppInfo(String appName, Integer platformType, Integer type);
+    List<AppBaseInfo> queryAppInfo(@Param("appName") String appName, @Param("platformType") Integer platformType, @Param("type") Integer type);
 
     List<AppBaseInfo> queryByIds(List<Long> ids);
 

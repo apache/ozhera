@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ozhera-demo-server</artifactId>
     <groupId>run.mone</groupId>
-    <version>1.0.0-jdk21-SNAPSHOT</version>
+    <version>1.0.1-jdk21</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>ozhera-demo-server-api</artifactId>
-                <version>1.0.1-jdk21-SNAPSHOT</version>
+                <version>1.0.1-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -165,7 +165,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version> <!-- 版本号根据您的 Maven 版本可能有所不同 -->
+                <version>3.5.0</version>
                 <configuration>
                     <failOnError>false</failOnError>
                 </configuration>

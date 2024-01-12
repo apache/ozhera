@@ -32,26 +32,21 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nacos</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <artifactId>mi-tpclogin-sdk</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.25</version>
         </dependency>
-
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.7.12-mone-v8-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.spring</groupId>
@@ -175,7 +170,6 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.5</version>
         </dependency>
 
         <dependency>
@@ -187,15 +181,12 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>log-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-acl</artifactId>
-            <version>4.9.4</version>
         </dependency>
-
 
         <dependency>
             <groupId>run.mone</groupId>
@@ -205,7 +196,6 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>4.9.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -249,20 +239,17 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.9.1</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>feishu</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <artifactId>mi-tpc-api</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.projectlombok</groupId>
@@ -278,7 +265,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>app-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.projectlombok</groupId>
@@ -286,12 +272,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>org.codehaus.jackson</groupId>-->
-        <!--            <artifactId>jackson-mapper-lgpl</artifactId>-->
-        <!--            <version>1.9.6</version>-->
-        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.kafka</groupId>

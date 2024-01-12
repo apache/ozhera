@@ -20,7 +20,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
+import com.baomidou.mybatisplus.extension.plugins.pagination.PageDto;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.api.enums.*;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
@@ -247,18 +247,18 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
      * Dealing with ES resources, due to historical principles, ES resources are in separate tables and we need to combine data
      */
     private Long queryStorageResource(List<MilogMiddlewareConfig> milogMiddlewareConfigs, ResourcePage resourcePage) {
-        Long count = 0L;
+        Integer count = 0;
         if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourcePage.getResourceCode())) {
-            PageDTO page = new PageDTO<MilogEsClusterDO>(resourcePage.getPage(), resourcePage.getPageSize());
+            PageDto page = new PageDto<MilogEsClusterDO>(resourcePage.getPage(), resourcePage.getPageSize());
             Wrapper queryWrapper = generateEsQueryWrapper(resourcePage);
 
-            PageDTO<MilogEsClusterDO> esClusterPage = milogEsClusterMapper.selectPage(page, queryWrapper);
+            PageDto<MilogEsClusterDO> esClusterPage = milogEsClusterMapper.selectPage(page, queryWrapper);
             List<MilogMiddlewareConfig> configEsList = esClusterPage.getRecords().stream().map(MilogEsClusterDO::miLogEsResourceToConfig).toList();
             milogMiddlewareConfigs.addAll(configEsList);
 
             count = milogEsClusterMapper.selectCount(queryWrapper);
         }
-        return count;
+        return count.longValue();
     }
 
     private Wrapper generateEsQueryWrapper(ResourcePage resourcePage) {

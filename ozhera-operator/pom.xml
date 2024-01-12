@@ -4,6 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
+    <parent>
+        <groupId>run.mone</groupId>
+        <artifactId>ozhera</artifactId>
+        <version>1.4.0-jdk21-SNAPSHOT</version>
+    </parent>
+
     <groupId>run.mone</groupId>
     <artifactId>ozhera-operator</artifactId>
     <packaging>pom</packaging>

@@ -488,8 +488,6 @@
                 <artifactId>docean-plugin-db</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>
-
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-dubbo</artifactId>

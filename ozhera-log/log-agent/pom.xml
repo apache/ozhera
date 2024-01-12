@@ -22,13 +22,11 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean</artifactId>
-            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>rpc</artifactId>
-            <version>1.7-jdk20-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
@@ -90,7 +88,6 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>${rocketmq-version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -102,7 +99,6 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-acl</artifactId>
-            <version>${rocketmq-version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -124,7 +120,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
         </dependency>
 
         <dependency>
@@ -135,7 +130,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.7.12-mone-v8-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>netty</artifactId>

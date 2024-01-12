@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>run.mone</groupId>
+        <artifactId>ozhera</artifactId>
+        <version>1.4.0-jdk21-SNAPSHOT</version>
+    </parent>
+
     <groupId>run.mone</groupId>
     <artifactId>ozhera-log</artifactId>
     <packaging>pom</packaging>
@@ -22,87 +28,21 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <docean-plugin.common.version>1.4-jdk21-SNAPSHOT</docean-plugin.common.version>
-        <docean.version>1.4-jdk21-SNAPSHOT</docean.version>
-        <kafka.version>2.4.0</kafka.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>spring-context-support</artifactId>
-                <version>1.0.10-mone-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean</artifactId>
-                <version>${docean.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>nacos</artifactId>
-                <version>${docean.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-config</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-configuration</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-dubbo</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-db</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-nacos</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-es</artifactId>
-                <version>${docean-plugin.common.version}</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-es-antlr4</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-mybatis-plus</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-rocketmq</artifactId>
-                <version>${docean-plugin.common.version}</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${kafka.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>2.17.0</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-1.2-api</artifactId>
@@ -115,39 +55,11 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.10.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>32.1.1-jre</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
-            </dependency>
-
-            <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>5.8.20</version>
             </dependency>
 
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>hera-trace</artifactId>
-                <version>1.4.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.8.1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -156,7 +68,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
         </dependency>
 
         <dependency>

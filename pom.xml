@@ -490,6 +490,11 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-mybatis-plus</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-dubbo</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>

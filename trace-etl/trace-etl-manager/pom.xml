@@ -14,15 +14,14 @@
     <dependencies>
 
         <dependency>
-            <artifactId>trace-etl-doris-extension</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <artifactId>trace-etl-doris-extension</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <artifactId>mi-tpclogin-sdk</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>mi-tpclogin-sdk</artifactId>
         </dependency>
     </dependencies>
 

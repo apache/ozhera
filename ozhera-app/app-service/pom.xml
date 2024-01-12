@@ -12,8 +12,8 @@
     <version>${hera-app.release.version}</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -25,15 +25,13 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.3.1</version>
+            <version>3.4.3</version>
         </dependency>
         <!-- mybatis-plus代码生成器 -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-generator</artifactId>
-            <version>3.3.1.tmp</version>
-        </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-generator</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -80,20 +78,23 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>4.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>1.0.10-mone-SNAPSHOT</version>
         </dependency>
 
         <!--dubbo-->
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.7.12-mone-v8-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.spring</groupId>
@@ -105,25 +106,21 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nacos-client</artifactId>
-            <version>1.2.1-mone-v3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nacos</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>dubbo-registry-nacos</artifactId>
-            <version>1.2.1-mone-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-spring-context</artifactId>
-            <version>0.2.2-RC1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.alibaba.spring</groupId>
@@ -136,7 +133,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.9.1</version>
         </dependency>
 
         <dependency>
@@ -149,14 +145,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.70</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>4.9.3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -167,7 +161,6 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-acl</artifactId>
-            <version>4.9.3</version>
         </dependency>
 
     </dependencies>

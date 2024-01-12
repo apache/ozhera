@@ -5,11 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.15</version>
-        <relativePath/>
+        <groupId>run.mone</groupId>
+        <artifactId>ozhera</artifactId>
+        <version>1.4.0-jdk21-SNAPSHOT</version>
     </parent>
+
+    <!--        <parent>-->
+    <!--            <groupId>org.springframework.boot</groupId>-->
+    <!--            <artifactId>spring-boot-starter-parent</artifactId>-->
+    <!--            <version>2.7.15</version>-->
+    <!--            <relativePath/>-->
+    <!--        </parent>-->
 
     <groupId>run.mone</groupId>
     <artifactId>ozhera-app</artifactId>
@@ -29,18 +35,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- inner module -->
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-api</artifactId>
-                <version>${hera-app.release.version}</version>
-            </dependency>
 
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-common</artifactId>
-                <version>${hera-app.release.version}</version>
-            </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-service</artifactId>
@@ -52,45 +47,19 @@
                 <version>${hera-app.release.version}</version>
             </dependency>
             <!-- inner module -->
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>infra-result</artifactId>
-                <version>1.4-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.8.5</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>28.0-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate.validator</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>6.0.19.Final</version>
-            </dependency>
-            <dependency>
-                <groupId>redis.clients</groupId>
-                <artifactId>jedis</artifactId>
-                <version>4.2.0</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

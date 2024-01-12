@@ -1,6 +1,5 @@
 package com.xiaomi.mone.app.config;
 
-import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -33,8 +32,8 @@ public class BeanConfig {
                 .build();
     }
 
-    @Bean
-    public PaginationInterceptor paginationInterceptor() {
-        return new PaginationInterceptor();
-    }
+//    @Bean
+//    public PaginationInterceptor paginationInterceptor() {
+//        return new PaginationInterceptor();
+//    }
 }

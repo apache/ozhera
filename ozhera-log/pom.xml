@@ -28,36 +28,19 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-        <docean-plugin.common.version>1.4-jdk21-SNAPSHOT</docean-plugin.common.version>
-        <docean.version>1.4-jdk21-SNAPSHOT</docean.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-configuration</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-db</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-es</artifactId>
-                <version>${docean-plugin.common.version}</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-es-antlr4</artifactId>
-                <version>${docean-plugin.common.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>docean-plugin-mybatis-plus</artifactId>
-                <version>${docean-plugin.common.version}</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
 
             <dependency>

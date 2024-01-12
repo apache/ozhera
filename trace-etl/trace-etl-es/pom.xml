@@ -16,13 +16,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.13.5</version>
         </dependency>
 
         <dependency>
-            <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <artifactId>trace-etl-service</artifactId>
+            <version>${project.parent.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.xiaomi.youpin</groupId>
@@ -38,13 +37,11 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>30.1.1-jre</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>common</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -56,17 +53,17 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-kafka-extension</artifactId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-rocketmq-extension</artifactId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-doris-extension</artifactId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
     </dependencies>

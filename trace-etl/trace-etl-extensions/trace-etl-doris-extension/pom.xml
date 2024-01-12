@@ -21,13 +21,12 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-service</artifactId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>storage-doris</artifactId>
-            <version>1.4-jdk21-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

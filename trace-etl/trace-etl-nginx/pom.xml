@@ -17,7 +17,7 @@
         <dependency>
             <artifactId>trace-etl-service</artifactId>
             <groupId>run.mone</groupId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.mybatis.spring.boot</groupId>

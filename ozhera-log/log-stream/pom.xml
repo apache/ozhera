@@ -29,7 +29,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>storage-doris</artifactId>
-            <version>${docean-plugin.common.version}</version>
         </dependency>
 
         <dependency>
@@ -40,15 +39,12 @@
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-acl</artifactId>
-            <version>${rocketmq-version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>${rocketmq-version}</version>
             <exclusions>
-
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-simple</artifactId>
@@ -67,7 +63,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-rocketmq</artifactId>
-            <version>1.4.1-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -79,7 +74,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-es</artifactId>
-            <version>1.4.0</version>
         </dependency>
 
         <dependency>
@@ -91,7 +85,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-nacos</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -113,14 +106,12 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>log-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>rpc</artifactId>
-            <version>1.7-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -147,13 +138,11 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.9.1</version>
         </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>easy</artifactId>
-            <version>1.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>

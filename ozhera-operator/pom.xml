@@ -14,7 +14,7 @@
     <groupId>run.mone</groupId>
     <artifactId>ozhera-operator</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-jdk21-SNAPSHOT</version>
+    <version>1.0-jdk21</version>
     <modules>
         <module>ozhera-operator-common</module>
         <module>ozhera-operator-service</module>
@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-k8s</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.0-v1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -139,6 +139,60 @@
                     <source>21</source>
                     <target>21</target>
                 </configuration>
+            </plugin>
+
+            <!-- To package the source code, you need to add this plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>your-gpg-key</keyname>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

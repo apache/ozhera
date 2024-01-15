@@ -13,7 +13,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>run.mone</groupId>
     <artifactId>ozhera-demo-client</artifactId>
-    <version>1.0.0-jdk21-SNAPSHOT</version>
+    <version>1.0.0-jdk21</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>ozhera-demo-server-api</artifactId>
-                <version>1.0.1-jdk21</version>
+                <version>1.0.2-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>net.devh</groupId>
@@ -59,12 +59,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>prometheus-diy-starter</artifactId>
-                <version>0.0.1-opensource-jdk21-SNAPSHOT</version>
+                <version>0.0.1-opensource-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
-                <artifactId>infra-common</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <artifactId>prometheus-diy-client</artifactId>
+                <version>0.0.1-opensource-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
@@ -207,7 +207,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version> <!-- 版本号根据您的 Maven 版本可能有所不同 -->
+                <version>3.5.0</version>
                 <configuration>
                     <failOnError>false</failOnError>
                 </configuration>
@@ -232,27 +232,14 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-<!--                        <configuration>-->
-<!--                            <executable>gpg</executable>-->
-<!--                            <keyname>your-gpg-key</keyname>-->
-<!--                        </configuration>-->
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>your-gpg-key</keyname>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>run.mone</groupId>-->
-<!--                <artifactId>codecheck-maven-plugin</artifactId>-->
-<!--                <version>1.4-SNAPSHOT</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>validate</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>pmd</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
     </build>
 

@@ -13,7 +13,7 @@
     <groupId>run.mone</groupId>
     <artifactId>ozhera-webhook</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-jdk21-SNAPSHOT</version>
+    <version>1.0-jdk21</version>
 
     <name>${project.artifactId}</name>
     <description>The parent project of jcommon</description>
@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-k8s</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.0-v1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -117,6 +117,60 @@
                                     License|BSD|3-Clause BSD License|The New BSD License
                                 </licenseMerge>
                             </licenseMerges>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- To package the source code, you need to add this plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>your-gpg-key</keyname>
                         </configuration>
                     </execution>
                 </executions>

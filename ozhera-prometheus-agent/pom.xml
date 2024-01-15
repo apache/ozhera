@@ -38,29 +38,9 @@
             </dependency>
 
             <dependency>
-                <groupId>freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.9</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.aliyun</groupId>
                 <artifactId>dingtalk</artifactId>
                 <version>2.0.14</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcutil-jdk15on</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcpkix-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -76,24 +56,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>2.7.15</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>5.3.29</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>3.1.4</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>5.3.29</version>
@@ -103,40 +65,12 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>5.3.29</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>2.7.15</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-aop</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>2.7.15</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter</artifactId>
-                    </exclusion>
-                </exclusions>
-                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -152,12 +86,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>5.7.2</version>
-            </dependency>
-
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.2</version>
@@ -165,59 +93,21 @@
             </dependency>
 
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
-            </dependency>
-
-            <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>nutz</artifactId>
                 <version>1.r.68-v1-SNAPSHOT</version>
             </dependency>
+
             <dependency>
                 <groupId>org.nutz</groupId>
                 <artifactId>nutz-integration-spring</artifactId>
                 <version>1.r.68.v20191031</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>spring-context</artifactId>
-                        <groupId>org.springframework</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>nutz</artifactId>
-                        <groupId>org.nutz</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.9.1</version>
             </dependency>
 
             <dependency>
-                <artifactId>http</artifactId>
-                <groupId>run.mone</groupId>
-                <version>1.4-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjweaver</artifactId>
-                <version>1.9.20</version>
+                <groupId>freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.9</version>
             </dependency>
 
         </dependencies>

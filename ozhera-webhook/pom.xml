@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-k8s</artifactId>
-                <version>1.4.0</version>
+                <version>1.4.0-v1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

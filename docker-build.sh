@@ -1,11 +1,11 @@
 #!/bin/bash
 # 移动到上一级目录
 #cd ..
-#mvn clean package -DskipTests=true
+mvn clean package -DskipTests=true
 # docker login info
-USER=herahub
-PWD=mionehera123
-image_name=opensource-pub
+USER=test
+PWD=test123
+image_name=test-pub
 
 # project tag
 #ozhera-log
@@ -30,7 +30,7 @@ webhookTag=webhook-release-0.0.1
 #trace-etl
 traceEtlTag=trace-etl-release-0.0.1
 
-#docker login --username=$USER --password=$PWD
+docker login --username=$USER --password=$PWD
 
 directories=($(find . -type f -name "Dockerfile" -exec dirname {} \;))
 

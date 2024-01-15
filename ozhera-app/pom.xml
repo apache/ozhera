@@ -28,16 +28,15 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-service</artifactId>
-                <version>${hera-app.release.version}</version>
+                <version>1.4-jdk21-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-server</artifactId>
-                <version>${hera-app.release.version}</version>
+                <version>1.4-jdk21-SNAPSHOT</version>
             </dependency>
             <!-- inner module -->
         </dependencies>

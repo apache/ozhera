@@ -14,7 +14,7 @@
 
     <groupId>run.mone</groupId>
     <artifactId>prometheus-starter-all</artifactId>
-    <version>1.0-opensource-jdk21-SNAPSHOT</version>
+    <version>1.0-opensource-jdk21</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -35,7 +35,7 @@
     </modules>
 
     <properties>
-        <prometheus-all.version>0.0.1-opensource-jdk21-SNAPSHOT</prometheus-all.version>
+        <prometheus-all.version>0.0.1-opensource-jdk21</prometheus-all.version>
     </properties>
 
     <dependencyManagement>
@@ -143,6 +143,42 @@
                                     </includes>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>your-gpg-key</keyname>
                         </configuration>
                     </execution>
                 </executions>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>prometheus-starter-all</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0-opensource-jdk21-SNAPSHOT</version>
+        <version>1.0-opensource-jdk21</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

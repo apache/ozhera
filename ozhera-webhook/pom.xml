@@ -13,7 +13,7 @@
     <groupId>run.mone</groupId>
     <artifactId>ozhera-webhook</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-jdk21-SNAPSHOT</version>
+    <version>1.0-jdk21</version>
 
     <name>${project.artifactId}</name>
     <description>The parent project of jcommon</description>

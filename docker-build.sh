@@ -1,6 +1,5 @@
 #!/bin/bash
-# 移动到上一级目录
-#cd ..
+# This script builds the project and creates a Docker image.
 mvn clean package -DskipTests=true
 # docker login info
 USER=test

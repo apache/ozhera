@@ -76,7 +76,7 @@
 
         <dependency>
             <groupId>run.mone</groupId>
-            <artifactId>hera-tspandata</artifactId>
+            <artifactId>ozhera-tspandata</artifactId>
         </dependency>
 
         <dependency>

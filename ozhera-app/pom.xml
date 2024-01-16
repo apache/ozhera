@@ -28,7 +28,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-service</artifactId>

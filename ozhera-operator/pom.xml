@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-
     <parent>
         <groupId>run.mone</groupId>
         <artifactId>ozhera</artifactId>
@@ -20,18 +19,6 @@
         <module>ozhera-operator-service</module>
         <module>ozhera-operator-server</module>
     </modules>
-
-    <name>${project.artifactId}</name>
-    <description>The parent project of jcommon</description>
-    <url>https://github.com/XiaoMi/mone</url>
-    <inceptionYear>2020</inceptionYear>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <dependencyManagement>
         <dependencies>
@@ -137,16 +124,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
 </project>

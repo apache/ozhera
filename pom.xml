@@ -9,6 +9,19 @@
     <version>1.4.0-jdk21-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>${project.artifactId}</name>
+    <description>The parent project of ozhera</description>
+    <url>https://github.com/XiaoMi/ozhera</url>
+    <inceptionYear>2020</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <modules>
         <module>ozhera-app</module>
         <module>ozhera-demo-client</module>
@@ -29,7 +42,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ozhera.project.version>1.4.0-jdk21-SNAPSHOT</ozhera.project.version>
         <jcommon.release.version>1.5.0-jdk21</jcommon.release.version>
-        <ozhera.project.path>./</ozhera.project.path>
+        <!-- need set to an absolute path of your ozhera project -->
+        <ozhera.project.path>${project.basedir}</ozhera.project.path>
     </properties>
 
     <dependencyManagement>

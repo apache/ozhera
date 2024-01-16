@@ -78,7 +78,7 @@ Note: Overview includes HTTP call anomaly list, dubbo call anomaly list, and DB 
 
 Note: Clicking on details in the image above will navigate to a page showing basic anomaly information, **call trace**, and **logs**.
 
-![ozhera-trace1.png](images%2Fozhera-trace1.png)
+![ozhera-trace1.png](images/en/ozhera-trace1-en.png)
 
 ### 3. Overview of Slow Queries
 
@@ -114,7 +114,7 @@ As shown below, several services can be added to the application package.
 
 Once created, the dashboard will appear in the list. Clicking on the dashboard button under operations will navigate to the dashboard monitoring.
 
-![ozhera-large-cap-list.png](images%2Fozhera-large-cap-list.png)
+![ozhera-large-cap-list.png](images/en/ozhera-large-cap-list-en.png)
 
 Within the dashboard, one can view important information from multiple services like DB, HTTP, dubbo, redis, load, etc. Clicking on the application name in the application list below will quickly navigate to the detailed monitoring page for that service.
 

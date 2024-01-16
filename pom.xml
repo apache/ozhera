@@ -577,7 +577,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>ozhera-demo-server-api</artifactId>
-                <version>1.0.1-jdk21-SNAPSHOT</version>
+                <version>1.0.2-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -592,7 +592,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>prometheus-diy-client</artifactId>
-                <version>0.0.1-opensource-jdk21-SNAPSHOT</version>
+                <version>0.0.1-opensource-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

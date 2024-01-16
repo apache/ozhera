@@ -62,11 +62,6 @@
                 <version>0.0.1-opensource-jdk21</version>
             </dependency>
             <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>prometheus-diy-client</artifactId>
-                <version>0.0.1-opensource-jdk21</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
                 <version>${log4j.version}</version>

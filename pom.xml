@@ -100,6 +100,11 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>ozhera-tspandata</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>nacos-common</artifactId>
                 <version>1.2.1-mone-v3-SNAPSHOT</version>
             </dependency>
@@ -470,6 +475,11 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>es</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>common</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>
@@ -530,7 +540,27 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es-antlr4</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>docean</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>excel</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>file</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
@@ -546,7 +576,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>feishu</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -561,7 +591,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>log-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.4.0-jdk21</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>log-common</artifactId>
+                <version>1.4.0-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

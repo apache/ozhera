@@ -31,12 +31,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-service</artifactId>
-                <version>1.4-jdk21-SNAPSHOT</version>
+                <version>${hera-app.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-server</artifactId>
-                <version>1.4-jdk21-SNAPSHOT</version>
+                <version>${hera-app.release.version}</version>
             </dependency>
             <!-- inner module -->
         </dependencies>

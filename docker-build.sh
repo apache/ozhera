@@ -37,7 +37,7 @@ directories=($(find . -type f -name "Dockerfile" -exec dirname {} \;))
 for dir in "${directories[@]}"; do
 
     echo "current Directory:" $dir
-    # 提取文件名（不包括路径）
+    # extract filename without path
     dir_name=$(basename "$dir")
     echo "dir_name:" $dir_name
 

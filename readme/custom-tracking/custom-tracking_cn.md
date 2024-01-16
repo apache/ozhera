@@ -54,7 +54,7 @@ https://github.com/XiaoMi/ozhera/tree/master/prometheus-starter-all
     
     例如：
     
-    ![nacos-register.png](images%2Fnacos-register.png)
+    ![nacos-register.png](images/nacos-register.png)
 
 3. 打点的时候指标名称不要有中文、中划线、反斜杠、点符号等特殊字符，会造成非法指标名。
 

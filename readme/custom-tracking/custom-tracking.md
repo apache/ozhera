@@ -53,7 +53,7 @@ After a successful compilation, push the pom to the company's Maven repository, 
 
     For example:
     
-    ![nacos-register.png](images%2Fnacos-register.png)
+    ![nacos-register.png](images/en/nacos-register-en.png)
 
 3. When logging metrics, avoid using Chinese characters, hyphens, backslashes, dots, and other special characters in the metric name, as they can result in illegal metric names.
 

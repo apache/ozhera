@@ -9,6 +9,19 @@
     <version>1.4.0-jdk21-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>${project.artifactId}</name>
+    <description>The parent project of ozhera</description>
+    <url>https://github.com/XiaoMi/ozhera</url>
+    <inceptionYear>2020</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <modules>
         <module>ozhera-app</module>
         <module>ozhera-demo-client</module>
@@ -29,7 +42,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ozhera.project.version>1.4.0-jdk21-SNAPSHOT</ozhera.project.version>
         <jcommon.release.version>1.5.0-jdk21</jcommon.release.version>
-        <ozhera.project.path>./</ozhera.project.path>
+        <!-- need set to an absolute path of your ozhera project -->
+        <ozhera.project.path>${project.basedir}</ozhera.project.path>
     </properties>
 
     <dependencyManagement>
@@ -83,6 +97,11 @@
                 <groupId>run.mone</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>1.2.1-mone-v3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>ozhera-tspandata</artifactId>
+                <version>2.0</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -456,6 +475,11 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>es</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>common</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>
@@ -516,7 +540,27 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>docean-plugin-es-antlr4</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
                 <artifactId>docean</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>excel</artifactId>
+                <version>${jcommon.release.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>file</artifactId>
                 <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
@@ -532,7 +576,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>feishu</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -547,7 +591,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>log-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.4.0-jdk21</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>log-common</artifactId>
+                <version>1.4.0-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -577,7 +626,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>ozhera-demo-server-api</artifactId>
-                <version>1.0.1-jdk21-SNAPSHOT</version>
+                <version>1.0.2-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -592,7 +641,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>prometheus-diy-client</artifactId>
-                <version>0.0.1-opensource-jdk21-SNAPSHOT</version>
+                <version>0.0.1-opensource-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

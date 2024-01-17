@@ -5,10 +5,9 @@
     <parent>
         <groupId>run.mone</groupId>
         <artifactId>ozhera-log</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.4.0-jdk21</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.3-SNAPSHOT</version>
 
     <artifactId>log-manager</artifactId>
 
@@ -66,8 +65,12 @@
 
         <dependency>
             <groupId>run.mone</groupId>
+            <artifactId>app-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
             <artifactId>excel</artifactId>
-            <version>1.4-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -124,7 +127,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>es</artifactId>
-            <version>1.5-SNAPSHOT</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -160,10 +162,10 @@
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-mybatis-plus</artifactId>
         </dependency>
+
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>log-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

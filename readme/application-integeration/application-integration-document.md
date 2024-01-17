@@ -138,7 +138,7 @@ When accessing without logging in, it redirects to the TPC login page. If it's t
 TPC super admin account. This account is used for creating projects and authorizations. The super admin username must
 be: tpc@tpc.com. The password can be customized. After registration, we log in using tpc@tpc.com.
 
-![tpc-login](images/tpc-login.png)
+![tpc-login](images/en/tpc-login-en.png)
 
 ### 2. Enter Application Information
 
@@ -201,7 +201,7 @@ enter the OzHera logging interface.
 
 ![operator-url2](images/operator-url2.png)
 
-![hera-log1](images/hera-log1.png)
+![hera-log1](images/en/hera-log1-en.png)
 
 ### 2. Configuring Logging Resources (default resources will be automatically created later)
 
@@ -219,7 +219,7 @@ In the logging page sidebar, click on Resource Management and fill in the Rocket
   the required topic for logs, the default is broker-0
 - Tag List: List of tags for RocketMQ, if none, leave blank
 
-![hera-log-mq1](images/hera-log-mq1.png)
+![hera-log-mq1](images/en/hera-log-mq1-en.png)
 
 #### (2) ES
 
@@ -247,18 +247,18 @@ option next to Space to create a new space. A Space is generally at the departme
 
 Note: After creating a Space, one needs to authorize it under the hera-logger space node on TPC.
 
-![hera-log2](images/hera-log2.png)
+![hera-log2](images/en/hera-log2-en.png)
 
-![log-space1](images/log-space1.png)
+![log-space1](images/en/log-space1-en.png)
 
-![log-space2](images/log-space2.png)
+![log-space2](images/en/log-space2-en.png)
 
 ### 4. Creating Store
 
 After creating Space, select the newly created Space from the drop-down menu under Space. Click on the "Create" option
 next to Logstore to create a store.
 
-![log-store1](images/log-store1.png)
+![log-store1](images/en/log-store1-en.png)
 
 ![log-store2](images/log-store2.png)
 
@@ -304,7 +304,7 @@ next to Logstore to create a store.
 
 Once the configuration is completed, after waiting for a few seconds, the logs can be viewed on the log page.
 
-![hera-log3](images/hera-log3.png)
+![hera-log3](images/en/hera-log3-en.png)
 
 ### 6. Configuring Trace Collection (can be automatically created later)
 
@@ -314,7 +314,7 @@ configurations below.
 
 #### (1) Create trace-space
 
-![log-space3](images/log-space3.png)
+![log-space3](images/en/log-space3-en.png)
 
 #### (2) Create trace-store
 

@@ -34,7 +34,7 @@ After each fetch by Prometheus, the in-memory metric data is cleared.
 
 Here's the architecture diagram of `trace-etl-server` before optimization:
 
-![optimization-before.png](images%2Foptimization-before.png)
+![optimization-before.png](images/en/optimization-before-en.png)
 
 ### (2) Identified Issues
 

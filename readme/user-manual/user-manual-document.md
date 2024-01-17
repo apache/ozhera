@@ -78,7 +78,7 @@ Note: Overview includes HTTP call anomaly list, dubbo call anomaly list, and DB 
 
 Note: Clicking on details in the image above will navigate to a page showing basic anomaly information, **call trace**, and **logs**.
 
-![ozhera-trace1.png](images%2Fozhera-trace1.png)
+![ozhera-trace1.png](images/en/ozhera-trace1-en.png)
 
 ### 3. Overview of Slow Queries
 
@@ -114,7 +114,7 @@ As shown below, several services can be added to the application package.
 
 Once created, the dashboard will appear in the list. Clicking on the dashboard button under operations will navigate to the dashboard monitoring.
 
-![ozhera-large-cap-list.png](images%2Fozhera-large-cap-list.png)
+![ozhera-large-cap-list.png](images/en/ozhera-large-cap-list-en.png)
 
 Within the dashboard, one can view important information from multiple services like DB, HTTP, dubbo, redis, load, etc. Clicking on the application name in the application list below will quickly navigate to the detailed monitoring page for that service.
 
@@ -259,7 +259,7 @@ After filling it out, you can click the link in the bottom right to test your Pr
 
 ### 1. Main Page Chart
 
-![ozhera-trace2.jpeg](images%2Fozhera-trace2.jpeg)
+![ozhera-trace2.jpeg](images/en/ozhera-trace2-en.png)
 
 #### 1) Menu Bar
 
@@ -301,7 +301,7 @@ You can get an intuitive view of the duration distribution of the currently quer
 
 ### 2. trace Details
 
-![ozhera-trace-detail.jpeg](images%2Fozhera-trace-detail.jpeg)
+![ozhera-trace-detail.jpeg](images/en/ozhera-trace-detail-en.png)
 
 #### 1) traceID Search Box
 
@@ -311,9 +311,9 @@ You can search by traceID.
 
 Displays application name, status, method, duration, current node instance IP, and other information.
 
-#### 3) Node Information
+#### 3) Span Information
 
-![ozhera-trace-tag.png](images%2Fozhera-trace-tag.png)
+![ozhera-trace-tag.png](images/en/ozhera-trace-tag-en.png)
 
     Tags: Displays the current node's tags, such as HTTP status, RPC info, db info, etc.
     
@@ -335,7 +335,7 @@ Displays application name, status, method, duration, current node instance IP, a
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>hera-trace</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4.0</version>
         </dependency>
     ```
 3. Add the @Trace annotation from the com.xiaomi.hera.trace.annotation package to methods where custom trace is needed, e.g.:
@@ -355,7 +355,7 @@ Usage:
         <dependency>
           <groupId>run.mone</groupId>
           <artifactId>hera-trace</artifactId>
-          <version>1.4-SNAPSHOT</version>
+          <version>1.4.0</version>
         </dependency>
     ```
 
@@ -384,7 +384,7 @@ Usage:
         <dependency>
           <groupId>run.mone</groupId>
           <artifactId>hera-trace</artifactId>
-          <version>1.4-SNAPSHOT</version>
+          <version>1.4.0</version>
         </dependency>
     ```
 
@@ -402,7 +402,7 @@ Space is a resource management unit in the logging service, used for resource is
 
 Spaces can be created under Logging Service -> Log Ingestion:
 
-![ozhera-space1.png](images%2Fozhera-space1.png)
+![ozhera-space1.png](images/en/ozhera-space1-en.png)
 
 ![ozhera-space2.png](images%2Fozhera-space2.png)
 
@@ -410,7 +410,7 @@ Spaces can be created under Logging Service -> Log Ingestion:
 
 After creating a Space, by default, it is only visible to its creator. To authorize others to view it, click "Authorize" in Logging Service -> Log Ingestion -> Space List, and then proceed to the Mi-TPC system for authorization:
 
-![ozhera-log-space-list.png](images%2Fozhera-log-space-list.png)
+![ozhera-log-space-list.png](images/en/ozhera-log-space-list-en.png)
 
 Permission notes:
 
@@ -553,7 +553,7 @@ Authorize the space you want to display, and the authorized space can also see t
 
 First, resources need to be created.
 
-![ozhera-log-resource.png](images%2Fozhera-log-resource.png)
+![ozhera-log-resource.png](images/en/ozhera-log-resource-en.png)
 
 Add RocketMQ resources:
 
@@ -596,7 +596,7 @@ If the above 2 pieces of information are not created in advance, when creating t
 
 Exclude based on specified operation content, supporting fuzzy matching. The operation content here refers to the methods of each node in the trace details, as shown in the figure below:
 
-![ozhera-filter-operation.png](images%2Fozhera-filter-operation.png)
+![ozhera-filter-operation.png](images/en/ozhera-filter-operation-en.png)
 
 #### 2) Exclude Operation Content (http server)
 
@@ -614,13 +614,13 @@ Exclude based on SQL, supporting fuzzy matching. For example, for health check S
 
 Exclude based on http url, supporting fuzzy matching. The URL here refers to what's displayed in the `http.url` tag within the HTTP node of the trace details. For example: `/remotehealth1`, or `http://domain:port`.
 
-![ozhera-filter-url.png](images%2Fozhera-filter-url.png)
+![ozhera-filter-url.png](images/en/ozhera-filter-url-en.png)
 
 #### 6) Exclude User-Agent
 
 Exclude based on Http user-agent, supporting fuzzy matching. The request's User-Agent can be viewed in the tags of the trace HTTP node. Examples: `chrome8.5`, or a User-Agent carried by a company's security scan.
 
-![ozhera-filter-ua.png](images%2Fozhera-filter-ua.png)
+![ozhera-filter-ua.png](images/en/ozhera-filter-ua-en.png)
 
 ### 2. Exception and Slow Query List Settings
 

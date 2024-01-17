@@ -334,7 +334,7 @@ hera监控中，点击接口大盘，有如下图的监控看图，分为Dubbo P
       <dependency>
         <groupId>run.mone</groupId>
         <artifactId>hera-trace</artifactId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4.0</version>
       </dependency>
   ```
 
@@ -355,7 +355,7 @@ hera监控中，点击接口大盘，有如下图的监控看图，分为Dubbo P
       <dependency>
         <groupId>run.mone</groupId>
         <artifactId>hera-trace</artifactId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4.0</version>
       </dependency>
   ```
 
@@ -384,7 +384,7 @@ Http request header中添加key为heracontext，值为key1:value1;key2:value2;..
       <dependency>
         <groupId>run.mone</groupId>
         <artifactId>hera-trace</artifactId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4.0</version>
       </dependency>
   ```
 

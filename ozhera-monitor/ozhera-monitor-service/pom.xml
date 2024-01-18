@@ -175,7 +175,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.68-open-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -240,7 +239,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>ozhera-prometheus-agent-api</artifactId>
-            <version>1.0.0-jdk21-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -248,9 +246,8 @@
             <artifactId>storage-doris</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.alibaba.spring</groupId>
+            <groupId>run.mone</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>1.0.10</version>
         </dependency>
 
 

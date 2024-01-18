@@ -67,7 +67,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>log-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <!--Microservice traceID generation-->
         <dependency>

@@ -127,7 +127,7 @@ public class QueryDorisService {
                 condition += appendWhereAnd(condition) + DURATION + " < " + maxDuration;
             }
             if (!Strings.isNullOrEmpty(vo.getOperation())) {
-                condition += appendWhereAnd(condition) + OPERATION_NAME + " = " + vo.getOperation();
+                condition += appendWhereAnd(condition) + OPERATION_NAME + " = '" + vo.getOperation()+"'";
             }
             if (StringUtils.isNotEmpty(vo.getService())) {
                 condition += appendWhereAnd(condition) + NESTED_PROCESS_TAGS + " like '%" + vo.getService()+"%'";

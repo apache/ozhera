@@ -6,7 +6,7 @@ package com.xiaomi.mone.monitor.bo;
 public enum AlarmPresetMetrics {
 
     /**
-     * 系统指标
+     * system metric
      */
 //    container_cpu_use_rate("container_cpu_use_rate","容器机CPU使用率", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "2"),
 //    container_cpu_average_load("container_cpu_average_load","容器负载", MetricsUnit.UNIT_NULL, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "9"),
@@ -20,7 +20,7 @@ public enum AlarmPresetMetrics {
     k8s_container_mem_use_rate("k8s_container_mem_use_rate","k8s容器机内存使用率",MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip, "11"),
     k8s_container_count_monitor("k8s_container_count_monitor","k8s容器数量",MetricsUnit.UNIT_TAI, SendAlertGroupKey.APP, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.application, BasicUrlType.hera_dash_ip, "148"),
 
-    //资源利用率报警
+    //resource usage alarm
     container_cpu_resource_use_rate("container_cpu_resource_use_rate","容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "2"),
     container_mem_resource_use_rate("container_mem_resource_use_rate","容器内存资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, BasicUrlType.cn_grafana_ip_1d, "11"),
     k8s_cpu_resource_use_rate("k8s_cpu_resource_use_rate","k8s容器CPU资源利用率（1d）", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.container, BasicUrlType.cn_grafana_ip_1d, "2"),
@@ -30,7 +30,7 @@ public enum AlarmPresetMetrics {
     k8s_pod_restart_times("k8s_pod_restart_times","k8s-POD重启", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.basic, true,BasicUrlType.cn_grafana_ip_1d, "2"),
 
     /**
-     * jvm指标
+     * jvm metric
      */
 
     jvm_heap_mem_use_rate("jvm_heap_mem_use_rate","HeapUsed", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "176"),
@@ -42,7 +42,7 @@ public enum AlarmPresetMetrics {
     jvm_full_gc_cost("jvm_full_gc_cost","FullGC耗时", MetricsUnit.UNIT_S, SendAlertGroupKey.APP_INSTANCE, AlarmStrategyType.SYSTEM,InterfaceMetricTypes.jvm_runtime, BasicUrlType.hera_dash_sip, "76"),
 
     /**
-     * 业务指标-http
+     *  metric -http
      */
     http_error_times("http_error_times","Http调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
     http_availability("http_availability","Http调入可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
@@ -57,7 +57,7 @@ public enum AlarmPresetMetrics {
     http_client_slow_query("http_client_slow_query","Http调出慢查询", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
     /**
-     * 业务指标-dobbo
+     * metric -dobbo
      */
 
     dubbo_provider_error_times("dubbo_provider_error_times","Dubbo调入异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
@@ -76,7 +76,7 @@ public enum AlarmPresetMetrics {
     dubbo_sla_availability("dubbo_sla_availability","DubboSLA可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
 
     /**
-     * 业务指标-db
+     * metric -db
      */
     db_error_times("db_error_times","mysql异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
     db_availability("db_availability","mysql可用性", MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability,BasicUrlType.hera_dash_ip,null),
@@ -87,6 +87,52 @@ public enum AlarmPresetMetrics {
     redis_error_times("redis_error_times","redis异常数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),
     redis_slow_query("redis_slow_query","redis慢查询数", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_SQL_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
+
+    /**
+     * grpc server（grpc call in）
+     */
+    grpc_server_error_times("grpc_server_error_times","grpc调入异常数",
+            "grpcServerError","grpcServer","grpcServerSlowQuery","grpcServerTimeCost",
+            MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
+
+    grpc_server_availability("grpc_server_availability","grpc调入可用性",
+            "grpcServerError","grpcServer","grpcServerSlowQuery","grpcServerTimeCost",
+            MetricsUnit.UNIT_PERCENT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+
+    grpc_server_qps("grpc_server_qps","grpc调入qps",
+            "grpcServerError","grpcServer","grpcServerSlowQuery","grpcServerTimeCost",
+            MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, ""),
+
+    grpc_server_slow_times("grpc_server_slow_times","grpc调入慢查询数",
+            "grpcServerError","grpcServer","grpcServerSlowQuery","grpcServerTimeCost",
+            MetricsUnit.UNIT_COUNT,SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+
+    grpc_server_time_cost("grpc_server_time_cost","grpc调入平均耗时",
+            "grpcServerError","grpcServer","grpcServerSlowQuery","grpcServerTimeCost",
+            MetricsUnit.UNIT_MS,SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, ""),
+
+    /**
+     * grpc client（grpc call out）
+     */
+    grpc_client_error_times("grpc_client_error_times","grpc调出异常数",
+            "grpcClientError","grpcClient","grpcClientSlowQuery","grpcClientTimeCost",
+            MetricsUnit.UNIT_COUNT,SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times),
+
+    grpc_client_availability("grpc_client_availability","grpc调出可用性",
+            "grpcClientError","grpcClient","grpcClientSlowQuery","grpcClientTimeCost",
+            MetricsUnit.UNIT_PERCENT,SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.availability),
+
+    grpc_client_qps("grpc_client_qps","grpc调出qps",
+            "grpcClientError","grpcClient","grpcClientSlowQuery","grpcClientTimeCost",
+            MetricsUnit.UNIT_COUNT,SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.qps, BasicUrlType.hera_dash_sip, ""),
+
+    grpc_client_slow_times("grpc_client_slow_times","grpc调出慢查询数",
+            "grpcClientError","grpcClient","grpcClientSlowQuery","grpcClientTimeCost",
+            MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times),
+
+    grpc_client_time_cost("grpc_client_time_cost","grpc调出平均耗时",
+            "grpcClientError","grpcClient","grpcClientSlowQuery","grpcClientTimeCost",
+            MetricsUnit.UNIT_MS, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.time_cost, BasicUrlType.hera_dash_sip, ""),
     ;
     private String code;
     private String message;

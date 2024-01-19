@@ -8,9 +8,6 @@ import java.util.List;
  */
 public enum AlarmStrategyType {
 
-    /**
-     * 抑制告警groupKey
-     */
     SYSTEM(0,"基础类监控"),
     INTERFACE(1,"接口类监控"),
     PAOMQL(2,"自定义PromQL"),

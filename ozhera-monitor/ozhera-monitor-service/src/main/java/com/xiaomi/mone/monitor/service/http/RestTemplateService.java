@@ -1,11 +1,10 @@
 package com.xiaomi.mone.monitor.service.http;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
@@ -24,6 +23,12 @@ public class RestTemplateService {
     @Autowired
     RestTemplate restTemplate;
 
+    @NacosValue("${prometheus.header.token:unKnown}")
+    private String prometheusHeaderToken;
+
+    @NacosValue("${prometheus.cluster.type:local}")
+    private String prometheusClusterType;
+
     public String getHttp(String url, JSONObject param){
         log.info("RestTemplateService.getHttp url:{}, param:{}",url,param);
         String result = null;
@@ -41,16 +46,24 @@ public class RestTemplateService {
     }
 
     public String getHttpM(String url, Map map){
-        log.info("RestTemplateService.getHttp url:{}, map:{}",url,map);
+        log.info("RestTemplateService.getHttp url:{}, map:{}", url, map);
         String result = null;
         try {
-            if(!CollectionUtils.isEmpty(map)){
-                url = expandURLByMap(url,map);
+            if (!CollectionUtils.isEmpty(map)) {
+                url = expandURLByMap(url, map);
             }
-            result = restTemplate.getForObject(url, String.class, map);
-            log.info("RestTemplateService.getHttp url : {}, map : {},result : {} ",url,map,result);
+            if (prometheusClusterType.equals("ali")) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.add("Authorization", prometheusHeaderToken);
+                HttpEntity<String> entity = new HttpEntity<>(headers);
+                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+                result = response.getBody();
+            } else {
+                result = restTemplate.getForObject(url, String.class, map);
+            }
+            log.info("RestTemplateService.getHttp url : {}, map : {},result : {} ", url, map, result);
         } catch (RestClientException e) {
-            log.error("RestTemplateService.getHttp error : {} ",e.getMessage(),e);
+            log.error("RestTemplateService.getHttp error : {} ", e.getMessage(), e);
         }
 
         return result;

@@ -176,7 +176,6 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nutz</artifactId>
-            <version>1.r.68-open-SNAPSHOT</version>
         </dependency>
         <!-- Internal dependencies -->
         <dependency>

@@ -29,7 +29,7 @@
 ],
 "http_sd_configs":[
 {
-"url":"http://prometheus-agent:8080/prometheus/getK8sNodeIp?type=node"
+"url":"http://prometheus-agent.ozhera-namespace:8080/prometheus/getK8sNodeIp?type=node"
 }
 ]
 }

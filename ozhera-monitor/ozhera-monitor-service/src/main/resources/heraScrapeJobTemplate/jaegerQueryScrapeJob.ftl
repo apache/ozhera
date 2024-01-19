@@ -2,7 +2,7 @@
   "region": "chn-tianjin",
   "zone": "ksywq",
   "env":"online",
-  "job_name":"jaeger_query",
+  "job_name":"jaeger-query",
   "scrape_interval":"1m",
   "scrape_timeout":"10s",
   "metrics_path":"/metrics",
@@ -34,7 +34,7 @@
   ],
   "http_sd_configs":[
     {
-      "url":"http://prometheus-agent:8080/prometheus/getips?type=3"
+      "url":"http://prometheus-agent.ozhera-namespace:8080/prometheus/getips?type=3"
     }
   ]
 }

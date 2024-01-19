@@ -11,7 +11,7 @@ import java.util.Map;
 public enum SendAlertGroupKey {
 
     /**
-     * 抑制告警groupKey
+     * Alarm Inhibit groupKey
      */
     APP_INSTANCE("{{$labels.instance}}","实例级别抑制告警"),
     TESLA_URl("{{$labels.url}}","url级别抑制告警"),

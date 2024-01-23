@@ -88,7 +88,8 @@ public class ScrapeJobService {
         ScrapeConfigEntity scrapeConfigEntity = new ScrapeConfigEntity();
         scrapeConfigEntity.setId(Long.parseLong(id));
         scrapeConfigEntity.setBody(gson.toJson(getScrapeJobBody(param)));
-        scrapeConfigEntity.setJobName(param.getJob_name());
+        // not allow update job_name
+        //scrapeConfigEntity.setJobName(param.getJob_name());
         scrapeConfigEntity.setUpdateTime(new Date());
         String res = dao.UpdateScrapeConfigList(id, scrapeConfigEntity);
         log.info("ScrapeJobService.UpdateScrapeConfig res: {}", res);
@@ -113,6 +114,11 @@ public class ScrapeJobService {
         return scrapeConfigEntities;
     }
 
+    public List<ScrapeConfigEntity> getAllCloudScrapeConfigList(String status) {
+        List<ScrapeConfigEntity> scrapeConfigEntities = dao.GetAllCloudScrapeConfigList(status);
+        return scrapeConfigEntities;
+    }
+
     public void setPendingScrapeConfig() {
         List<ScrapeConfigEntity> allScrapeConfigList = getAllScrapeConfigList(ScrapeJobStatusEnum.SUCCESS.getDesc());
         if (allScrapeConfigList.size() > 0) {
@@ -132,6 +138,12 @@ public class ScrapeJobService {
             failNum.addAndGet(-affectRow);
         });
         log.info("ScrapeJobService.updateScrapeConfigListStatus fail num:{}", failNum.get());
+    }
+
+    public void updateAllScrapeConfigDeleteToDone(Scrape_configs config) {
+        log.info("ScrapeJobService.updateScrapeConfigListStatus  status : {}",ScrapeJobStatusEnum.DONE.getDesc());
+        int affectRow = dao.UpdateScrapeConfigDeleteToDone(config.getJob_name());
+        log.info("ScrapeJobService.updateAllScrapeConfigDeleteToDone affectRow num:{}", affectRow);
     }
 
     private ScrapeConfigParam beforeCreateJob(ScrapeConfigParam param) {

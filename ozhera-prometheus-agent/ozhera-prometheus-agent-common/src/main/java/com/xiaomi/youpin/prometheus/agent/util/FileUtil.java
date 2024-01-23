@@ -40,7 +40,7 @@ public class FileUtil {
             }
             String content = FileUtils.readFileToString(file, "UTF-8");
             return content;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -60,7 +60,7 @@ public class FileUtil {
             }
             FileUtils.write(file, content);
             return "success";
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -73,6 +73,25 @@ public class FileUtil {
         return file.exists();
     }
 
+    // Verify the existence of the specified file; return 'not exist' if it is absent, or read and return the content string if it is present.
+    @SneakyThrows
+    public static String checkAndReadFile(String path) {
+        lock.lock();
+        try {
+            log.info("FileUtil checkAndReadFile path: {}", path);
+            File file = new File(path);
+            if (!file.exists()) {
+                return "not exist";
+            }
+            if (!isCanReadFile(file)) {
+                return "";
+            }
+            return FileUtils.readFileToString(file, "UTF-8");
+        } finally {
+            lock.unlock();
+        }
+    }
+
     //Delete file.
     @SneakyThrows
     public static boolean DeleteFile(String path) {
@@ -82,7 +101,7 @@ public class FileUtil {
             File file = new File(path);
             boolean delete = file.delete();
             return delete;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -115,7 +134,7 @@ public class FileUtil {
             }
             boolean res = file.renameTo(new File(newPath));
             return res;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -129,7 +148,7 @@ public class FileUtil {
             if (!file.exists()) {
                 file.createNewFile();
             }
-        }finally {
+        } finally {
             lock.unlock();
         }
     }

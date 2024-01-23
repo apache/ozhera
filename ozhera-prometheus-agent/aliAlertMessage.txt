@@ -1,0 +1,46 @@
+{
+	"alerts":[
+		{{ for .alerts }}
+		{
+			"annotations": {
+				"title": "{{ .annotations.title }}"
+			},
+			"endsAt": "{{ .endsAt }}",
+			"fingerprint": "{{ .fingerprint }}",
+			"labels": {
+				"alert_op": "{{ .labels.alert_op }}",
+				"alert_value": "{{ .labels.alert_value }}",
+				"alertname": "{{ .labels.alertname }}",
+				"application": "{{ .labels.application }}",
+				"methodName": "{{ .labels.methodName }}",
+				"metrics": "{{ .labels.metrics }}",
+				"metrics_flag": "{{ .labels.metrics_flag }}",
+				"serverEnv": "{{ .labels.serverEnv }}",
+				"serverIp": "{{ .labels.serverIp }}",
+				"ip": "{{ .labels.ip }}",
+				"job": "{{ .labels.job }}",
+				"namespace": "{{ .labels.namespace }}",
+				"pod": "{{ .labels.pod }}",
+				"detailRedirectUrl": "{{ .labels.detailRedirectUrl }}",
+				"serviceName":"{{ .labels.serviceName }}",
+				"send_interval":"{{ .labels.send_interval }}"
+			},
+			"startsAt": "{{ .startsAt }}",
+			"status": "{{ .status }}"
+		}
+		{{ end }}
+	],
+"commonAnnotations": {
+	"title": "{{ .commonAnnotations.title }}"
+},
+"groupKey":null,
+"receiver":null,
+"truncatedAlerts":0,
+"version":4,
+  "status": "{{ .status }}",
+  "startTime":"{{ .startTime }}",
+  "endTime":"{{ .endTime }}",
+  "level":"{{ .level }}",
+  "dispatchRuleName":"{{ .dispatchRuleName }}",
+  "alarmId":"{{ .alarmId }}"
+}

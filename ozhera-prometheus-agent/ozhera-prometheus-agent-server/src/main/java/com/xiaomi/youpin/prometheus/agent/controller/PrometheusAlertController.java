@@ -103,6 +103,7 @@ public class PrometheusAlertController {
 
     @RequestMapping(value = "/alert/sendAlert", method = RequestMethod.POST)
     public Result sendAlert(@RequestBody String body) {
+        log.info("/alert/sendAlert body:{}",body);
         Result result = ruleAlertService.SendAlert(body);
         return result;
     }

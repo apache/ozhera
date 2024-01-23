@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -37,6 +38,16 @@ public class DateUtils {
     public static String getTime() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         return dateTimeFormatter.format(LocalDateTime.now());
+    }
+
+    public static String getTime(int plusDays) {
+        LocalDate today = LocalDate.now();
+
+        LocalDate tomorrow = today.plusDays(1);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+        return tomorrow.format(formatter);
     }
 
     /**

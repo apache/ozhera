@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @author wtt
  * @version 1.0
  * @description
- * @date 2024/1/19 17:05 需要提前创建索引，如果 wtt-test-data-2023-01-19@000001这种，方便利用索引的ilm插件管理生命周期
+ * @date 2024/1/19 17:05 The index needs to be created in advance. If it is like wtt-test-data-2023-01-19@000001, it is convenient to use the ilm plug-in of the index to manage the life cycle.
  */
 @Component
 @Slf4j

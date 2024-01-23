@@ -7,9 +7,6 @@ import java.util.*;
  */
 public enum MetricsUnit {
 
-    /**
-     * 系统指标
-     */
     UNIT_PERCENT("%","百分比"),
     UNIT_MS("ms","毫秒"),
     UNIT_S("s","秒"),

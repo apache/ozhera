@@ -4,6 +4,7 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.mone.monitor.service.model.prometheus.MetricDetail;
 import com.xiaomi.mone.tpc.common.util.GsonUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import run.mone.doris.DorisService;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
 public class DorisSearchService {
 
     @NacosValue(value = "${doris.driver}",autoRefreshed = true)

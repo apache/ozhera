@@ -29,7 +29,7 @@
 ],
 "http_sd_configs":[
 {
-"url":"http://prometheus-agent:8080/prometheus/getips?type=1"
+"url":"http://prometheus-agent.ozhera-namespace:8080/prometheus/getips?type=1"
 }
 ]
 }

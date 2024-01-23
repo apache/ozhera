@@ -25,7 +25,9 @@ import com.xiaomi.youpin.prometheus.agent.Commons;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
+import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
@@ -224,6 +226,18 @@ public class RuleAlertService {
         log.info("RuleAlertService.GetAllRuleAlertList");
         List<RuleAlertEntity> list = dao.GetAllRuleAlertList();
         return list;
+    }
+
+    public List<RuleAlertEntity> GetAllCloudRuleAlertList(String status) {
+        log.info("RuleAlertService.GetAllCloudRuleAlertList");
+        List<RuleAlertEntity> list = dao.GetAllCloudRuleAlertList(status);
+        return list;
+    }
+
+    public void UpdateRuleAlertDeleteToDone(String alertName) {
+        log.info("ScrapeJobService.UpdateRuleAlertDeleteToDone  status : {}", RuleAlertStatusEnum.DONE.getDesc());
+        int affectRow = dao.UpdateRuleAlertDeleteToDone(alertName);
+        log.info("ScrapeJobService.UpdateRuleAlertDeleteToDone affectRow num:{}", affectRow);
     }
 
     // convert labelmap to string

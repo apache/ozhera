@@ -19,10 +19,7 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.CommonLabels;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.*;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
 import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
@@ -45,10 +42,6 @@ import java.util.Random;
  * @Date 2023/9/13 17:24
  */
 
-/**
- * @author zhangxiaowei6
- * @Date 2023/11/15 20:01
- */
 //ding ding alert
 @Slf4j
 @Component
@@ -70,19 +63,19 @@ public class DingAlertContact extends BaseAlertContact {
 
     @Override
     public void Reach(AlertManagerFireResult fireResult) {
-        GroupLabels groupLabels = fireResult.getGroupLabels();
-        String alertName = groupLabels.getAlertname();
-        log.info("SendAlert dingdingReach begin send AlertName :{}", alertName);
+
         fireResult.getAlerts().stream().forEach(alert -> {
             try {
+                String alertName = alert.getLabels().getAlertname();
                 // query responsible person
+                log.info("SendAlert dingdingReach begin send AlertName :{}", alertName);
                 String[] principals = dao.GetRuleAlertAtPeople(alertName);
                 if (principals == null) {
                     log.info("SendAlert principals null alertName:{}", alertName);
                     return;
                 }
                 log.info("SendAlert dingdingReach AlertName :{} , principals:{}", alertName,principals);
-                RuleAlertEntity ruleAlertEntity = dao.GetRuleAlertByAlertName(alert.getLabels().getAlertname());
+                RuleAlertEntity ruleAlertEntity = dao.GetRuleAlertByAlertName(alertName);
                 int priority = ruleAlertEntity.getPriority();
                 Map<String, Object> map = new HashMap<>();
                 map.put("priority", "P" + String.valueOf(priority));
@@ -102,7 +95,7 @@ public class DingAlertContact extends BaseAlertContact {
                 map.put("silence_url", silenceUrl);
                 map.put("detailRedirectUrl",generateAlarmJumpUrl);
                 map.put("startTime", DateUtil.ISO8601UTCTOCST(alert.getStartsAt()));
-                CommonLabels commonLabels = fireResult.getCommonLabels();
+                Labels commonLabels = fireResult.getAlerts().get(0).getLabels();
                 Class clazz = commonLabels.getClass();
                 Field[] fields = clazz.getDeclaredFields();
                 StringBuilder sb = new StringBuilder();
@@ -147,12 +140,11 @@ public class DingAlertContact extends BaseAlertContact {
                 int randomNumber = random.nextInt(1000);
                 dingDingService.sendDingDing(freeMarkerRes, principals, alert.getLabels().getAlertname() +
                         "||" + System.currentTimeMillis() + randomNumber);
+                log.info("SendAlert success AlertName:{}", alertName);
             } catch (Exception e) {
                 log.error("SendAlert.feishuReach error:{}", e);
             }
         });
-
-        log.info("SendAlert success AlertName:{}", alertName);
     }
 
     public void updateDingDingCard(String userId, String content, String expectedSilenceTime, String carBizId,String callbackTitle) {

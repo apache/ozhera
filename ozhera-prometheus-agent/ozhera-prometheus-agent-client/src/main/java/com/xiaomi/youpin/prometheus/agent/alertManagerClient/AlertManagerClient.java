@@ -30,7 +30,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
@@ -41,7 +40,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
 
-@Service
 @Slf4j
 public class AlertManagerClient implements Client {
 
@@ -82,7 +80,7 @@ public class AlertManagerClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Regularly query the database to find all undeleted alerts in pending status.
-        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(() -> {
+        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
             try {
                 log.info("AlertManagerClient start GetLocalConfigs");
                 List<RuleAlertEntity> allRuleAlertList = ruleAlertService.GetAllRuleAlertList();
@@ -120,7 +118,7 @@ public class AlertManagerClient implements Client {
     @SneakyThrows
     public void CompareAndReload() {
 
-        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(() -> {
+        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
             // If there are any changes, call the reload interface, and directly reload the first phase.
             // Read local rule configuration file.
             try {

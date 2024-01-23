@@ -170,7 +170,7 @@ public class EsIndexOperateServiceImpl implements EsIndexOperateService {
         // Add or update index.lifecycle.rollover_alias
         updatedSettings.put("index.lifecycle.rollover_alias", newRolloverAlias);
 
-        // 更新rollover_alias
+        // Update rollover alias
         IndexTemplateMetadata.Builder updatedTemplateBuilder = IndexTemplateMetadata.builder(name);
         updatedTemplateBuilder.settings(Settings.builder()
                 .put(template.settings())
@@ -200,17 +200,17 @@ public class EsIndexOperateServiceImpl implements EsIndexOperateService {
         // Add or update index.lifecycle.rollover_alias
         updatedSettings.put("index.lifecycle.rollover_alias", newRolloverAlias);
 
-        // 创建一个新的PutIndexTemplateRequest实例
+        // create a new put index template request instance
         PutIndexTemplateRequest putRequest = new PutIndexTemplateRequest(template.name());
 
-        // 将IndexTemplateMetadata的内容复制到PutIndexTemplateRequest中
+        // copy the contents of Index Template Metadata to Put Index Template Request
         putRequest.patterns(template.patterns());
         putRequest.order(template.order());
         putRequest.settings(updatedSettings.build());
         putRequest.mapping(template.mappings().getSourceAsMap());
         putRequest.version(template.version());
 
-        // 设置aliases
+        // set aliases
         Iterator<ObjectObjectCursor<String, AliasMetadata>> iterator = template.aliases().iterator();
         while (iterator.hasNext()) {
             ObjectObjectCursor<String, AliasMetadata> aliasEntry = iterator.next();

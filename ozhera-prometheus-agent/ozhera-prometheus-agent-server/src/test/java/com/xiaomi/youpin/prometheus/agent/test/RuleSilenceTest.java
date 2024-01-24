@@ -27,13 +27,19 @@ import com.xiaomi.youpin.prometheus.agent.enums.RuleSilenceStatusEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.TimeZone;
 
 public class RuleSilenceTest {
-    @Test
+   /* @Test
     public void insertSilenceDb() {
         RuleSilenceEntity entity = new RuleSilenceEntity();
         entity.setUuid("uuid");
@@ -51,4 +57,21 @@ public class RuleSilenceTest {
        // Long silenceDbId = dao.CreateSilence(entity);
        // System.out.println("db insert id:" + silenceDbId);
     }
+
+    @Test
+    public void test() {
+        RestTemplate restTemplate = new RestTemplate();
+        String result = null;
+        try {
+            String url = "";
+            String prometheusHeaderToken = "";
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", prometheusHeaderToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            result = response.getBody();
+        } catch (RestClientException e) {
+            System.out.println(e.getMessage());
+        }
+    }*/
 }

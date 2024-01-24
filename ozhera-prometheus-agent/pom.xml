@@ -104,6 +104,12 @@
                 <version>2.3.9</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>arms20190808</artifactId>
+                <version>5.8.0</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -151,6 +157,80 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- To package the source code, you need to add this plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>your gpg key</keyname>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+         <!--   <plugin>
+                <groupId>run.mone</groupId>
+                <artifactId>codecheck-maven-plugin</artifactId>
+                <version>1.4-jdk20-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>pmd</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <checkConfigurationFile>false</checkConfigurationFile>
+                    <ipWhite>
+                        <param>172.17.0.1</param>
+                    </ipWhite>
+                </configuration>
+            </plugin>-->
 
         </plugins>
     </build>

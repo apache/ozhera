@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.youpin.prometheus.agent.result.alertManager;
+package com.xiaomi.youpin.prometheus.agent.param.prometheus.ali;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,19 +21,16 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AlertManagerFireResult {
+/**
+ * @author zhangxiaowei6
+ * @Date 2024/1/12 16:39
+ */
 
-    private String receiver;
-    private String status;
-    private List<Alerts> alerts;
-    private GroupLabels groupLabels;
-    private CommonLabels commonLabels;
-    private CommonAnnotations commonAnnotations;
-    private String externalURL;
-    private String version;
-    private String groupKey;
-    private int truncatedAlerts;
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
+public class Scrape_configs {
+
+   private List<com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs> scrape_configs;
+
 }

@@ -21,6 +21,9 @@ import lombok.ToString;
 public enum ScrapeJobStatusEnum implements Base {
     PENDING(0, "pending"),
     SUCCESS(1, "success"),
+    DELETE(2, "delete"),
+    ALL(3, "all"),
+    DONE(4, "done"),
     ;
     private Integer code;
     private String desc;

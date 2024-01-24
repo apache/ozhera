@@ -15,36 +15,19 @@
  */
 package com.xiaomi.youpin.prometheus.agent.enums;
 
-import lombok.ToString;
 
-@ToString
-public enum RuleAlertStatusEnum implements Base {
-    PENDING(0, "pending"),
-    SUCCESS(1, "success"),
-    DELETE(2, "delete"),
-    ALL(3, "all"),
-    DONE(4, "done"),
+public enum ClientType implements Base{
+    LOCAL(0, "local"),
+    ALI(1, "ali"),
     ;
     private Integer code;
     private String desc;
+    ;
 
-    RuleAlertStatusEnum(Integer Code, String desc) {
+    ClientType(Integer Code, String desc) {
         this.code = Code;
         this.desc = desc;
     }
-
-    public static RuleAlertStatusEnum getEnum(Integer code) {
-        if (code == null) {
-            return null;
-        }
-        for (RuleAlertStatusEnum jobStatus : RuleAlertStatusEnum.values()) {
-            if (code.equals(jobStatus.code)) {
-                return jobStatus;
-            }
-        }
-        return null;
-    }
-
 
     @Override
     public Integer getCode() {

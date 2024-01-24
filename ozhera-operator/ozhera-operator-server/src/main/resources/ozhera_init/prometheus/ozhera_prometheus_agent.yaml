@@ -1,0 +1,41 @@
+# For prometheus service use on the cloud
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: prometheus-agent-deployment
+  name: prometheus-agent-independent
+  namespace: ozhera-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-agent-independent
+  template:
+    metadata:
+      labels:
+        app: prometheus-agent-independent
+    spec:
+      imagePullSecrets:
+        - name: mione-opensource-credential
+      containers:
+        - name: prometheus-agent-independent
+          imagePullPolicy: Always
+          image: herahub/opensource-pub:hera-prometheus-agent-ali-v0.1
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-agent-independent
+  namespace: ozhera-namespace
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: prometheus-agent-independent
+  type: LoadBalancer

@@ -30,6 +30,8 @@ public class Scrape_configs {
     private String job_name;
     private boolean honor_labels;
     private String metrics_path;
+    private String scrape_interval;
+    private String scrape_timeout;
     private List<File_sd_configs> file_sd_configs;
     private List<Static_configs> static_configs;
     private List<Relabel_configs> relabel_configs;
@@ -38,5 +40,6 @@ public class Scrape_configs {
     private Authorization authorization;
     private Tls_config tls_config;
     private Map<String, List<String>> params;
+    private String scheme;
 
 }

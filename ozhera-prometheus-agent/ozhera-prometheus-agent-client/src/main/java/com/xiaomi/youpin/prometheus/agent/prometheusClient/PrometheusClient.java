@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -48,7 +49,6 @@ import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
 
 @Slf4j
-@Service
 public class PrometheusClient implements Client {
 
     @NacosValue(value = "${job.prometheus.healthAddr}", autoRefreshed = true)
@@ -78,6 +78,7 @@ public class PrometheusClient implements Client {
 
     @PostConstruct
     public void init() {
+        log.info("PrometheusLocalClient begin init!");
         backFilePath = filePath + ".bak";
         if (enabled.equals("true")) {
             // Initialization, request the health interface to verify if it is available.
@@ -102,7 +103,7 @@ public class PrometheusClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Get all pending collection tasks from the db every 30 seconds.
-        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(() -> {
+        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
             try {
 
                 log.info("PrometheusClient start GetLocalConfigs");
@@ -135,7 +136,7 @@ public class PrometheusClient implements Client {
     @SneakyThrows
     public void CompareAndReload() {
 
-        new ScheduledThreadPoolExecutor(1).scheduleAtFixedRate(() -> {
+        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
             try {
 
                 if (localConfigs.size() <= 0) {

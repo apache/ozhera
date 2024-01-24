@@ -15,7 +15,9 @@
  */
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
+import com.xiaomi.youpin.prometheus.agent.enums.ClientType;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
 import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,9 @@ import java.util.List;
 @Slf4j
 @Repository
 public class ScrapeConfigDao extends BaseDao {
+
+    @NacosValue("${prometheus-agent.client.type:local}")
+    private String prometheusAgentClientType;
 
     public Long CreateScrapeConfig(ScrapeConfigEntity entity) {
         Long id = dao.insert(entity).getId();
@@ -45,6 +50,7 @@ public class ScrapeConfigDao extends BaseDao {
         }
         dbRes.setDeletedBy("xxx");  // TODO:use real user name
         dbRes.setDeletedTime(new Date());
+        dbRes.setStatus(ScrapeJobStatusEnum.DELETE.getDesc());
         int updateRes = dao.update(dbRes);
         return updateRes;
     }
@@ -73,6 +79,20 @@ public class ScrapeConfigDao extends BaseDao {
     public List<ScrapeConfigEntity> GetAllScrapeConfigList(String status) {
         // Retrieve data in pending status and already deleted
         SqlExpressionGroup sqlExpr = Cnd.cri().where().andIsNull("deleted_time");//.andEquals("status", status);
+        Cnd cnd = Cnd.where(sqlExpr);
+        List<ScrapeConfigEntity> datas = dao.query(ScrapeConfigEntity.class, cnd.desc("id"));
+        return datas;
+    }
+
+    public List<ScrapeConfigEntity> GetAllCloudScrapeConfigList(String status) {
+        // Retrieve data in pending status and already deleted
+        SqlExpressionGroup sqlExpr = new SqlExpressionGroup();
+        if (status.equals(ScrapeJobStatusEnum.ALL.getDesc())) {
+            // All types excluding done
+            sqlExpr = Cnd.cri().where().andNotIsNull("job_name").andNotEquals("status",ScrapeJobStatusEnum.DONE.getDesc());
+        } else {
+            sqlExpr = Cnd.cri().where().andNotIsNull("job_name").andEquals("status", status);
+        }
         Cnd cnd = Cnd.where(sqlExpr);
         List<ScrapeConfigEntity> datas = dao.query(ScrapeConfigEntity.class, cnd.desc("id"));
         return datas;
@@ -107,6 +127,21 @@ public class ScrapeConfigDao extends BaseDao {
         try {
             ScrapeConfigEntity data = dao.fetch(ScrapeConfigEntity.class, cnd);
             data.setStatus(status);
+            // update
+            int update = dao.updateIgnoreNull(data);
+            return update;
+        } catch (Exception e) {
+            log.error("ScrapeConfigDao UpdateScrapeConfigListByJobName error:{}", e.getMessage());
+            return 0;
+        }
+    }
+
+    public int UpdateScrapeConfigDeleteToDone(String jobName) {
+        SqlExpressionGroup sqlExpr = Cnd.cri().where().andEquals("job_name", jobName).andEquals("status", ScrapeJobStatusEnum.DELETE.getDesc());
+        Cnd cnd = Cnd.where(sqlExpr);
+        try {
+            ScrapeConfigEntity data = dao.fetch(ScrapeConfigEntity.class, cnd);
+            data.setStatus(ScrapeJobStatusEnum.DONE.getDesc());
             // update
             int update = dao.updateIgnoreNull(data);
             return update;

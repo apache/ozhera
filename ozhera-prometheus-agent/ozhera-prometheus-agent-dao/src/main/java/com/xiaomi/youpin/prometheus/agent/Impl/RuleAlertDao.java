@@ -16,6 +16,9 @@
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
+import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
+import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
+import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.springframework.stereotype.Repository;
@@ -55,6 +58,7 @@ public class RuleAlertDao extends BaseDao {
         dbRes.setDeletedBy("xxx");  // TODO:use real user name
         dbRes.setUpdatedTime(new Date());
         dbRes.setDeletedTime(new Date());
+        dbRes.setStatus(RuleAlertStatusEnum.DELETE.getDesc());
         int updateRes = dao.updateIgnoreNull(dbRes);
         return updateRes;
     }
@@ -103,6 +107,33 @@ public class RuleAlertDao extends BaseDao {
         Cnd cnd = Cnd.where(sqlExpr);
         List<RuleAlertEntity> datas = dao.query(RuleAlertEntity.class, cnd.desc("id"));
         return datas;
+    }
+
+    public List<RuleAlertEntity> GetAllCloudRuleAlertList(String status) {
+        SqlExpressionGroup sqlExpr = new SqlExpressionGroup();
+        if (status.equals(RuleAlertStatusEnum.ALL.getDesc())) {
+            // All types excluding done
+            sqlExpr = Cnd.cri().where().andNotEquals("status",RuleAlertStatusEnum.DONE.getDesc());
+        } else {
+            sqlExpr = Cnd.cri().where().andIsNull("deleted_time").andEquals("enabled", 1);
+        }
+        Cnd cnd = Cnd.where(sqlExpr);
+        List<RuleAlertEntity> datas = dao.query(RuleAlertEntity.class, cnd.desc("id"));
+        return datas;
+    }
+
+    public int UpdateRuleAlertDeleteToDone(String alertName) {
+        SqlExpressionGroup sqlExpr = Cnd.cri().where().andEquals("name", alertName).andEquals("status", RuleAlertStatusEnum.DELETE.getDesc());
+        Cnd cnd = Cnd.where(sqlExpr);
+        try {
+            RuleAlertEntity data = dao.fetch(RuleAlertEntity.class, cnd);
+            data.setStatus(RuleAlertStatusEnum.DONE.getDesc());
+            // update
+            int update = dao.updateIgnoreNull(data);
+            return update;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
 }

@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@ConditionalOnProperty(name = "mq", havingValue = "kafka")
+@ConditionalOnProperty(name = "mq.type", havingValue = "kafka")
 @Slf4j
 public class KafkaConsumerService {
 

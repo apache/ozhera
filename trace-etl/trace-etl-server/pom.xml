@@ -5,7 +5,7 @@
     <parent>
         <artifactId>trace-etl</artifactId>
         <groupId>run.mone</groupId>
-        <version>1.0.0-jdk21</version>
+        <version>1.0.1-jdk21</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,13 +13,6 @@
 
 
     <dependencies>
-
-        <dependency>
-            <artifactId>trace-etl-service</artifactId>
-            <groupId>run.mone</groupId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>com.squareup.okio</groupId>
@@ -41,6 +34,12 @@
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-doris-extension</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>trace-etl-es-extension</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

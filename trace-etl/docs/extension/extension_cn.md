@@ -24,7 +24,17 @@
 
 当然，除了基本方法外，还要实现trace-etl的特有逻辑。例如：在MQExtension中，有一个`sendByTraceId`方法，需要按照traceID进行hash，将相同traceID的信息发送到同一个consumer实例中。
 
-## 4、使用Extension
+## 4、添加实现注释
+
+在实现类上添加org.springframework.stereotype.Service注解，并且添加@ConditionalOnProperty(name = "接口功能类型", havingValue = "具体实现")，这个ConditionalOnProperty
+注解是为了选择具体实现类，从而只加载这个实现类。例如：@ConditionalOnProperty(name = "mq.type", havingValue = "kafka")，这个注解的含义是：这个类是一个MQ的接口实现类，它的具体实现
+是kafka。
+
+有时，我们的实现类关联依赖了很多类，比如在trace-etl-doris-extension中，有DorisDataSourceService\QueryDorisService\WriteDorisService，此时，我们为了简化操作，就添加了一个config包，
+这个包下的DorisConfig负责初始化基础的调用类（DorisService）、真正的实现类（DorisDataSourceService）、实现类的依赖类（QueryDorisService、WriteDorisService），我们只需要在DorisConfig
+上添加@Service注解和@ConditionalOnProperty注解即可。其他类上都不用添加相关注解，他们是通过DorisConfig中的@Bean注解实例化，并添加到Spring容器中的。
+
+## 5、使用Extension
 
 ### （1）导入Extension依赖
 
@@ -32,64 +42,11 @@
 
 ### （2）配置Extension
 
-在使用Extension的工程，在`src/main/resource/`目录下，`application.properties`中，key为`extensions`的配置中进行配置。它的值的格式如下：
+在使用Extension的工程，在`src/main/resource/`目录下，`application.properties`中，key为`接口功能类型`，值为`具体实现`。例如：
 
-`${Extension1的名字}:${Extension1的实现类的name}:${Extension1的实现类所在的包路径},${Extension2的名字}:${Extension2的实现类的name}:${Extension2的实现类所在的包路径},······`
+`mq.type=kafka`
+`storage.type=doris`
 
 解释如下：
 
-每一个Extension都有一个对应的实现类，以及实现类的包路径。他们之间以英文冒号分隔。多个Extension以英文逗号分隔。
-
-`${Extension1的名字}`：他是我们自定义的，是这个Extension的唯一标识，在代码获取Extension实现的时候需要用到。
-
-`${Extension1的实现类的name}`：他是与Extension实现类上，@Service注解中的值保持一致，表示的是我们需要使用哪个Extension实现类。
-
-`${Extension1的实现类所在的包路径}`：他是Extension实现类所在的包路径，是Extension框架加在Extension实现的时所需要的。
-
-例如：
-
-目前MQ Extension有一个实现类是`RocketMQExtension`，这个类的@Service注解的值为`rocketMQ`，这个类所在的包路径为`run.mone.trace.etl.extension.rocketmq`，所以，他的配置就为：
-
-```properties
-extensions=mq:rocketMQ:run.mone.trace.etl.extension.rocketmq
-```
-
-### 使用Extension
-
-在代码中使用Extension很简单，我们需要在使用的类中注入`run.mone.docean.spring.extension.Extensions`类，然后在代码中使用`Extensions`中的`get(String)`方法，来获取Extension实现类。get(String)方法的参数，就是我们在配置文件中自定义的Extension的name。
-
-例如：
-
-配置文件中，我们的配置为：
-
-```properties
-extensions=mq:rocketMQ:run.mone.trace.etl.extension.rocketmq
-```
-
-代码中，我们获取使用Extension：
-
-```java
-
-@Service
-@Slf4j
-public class ConsumerService {
-
-    // 注入Extensions，他对Extension进行管理
-    @Resource
-    private Extensions extensions;
-
-    @PostConstruct
-    public void takeMessage() throws MQClientException {
-        // 获取Extension实现类，这里的“mq”参数，必须要与配置文件中的Extension的名字保持一致
-        MQExtension<MessageExt> mq = extensions.get("mq");
-
-        MqConfig<MessageExt> config = new MqConfig<>();
-
-        // 调用Extension的initMq方法
-        mq.initMq(config);
-    }
-
-
-}
-
-```
+这代表着目前使用的MQ是kafka，使用的存储是Doris。只会实例化kafka和Doris相关的实现类。

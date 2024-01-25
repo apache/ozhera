@@ -37,7 +37,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 
 @Service
-@ConditionalOnProperty(name = "mq", havingValue = "kafka")
+@ConditionalOnProperty(name = "mq.type", havingValue = "kafka")
 @Slf4j
 public class KafkaExtension implements MQExtension<ProducerRecord<String, String>, ConsumerRecords<String, String>> {
 

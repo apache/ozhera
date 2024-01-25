@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TraceController {
 
     @Autowired
-    private DataSourceService queryEsService;
+    private DataSourceService dataSourceService;
 
     @Value("${es.trace.index.prefix}")
     private String spanIndexPrefix;
@@ -50,19 +50,19 @@ public class TraceController {
     @GetMapping(value = "/app/operations")
     public TraceQueryResult operations(TraceOperationsVo vo) {
         vo.setIndex(serviceIndexPrefix);
-        return queryEsService.getOperations(vo);
+        return dataSourceService.getOperations(vo);
     }
 
     @GetMapping(value = "/trace/list")
     public TraceQueryResult getList(TraceListQueryVo vo) {
         vo.setIndex(spanIndexPrefix);
-        return queryEsService.getList(vo);
+        return dataSourceService.getList(vo);
     }
 
     @GetMapping(value = "/trace/{traceId}")
     public TraceQueryResult getByTraceId(@PathVariable String traceId, TraceIdQueryVo vo) {
         vo.setIndex(spanIndexPrefix);
         vo.setTraceId(traceId);
-        return queryEsService.getByTraceId(vo);
+        return dataSourceService.getByTraceId(vo);
     }
 }

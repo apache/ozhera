@@ -25,3 +25,8 @@
 
 + 未来对于NGINX日志转换为trace、metrics的项目
 + 目前只抽取了转换接口
+
+## trace-etl-extensions
+
++ 是trace-etl中接口对应多实现的扩展模块。比如MQ的RocketMQ和Kafka扩展；存储的Doris和ES扩展等。
++ 如何写一个扩展，可以参考：[trace-etl-extensions文档](docs/extension/extension_cn.md)

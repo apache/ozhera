@@ -40,7 +40,7 @@ import javax.annotation.Resource;
  * @date 2021/9/29 2:47 下午
  */
 @Service
-@ConditionalOnProperty(name = "mq", havingValue = "rocketMQ")
+@ConditionalOnProperty(name = "mq.type", havingValue = "rocketMQ")
 @Slf4j
 public class RocketMQConsumerService {
 

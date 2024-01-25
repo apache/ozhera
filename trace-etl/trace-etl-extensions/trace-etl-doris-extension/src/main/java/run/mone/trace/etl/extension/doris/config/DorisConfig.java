@@ -16,12 +16,18 @@
 package run.mone.trace.etl.extension.doris.config;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.xiaomi.hera.trace.etl.api.service.DataSourceService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import run.mone.doris.DorisService;
+import run.mone.trace.etl.extension.doris.DorisDataSourceService;
+import run.mone.trace.etl.extension.doris.QueryDorisService;
+import run.mone.trace.etl.extension.doris.WriteDorisService;
 
 @Configuration
+@ConditionalOnProperty(value="storage.type", havingValue = "doris")
 public class DorisConfig {
 
     @Value("${doris.driver}")
@@ -37,5 +43,20 @@ public class DorisConfig {
     @Bean
     public DorisService getDorisService(){
         return new DorisService(driver, url, username, password);
+    }
+
+    @Bean
+    public DataSourceService getDataSourceService(){
+        return new DorisDataSourceService();
+    }
+
+    @Bean
+    public QueryDorisService getQueryDorisService(){
+        return new QueryDorisService();
+    }
+
+    @Bean
+    public WriteDorisService getWriteDorisService(){
+        return new WriteDorisService();
     }
 }

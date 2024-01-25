@@ -54,7 +54,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Service
 public class WriteDorisService {
 
     @Autowired

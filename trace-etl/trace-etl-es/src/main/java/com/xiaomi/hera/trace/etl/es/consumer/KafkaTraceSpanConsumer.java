@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2021/11/5 10:05 am
  */
 @Service
-@ConditionalOnProperty(name = "mq", havingValue = "kafka")
+@ConditionalOnProperty(name = "mq.type", havingValue = "kafka")
 @Slf4j
 public class KafkaTraceSpanConsumer {
 

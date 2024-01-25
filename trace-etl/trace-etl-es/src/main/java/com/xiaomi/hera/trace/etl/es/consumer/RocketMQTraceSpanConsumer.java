@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2021/11/5 10:05 am
  */
 @Service
-@ConditionalOnProperty(name = "mq", havingValue = "rocketMQ")
+@ConditionalOnProperty(name = "mq.type", havingValue = "rocketMQ")
 @Slf4j
 public class RocketMQTraceSpanConsumer {
 

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package run.mone.trace.etl.extension.doris;
+package run.mone.trace.etl.extension.es;
 
 import com.xiaomi.hera.trace.etl.api.service.DataSourceService;
 import com.xiaomi.hera.trace.etl.domain.DriverDomain;
@@ -28,45 +28,45 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class DorisDataSourceService implements DataSourceService {
+public class EsDataSourceService implements DataSourceService {
 
     @Autowired
-    private QueryDorisService queryDorisService;
+    private QueryEsService queryEsService;
     @Autowired
-    private WriteDorisService writeDorisService;
+    private WriteEsService writeEsService;
 
     @Override
     public TraceQueryResult<List<String>> getOperations(TraceOperationsVo vo) {
-        return queryDorisService.getOperations(vo.getService(), vo.getIndex());
+        return queryEsService.getOperations(vo.getService(), vo.getIndex());
     }
 
     @Override
     public TraceQueryResult<List<Trace>> getList(TraceListQueryVo vo) {
-        return queryDorisService.getList(vo);
+        return queryEsService.getList(vo);
     }
 
     @Override
     public TraceQueryResult<List<Trace>> getByTraceId(TraceIdQueryVo vo) {
-        return queryDorisService.getByTraceId(vo);
+        return queryEsService.getByTraceId(vo);
     }
 
     @Override
     public void insertErrorTrace(ErrorTraceMessage errorTraceMessage) {
-        writeDorisService.insertErrorTrace(errorTraceMessage);
+        writeEsService.submitErrorEsTrace(errorTraceMessage);
     }
 
     @Override
-    public void insertHeraTraceService(String date, String serviceName, String operationName) {
-        writeDorisService.insertHeraTraceService(serviceName, operationName);
+    public void insertHeraTraceService(String date, String serviceName, String oprationName) {
+        writeEsService.insertJaegerService(date, serviceName, oprationName);
     }
 
     @Override
     public void insertDriver(DriverDomain driverDomain) {
-        writeDorisService.insertDriver(driverDomain);
+        writeEsService.insertDriver(driverDomain);
     }
 
     @Override
     public void insertHeraSpan(TSpanData tSpanData, String serviceName, String spanName) {
-        writeDorisService.insertHeraSpan(tSpanData, serviceName, spanName);
+        writeEsService.insertJaegerSpan(tSpanData, serviceName, spanName);
     }
 }

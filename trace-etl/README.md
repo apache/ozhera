@@ -25,3 +25,8 @@
 
 + Future project for converting NGINX logs into trace and metrics.
 + Currently, only the extraction and conversion interface is implemented.
+
+## trace-etl-extensions
+
++ This is the extension module in trace-etl, allowing multiple implementations for corresponding interfaces. For example, extensions for MQ such as RocketMQ and Kafka, and extensions for storage like Doris and ES.
++ To learn how to write an extension, refer to: [trace-etl-extensions documentation](docs/extension/extension.md)

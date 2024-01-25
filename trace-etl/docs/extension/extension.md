@@ -24,73 +24,28 @@ The Extension implementation class that we develop should implement all methods 
 
 Of course, apart from the basic methods, the specific logic of trace-etl also needs to be implemented. For example, in the MQExtension, there's a `sendByTraceId` method that requires hashing based on the traceID to ensure messages with the same traceID are sent to the same consumer instance.
 
-## 4. Use the Extension
+## 4. Add Implementation Comments
+
+Add the `org.springframework.stereotype.Service` annotation to the implementation class, and include `@ConditionalOnProperty(name = "Interface Function Type", havingValue = "Specific Implementation")`. This `ConditionalOnProperty` annotation is used to select a specific implementation class, loading only that implementation. For example: `@ConditionalOnProperty(name = "mq.type", havingValue = "kafka")` signifies that this class is an MQ interface implementation, with Kafka as its specific implementation.
+
+Sometimes, our implementation classes have dependencies on many other classes. For instance, in `trace-etl-doris-extension`, there are `DorisDataSourceService`, `QueryDorisService`, and `WriteDorisService`. To simplify operations, a `config` package is added. `DorisConfig` in this package is responsible for initializing the basic invocation class (`DorisService`), the actual implementation class (`DorisDataSourceService`), and the dependent classes of the implementation (`QueryDorisService`, `WriteDorisService`). Simply add `@Service` and `@ConditionalOnProperty` annotations to `DorisConfig`. No additional annotations are required on other classes. They are instantiated through the `@Bean` annotation in `DorisConfig` and added to the Spring container.
+
+
+## 5. Use the Extension
 
 ### (1) Import Extension Dependency
 
 When using an Extension in a project, you first need to import the dependency of the newly created Extension module.
 
-### (2) Configure the Extension
+### (2) Configure Extension
 
-When using the Extension in a project, under the `src/main/resource/` directory, in the `application.properties` file, configure it under the key named `extensions`. The value's format is as follows:
+For projects utilizing an Extension, within the `src/main/resources/` directory, find the `application.properties` file. Here, the key is `Interface Function Type`, and the value is the `Specific Implementation`. For example:
 
-`${Extension1Name}:${Extension1ImplementationClassName}:${Extension1PackagePath},${Extension2Name}:${Extension2ImplementationClassName}:${Extension2PackagePath},...`
+```properties
+mq.type=kafka
+storage.type=doris
+```
 
 Explanation:
 
-Each Extension has a corresponding implementation class and the package path of this class. They are separated by colons. Multiple Extensions are separated by commas.
-
-`${Extension1Name}`: This is custom-defined and is a unique identifier for the Extension. It is used when fetching the Extension implementation in code.
-
-`${Extension1ImplementationClassName}`: This should match the value in the `@Service` annotation of the Extension implementation class, indicating which Extension implementation class we want to use.
-
-`${Extension1PackagePath}`: This represents the package path of the Extension implementation class. The Extension framework needs this when loading the Extension implementation.
-
-For example:
-
-The current MQ Extension has an implementation class named `RocketMQExtension`. The value of its `@Service` annotation is `rocketMQ`, and its package path is `run.mone.trace.etl.extension.rocketmq`. Thus, its configuration would be:
-
-```properties
-extensions=mq:rocketMQ:run.mone.trace.etl.extension.rocketmq
-```
-
-### Using the Extension
-
-Using the Extension in the code is straightforward. We need to inject the `run.mone.docean.spring.extension.Extensions` class into the class where we are using it. After that, use the `get(String)` method from `Extensions` in the code to fetch the Extension implementation class. The parameter for the `get(String)` method is the custom name of the Extension that we defined in the configuration file.
-
-For example:
-
-In the configuration file, our setting is:
-
-```properties
-extensions=mq:rocketMQ:run.mone.trace.etl.extension.rocketmq
-```
-
-In the code, we retrieve and use the Extension as follows:
-
-```java
-
-@Service
-@Slf4j
-public class ConsumerService {
-
-    // Inject `Extensions`, which manages the Extensions.
-    @Resource
-    private Extensions extensions;
-
-    @PostConstruct
-    public void takeMessage() throws MQClientException {
-        // Retrieve the Extension implementation class. 
-        // The "mq" parameter here must match the name of the Extension defined in the configuration file.
-        MQExtension<MessageExt> mq = extensions.get("mq");
-
-        MqConfig<MessageExt> config = new MqConfig<>();
-
-        // Invoke the `initMq` method of the Extension.
-        mq.initMq(config);
-    }
-
-
-}
-
-```
+This signifies that the current MQ being used is Kafka, and the storage in use is Doris. Only the implementation classes related to Kafka and Doris will be instantiated.

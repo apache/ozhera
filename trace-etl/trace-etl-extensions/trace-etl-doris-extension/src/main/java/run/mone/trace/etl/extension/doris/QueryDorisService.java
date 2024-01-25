@@ -54,7 +54,6 @@ import java.util.concurrent.TimeUnit;
  * @Date 2022/11/7 11:40 上午
  */
 @Slf4j
-@Service
 public class QueryDorisService {
 
     @Autowired

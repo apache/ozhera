@@ -9,7 +9,7 @@
         <version>1.0.1-jdk21</version>
     </parent>
 
-    <artifactId>trace-etl-kafka-extension</artifactId>
+    <artifactId>trace-etl-es-extension</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -18,38 +18,28 @@
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>run.mone</groupId>
-            <artifactId>trace-etl-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>trace-etl-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
+            <groupId>run.mone</groupId>
+            <artifactId>es</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpcore-nio</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-
     </dependencies>
 </project>

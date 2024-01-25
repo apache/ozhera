@@ -250,6 +250,10 @@
             <artifactId>spring-context-support</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>es</artifactId>
+        </dependency>
 
 
     </dependencies>

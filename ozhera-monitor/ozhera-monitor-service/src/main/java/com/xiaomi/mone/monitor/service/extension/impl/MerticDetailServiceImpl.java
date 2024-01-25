@@ -1,8 +1,12 @@
 package com.xiaomi.mone.monitor.service.extension.impl;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
+import com.xiaomi.mone.monitor.service.HeraBaseInfoService;
 import com.xiaomi.mone.monitor.service.doris.DorisSearchService;
+import com.xiaomi.mone.monitor.service.es.EsService;
 import com.xiaomi.mone.monitor.service.extension.MetricDetailService;
 import com.xiaomi.mone.monitor.service.helper.ProjectHelper;
 import com.xiaomi.mone.monitor.service.model.PageData;
@@ -13,6 +17,7 @@ import com.xiaomi.mone.tpc.common.util.GsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -29,14 +34,34 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
 public class MerticDetailServiceImpl implements MetricDetailService {
 
-    @Autowired
+    @Value("${metric.detail.datasource.property}")
+    private String dataSource;
+    @Autowired(required = false)
     DorisSearchService dorisSearchService;
 
     @Autowired
     private ProjectHelper projectHelper;
 
+    @Autowired(required = false)
+    EsService esService;
+
+    @Autowired
+    HeraBaseInfoService heraBaseInfoService;
+
     @Override
     public Result metricDetail(MetricDetailQuery param) {
+
+        log.info("metricDetail dataSource : {}",dataSource);
+        if("es".equals(dataSource)){
+            log.info("queryByEs param : {}",GsonUtil.gsonString(param));
+            return queryByEs(param);
+        }
+        log.info("queryByDoris param : {}",GsonUtil.gsonString(param));
+        return queryByDoris(param);
+
+    }
+
+    private Result queryByDoris(MetricDetailQuery param){
 
         PageData pd = new PageData();
         pd.setPage(param.getPage());
@@ -156,6 +181,28 @@ public class MerticDetailServiceImpl implements MetricDetailService {
         } catch (Exception e) {
             log.info("metricDetail exception : {}, param : {}", e.getMessage(), GsonUtil.gsonString(param));
             log.error("metricDetail exception : {}", e.getMessage(), e);
+            return Result.fail(ErrorCode.unknownError);
+        }
+    }
+
+    private Result queryByEs(MetricDetailQuery param){
+        log.info("PrometheusController detail param : {}",param);
+
+        try {
+
+            if(param.getAppSource() == null){
+                HeraAppBaseInfoModel byBindIdAndName = heraBaseInfoService.getByBindIdAndName(String.valueOf(param.getProjectId()), param.getProjectName());
+                if(byBindIdAndName != null){
+                    log.info("metric detail param no app source found! reset by db value : {},param:{}",byBindIdAndName.getPlatformType(),param);
+                    param.setAppSource(byBindIdAndName.getPlatformType());
+                }else{
+                    log.info("metric detail param no app source found! and no db info found! use china area index! param:{}",param);
+                }
+            }
+
+            return esService.query(param, param.getPage(), param.getPageSize());
+        } catch (Exception e) {
+            log.error("PrometheusController.detail Error" + e.getMessage(),e);
             return Result.fail(ErrorCode.unknownError);
         }
     }

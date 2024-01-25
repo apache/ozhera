@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
+@ConditionalOnProperty(name = "metric.detail.datasource.property", havingValue = "doris")
 public class DorisSearchService {
 
     @NacosValue(value = "${doris.driver}",autoRefreshed = true)

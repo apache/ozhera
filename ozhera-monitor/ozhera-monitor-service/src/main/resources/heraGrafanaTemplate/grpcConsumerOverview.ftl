@@ -191,7 +191,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "clamp_min((1 - ((sum(sum_over_time(${env}_${serviceName}_grpcClientError_total{application=\"$application\",serverEnv=~\"$env\",serverZone=~\"$zone|\"}[$timeRange]))) / (sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverEnv=\"$env\",serverZone=~\"$zone|\"}[$timeRange]))))), 0) or 0*(sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverEnv=\"$env\",serverZone=~\"$zone|\"}[$timeRange])))+1",
+"expr": "clamp_min((1 - ((sum(sum_over_time(${env}_${serviceName}_grpcClientError_total{application=\"$application\",serverEnv=~\"$env\",serverZone=~\"$zone|\"}[$timeRange]))) / (sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverEnv=~\"$env\",serverZone=~\"$zone|\"}[$timeRange]))))), 0) or 0*(sum(sum_over_time(${env}_${serviceName}_grpcClient_total{application=\"$application\",serverEnv=~\"$env\",serverZone=~\"$zone|\"}[$timeRange])))+1",
 "format": "table",
 "hide": false,
 "instant": true,

@@ -64,6 +64,12 @@ public class PrometheusServiceImpl implements PrometheusServiceExtension {
             case "dubbo":
                 query = "sum(sum_over_time(" + prometheusEnv + "_hera_dubboProviderCount_count{application=\"" + serviceName + "\"}[30s]))by (serviceName)";
                 break;
+            case "gRPCProvider":
+                query = "sum(sum_over_time(" + prometheusEnv + "_hera_grpcServer_total{application=\"" + serviceName + "\"}[30s]))by (serviceName)";
+                break;
+            case "gRPCConsumer":
+                query = "sum(sum_over_time(" + prometheusEnv + "_hera_grpcClient_total{application=\"" + serviceName + "\"}[30s]))by (serviceName)";
+                break;
             default:
                 query = "sum(sum_over_time(" + prometheusEnv + "_hera_dubboProviderCount_count{application=\"" + serviceName + "\"}[30s]))by (serviceName)";
         }

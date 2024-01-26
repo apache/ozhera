@@ -466,13 +466,16 @@ public class AlarmService {
         if(rule.getMetricType() == AlarmRuleMetricType.customer_promql.getCode()){
 
             String ruleExpr = ruleData.getExpr();
-            int a = ruleExpr.lastIndexOf(">") > 0 ? ruleExpr.lastIndexOf(">") :
-                    ruleExpr.lastIndexOf("<") > 0 ? ruleExpr.lastIndexOf("<") :
-                            ruleExpr.lastIndexOf("=") > 0 ? ruleExpr.lastIndexOf("=") :
-                                    ruleExpr.lastIndexOf(">=") > 0 ? ruleExpr.lastIndexOf(">=") :
-                                            ruleExpr.lastIndexOf("<=") > 0 ? ruleExpr.lastIndexOf("<=") :
-                                                    ruleExpr.lastIndexOf("!=") > 0 ? ruleExpr.lastIndexOf("!=") :
-                                                            -1;
+            Set set = new HashSet();
+            set.add(ruleExpr.lastIndexOf(">="));
+            set.add(ruleExpr.lastIndexOf("<="));
+            set.add(ruleExpr.lastIndexOf("!="));
+            set.add(ruleExpr.lastIndexOf(">"));
+            set.add(ruleExpr.lastIndexOf("<"));
+            set.add(ruleExpr.lastIndexOf("="));
+
+            List<Integer> indexSet = (List) set.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+            int a = CollectionUtils.isEmpty(indexSet) ? -1 : indexSet.get(0);
             log.info("edit customer_promql ruleExpr :{},a:{}",ruleExpr,a);
 
             String value = "0.0";

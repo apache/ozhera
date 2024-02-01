@@ -3,7 +3,7 @@
   "zone": "ksywq",
   "env":"online",
   "job_name":"jaeger-query",
-  "scrape_interval":"1m",
+  "scrape_interval":"30s",
   "scrape_timeout":"10s",
   "metrics_path":"/metrics",
   "honor_labels":false,

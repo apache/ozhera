@@ -3,7 +3,7 @@
 "zone": "ksywq",
 "env":"online",
 "job_name":"mione-yewujiankong-china-jvm",
-"scrape_interval":"1m",
+"scrape_interval":"30s",
 "scrape_timeout":"10s",
 "metrics_path":"/jvm",
 "honor_labels":false,

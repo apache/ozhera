@@ -3,7 +3,7 @@
 "zone": "ksywq",
 "env":"online",
 "job_name":"mione-china-node-k8s",
-"scrape_interval":"1m",
+"scrape_interval":"30s",
 "scrape_timeout":"10s",
 "metrics_path":"/metrics",
 "honor_labels":false,

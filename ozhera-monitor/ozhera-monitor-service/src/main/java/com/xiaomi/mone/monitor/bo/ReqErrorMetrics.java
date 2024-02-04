@@ -11,6 +11,9 @@ public enum ReqErrorMetrics {
     dubboConsumerError("dubboConsumerError","dubbo请求错误", AlarmPresetMetrics.dubbo_error_times,AlarmPresetMetrics.dubbo_availability),
     dubboProvider("dubboProviderError","dubboProvider请求错误", AlarmPresetMetrics.dubbo_provider_availability,AlarmPresetMetrics.dubbo_provider_error_times),
 
+    grpcServerError("grpcServerError","grpcServerError请求错误", AlarmPresetMetrics.grpc_server_error_times,AlarmPresetMetrics.grpc_server_availability),
+
+    grpcClientError("grpcClientError","grpcClient请求错误", AlarmPresetMetrics.grpc_client_error_times,AlarmPresetMetrics.grpc_client_availability),
     ;
     private String code;
     private String message;

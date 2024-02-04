@@ -13,6 +13,9 @@ public enum ReqSlowMetrics {
     dubboConsumerSlowQuery("dubboConsumerSlowQuery","dubboConsumer慢请求", AlarmPresetMetrics.dubbo_slow_query),
     dubboProviderSlowQuery("dubboProviderSlowQuery","dubboProvider慢请求", AlarmPresetMetrics.dubbo_provider_slow_query),
 
+    grpcClientSlowQuery("grpcClientSlowQuery","grpcClient慢请求", AlarmPresetMetrics.grpc_client_slow_times),
+    grpcServerSlowQuery("grpcServerSlowQuery","grpcServer慢请求", AlarmPresetMetrics.grpc_server_slow_times),
+
     ;
     private String code;
     private String message;

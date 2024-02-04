@@ -85,6 +85,22 @@ public class ComputeTimerServiceExtensionImpl implements ComputeTimerServiceExte
 
                     break;
 
+                case grpc :
+                    // grpc请求异常统计
+                    Result<PageData> grpcServerExceptions = prometheusService.queryRangeSumOverTime(ReqErrorMetrics.grpcServerError.getCode(), getLable(MetricKind.MetricType.grpc_server_exception, curMetricType, param), appName, MetricSuffix._total.name(), startTime, endTime, step, timeDurarion,null);
+                    dataBuilder.grpcServerErrorNum(countRecordMetric(grpcServerExceptions));
+
+                    Result<PageData> grpcClientExceptions = prometheusService.queryRangeSumOverTime(ReqErrorMetrics.grpcClientError.getCode(), getLable(MetricKind.MetricType.grpc_client_exception, curMetricType, param), appName, MetricSuffix._total.name(), startTime, endTime, step, timeDurarion,null);
+                    dataBuilder.grpcClientErrorNum(countRecordMetric(grpcClientExceptions));
+
+                    Result<PageData> grpcClientSlowQuery = prometheusService.queryRangeSumOverTime(ReqSlowMetrics.grpcClientSlowQuery.getCode(), getLable(MetricKind.MetricType.grpc_client_slow_query, curMetricType, param), appName, MetricSuffix._total.name(), startTime, endTime, step, timeDurarion,null);
+                    dataBuilder.grpcClientSlowQueryNum(countRecordMetric(grpcClientSlowQuery));
+
+                    Result<PageData> grpcServerSlowQuery = prometheusService.queryRangeSumOverTime(ReqSlowMetrics.grpcServerSlowQuery.getCode(), getLable(MetricKind.MetricType.grpc_server_slow_query, curMetricType, param), appName, MetricSuffix._total.name(), startTime, endTime, step, timeDurarion,null);
+                    dataBuilder.grpcServerSlowQueryNum(countRecordMetric(grpcServerSlowQuery));
+
+                    break;
+
                 case db :
                     // mysql请求异常统计
                     Result<PageData> sqlExceptions = prometheusService.queryRangeSumOverTime(ReqErrorMetrics.dbError.getCode(), getLable(MetricKind.MetricType.db_exception, curMetricType, param), appName, MetricSuffix._total.name(), startTime, endTime, step, timeDurarion,null);

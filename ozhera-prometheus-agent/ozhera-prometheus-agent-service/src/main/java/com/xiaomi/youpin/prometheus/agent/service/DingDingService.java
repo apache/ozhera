@@ -110,7 +110,7 @@ public class DingDingService {
         periodicRefreshWhiteList();
     }
 
-    //2m refresh white list
+    //2m auto refresh white list
     private void periodicRefreshWhiteList() {
         new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
             //fill in white list

@@ -36,6 +36,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author zhangxiaowei6
@@ -99,25 +101,32 @@ public class DingDingService {
         dingCardClient = new com.aliyun.dingtalkcard_1_0.Client(dingConfig);
         dingOauthClient = new com.aliyun.dingtalkoauth2_1_0.Client(dingConfig);
         //registerDingDingCallBack();
-        //fill in white list
-        if (!StringUtils.isBlank(whiteListStr)) {
-            List<String> whiteList = Arrays.asList(whiteListStr.split(",", -1));
-            log.info("DingDingService init whiteList is :{}", whiteList);
-            if (whiteList.size() % 2 != 0) {
-                log.error("DingDingService sendDingDing whiteList error , because whiteList size is not even");
-                return;
-            }
-            //fill in map
-            for (int i = 0; i < whiteList.size(); i = i + 2) {
-                whiteListMap.put(whiteList.get(i), whiteList.get(i + 1));
-            }
-        }
         //user type judge
         if (!dingdingUserType.equals("userId") && !dingdingUserType.equals("unionId")) {
             log.error("DingDingService.userType not valid, userType: {}",dingdingUserType);
             //set default value
             dingdingUserType = "userId";
         }
+        periodicRefreshWhiteList();
+    }
+
+    //2m auto refresh white list
+    private void periodicRefreshWhiteList() {
+        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+            //fill in white list
+            if (!StringUtils.isBlank(whiteListStr)) {
+                List<String> whiteList = Arrays.asList(whiteListStr.split(",", -1));
+                log.info("DingDingService init whiteList is :{}", whiteList);
+                if (whiteList.size() % 2 != 0) {
+                    log.error("DingDingService sendDingDing whiteList error , because whiteList size is not even");
+                    return;
+                }
+                //fill in map
+                for (int i = 0; i < whiteList.size(); i = i + 2) {
+                    whiteListMap.put(whiteList.get(i), whiteList.get(i + 1));
+                }
+            }
+        }, 0, 120, TimeUnit.SECONDS);
     }
 
     private String getAccessToken() {

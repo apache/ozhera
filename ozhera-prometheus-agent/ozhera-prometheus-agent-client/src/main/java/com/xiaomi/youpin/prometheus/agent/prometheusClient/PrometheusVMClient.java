@@ -13,30 +13,23 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.youpin.prometheus.agent.enums;
+package com.xiaomi.youpin.prometheus.agent.prometheusClient;
 
+import com.xiaomi.youpin.prometheus.agent.client.Client;
 
-public enum ClientType implements Base{
-    LOCAL(0, "local"),
-    ALI(1, "ali"),
-    VM(2,"vm")
-    ;
-    private Integer code;
-    private String desc;
-    ;
+/**
+ * @author zhangxiaowei6
+ * @Date 2024/2/6 09:46
+ */
 
-    ClientType(Integer Code, String desc) {
-        this.code = Code;
-        this.desc = desc;
+public class PrometheusVMClient implements Client {
+    @Override
+    public void GetLocalConfigs() {
+
     }
 
     @Override
-    public Integer getCode() {
-        return code;
-    }
+    public void CompareAndReload() {
 
-    @Override
-    public String getDesc() {
-        return desc;
     }
 }

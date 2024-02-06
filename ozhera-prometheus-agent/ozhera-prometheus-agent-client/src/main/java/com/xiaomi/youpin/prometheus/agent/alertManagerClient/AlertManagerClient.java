@@ -16,6 +16,7 @@
 package com.xiaomi.youpin.prometheus.agent.alertManagerClient;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
@@ -23,6 +24,7 @@ import com.xiaomi.youpin.prometheus.agent.param.alertManager.AlertManagerConfig;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.Group;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.Rule;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
+import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
@@ -80,9 +82,10 @@ public class AlertManagerClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Regularly query the database to find all undeleted alerts in pending status.
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.ALERTMANAGER_LOCAL_CONFIG_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("AlertManagerClient start GetLocalConfigs");
             try {
-                log.info("AlertManagerClient start GetLocalConfigs");
                 List<RuleAlertEntity> allRuleAlertList = ruleAlertService.GetAllRuleAlertList();
                 //Clear the previous result first.
                 localRuleList.clear();
@@ -110,6 +113,8 @@ public class AlertManagerClient implements Client {
                 firstInitSign = true;
             } catch (Exception e) {
                 log.error("AlertManagerClient GetLocalConfigs error:{}", e.getMessage());
+            } finally {
+                log.info("AlertManagerClient GetLocalConfigs batch time:{}", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
@@ -118,12 +123,13 @@ public class AlertManagerClient implements Client {
     @SneakyThrows
     public void CompareAndReload() {
 
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.ALERTMANAGER_COMPARE_RELOAD_POOL.scheduleWithFixedDelay(() -> {
             // If there are any changes, call the reload interface, and directly reload the first phase.
             // Read local rule configuration file.
+            Stopwatch sw = Stopwatch.createStarted();
             try {
                 // If localRuleList is empty, it means there are no records in the database, so return directly.
-                if (localRuleList.size() == 0) {
+                if (localRuleList.isEmpty()) {
                     log.info("localRuleList is empty and no need reload");
                     return;
                 }
@@ -162,6 +168,8 @@ public class AlertManagerClient implements Client {
                 }
             } catch (Exception e) {
                 log.error("AlertManagerClient CompareAndReload error: {}", e);
+            } finally {
+                log.info("AlertManagerClient CompareAndReload batch time:{}", sw.elapsed(TimeUnit.MILLISECONDS));
             }
 
         }, 0, 30, TimeUnit.SECONDS);

@@ -13,30 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.youpin.prometheus.agent.enums;
+package com.xiaomi.youpin.prometheus.agent.operators.vm;
 
+import com.xiaomi.youpin.prometheus.agent.operators.BasicOperator;
+/**
+ * @author zhangxiaowei6
+ * @Date 2024/2/6 09:45
+ */
 
-public enum ClientType implements Base{
-    LOCAL(0, "local"),
-    ALI(1, "ali"),
-    VM(2,"vm")
-    ;
-    private Integer code;
-    private String desc;
-    ;
-
-    ClientType(Integer Code, String desc) {
-        this.code = Code;
-        this.desc = desc;
-    }
-
+public class VMPrometheusOperator implements BasicOperator {
     @Override
-    public Integer getCode() {
-        return code;
-    }
-
-    @Override
-    public String getDesc() {
-        return desc;
+    public String printTriplicities() {
+        return "VictoriaMetrics";
     }
 }

@@ -27,6 +27,7 @@ import com.xiaomi.youpin.prometheus.agent.param.alertManager.Rule;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.ali.AliNotifyObjects;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.ali.AliNotifyRule;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
+import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -93,9 +94,10 @@ public class AlertManagerAliClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Regularly query the database to find all undeleted alerts in pending status.
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.ALERTMANAGER_LOCAL_CONFIG_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("AlertManagerAliClient start GetLocalConfigs");
             try {
-                log.info("AlertManagerAliClient start GetLocalConfigs");
                 List<RuleAlertEntity> allRuleAlertList = ruleAlertService.GetAllCloudRuleAlertList(RuleAlertStatusEnum.ALL.getDesc());
                 //Clear the previous result first.
                 localRuleList.clear();
@@ -134,18 +136,21 @@ public class AlertManagerAliClient implements Client {
                 firstInitSign = true;
             } catch (Exception e) {
                 log.error("AlertManagerAliClient GetLocalConfigs error:{}", e.getMessage());
+            } finally {
+                log.info("AlertManagerAliClient GetLocalConfigs batch time:{}", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
 
     @Override
     public void CompareAndReload() {
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.ALERTMANAGER_COMPARE_RELOAD_POOL.scheduleWithFixedDelay(() -> {
             // If there are any changes, call the reload interface, and directly reload the first phase.
             // Read local rule configuration file.
+            Stopwatch sw = Stopwatch.createStarted();
             try {
                 // If localRuleList is empty, it means there are no records in the database, so return directly.
-                if (localRuleList.size() == 0) {
+                if (localRuleList.isEmpty()) {
                     log.info("localRuleList is empty and no need reload");
                     return;
                 }
@@ -155,11 +160,11 @@ public class AlertManagerAliClient implements Client {
                 }
 
                 log.info("AlertManagerAliClient start CompareAndReload");
-                Stopwatch sw = Stopwatch.createStarted();
                 createOrUpdateAliAlertRule();
-                log.info("AlertManagerAliClient end CompareAndReload cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             } catch (Exception e) {
                 log.error("AlertManagerAliClient CompareAndReload error: {}", e);
+            } finally {
+                log.info("AlertManagerAliClient end CompareAndReload cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             }
 
         }, 0, 30, TimeUnit.SECONDS);

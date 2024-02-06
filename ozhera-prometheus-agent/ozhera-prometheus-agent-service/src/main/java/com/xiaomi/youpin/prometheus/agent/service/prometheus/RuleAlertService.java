@@ -202,7 +202,7 @@ public class RuleAlertService {
     //TODO: Construct alarm notifications through different types, such as Feishu and email
     public Result SendAlert(String body) {
         JsonObject jsonObject = gson.fromJson(body, JsonObject.class);
-        log.info("SendAlert jsonObject:{}", gson.toJson(jsonObject));
+        //log.info("SendAlert jsonObject:{}", gson.toJson(jsonObject));
         AlertManagerFireResult fireResult = gson.fromJson(body, AlertManagerFireResult.class);
         //Build alarm triggers by type.
         switch (alertTYPE) {

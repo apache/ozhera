@@ -139,8 +139,6 @@ public class AlertManagerClient implements Client {
                 }
                 log.info("AlertManagerClient start CompareAndReload");
                 AlertManagerConfig ruleAlertConfig = getRuleAlertConfig(filePath);
-                log.info("ruleAlertConfig: {}", ruleAlertConfig);
-                log.info("localrulelist: {}", localRuleList);
 
                 List<Group> group = new ArrayList<>();
                 for (Map.Entry<String, List<Rule>> entry : localRuleList.entrySet()) {

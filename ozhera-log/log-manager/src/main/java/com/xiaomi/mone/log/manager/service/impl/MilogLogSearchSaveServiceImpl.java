@@ -44,6 +44,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -199,12 +200,12 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
     }
 
     public Result<List<SpaceTreeFavouriteDTO>> storeTree() {
-        List<SpaceTreeFavouriteDTO> dtoList = new ArrayList<>();
+        List<SpaceTreeFavouriteDTO> dtoList = new CopyOnWriteArrayList<>();
         int pageNum = 1;
         List<MilogSpaceDTO> spaceDTOList = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpace = spaceAuthService.getUserPermSpace("", pageNum, Integer.MAX_VALUE);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpace = spaceAuthService.getUserPermSpace("", pageNum, 100);
 
             if (userPermSpace.getCode() != 0) {
                 return Result.fail(CommonError.UNAUTHORIZED);

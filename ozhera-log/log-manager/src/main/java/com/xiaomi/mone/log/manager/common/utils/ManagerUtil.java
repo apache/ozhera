@@ -31,6 +31,8 @@ public class ManagerUtil {
 
     private static final String TAIL_KEY = "tail";
 
+    private static final String DEFAULT_SERVER_TYPE = "open";
+
     private ManagerUtil() {
 
     }
@@ -91,6 +93,10 @@ public class ManagerUtil {
      * @return
      */
     public static String getPhysicsDirectory(String logPath) {
+        String serverType = Config.ins().get("server.type", DEFAULT_SERVER_TYPE);
+        if (StringUtils.equals(DEFAULT_SERVER_TYPE, serverType)) {
+            return StringUtils.EMPTY;
+        }
         String[] splitPath = StringUtils.split(logPath, "/");
         if (splitPath.length > 2) {
             return splitPath[splitPath.length - 2].trim();

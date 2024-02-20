@@ -110,13 +110,15 @@ public class ChannelEngine {
             fileMonitorListener = new DefaultFileMonitorListener();
 
             log.info("query channelDefineList:{}", gson.toJson(channelDefineList));
-            channelServiceList = channelDefineList.stream().map(channelDefine -> {
-                ChannelService channelService = this.channelServiceTrans(channelDefine);
-                if (null == channelService) {
-                    failedChannelId.add(channelDefine.getChannelId());
-                }
-                return channelService;
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            channelServiceList = channelDefineList.stream()
+                    .filter(channelDefine -> filterCollStart(channelDefine.getAppName()))
+                    .map(channelDefine -> {
+                        ChannelService channelService = this.channelServiceTrans(channelDefine);
+                        if (null == channelService) {
+                            failedChannelId.add(channelDefine.getChannelId());
+                        }
+                        return channelService;
+                    }).filter(Objects::nonNull).collect(Collectors.toList());
             // Delete failed channel
             deleteFailedChannel(failedChannelId, this.channelDefineList, this.channelServiceList);
             channelServiceList = new CopyOnWriteArrayList<>(channelServiceList);
@@ -533,13 +535,16 @@ public class ChannelEngine {
      */
     public void initIncrement(List<ChannelDefine> definesIncrement) {
         List<Long> failedChannelId = Lists.newArrayList();
-        List<ChannelService> channelServices = definesIncrement.stream().filter(Objects::nonNull).map(channelDefine -> {
-            ChannelService channelService = channelServiceTrans(channelDefine);
-            if (null == channelService) {
-                failedChannelId.add(channelDefine.getChannelId());
-            }
-            return channelService;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ChannelService> channelServices = definesIncrement.stream()
+                .filter(Objects::nonNull)
+                .filter(channelDefine -> filterCollStart(channelDefine.getAppName()))
+                .map(channelDefine -> {
+                    ChannelService channelService = channelServiceTrans(channelDefine);
+                    if (null == channelService) {
+                        failedChannelId.add(channelDefine.getChannelId());
+                    }
+                    return channelService;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
         deleteFailedChannel(failedChannelId, definesIncrement, channelServices);
         List<Long> successChannelIds = channelStart(channelServices);
         if (CollectionUtils.isNotEmpty(successChannelIds)) {
@@ -547,6 +552,14 @@ public class ChannelEngine {
             this.channelDefineList.addAll(definesIncrement.stream().filter(channelDefine -> successChannelIds.contains(channelDefine.getChannelId())).collect(Collectors.toList()));
         }
         log.info("[add config] after current channelDefineList:{},channelServiceList:{}", gson.toJson(this.channelDefineList), gson.toJson(gson.toJson(channelServiceList.stream().map(ChannelService::instanceId).collect(Collectors.toList()))));
+    }
+
+    private boolean filterCollStart(String appName) {
+        String serviceName = System.getenv("K8S_SERVICE");
+        if (StringUtils.isNotEmpty(serviceName) && StringUtils.isNotEmpty(appName)) {
+            return serviceName.contains(appName);
+        }
+        return true;
     }
 
 

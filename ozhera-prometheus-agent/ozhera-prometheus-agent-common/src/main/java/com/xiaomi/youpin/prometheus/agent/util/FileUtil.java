@@ -172,7 +172,15 @@ public class FileUtil {
             log.info("FileUtil GenerateFile path: {}", path);
             File file = new File(path);
             if (!file.exists()) {
-                file.createNewFile();
+                // get father dir
+                File parentDir = file.getParentFile();
+                // if not exists then create dir
+                if (!parentDir.exists()) {
+                    boolean dirsCreated = parentDir.mkdirs();
+                    log.info("FileUtil GenerateFile parentDir created: {}", dirsCreated);
+                }
+                boolean newFile = file.createNewFile();
+                log.info("FileUtil GenerateFile newFile: {}", newFile);
             }
         } finally {
             lock.unlock();

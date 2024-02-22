@@ -16,19 +16,26 @@
 package com.xiaomi.youpin.prometheus.agent.util;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+@Slf4j
 public class DateUtil {
 
 
     @SneakyThrows
     public static String Time2YYMMdd(String inputDate) {
         SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss",Locale.CHINA);
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.CHINA);
         Date date = inputFormat.parse(inputDate);
         String outputDate = outputFormat.format(date);
         return outputDate;
@@ -42,25 +49,41 @@ public class DateUtil {
         return utcTime;
     }
 
-    @SneakyThrows
     public static long ISO8601UTCTOTimeStamp(String utcTime) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = sdf.parse(utcTime);
-        return date.getTime();
+        try {
+            // The parsing time string is Instant object
+            Instant instant = Instant.parse(utcTime);
+            // fetch timestamp and return
+            return instant.toEpochMilli();
+        } catch (DateTimeParseException e) {
+            // if parsing fail，Try to remove the last decimal point and the millisecond portion before parsing
+            int lastDotIndex = utcTime.lastIndexOf('.');
+            if (lastDotIndex != -1) {
+                String dateTimeStringWithoutMillis = utcTime.substring(0, lastDotIndex) + "Z";
+                try {
+                    Instant instant = Instant.parse(dateTimeStringWithoutMillis);
+                    return instant.toEpochMilli();
+                } catch (DateTimeParseException ex) {
+                    log.info("parse time string fail：" + ex.getMessage());
+                }
+            }
+            // if parsing fail，If an error message is displayed and -1 is returned, the conversion failed
+            log.info("parse time string fail：" + e.getMessage());
+            return -1;
+        }
     }
 
-    @SneakyThrows
     public static String ISO8601UTCTOCST(String utcTime) {
-        SimpleDateFormat sdfUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = sdfUTC.parse(utcTime);
-
-        SimpleDateFormat sdfCST = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdfCST.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        String cstTime = sdfCST.format(date);
-
-        return cstTime;
+        try {
+            Instant instant = Instant.parse(utcTime);
+            // to cst
+            ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of("Asia/Shanghai"));
+            LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
+            return String.valueOf(localDateTime);
+        } catch (DateTimeParseException e) {
+            log.info("parse time string fail ：" + e.getMessage());
+            return null;
+        }
     }
 
 }

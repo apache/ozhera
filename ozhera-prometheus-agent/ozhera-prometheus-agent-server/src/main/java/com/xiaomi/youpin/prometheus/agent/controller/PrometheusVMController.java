@@ -36,7 +36,7 @@ public class PrometheusVMController {
 
     @Value("${vm.alert.rule.path}")
     private String alertRuleFilePath;
-    @RequestMapping(value = "/reloadScrapeJob", method = RequestMethod.GET, produces = "Content-Type:application/yaml")
+    @RequestMapping(value = "/reloadScrapeJob", method = RequestMethod.GET, produces = "application/yaml")
     public String reloadScrapeJob() {
         log.info("PrometheusVMController.reloadScrapeJob begin");
         try {
@@ -47,7 +47,7 @@ public class PrometheusVMController {
         }
     }
 
-    @RequestMapping(value = "/reloadAlertRule", method = RequestMethod.GET, produces = "Content-Type:application/yaml")
+    @RequestMapping(value = "/reloadAlertRule", method = RequestMethod.GET, produces = "application/yaml")
     public String reloadAlertRule() {
         log.info("PrometheusVMController.reloadAlertRule begin");
         try {

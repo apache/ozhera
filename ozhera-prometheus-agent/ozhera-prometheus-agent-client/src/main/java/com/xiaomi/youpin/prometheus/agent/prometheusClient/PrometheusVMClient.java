@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
 import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.PrometheusConfig;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigDetail;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.ScrapeJobService;
@@ -29,6 +28,9 @@ import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,10 +38,12 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
+import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 
 /**
  * @author zhangxiaowei6
@@ -55,11 +59,17 @@ public class PrometheusVMClient implements Client {
     @Value("${vm.scrape.job.path}")
     private String filePath;
 
-    @NacosValue(value = "${vm.reload.job.url}", autoRefreshed = true)
-    private String reloadUrl;
-
     @NacosValue(value = "${job.prometheus.enabled}", autoRefreshed = true)
     private String enabled;
+
+    @NacosValue(value = "${vm.agent.label}", autoRefreshed = true)
+    private String vmAgentLabel;
+
+    @NacosValue(value = "${vm.agent.port}", autoRefreshed = true)
+    private String vmAgentPort;
+
+    @NacosValue(value = "${vm.agent.reload.url}", autoRefreshed = true)
+    private String vmAgentReloadUrl;
 
     public static final Gson gson = new Gson();
 
@@ -130,15 +140,12 @@ public class PrometheusVMClient implements Client {
                 }
                 log.info("PrometheusVMClient start CompareAndReload");
                 // delete file to prevent duplicate data
-                if(!FileUtil.DeleteFile(filePath)) {
+                if (!FileUtil.DeleteFile(filePath)) {
                     log.error("PrometheusVMClient CompareAndReload delete file error");
-                    return;
                 }
                 //write local scrape data to yaml，and invoke vmagent reload api
-                localConfigs.forEach(this::writeScrapeConfig2Yaml);
-                log.info("PrometheusVMClient request reload url :{}", reloadUrl);
-                String getReloadRes = Http.innerRequest("", reloadUrl, HTTP_POST);
-                log.info("PrometheusVMClient request reload res :{}", getReloadRes);
+                writeScrapeConfig2Yaml();
+                reloadVMAgent();
             } catch (Exception e) {
                 log.error("PrometheusVMClient CompareAndReload error :{}", e.getMessage());
             } finally {
@@ -147,18 +154,48 @@ public class PrometheusVMClient implements Client {
         }, 0, 30, TimeUnit.SECONDS);
     }
 
-    private void writeScrapeConfig2Yaml(Scrape_configs config) {
+    private void writeScrapeConfig2Yaml() {
         // Convert to yaml
-        String promYml = YamlUtil.toYaml(config);
+        String promYml = YamlUtil.toYaml(localConfigs);
         // Check if the file exists.
         if (!isFileExists(filePath)) {
             log.info("PrometheusVMClient no files path: {} and begin create", filePath);
             FileUtil.GenerateFile(filePath);
         }
-        FileUtil.AppendWriteFile(filePath, promYml);
+        FileUtil.WriteFile(filePath, promYml);
     }
 
     private boolean isFileExists(String filePath) {
         return FileUtil.IsHaveFile(filePath);
+    }
+
+    private void reloadVMAgent() {
+        Set<String> vmAgentPodIP = getVMAgentPodIP();
+        if (vmAgentPodIP == null || vmAgentPodIP.isEmpty()) {
+            return;
+        }
+        //foreach vmAgentPodName，and reload
+        vmAgentPodIP.forEach(pod -> {
+            String reloadUrl = String.format("http://%s:%s/-/reload", pod, vmAgentPort);
+            log.info("PrometheusVMClient reload url: {}", reloadUrl);
+            String getRes = Http.innerRequest("", reloadUrl, HTTP_GET);
+            log.info("PrometheusVMClient reload result: {}", getRes);
+        });
+    }
+
+    private Set<String> getVMAgentPodIP() {
+        Set<String> podNameSet = new HashSet<>();
+        try (KubernetesClient client = new DefaultKubernetesClient()) {
+            String labelName = "app";
+            String labelValue = vmAgentLabel;
+
+            // get Pod name
+            PodList podList = client.pods().withLabel(labelName, labelValue).list();
+            podList.getItems().forEach(pod -> podNameSet.add(pod.getStatus().getPodIP()));
+            return podNameSet;
+        } catch (Exception e) {
+            log.error("PrometheusVMClient getVMAgentPodName error: {}", e);
+            return null;
+        }
     }
 }

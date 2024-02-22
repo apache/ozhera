@@ -20,6 +20,8 @@ import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
+import com.xiaomi.youpin.prometheus.agent.param.alertManager.AlertManagerConfig;
+import com.xiaomi.youpin.prometheus.agent.param.alertManager.Group;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.Rule;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
@@ -27,6 +29,9 @@ import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
+import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 
 /**
  * @author zhangxiaowei6
@@ -57,8 +62,11 @@ public class AlertManagerVMClient implements Client {
     @NacosValue(value = "${job.alertManager.enabled}", autoRefreshed = true)
     private String enabled;
 
-    @NacosValue(value = "${vm.reload.alert.url}", autoRefreshed = true)
-    private String reloadUrl;
+    @NacosValue(value = "${vm.Alert.label}",autoRefreshed = true)
+    private String vmAlertLabel;
+
+    @NacosValue(value = "${vm.Alert.Port}",autoRefreshed = true)
+    private String vmAlertPort;
 
     private ConcurrentHashMap<String, CopyOnWriteArrayList<Rule>> localRuleList = new ConcurrentHashMap<>();
 
@@ -134,12 +142,22 @@ public class AlertManagerVMClient implements Client {
                     log.info("AlertManagerVMClient CompareAndReload waiting..");
                     return;
                 }
+                if (!FileUtil.DeleteFile(filePath)) {
+                    log.error("AlertManagerVMClient CompareAndReload delete file error");
+                }
                 log.info("AlertManagerVMClient start CompareAndReload");
                 //write local alert rule data to yaml，and invoke vmalert reload api
-                localRuleList.get("example").forEach(this::writeAlertRule2Yaml);
-                log.info("AlertManagerVMClient request reload url :{}", reloadUrl);
-                String getReloadRes = Http.innerRequest("", reloadUrl, HTTP_POST);
-                log.info("AlertManagerVMClient request reload res :{}", getReloadRes);
+                AlertManagerConfig ruleAlertConfig = new AlertManagerConfig();
+                List<Group> group = new ArrayList<>();
+                for (Map.Entry<String, CopyOnWriteArrayList<Rule>> entry : localRuleList.entrySet()) {
+                    Group tmpGroup = new Group();
+                    tmpGroup.setName(entry.getKey());
+                    tmpGroup.setRules(entry.getValue());
+                    group.add(tmpGroup);
+                }
+                ruleAlertConfig.setGroups(group);
+                writeAlertRule2Yaml(ruleAlertConfig);
+                reloadVMAlert();
             } catch (Exception e) {
                 log.error("AlertManagerVMClient CompareAndReload error: {}", e);
             } finally {
@@ -172,18 +190,48 @@ public class AlertManagerVMClient implements Client {
         return gson.fromJson(annotations, Map.class);
     }
 
-    private void writeAlertRule2Yaml(Rule rule) {
+    private void writeAlertRule2Yaml(AlertManagerConfig ruleAlertConfig) {
         // Convert to yaml
-        String promYml = YamlUtil.toYaml(rule);
+        String promYml = YamlUtil.toYaml(ruleAlertConfig);
         // Check if the file exists.
         if (!isFileExists(filePath)) {
             log.info("AlertManagerVMClient no files path: {} and begin create", filePath);
             FileUtil.GenerateFile(filePath);
         }
-        FileUtil.AppendWriteFile(filePath, promYml);
+        FileUtil.WriteFile(filePath, promYml);
     }
 
     private boolean isFileExists(String filePath) {
         return FileUtil.IsHaveFile(filePath);
+    }
+
+    private void reloadVMAlert() {
+        Set<String> vmAlertPodIp = getVMAlertPodIp();
+        if (vmAlertPodIp == null || vmAlertPodIp.isEmpty()) {
+            return;
+        }
+        //foreach vmAgentPodName，and reload
+        vmAlertPodIp.forEach(pod -> {
+            String reloadUrl = String.format("http://%s:%s/-/reload", pod, vmAlertPort);
+            log.info("AlertManagerVMClient reload url: {}", reloadUrl);
+            String getRes = Http.innerRequest("", reloadUrl, HTTP_GET);
+            log.info("AlertManagerVMClient reload result: {}", getRes);
+        });
+    }
+
+    private Set<String> getVMAlertPodIp() {
+        Set<String> podNameSet = new HashSet<>();
+        try (KubernetesClient client = new DefaultKubernetesClient()) {
+            String labelName = "app";
+            String labelValue = vmAlertLabel;
+
+            // get Pod name
+            PodList podList = client.pods().withLabel(labelName, labelValue).list();
+            podList.getItems().forEach(pod -> podNameSet.add(pod.getStatus().getPodIP()));
+            return podNameSet;
+        } catch (Exception e) {
+            log.error("AlertManagerClient getVMAgentPodName error: {}",e);
+            return null;
+        }
     }
 }

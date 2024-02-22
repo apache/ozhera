@@ -28,6 +28,9 @@ import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +43,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
 
 @Slf4j
@@ -179,7 +183,7 @@ public class AlertManagerClient implements Client {
         Map<String, String> labelMap = new HashMap<>();
         try {
             Arrays.stream(labels.split(",")).forEach(item -> {
-                String[] split = item.split("=",2);
+                String[] split = item.split("=", 2);
                 if (split.length != 2) {
                     return;
                 }
@@ -214,7 +218,7 @@ public class AlertManagerClient implements Client {
             //System.out.println(content);
             //Convert to AlertManager configuration class.
             return alertManagerConfig;
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -291,5 +295,7 @@ public class AlertManagerClient implements Client {
         boolean b = FileUtil.RenameFile(oldFilePath, newFilePath);
         return b;
     }
+
+
 
 }

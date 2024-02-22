@@ -16,12 +16,13 @@ spec:
       labels:
         app: prometheus-agent-independent
     spec:
+      serviceAccountName: prometheus
       imagePullSecrets:
         - name: mione-opensource-credential
       containers:
         - name: prometheus-agent-independent
           imagePullPolicy: Always
-          image: herahub/opensource-pub:hera-prometheus-agent-ali-v0.1
+          image: herahub/opensource-pub:hera-prometheus-agent-vm-0.5
           ports:
             - containerPort: 8080
               protocol: TCP

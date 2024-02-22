@@ -1,0 +1,178 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: ozhera-namespace
+data:
+  alertmanager.yml: |
+    global:
+      ## The duration of time without triggering an alarm is considered as the time when the alarm issue is resolved.
+      resolve_timeout: 5m
+    route:
+      ## The label list here is the re-grouped label after receiving the alarm information. For example, there are many labels with cluster=A in the received alarm information. Based on these labels, the alarm information can be aggregated in batches into one group.
+      group_by: ['...']
+      ## When a new alert group is created, it is necessary to wait for at least the group_wait time to initialize the notifications. This ensures that there is enough time for the same group to gather as many alert messages as possible before triggering them all at once.
+      ##group_wait: 10s
+      ## After the first alarm is sent, wait for the group_interval time to send a new set of alarm messages.
+      ##group_interval: 1m
+      ## If an alarm message has been successfully sent, you need to wait for the repeat_interval time to resend it.
+      ##repeat_interval: 3h
+      ## Configure default routing rules.
+      receiver: 'web.hook2'
+      routes:
+        - receiver: 'web.hook'
+          match:
+            send_interval: 5m
+          group_interval: 30s
+          repeat_interval: 5m
+          group_wait: 10s
+          group_by: ['alertname','group_key','__alert_id__']
+          continue: false
+        - receiver: 'web.hook'
+          match:
+            send_interval: 15m
+          group_interval: 30s
+          repeat_interval: 15m
+          group_wait: 10s
+          group_by: ['alertname','group_key','__alert_id__']
+          continue: false
+        - receiver: 'web.hook'
+          match:
+            send_interval: 30m
+          group_interval: 30s
+          repeat_interval: 30m
+          group_wait: 10s
+          group_by: ['alertname','group_key','__alert_id__']
+          continue: false
+        - receiver: 'web.hook'
+          match:
+            send_interval: 1h
+          group_interval: 30s
+          repeat_interval: 1h
+          group_wait: 10s
+          group_by: ['alertname','group_key','__alert_id__']
+          continue: false
+        - receiver: 'web.hook'
+          match:
+            send_interval: 2h
+          group_interval: 30s
+          repeat_interval: 2h
+          group_wait: 10s
+          group_by: ['alertname','group_key','__alert_id__']
+          continue: false
+    receivers:
+      - name: 'web.hook'
+        webhook_configs:
+          - url: 'http://prometheus-agent:8080/api/v1/rules/alert/sendAlert'
+      - name: 'web.hook2'
+        webhook_configs:
+          - url: 'http://prometheus-agent:8080/api/v1/rules/alert/sendAlert2'
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ozhera-alertmanager-cluster
+  namespace: ozhera-namespace
+  labels:
+    k8s-app: ozhera-alertmanager-cluster
+spec:
+  podManagementPolicy: "Parallel"
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s-app: ozhera-alertmanager-cluster
+  template:
+    metadata:
+      labels:
+        k8s-app: ozhera-alertmanager-cluster
+    spec:
+      priorityClassName: system-cluster-critical
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - xxx
+                      - xxx
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - ozhera-alertmanager-cluster
+            topologyKey: "kubernetes.io/hostname"
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        fsGroup: 0
+        runAsUser: 0
+        supplementalGroups:
+          - 0
+      containers:
+        - name: alertmanager
+          ports:
+            - name: http
+              containerPort: 9093
+          image:  herahub/opensource-pub:alertmanager-cluster-v0.0.7
+#          ports:
+#            - name: http
+#              containerPort: 9093
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: PEER_ADDRESS
+              value: "1.1.1.1:8001,1.1.1.2:8001"
+#          resources:
+#            limits:
+#              cpu: 1000m
+#              memory: 512Mi
+#            requests:
+#              cpu: 1000m
+#              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9093
+            initialDelaySeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9093
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager
+      volumes:
+        - name: config
+          configMap:
+            name: alertmanager-config
+  serviceName: 'ozhera-alertmanager-cluster'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ozhera-alertmanager-cluster
+  namespace: ozhera-namespace
+  labels:
+    k8s-app: ozhera-alertmanager-cluster
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 80
+      targetPort: 9093
+  selector:
+    k8s-app: ozhera-alertmanager-cluster

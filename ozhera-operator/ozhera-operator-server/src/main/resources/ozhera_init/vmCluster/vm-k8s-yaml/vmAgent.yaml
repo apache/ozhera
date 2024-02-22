@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: victoria-metrics-agent
+  namespace: ozhera-namespace
+  labels:
+    app: ozhera-vmagent
+    app.kubernetes.io/instance: victoria-metrics-agent
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ozhera-vmagent
+      app.kubernetes.io/instance: victoria-metrics-agent
+  template:
+    metadata:
+      labels:
+        app: ozhera-vmagent
+        app.kubernetes.io/instance: victoria-metrics-agent
+    spec:
+      volumes:
+        - name: tmpdata
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: victoria-metrics-agent-config
+            defaultMode: 420
+      containers:
+        - name: victoria-metrics-agent
+          image: victoriametrics/vmagent:v1.96.0
+          args:
+            - '-promscrape.config=/config/scrape.yml'
+            - '-remoteWrite.tmpDataPath=/tmpData'
+            - '-promscrape.cluster.membersCount=2'
+            - '-promscrape.cluster.replicationFactor=1'
+            - '-promscrape.cluster.memberNum=$(POD_NAME)'
+            - >-
+              -remoteWrite.url=http://victoria-metrics-victoria-metrics-cluster-vminsert.ozhera-namespace:8480/insert/0/prometheus
+            - '-envflag.enable=true'
+            - '-envflag.prefix=VM_'
+            - '-loggerFormat=json'
+          workingDir: /
+          ports:
+            - name: http
+              containerPort: 8429
+              protocol: TCP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          resources: {}
+          volumeMounts:
+            - name: tmpdata
+              mountPath: /tmpData
+            - name: config
+              mountPath: /config
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+          securityContext: {}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccountName: prometheus
+      securityContext: {}
+      schedulerName: default-scheduler
+  serviceName: victoria-metrics-agent
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: victoria-metrics-agent
+  namespace: ozhera-namespace
+  labels:
+    app: ozhera-vmagent-svc
+    app.kubernetes.io/instance: victoria-metrics-agent
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8429
+  selector:
+    app: ozhera-vmagent
+    app.kubernetes.io/instance: victoria-metrics-agent
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: victoria-metrics-agent-config
+  namespace: ozhera-namespace
+  labels:
+    app.kubernetes.io/instance: victoria-metrics-agent
+    app: ozhera-vmagent-config
+data:
+  scrape.yml: |
+    global:
+      scrape_interval: 10s
+    scrape_config_files:
+    - http://prometheus-agent-independent.ozhera-namespace/api/v1/vm/reloadScrapeJob

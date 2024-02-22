@@ -634,6 +634,7 @@ CREATE TABLE `milog_es_cluster`
     `updater`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'updater',
     `labels`       json NULL COMMENT 'labels',
     `con_way`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'connect way: pwd,token',
+    `log_storage_type`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT 'elasticsearch' COMMENT '',
     `is_default`   smallint DEFAULT '0' COMMENT 'is_default',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;

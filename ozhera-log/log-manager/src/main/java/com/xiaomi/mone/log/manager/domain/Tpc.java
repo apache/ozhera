@@ -51,13 +51,13 @@ public class Tpc {
     @Resource
     private MilogSpaceDao milogSpaceDao;
 
-    @Reference(interfaceClass = NodeFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 10000)
+    @Reference(interfaceClass = NodeFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 15000)
     private NodeFacade tpcService;
 
-    @Reference(interfaceClass = NodeUserFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 10000)
+    @Reference(interfaceClass = NodeUserFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 15000)
     private NodeUserFacade tpcUserService;
 
-    @Reference(interfaceClass = UserOrgFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 10000)
+    @Reference(interfaceClass = UserOrgFacade.class, group = "$tpc_dubbo_group", check = false, version = "1.0", timeout = 15000)
     private UserOrgFacade userOrgFacade;
 
     @Value("${tpc_node_code}")

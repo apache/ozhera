@@ -182,7 +182,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         List<NodeVo> nodeVos = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> tpcRes = spaceAuthService.getUserPermSpace("", pageNum, Integer.MAX_VALUE);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> tpcRes = spaceAuthService.getUserPermSpace("", pageNum, 100);
 
             if (tpcRes.getCode() != 0) {
                 return Result.fail(CommonError.UNAUTHORIZED);

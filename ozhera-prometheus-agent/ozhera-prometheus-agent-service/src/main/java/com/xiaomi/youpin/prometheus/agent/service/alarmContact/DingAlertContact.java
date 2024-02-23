@@ -94,7 +94,11 @@ public class DingAlertContact extends BaseAlertContact {
                 map.put("application", alert.getLabels().getApplication());
                 map.put("silence_url", silenceUrl);
                 map.put("detailRedirectUrl",generateAlarmJumpUrl);
-                map.put("startTime", DateUtil.ISO8601UTCTOCST(alert.getStartsAt()));
+                String cstTime = DateUtil.ISO8601UTCTOCST(alert.getStartsAt());
+                if (cstTime == null) {
+                    cstTime = "unKnown time";
+                }
+                map.put("startTime", cstTime);
                 Labels commonLabels = fireResult.getAlerts().get(0).getLabels();
                 Class clazz = commonLabels.getClass();
                 Field[] fields = clazz.getDeclaredFields();
@@ -142,7 +146,7 @@ public class DingAlertContact extends BaseAlertContact {
                         "||" + System.currentTimeMillis() + randomNumber);
                 log.info("SendAlert success AlertName:{}", alertName);
             } catch (Exception e) {
-                log.error("SendAlert.feishuReach error:{}", e);
+                log.error("SendAlert.dingdingReach error:{}", e);
             }
         });
     }

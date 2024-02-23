@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
@@ -60,6 +63,29 @@ public class FileUtil {
             }
             FileUtils.write(file, content);
             return "success";
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @SneakyThrows
+    public static void AppendWriteFile(String path, String content) {
+        lock.lock();
+        try {
+            // create FileWriter object，and set to append mode
+            FileWriter fileWriter = new FileWriter(path, true);
+            // create PrintWriter object，used to write contents to file
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+
+            // write contents to file
+            printWriter.println(content);
+
+            // close PrintWriter and FileWriter
+            printWriter.close();
+            fileWriter.close();
+            log.info("AppendWriteFile path success : {}",path);
+        } catch (IOException e) {
+            log.error("AppendWriteFile path :{} error : {}",path,e.getMessage());
         } finally {
             lock.unlock();
         }
@@ -146,7 +172,15 @@ public class FileUtil {
             log.info("FileUtil GenerateFile path: {}", path);
             File file = new File(path);
             if (!file.exists()) {
-                file.createNewFile();
+                // get father dir
+                File parentDir = file.getParentFile();
+                // if not exists then create dir
+                if (!parentDir.exists()) {
+                    boolean dirsCreated = parentDir.mkdirs();
+                    log.info("FileUtil GenerateFile parentDir created: {}", dirsCreated);
+                }
+                boolean newFile = file.createNewFile();
+                log.info("FileUtil GenerateFile newFile: {}", newFile);
             }
         } finally {
             lock.unlock();

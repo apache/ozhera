@@ -17,6 +17,11 @@ package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import org.junit.jupiter.api.Test;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 
 import java.sql.Timestamp;
 
@@ -46,6 +51,7 @@ public class TimeTest {
     @Test
     public void testTime() {
         String time = "2023-11-16T02:18:33.633Z";
+        String newTime = "2024-02-21T08:46:01Z";
         System.out.println(DateUtil.ISO8601UTCTOTimeStamp(time));
         System.out.println(DateUtil.ISO8601UTCTOCST(time));
     }

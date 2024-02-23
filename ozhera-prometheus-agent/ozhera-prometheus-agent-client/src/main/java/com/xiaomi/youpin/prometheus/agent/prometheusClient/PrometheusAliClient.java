@@ -26,6 +26,7 @@ import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigDetail;
 import com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.ScrapeJobService;
+import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -99,10 +100,10 @@ public class PrometheusAliClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Get all pending collection tasks from the db every 30 seconds.
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.PROMETHEUS_LOCAL_CONFIG_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("PrometheusAliClient start GetLocalConfigs");
             try {
-
-                log.info("PrometheusAliClient start GetLocalConfigs");
                 List<ScrapeConfigEntity> allScrapeConfigList = scrapeJobService.getAllCloudScrapeConfigList(ScrapeJobStatusEnum.ALL.getDesc());
                 // First, clear the results from the last time
                 localConfigs.clear();
@@ -133,6 +134,8 @@ public class PrometheusAliClient implements Client {
                 firstInitSign = true;
             } catch (Exception e) {
                 log.error("PrometheusAliClient GetLocalConfigs error :{}", e.getMessage());
+            } finally {
+                log.info("PrometheusAliClient end GetLocalConfigs cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
@@ -140,9 +143,10 @@ public class PrometheusAliClient implements Client {
     @Override
     public void CompareAndReload() {
 
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.PROMETHEUS_COMPARE_RELOAD_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
             try {
-                if (localConfigs.size() <= 0) {
+                if (localConfigs.isEmpty()) {
                     // no pending crawl jobs, return directly
                     log.info("PrometheusAliClient scrapeJob no need to reload");
                     return;
@@ -154,11 +158,12 @@ public class PrometheusAliClient implements Client {
                     return;
                 }
                 log.info("PrometheusAliClient start CompareAndReload");
-                Stopwatch sw = Stopwatch.createStarted();
                 createOrUpdateAliPrometheusJob();
                 log.info("PrometheusAliClient end CompareAndReload cost:{}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             } catch (Exception e) {
                 log.error("PrometheusClient CompareAndReload error :{}", e.getMessage());
+            } finally {
+                log.info("PrometheusAliClient end CompareAndReload cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
     }

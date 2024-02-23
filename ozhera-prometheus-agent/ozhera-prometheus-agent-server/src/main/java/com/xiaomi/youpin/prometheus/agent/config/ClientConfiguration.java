@@ -18,13 +18,16 @@ package com.xiaomi.youpin.prometheus.agent.config;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.youpin.prometheus.agent.alertManagerClient.AlertManagerAliClient;
 import com.xiaomi.youpin.prometheus.agent.alertManagerClient.AlertManagerClient;
+import com.xiaomi.youpin.prometheus.agent.alertManagerClient.AlertManagerVMClient;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
 import com.xiaomi.youpin.prometheus.agent.enums.ClientType;
+import com.xiaomi.youpin.prometheus.agent.operators.vm.VMPrometheusOperator;
 import com.xiaomi.youpin.prometheus.agent.prometheusClient.PrometheusAliClient;
 import com.xiaomi.youpin.prometheus.agent.prometheusClient.PrometheusClient;
 import com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator;
 import com.xiaomi.youpin.prometheus.agent.operators.BasicOperator;
 import com.xiaomi.youpin.prometheus.agent.operators.local.LocalPrometheusOperator;
+import com.xiaomi.youpin.prometheus.agent.prometheusClient.PrometheusVMClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +51,8 @@ public class ClientConfiguration {
     public BasicOperator prometheusOperator() {
         if (ClientType.LOCAL.getDesc().equals(prometheusAgentClientType)) {
             return new LocalPrometheusOperator();
+        } else if (ClientType.VM.getDesc().equals(prometheusAgentClientType)){
+            return new VMPrometheusOperator();
         } else {
             return new AliPrometheusOperator();
         }
@@ -57,6 +62,8 @@ public class ClientConfiguration {
     public Client PrometheusClient() {
         if (ClientType.LOCAL.getDesc().equals(prometheusAgentClientType)) {
             return new PrometheusClient();
+        } else if (ClientType.VM.getDesc().equals(prometheusAgentClientType)){
+            return new PrometheusVMClient();
         } else {
             return new PrometheusAliClient();
         }
@@ -66,6 +73,8 @@ public class ClientConfiguration {
     public Client AlertManagerClient() {
         if (ClientType.LOCAL.getDesc().equals(prometheusAgentClientType)) {
             return new AlertManagerClient();
+        } else if(ClientType.VM.getDesc().equals(prometheusAgentClientType)) {
+            return new AlertManagerVMClient();
         } else {
             return new AlertManagerAliClient();
         }

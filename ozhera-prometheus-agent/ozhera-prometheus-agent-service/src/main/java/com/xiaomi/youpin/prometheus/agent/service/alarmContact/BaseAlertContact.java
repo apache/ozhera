@@ -84,6 +84,9 @@ public abstract class BaseAlertContact {
         String startsAt = alerts.getStartsAt();
         //Millisecond timestamp
         long alertTime = DateUtil.ISO8601UTCTOTimeStamp(startsAt);
+        if (alertTime == -1) {
+            return "";
+        }
         //The alert jump url starts 10 minutes before the alarm time and the end time is 10 minutes after the alarm time
         String startTime = String.valueOf(alertTime - (10 * 60 * 1000));
         String endTime = String.valueOf(alertTime + (10 * 60 * 1000));

@@ -16,6 +16,7 @@
 package com.xiaomi.youpin.prometheus.agent.prometheusClient;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Commons;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
@@ -25,6 +26,7 @@ import com.xiaomi.youpin.prometheus.agent.param.prometheus.PrometheusConfig;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigDetail;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.ScrapeJobService;
+import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
@@ -41,8 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
@@ -103,10 +105,10 @@ public class PrometheusClient implements Client {
     @Override
     public void GetLocalConfigs() {
         // Get all pending collection tasks from the db every 30 seconds.
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.PROMETHEUS_LOCAL_CONFIG_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
+            log.info("PrometheusClient start GetLocalConfigs");
             try {
-
-                log.info("PrometheusClient start GetLocalConfigs");
                 List<ScrapeConfigEntity> allScrapeConfigList = scrapeJobService.getAllScrapeConfigList(ScrapeJobStatusEnum.PENDING.getDesc());
                 // First, clear the results from the last time
                 localConfigs.clear();
@@ -128,6 +130,8 @@ public class PrometheusClient implements Client {
                 firstInitSign = true;
             } catch (Exception e) {
                 log.error("PrometheusClient GetLocalConfigs error :{}", e.getMessage());
+            } finally {
+                log.info("PrometheusClient end GetLocalConfigs cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
@@ -136,10 +140,10 @@ public class PrometheusClient implements Client {
     @SneakyThrows
     public void CompareAndReload() {
 
-        new ScheduledThreadPoolExecutor(1).scheduleWithFixedDelay(() -> {
+        CommitPoolUtil.PROMETHEUS_COMPARE_RELOAD_POOL.scheduleWithFixedDelay(() -> {
+            Stopwatch sw = Stopwatch.createStarted();
             try {
-
-                if (localConfigs.size() <= 0) {
+                if (localConfigs.isEmpty()) {
                     // no pending crawl jobs, return directly
                     log.info("prometheus scrapeJob no need to reload");
                     return;
@@ -173,6 +177,8 @@ public class PrometheusClient implements Client {
                 }
             } catch (Exception e) {
                 log.error("PrometheusClient CompareAndReload error :{}", e.getMessage());
+            } finally {
+                log.info("PrometheusClient end CompareAndReload cost: {}ms", sw.elapsed(TimeUnit.MILLISECONDS));
             }
         }, 0, 30, TimeUnit.SECONDS);
 
@@ -181,7 +187,7 @@ public class PrometheusClient implements Client {
     private ArrayList<Scrape_configs> mergeDbAndFileJobs(PrometheusConfig prometheusConfig) {
         lock.lock();
         try {
-            if (prometheusConfig == null || prometheusConfig.getScrape_configs().size() == 0 || prometheusConfig.getGlobal() == null) {
+            if (prometheusConfig == null || prometheusConfig.getScrape_configs().isEmpty() || prometheusConfig.getGlobal() == null) {
                 //If the configuration is faulty, end it directly
                 log.error("prometheusConfig null and return");
                 return null;

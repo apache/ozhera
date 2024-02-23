@@ -1,0 +1,8 @@
+FROM prom/alertmanager:v0.24.0 as alertmanager
+FROM selfflying/centos7.2:latest
+WORKDIR /home/work/alertmanager/bin/
+
+COPY --from=alertmanager /bin/alertmanager /home/work/alertmanager/bin/alertmanager
+COPY startAlertManagerCluster.sh /home/work/alertmanager/bin/
+RUN chmod +x /home/work/alertmanager/bin/startAlertManagerCluster.sh
+ENTRYPOINT ["sh","/home/work/alertmanager/bin/startAlertManagerCluster.sh"]

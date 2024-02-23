@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: victoria-metrics-victoria-metrics-cluster-vmstorage
+  namespace: ozhera-namespace
+  labels:
+    app: ozhera-vmstorage
+    app.kubernetes.io/instance: victoria-metrics
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ozhera-vmstorage
+      app.kubernetes.io/instance: victoria-metrics
+  template:
+    metadata:
+      labels:
+        app: ozhera-vmstorage
+        app.kubernetes.io/instance: victoria-metrics
+    spec:
+      containers:
+        - name: victoria-metrics-cluster-vmstorage
+          image: victoriametrics/vmstorage:v1.96.0-cluster
+          args:
+            - '--retentionPeriod=1'
+            - '--storageDataPath=/storage'
+            - '--envflag.enable=true'
+            - '--envflag.prefix=VM_'
+            - '--loggerFormat=json'
+          ports:
+            - name: http
+              containerPort: 8482
+              protocol: TCP
+            - name: vminsert
+              containerPort: 8400
+              protocol: TCP
+            - name: vmselect
+              containerPort: 8401
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - name: vmstorage-volume
+              mountPath: /storage
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: true
+      serviceAccountName: prometheus
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: vmstorage-volume
+      spec:
+        storageClassName: ozhera-vm-storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        volumeMode: Filesystem
+  serviceName: victoria-metrics-victoria-metrics-cluster-vmstorage
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: victoria-metrics-victoria-metrics-cluster-vmstorage
+  namespace: ozhera-namespace
+  labels:
+    app: ozhera-vmstorage-svc
+    app.kubernetes.io/instance: victoria-metrics
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8482
+      targetPort: http
+    - name: vmselect
+      protocol: TCP
+      port: 8401
+      targetPort: vmselect
+    - name: vminsert
+      protocol: TCP
+      port: 8400
+      targetPort: vminsert
+  selector:
+    app: ozhera-vmstorage
+    app.kubernetes.io/instance: victoria-metrics
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster

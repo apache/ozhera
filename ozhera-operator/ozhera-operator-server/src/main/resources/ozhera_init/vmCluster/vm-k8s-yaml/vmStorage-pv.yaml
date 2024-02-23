@@ -1,0 +1,56 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ozhera-vm-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ozhera-vmstorage-pv-1
+  labels:
+    app: ozhera-vmstorage-pv-1
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: ozhera-vm-storage
+  local:
+    path: /home/work/ozhera_vmstorage_pv_1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - xxx
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ozhera-vmstorage-pv-2
+  labels:
+    app: ozhera-vmstorage-pv-2
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: ozhera-vm-storage
+  local:
+    path: /home/work/ozhera_vmstorage_pv_2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - xxx

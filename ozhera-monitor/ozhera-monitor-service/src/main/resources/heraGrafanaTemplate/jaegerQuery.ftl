@@ -6134,7 +6134,7 @@
 "type": "prometheus",
 "uid": "${prometheusUid}"
 },
-"definition": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"}))",
+"definition": "query_result(count(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"})by(podIp)))",
 "description": null,
 "error": null,
 "hide": 2,
@@ -6144,7 +6144,7 @@
 "name": "total",
 "options": [],
 "query": {
-"query": "query_result(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"}))",
+"query": "query_result(count(count(container_last_seen{application=\"$application\",serverEnv=~\"$serverEnv\"})by(podIp)))",
 "refId": "StandardVariableQuery"
 },
 "refresh": 2,
@@ -6353,5 +6353,5 @@
 "overwrite":false,
 "folderId":${folderId},
 "folderUid":"${folderUid}",
-"message":"hera V1.3"
+"message":"hera V1.4"
 }

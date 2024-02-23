@@ -98,6 +98,15 @@
 },
 {
 "source_labels": [
+"container_env_POD_IP"
+],
+"target_label": "podIp",
+"regex": "(.+)",
+"replacement": "$1",
+"action": "replace"
+},
+{
+"source_labels": [
 "container_env_project_id"
 ],
 "target_label": "container_label_PROJECT_ID",
@@ -129,7 +138,7 @@
 "action":"drop"
 },
 {
-"regex": "(container_label_io_kubernetes_container_name|container_label_io_kubernetes_pod_name|container_label_io_kubernetes_pod_namespace|id|container_env_application|container_env_serverenv|container_env_project_id|container_env_env_id|container_label_annotation_io_kubernetes_container_restartCount|container_env_pod_ip|container_env_serverEnv)",
+"regex": "(container_label_io_kubernetes_container_name|container_label_io_kubernetes_pod_name|container_label_io_kubernetes_pod_namespace|id|container_env_application|container_env_serverenv|container_env_project_id|container_env_env_id|container_label_annotation_io_kubernetes_container_restartCount|container_env_pod_ip|container_env_serverEnv|container_env_POD_IP)",
 "action": "labeldrop"
 }
 ]

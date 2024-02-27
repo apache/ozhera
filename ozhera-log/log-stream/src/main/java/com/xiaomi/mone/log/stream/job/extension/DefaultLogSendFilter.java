@@ -20,6 +20,7 @@ import com.xiaomi.mone.log.stream.plugin.nacos.LevelFilterConfigListener;
 import com.xiaomi.mone.log.stream.plugin.nacos.LogFilterConfig;
 import com.xiaomi.youpin.docean.anno.Component;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -59,12 +60,14 @@ public class DefaultLogSendFilter implements LogSendFilter {
 
     private static Long extractTailId(Map<String, Object> dataMap) {
         Object tailIdObj = dataMap.get(ES_KEY_MAP_TAIL_ID);
+        if (null == tailIdObj || StringUtils.isEmpty(String.valueOf(tailIdObj))) {
+            return null;
+        }
         if (tailIdObj instanceof Long) {
             return (Long) tailIdObj;
-        } else if (tailIdObj != null) {
+        } else {
             return Long.valueOf(String.valueOf(tailIdObj));
         }
-        return null;
     }
 
     private boolean shouldSendMessage(Map<String, Object> dataMap, List<LogFilterConfig.LogFieldFilter> fieldFilterList) {

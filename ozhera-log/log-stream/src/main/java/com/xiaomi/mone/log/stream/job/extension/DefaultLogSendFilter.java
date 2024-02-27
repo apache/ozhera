@@ -52,7 +52,6 @@ public class DefaultLogSendFilter implements LogSendFilter {
                 }
             }
         } catch (Exception e) {
-
             log.error("sendMessageSwitch error", e);
         }
         return true;

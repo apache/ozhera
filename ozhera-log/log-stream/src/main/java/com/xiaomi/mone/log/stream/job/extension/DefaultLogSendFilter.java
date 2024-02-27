@@ -22,6 +22,7 @@ import com.xiaomi.youpin.docean.anno.Component;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class DefaultLogSendFilter implements LogSendFilter {
     @Override
     public boolean sendMessageSwitch(Map<String, Object> dataMap) {
         try {
-            Long tailId = (Long) dataMap.get(ES_KEY_MAP_TAIL_ID);
+            Long tailId = extractTailId(dataMap);
             if (null != tailId) {
                 LogFilterConfig logFilterConfig = configListener.queryFilterConfig(tailId);
                 if (logFilterConfig != null && logFilterConfig.isEnableFilter()) {
@@ -51,9 +52,20 @@ public class DefaultLogSendFilter implements LogSendFilter {
                 }
             }
         } catch (Exception e) {
+
             log.error("sendMessageSwitch error", e);
         }
         return true;
+    }
+
+    private static Long extractTailId(Map<String, Object> dataMap) {
+        Object tailIdObj = dataMap.get(ES_KEY_MAP_TAIL_ID);
+        if (tailIdObj instanceof Long) {
+            return (Long) tailIdObj;
+        } else if (tailIdObj != null) {
+            return Long.valueOf(String.valueOf(tailIdObj));
+        }
+        return null;
     }
 
     private boolean shouldSendMessage(Map<String, Object> dataMap, List<LogFilterConfig.LogFieldFilter> fieldFilterList) {

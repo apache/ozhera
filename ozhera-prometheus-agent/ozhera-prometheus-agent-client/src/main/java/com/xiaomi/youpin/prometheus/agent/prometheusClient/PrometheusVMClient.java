@@ -68,9 +68,6 @@ public class PrometheusVMClient implements Client {
     @NacosValue(value = "${vm.agent.port}", autoRefreshed = true)
     private String vmAgentPort;
 
-    @NacosValue(value = "${vm.agent.reload.url}", autoRefreshed = true)
-    private String vmAgentReloadUrl;
-
     public static final Gson gson = new Gson();
 
     private boolean firstInitSign = false;
@@ -155,6 +152,16 @@ public class PrometheusVMClient implements Client {
     }
 
     private void writeScrapeConfig2Yaml() {
+        // job duplicate
+        Set<String> jobNames = new HashSet<>();
+        localConfigs.forEach(it -> {
+            if (jobNames.contains(it.getJob_name())) {
+                // delete
+                localConfigs.remove(it);
+            } else {
+                jobNames.add(it.getJob_name());
+            }
+        });
         // Convert to yaml
         String promYml = YamlUtil.toYaml(localConfigs);
         // Check if the file exists.

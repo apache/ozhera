@@ -12,7 +12,7 @@
 
     <groupId>run.mone</groupId>
     <artifactId>ozhera-app</artifactId>
-    <version>1.4-jdk21</version>
+    <version>1.4-jdk21-1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <hera-app.release.version>1.4-jdk21</hera-app.release.version>
+        <hera-app.release.version>1.4-jdk21-1</hera-app.release.version>
     </properties>
 
     <dependencyManagement>
@@ -143,7 +143,7 @@
                         </goals>
                         <configuration>
                             <executable>gpg</executable>
-                            <keyname>your-gpg-key</keyname>
+                            <keyname>DF82E7BFD5C2F4EC1AE47C4F22E62F124F6BDA71</keyname>
                         </configuration>
                     </execution>
                 </executions>

@@ -84,6 +84,21 @@
                     <filter>src/main/resources/application-open.properties</filter>
                 </filters>
 
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
+                    <resource>
+                        <directory>src/main/resources/META-INF</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>app.properties</include>
+                        </includes>
+                        <targetPath>META-INF/</targetPath>
+                    </resource>
+                </resources>
+
                 <plugins>
                     <plugin>
                         <groupId>org.springframework.boot</groupId>

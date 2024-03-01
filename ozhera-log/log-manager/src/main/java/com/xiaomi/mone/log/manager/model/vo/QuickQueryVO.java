@@ -39,6 +39,8 @@ public class QuickQueryVO implements Serializable {
     private String storeName;
     private Long tailId;
     private String tailName;
+    private Long envId;
+    private String envName;
     private Integer isFavourite;
     private String deploySpace;
 }

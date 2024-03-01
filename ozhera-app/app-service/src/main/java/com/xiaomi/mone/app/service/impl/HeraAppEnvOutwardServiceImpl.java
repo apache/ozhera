@@ -15,8 +15,10 @@
  */
 package com.xiaomi.mone.app.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
 import com.xiaomi.mone.app.api.service.HeraAppEnvOutwardService;
 import com.xiaomi.mone.app.dao.mapper.HeraAppEnvMapper;
@@ -24,6 +26,7 @@ import com.xiaomi.mone.app.model.HeraAppEnv;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.dubbo.config.annotation.Service;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +54,29 @@ public class HeraAppEnvOutwardServiceImpl implements HeraAppEnvOutwardService {
         List<HeraAppEnv> heraAppEnvs = heraAppEnvMapper.selectList(queryWrapper);
         if (CollectionUtils.isNotEmpty(heraAppEnvs)) {
             return heraAppEnvs.stream().map(HeraAppEnv::toHeraSimpleEnv).collect(Collectors.toList());
+        }
+        return Lists.newArrayList();
+    }
+
+    @Override
+    public List<HeraAppEnvData> queryEnvById(Long id, Long heraAppId, Long envId) {
+        LambdaQueryWrapper<HeraAppEnv> queryWrapper = new LambdaQueryWrapper<>();
+        if (null != id) {
+            queryWrapper.eq(HeraAppEnv::getId, id);
+        }
+        if (null != heraAppId) {
+            queryWrapper.eq(HeraAppEnv::getHeraAppId, heraAppId);
+        }
+        if (null != envId) {
+            queryWrapper.eq(HeraAppEnv::getEnvId, envId);
+        }
+        List<HeraAppEnv> heraAppEnvs = heraAppEnvMapper.selectList(queryWrapper);
+        if (CollectionUtils.isNotEmpty(heraAppEnvs)) {
+            return heraAppEnvs.stream().map(data -> {
+                HeraAppEnvData heraAppEnvData = new HeraAppEnvData();
+                BeanUtils.copyProperties(data, heraAppEnvData);
+                return heraAppEnvData;
+            }).collect(Collectors.toList());
         }
         return Lists.newArrayList();
     }

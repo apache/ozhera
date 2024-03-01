@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.app.api.service;
 
+import com.xiaomi.mone.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
 
 import java.util.List;
@@ -28,4 +29,11 @@ import java.util.List;
 public interface HeraAppEnvOutwardService {
 
     List<HeraSimpleEnv> querySimpleEnvAppBaseInfoId(Integer id);
+
+    /**
+     * @param id    table primary keyId
+     * @param envId actual environment id
+     * @return
+     */
+    List<HeraAppEnvData> queryEnvById(Long id, Long heraAppId, Long envId);
 }

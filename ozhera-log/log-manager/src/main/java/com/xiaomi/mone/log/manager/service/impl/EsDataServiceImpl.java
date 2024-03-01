@@ -18,6 +18,7 @@ package com.xiaomi.mone.log.manager.service.impl;
 import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.es.EsClient;
 import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
@@ -49,6 +50,7 @@ import com.xiaomi.mone.log.manager.model.vo.RegionTraceLogQuery;
 import com.xiaomi.mone.log.manager.model.vo.TraceAppLogUrlQuery;
 import com.xiaomi.mone.log.manager.service.EsDataBaseService;
 import com.xiaomi.mone.log.manager.service.EsDataService;
+import com.xiaomi.mone.log.manager.service.HeraAppEnvService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import com.xiaomi.mone.log.parse.LogParser;
@@ -86,8 +88,7 @@ import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_OPERATOR;
 import static com.xiaomi.mone.log.common.Constant.GSON;
-import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getKeyColonPrefix;
-import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getKeyList;
+import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.*;
 import static com.xiaomi.mone.log.parse.LogParser.*;
 import static org.elasticsearch.search.sort.SortOrder.ASC;
 import static org.elasticsearch.search.sort.SortOrder.DESC;
@@ -134,8 +135,8 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
     private Set<String> hidenFiledSet = new HashSet<>();
 
-    private static Pattern pattern = Pattern.compile("\\\\b\\\\w+\\\\b:\\\\b\\\\w+\\\\b");
-
+    @Resource
+    private HeraAppEnvService heraAppEnvService;
     public static List<Pair<String, Pair<String, Integer>>> requiredFields = Lists.newArrayList(
             Pair.of(ES_KEY_MAP_MESSAGE, Pair.of("text", 1)),
             Pair.of(ES_KEY_MAP_LOG_SOURCE, Pair.of("text", 1)),
@@ -508,6 +509,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
     public Result<String> getTraceAppLogUrl(TraceAppLogUrlQuery query) {
         List<MilogLogTailDo> tailDoList = tailDao.queryByAppId(query.getAppId());
+        handleEnvId(query);
         if (null != query.getEnvId() && !CollectionUtils.isEmpty(tailDoList)) {
             tailDoList = tailDoList.stream().filter(logTailDo -> Objects.equals(query.getEnvId(), logTailDo.getEnvId())).collect(Collectors.toList());
         }
@@ -528,6 +530,16 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         String url = String.format("%s/project-milog/user/space-tree?spaceId=%s&inputV=traceId:%s&storeId=%s&tailName=%s&type=search&startTime=%s&endTime=%s", heraUrl, spaceDO.getId(), query.getTraceId(), storeDO.getId(), tailName, startTime, endTime);
         return Result.success(url);
     }
+
+    private void handleEnvId(TraceAppLogUrlQuery traceAppLogUrlQuery) {
+        if (null != traceAppLogUrlQuery.getEnvId() && isOpenEnv()) {
+            List<HeraAppEnvData> heraAppEnvDataList = heraAppEnvService.queryEnvById(null, null, traceAppLogUrlQuery.getEnvId());
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(heraAppEnvDataList)) {
+                traceAppLogUrlQuery.setEnvId(heraAppEnvDataList.getFirst().getId());
+            }
+        }
+    }
+
 
     /**
      * Obtain trace logs in the data center

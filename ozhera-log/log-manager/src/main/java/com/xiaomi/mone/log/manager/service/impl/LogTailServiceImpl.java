@@ -152,7 +152,16 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     private QuickQueryVO applyQueryVO(MilogLogTailDo logTailDo, Integer isFavourite) {
-        return QuickQueryVO.builder().spaceId(logTailDo.getSpaceId()).storeId(logTailDo.getStoreId()).tailId(logTailDo.getId()).tailName(logTailDo.getTail()).isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1).deploySpace(logTailDo.getDeploySpace()).build();
+        return QuickQueryVO.builder()
+                .spaceId(logTailDo.getSpaceId())
+                .storeId(logTailDo.getStoreId())
+                .tailId(logTailDo.getId())
+                .tailName(logTailDo.getTail())
+                .envId(logTailDo.getEnvId())
+                .envName(logTailDo.getEnvName())
+                .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
+                .deploySpace(logTailDo.getDeploySpace())
+                .build();
     }
 
 

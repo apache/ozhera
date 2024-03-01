@@ -129,6 +129,6 @@ metadata:
 data:
   scrape.yml: |
     global:
-      scrape_interval: 10s
+      scrape_interval: 30s
     scrape_config_files:
     - http://prometheus-agent-independent.ozhera-namespace/api/v1/vm/reloadScrapeJob

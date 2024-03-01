@@ -85,7 +85,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[30s])/30) by (methodName)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[30s])/30) by (methodName)",
 "format": "time_series",
 "hide": false,
 "instant": false,
@@ -180,7 +180,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\"}[30s])) by (le,methodName))",
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\",serverEnv=~\"$env\"}[30s])) by (le,methodName))",
 "interval": "",
 "legendFormat": "{{url}}",
 "refId": "A"
@@ -253,6 +253,38 @@
 "tagsQuery": "",
 "type": "query",
 "useTags": false
+},
+{
+"allValue": ".*",
+"current": {
+"selected": true,
+"text": [
+"All"
+],
+"value": [
+"$__all"
+]
+},
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"definition": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"hide": 0,
+"includeAll": true,
+"label": "环境",
+"multi": true,
+"name": "env",
+"options": [],
+"query": {
+"query": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"refId": "StandardVariableQuery"
+},
+"refresh": 1,
+"regex": "",
+"skipUrlSync": false,
+"sort": 0,
+"type": "query"
 },
 {
 "auto": true,
@@ -394,5 +426,5 @@
 },
 "overwrite":true,
 "folderUid":"Hera",
-"message":"Hera-HTTPServer大盘V1.0"
+"message":"Hera-HTTPServer大盘V1.1"
 }

@@ -71,6 +71,12 @@ public class HeraDashboardService {
     @NacosValue(value = "${prometheus.url}", autoRefreshed = true)
     private String prometheusUrl;
 
+    @NacosValue(value = "${grafana.username}", autoRefreshed = true)
+    private String grafanaUserName;
+
+    @NacosValue(value = "${grafana.password}", autoRefreshed = true)
+    private String grafanaPassword;
+
     @PostConstruct
     public void init() {
         try {
@@ -82,10 +88,10 @@ public class HeraDashboardService {
                 dataSourceDTO.setPrometheusDatasource(prometheusUrl);
             }
             if (StringUtils.isBlank(dataSourceDTO.getUsername())) {
-                dataSourceDTO.setUsername(DashboardConstant.GRAFANA_USER_NAME);
+                dataSourceDTO.setUsername(grafanaUserName);
             }
             if (StringUtils.isBlank(dataSourceDTO.getPassword())) {
-                dataSourceDTO.setPassword(DashboardConstant.GRAFANA_PASSWORD);
+                dataSourceDTO.setPassword(grafanaPassword);
             }
             if (StringUtils.isBlank(dataSourceDTO.getDashboardFolderName())) {
                 dataSourceDTO.setDashboardFolderName(DashboardConstant.DEFAULT_FOLDER_NAME);

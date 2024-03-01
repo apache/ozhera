@@ -173,7 +173,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange]))",
+"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange]))",
 "format": "table",
 "instant": true,
 "interval": "",
@@ -186,7 +186,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "clamp_max(sum(sum_over_time(${env}_${serviceName}_aopSuccessMethodCount_total{application=\"$application\"}[$timeRange])) / \nsum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange])),1)",
+"expr": "clamp_max(sum(sum_over_time(${env}_${serviceName}_aopSuccessMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) / \nsum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])),1)",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -200,7 +200,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[${query0}s])/${query0})",
+"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[${query0}s])/${query0})",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -214,7 +214,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\"}[$timeRange]))",
+"expr": "sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange]))",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -228,7 +228,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "histogram_quantile(0.95,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\"}[$timeRange])) by (le))",
+"expr": "histogram_quantile(0.95,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (le))",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -242,7 +242,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\"}[$timeRange])) by (le))",
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (le))",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -590,7 +590,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\"}[$timeRange])) by (le,methodName))",
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (le,methodName))",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -605,7 +605,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[${query0}s])/${query0}) by (methodName)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[${query0}s])/${query0}) by (methodName)",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -620,7 +620,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "(1 - ((sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\"}[$timeRange])) by (methodName)) / (sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange])) by (methodName))) )or 0*(sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange])) by (methodName))+1",
+"expr": "(1 - ((sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (methodName)) / (sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (methodName))) )or 0*(sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange])) by (methodName))+1",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -635,7 +635,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\"}[$timeRange])) by (methodName) or 0*absent(sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\"}[$timeRange])) by (methodName) )",
+"expr": "sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (methodName) or 0*absent(sum(sum_over_time(${env}_${serviceName}_httpError_total{application=\"$application\"}[$timeRange])) by (methodName) )",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -650,7 +650,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "histogram_quantile(0.95,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\"}[$timeRange])) by (le,methodName))",
+"expr": "histogram_quantile(0.95,sum(sum_over_time(${env}_${serviceName}_aopMethodTimeCount_bucket{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (le,methodName))",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -665,7 +665,7 @@
 },
 "editorMode": "code",
 "exemplar": true,
-"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\"}[$timeRange])) by (methodName)",
+"expr": "sum(sum_over_time(${env}_${serviceName}_aopTotalMethodCount_total{application=\"$application\",serverEnv=~\"$env\"}[$timeRange])) by (methodName)",
 "format": "table",
 "hide": false,
 "instant": true,
@@ -760,6 +760,38 @@
 "tagsQuery": "",
 "type": "query",
 "useTags": false
+},
+{
+"allValue": ".*",
+"current": {
+"selected": true,
+"text": [
+"All"
+],
+"value": [
+"$__all"
+]
+},
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"definition": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"hide": 0,
+"includeAll": true,
+"label": "环境",
+"multi": true,
+"name": "env",
+"options": [],
+"query": {
+"query": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"refId": "StandardVariableQuery"
+},
+"refresh": 1,
+"regex": "",
+"skipUrlSync": false,
+"sort": 0,
+"type": "query"
 },
 {
 "auto": true,
@@ -872,5 +904,5 @@
 },
 "overwrite":true,
 "folderUid":"Hera",
-"message":"Hera-HTTPServer-总览V1.0"
+"message":"Hera-HTTPServer-总览V1.1"
 }

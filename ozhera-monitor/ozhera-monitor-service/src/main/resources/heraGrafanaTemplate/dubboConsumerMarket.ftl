@@ -83,7 +83,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "sum(sum(sum_over_time(${env}_${serviceName}_dubboBisTotalCount_total{application=\"$application\",serviceName=\"$serviceName\"}[30s])/30) by (methodName,serverIp)) by (methodName)",
+"expr": "sum(sum(sum_over_time(${env}_${serviceName}_dubboBisTotalCount_total{application=\"$application\",serviceName=\"$serviceName\",serverEnv=~\"$env\"}[30s])/30) by (methodName,serverIp)) by (methodName)",
 "interval": "",
 "legendFormat": "{{methodName}}",
 "refId": "A"
@@ -174,7 +174,7 @@
 "uid": "${prometheusUid}"
 },
 "exemplar": true,
-"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_dubboConsumerTimeCost_bucket{application=\"$application\",serviceName=\"$serviceName\"}[30s])) by (le,methodName))",
+"expr": "histogram_quantile(0.99,sum(sum_over_time(${env}_${serviceName}_dubboConsumerTimeCost_bucket{application=\"$application\",serviceName=\"$serviceName\",serverEnv=~\"$env\"}[30s])) by (le,methodName))",
 "interval": "",
 "legendFormat": "{{methodName}}",
 "refId": "A"
@@ -326,6 +326,38 @@
 "type": "interval"
 },
 {
+"allValue": ".*",
+"current": {
+"selected": true,
+"text": [
+"All"
+],
+"value": [
+"$__all"
+]
+},
+"datasource": {
+"type": "prometheus",
+"uid": "${prometheusUid}"
+},
+"definition": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"hide": 0,
+"includeAll": true,
+"label": "环境",
+"multi": true,
+"name": "env",
+"options": [],
+"query": {
+"query": "label_values(container_last_seen{application=\"$application\"},serverEnv)",
+"refId": "StandardVariableQuery"
+},
+"refresh": 1,
+"regex": "",
+"skipUrlSync": false,
+"sort": 0,
+"type": "query"
+},
+{
 "current": {
 "selected": false,
 "text": "com.xiaomi.youpin.diamond.dashboard.api.service.PushResourceService",
@@ -370,5 +402,5 @@
 },
 "overwrite":true,
 "folderUid":"Hera",
-"message":"Hera-DubboConsumer大盘V1.0"
+"message":"Hera-DubboConsumer大盘V1.1"
 }

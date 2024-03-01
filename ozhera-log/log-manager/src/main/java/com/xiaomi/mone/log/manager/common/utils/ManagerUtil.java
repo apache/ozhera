@@ -31,7 +31,7 @@ public class ManagerUtil {
 
     private static final String TAIL_KEY = "tail";
 
-    private static final String DEFAULT_SERVER_TYPE = "open";
+    public static final String DEFAULT_SERVER_TYPE = "open";
 
     private ManagerUtil() {
 
@@ -103,4 +103,9 @@ public class ManagerUtil {
         }
         return logPath.trim();
     }
+
+    public static boolean isOpenEnv() {
+        return StringUtils.equals(DEFAULT_SERVER_TYPE, Config.ins().get("server.type", DEFAULT_SERVER_TYPE));
+    }
+
 }

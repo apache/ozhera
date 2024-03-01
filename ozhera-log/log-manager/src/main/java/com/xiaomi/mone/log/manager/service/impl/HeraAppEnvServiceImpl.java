@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
+import com.xiaomi.mone.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
 import com.xiaomi.mone.app.api.service.HeraAppEnvOutwardService;
 import com.xiaomi.mone.log.manager.service.HeraAppEnvService;
@@ -40,5 +41,10 @@ public class HeraAppEnvServiceImpl implements HeraAppEnvService {
     @Override
     public List<HeraSimpleEnv> querySimpleEnvAppBaseInfoId(Integer appBaseId) {
         return heraAppEnvOutwardService.querySimpleEnvAppBaseInfoId(appBaseId);
+    }
+
+    @Override
+    public List<HeraAppEnvData> queryEnvById(Long id, Long heraAppId, Long envId) {
+        return heraAppEnvOutwardService.queryEnvById(id, heraAppId, envId);
     }
 }

@@ -13,22 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.manager.service;
+package com.xiaomi.mone.app.api.model;
 
-import com.xiaomi.mone.app.api.model.HeraAppEnvData;
-import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author wtt
  * @version 1.0
  * @description
- * @date 2022/11/12 11:47
+ * @date 2024/2/28 11:31
  */
-public interface HeraAppEnvService {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class HeraAppEnvData implements Serializable {
+    private Long id;
 
-    List<HeraSimpleEnv> querySimpleEnvAppBaseInfoId(Integer appBaseId);
+    private Long heraAppId;
 
-    List<HeraAppEnvData> queryEnvById(Long id, Long heraAppId, Long envId);
+    private Long appId;
+
+    private String appName;
+
+    private Long envId;
+
+    private String envName;
+
+    private List<String> ipList;
 }

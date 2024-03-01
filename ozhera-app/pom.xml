@@ -143,7 +143,7 @@
                         </goals>
                         <configuration>
                             <executable>gpg</executable>
-                            <keyname>DF82E7BFD5C2F4EC1AE47C4F22E62F124F6BDA71</keyname>
+                            <keyname>your-gpg-key</keyname>
                         </configuration>
                     </execution>
                 </executions>

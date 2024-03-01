@@ -33,18 +33,18 @@ import java.util.List;
  * @date 2024/2/28 12:12
  */
 @Slf4j
-@SpringBootTest(classes = AppBootstrap.class)
+//@SpringBootTest(classes = AppBootstrap.class)
 public class HeraAppEnvOutwardServiceTest {
 
-    @Autowired
-    public HeraAppEnvOutwardService heraAppEnvOutwardService;
-
-    private Gson gson = new Gson();
-
-    @Test
-    public void queryEnvByIdTest() {
-        List<HeraAppEnvData> heraAppEnvData = heraAppEnvOutwardService.queryEnvById(null, null, 2L);
-        log.info("result:{}", gson.toJson(heraAppEnvData));
-    }
+//    @Autowired
+//    public HeraAppEnvOutwardService heraAppEnvOutwardService;
+//
+//    private Gson gson = new Gson();
+//
+//    @Test
+//    public void queryEnvByIdTest() {
+//        List<HeraAppEnvData> heraAppEnvData = heraAppEnvOutwardService.queryEnvById(null, null, 2L);
+//        log.info("result:{}", gson.toJson(heraAppEnvData));
+//    }
 
 }

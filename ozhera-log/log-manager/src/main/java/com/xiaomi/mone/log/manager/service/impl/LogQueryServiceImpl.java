@@ -308,7 +308,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
     public TraceLogDTO getTraceLog(TraceLogQuery logQuery) {
         try {
             log.info("getTraceLog,param data:{}", GSON.toJson(logQuery));
-            return traceLog.getTraceLog(logQuery.getTraceId(), "", logQuery.getGenerationTime(), logQuery.getLevel());
+            return traceLog.getTraceLog(logQuery.getAppId(), logQuery.getTraceId(), "", logQuery.getGenerationTime(), logQuery.getLevel());
         } catch (Exception e) {
             log.error("Log query error, query trace log error, logQuery:[{}]", e, GSON.toJson(logQuery), e);
             return TraceLogDTO.emptyData();
@@ -323,7 +323,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
      */
     @Override
     public Result<TraceLogDTO> queryRegionTraceLog(RegionTraceLogQuery regionTraceLogQuery) throws IOException {
-        return Result.success(traceLog.getTraceLog(regionTraceLogQuery.getTraceId(), regionTraceLogQuery.getRegion(), "", ""));
+        return Result.success(traceLog.getTraceLog(null, regionTraceLogQuery.getTraceId(), regionTraceLogQuery.getRegion(), "", ""));
     }
 
     @Override

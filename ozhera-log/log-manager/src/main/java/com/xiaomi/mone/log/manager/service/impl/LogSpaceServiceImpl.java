@@ -104,7 +104,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
                 otherAdmins = CollectionUtil.sub(param.getAdmins(), 1, param.getAdmins().size());
             }
         }
-        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
+       com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
@@ -121,7 +121,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             List<CompletableFuture<Void>> adminAsyncResult = otherAdmins.stream()
                     .map(admin -> CompletableFuture.runAsync(() ->
                             spaceAuthService.addSpaceMember(spaceId, admin, UserTypeEnum.CAS_TYPE.getCode(), NodeUserRelTypeEnum.MANAGER.getCode())))
-                    .collect(Collectors.toList());
+                    .toList();
             CompletableFuture.allOf(adminAsyncResult.toArray(new CompletableFuture[0])).join();
         }
     }

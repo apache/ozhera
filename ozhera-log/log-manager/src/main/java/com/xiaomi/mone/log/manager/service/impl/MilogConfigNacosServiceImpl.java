@@ -33,6 +33,8 @@ import com.xiaomi.mone.log.manager.dao.MilogMiddlewareConfigDao;
 import com.xiaomi.mone.log.manager.domain.EsCluster;
 import com.xiaomi.mone.log.manager.model.pojo.*;
 import com.xiaomi.mone.log.manager.service.MilogConfigNacosService;
+import com.xiaomi.mone.log.manager.service.bind.LogTypeProcessor;
+import com.xiaomi.mone.log.manager.service.bind.LogTypeProcessorFactory;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import com.xiaomi.mone.log.manager.service.extension.store.DorisLogStorageService;
 import com.xiaomi.mone.log.manager.service.extension.tail.TailExtensionService;
@@ -105,10 +107,16 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     @Value(value = "$app.env")
     private String appEnv;
 
+    @Resource
+    private LogTypeProcessorFactory logTypeProcessorFactory;
+
     private TailExtensionService tailExtensionService;
+
+    private LogTypeProcessor logTypeProcessor;
 
     public void init() {
         tailExtensionService = TailExtensionServiceFactory.getTailExtensionService();
+        logTypeProcessor = logTypeProcessorFactory.getLogTypeProcessor();
     }
 
     /**
@@ -126,7 +134,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         }
         log.info("Query the list of machines in log-stream：{}", new Gson().toJson(mioneStreamIpList));
         //2.send msg
-        streamConfigNacosPublisher.publish(DEFAULT_APP_NAME, dealStreamConfigByRule(mioneStreamIpList, spaceId, type));
+        streamConfigNacosPublisher.publish(spaceId, dealStreamConfigByRule(mioneStreamIpList, spaceId, type));
     }
 
     private synchronized MiLogStreamConfig dealStreamConfigByRule(List<String> ipList, Long spaceId, Integer type) {
@@ -191,7 +199,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         Assert.notNull(spaceId, "logSpaceId not empty");
         Assert.notNull(storeId, "storeId not empty");
         //send msg
-        spaceConfigNacosPublisher.publish(spaceId.toString(),
+        spaceConfigNacosPublisher.publish(spaceId,
                 dealSpaceConfigByRule(motorRoomEn, spaceId, storeId, tailId, type, changeType));
     }
 
@@ -347,6 +355,12 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         // Query the log Store
         MilogLogStoreDO logStoreDO = logstoreDao.queryById(storeId);
         if (null != logStoreDO) {
+            boolean supportedConsume = logTypeProcessor.supportedConsume(logStoreDO.getLogType());
+
+            if (!supportedConsume) {
+                return sinkConfig;
+            }
+
             sinkConfig.setLogstoreName(logStoreDO.getLogstoreName());
             sinkConfig.setKeyList(Utils.parse2KeyAndTypeList(logStoreDO.getKeyList(), logStoreDO.getColumnTypeList()));
             MilogEsClusterDO esInfo = esCluster.getById(logStoreDO.getEsClusterId());

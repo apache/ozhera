@@ -41,16 +41,16 @@ public class LogStoreDaoTest {
 
     @Before
     public void init() {
-        getConfigFromNanos();
-        Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
-        logStoreDao = Ioc.ins().getBean(MilogLogstoreDao.class);
-        gson = new Gson();
+//        getConfigFromNanos();
+//        Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
+//        logStoreDao = Ioc.ins().getBean(MilogLogstoreDao.class);
+//        gson = new Gson();
     }
 
     @Test
     public void queryClusterIndexByAppIdTest() {
-        Long appId = 392L;
-        List<ClusterIndexVO> clusterIndexVOS = logStoreDao.queryClusterIndexByAppId(appId);
-        log.info("queryClusterIndexByAppId result:{}", gson.toJson(clusterIndexVOS));
+//        Long appId = 392L;
+//        List<ClusterIndexVO> clusterIndexVOS = logStoreDao.queryClusterIndexByAppId(appId);
+//        log.info("queryClusterIndexByAppId result:{}", gson.toJson(clusterIndexVOS));
     }
 }

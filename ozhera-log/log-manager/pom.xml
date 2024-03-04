@@ -29,12 +29,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.48</version>
-        </dependency>
-
-        <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nacos</artifactId>
         </dependency>

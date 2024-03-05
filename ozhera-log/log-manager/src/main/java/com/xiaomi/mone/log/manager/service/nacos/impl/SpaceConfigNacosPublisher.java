@@ -39,8 +39,8 @@ public class SpaceConfigNacosPublisher implements DynamicConfigPublisher<MilogSp
     private ConfigService configService;
 
     @Override
-    public void publish(String uniqueSpace, MilogSpaceData config) {
-        log.info("Write the creation namespace configuration:{}", gson.toJson(config));
+    public void publish(Long uniqueSpace, MilogSpaceData config) {
+        log.info("write the creation namespace configuration:{}", gson.toJson(config));
         String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + uniqueSpace;
         try {
             configService.publishConfig(dataId, DEFAULT_GROUP_ID, gson.toJson(config));

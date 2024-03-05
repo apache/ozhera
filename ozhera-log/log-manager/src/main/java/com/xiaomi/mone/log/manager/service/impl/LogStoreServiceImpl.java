@@ -241,7 +241,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         checkRequiredFieldExist(ml, param);
         boolean updateRes = storeExtensionService.updateLogStore(ml);
         if (updateRes && storeExtensionService.sendConfigSwitch(param)) {
-            storeExtensionService.postProcessing(milogLogstoreDO, param, OperateEnum.UPDATE_OPERATE);
+            storeExtensionService.postProcessing(ml, param, OperateEnum.UPDATE_OPERATE);
             //Check to see if there is a tail and if there is a resend configuration information (nacos and agent)
             logTail.handleStoreTail(milogLogstoreDO.getId());
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());

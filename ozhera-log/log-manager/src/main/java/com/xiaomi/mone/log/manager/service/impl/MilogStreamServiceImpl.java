@@ -112,7 +112,7 @@ public class MilogStreamServiceImpl implements MilogStreamService {
                             //Find all configurations under this space
                             List<SinkConfig> sinkConfigs = generateSinkConfig(spaceKey, milogMiddlewareConfig.getRegionEn());
                             milogSpaceData.setSpaceConfig(sinkConfigs);
-                            spaceConfigNacosPublisher.publish(spaceKey.toString(), milogSpaceData);
+                            spaceConfigNacosPublisher.publish(spaceKey, milogSpaceData);
                         });
                     });
                     return null;

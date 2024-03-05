@@ -45,4 +45,6 @@ public interface CommonExtensionService {
     String queryDateHistogramField(Long storeId);
 
     String getSearchIndex(Long logStoreId, String esIndex);
+
+    String getSpaceDataId(Long spaceId);
 }

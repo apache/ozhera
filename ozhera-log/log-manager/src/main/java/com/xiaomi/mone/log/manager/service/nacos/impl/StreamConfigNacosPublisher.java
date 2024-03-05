@@ -39,12 +39,12 @@ public class StreamConfigNacosPublisher implements DynamicConfigPublisher<MiLogS
     private ConfigService configService;
 
     @Override
-    public synchronized void publish(String app, MiLogStreamConfig config) {
+    public synchronized void publish(Long spaceId, MiLogStreamConfig config) {
         if (config == null) {
             return;
         }
         try {
-            configService.publishConfig(CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID, DEFAULT_GROUP_ID, gson.toJson(config));
+            configService.publishConfig(CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId), DEFAULT_GROUP_ID, gson.toJson(config));
         } catch (NacosException e) {
             log.error(String.format("Create namespace push data exceptions, parameters：%s", gson.toJson(config)), e);
         }

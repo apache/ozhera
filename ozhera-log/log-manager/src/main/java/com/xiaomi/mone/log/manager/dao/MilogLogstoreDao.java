@@ -17,6 +17,7 @@ package com.xiaomi.mone.log.manager.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
+import com.xiaomi.mone.log.manager.domain.ClusterIndexVO;
 import com.xiaomi.mone.log.manager.model.bo.MilogLogstoreBo;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
@@ -220,5 +221,13 @@ public class MilogLogstoreDao {
         Cnd cnd = Cnd.where("space_id", EQUAL_OPERATE, spaceId);
         cnd.and("logstoreName", EQUAL_OPERATE, logStoreName);
         return dao.query(MilogLogStoreDO.class, cnd);
+    }
+
+    public List<ClusterIndexVO> queryClusterIndexByAppId(Long appId) {
+        Sql sql = Sqls.queryEntity("SELECT DISTINCT se.es_cluster_id as clusterId, se.es_index as indexName FROM milog_logstail sl LEFT JOIN milog_logstore se ON sl.store_id = se.id WHERE sl.app_id = @appId;");
+        sql.params().set("appId", appId);
+        sql.setEntity(dao.getEntity(ClusterIndexVO.class));
+        dao.execute(sql);
+        return sql.getList(ClusterIndexVO.class);
     }
 }

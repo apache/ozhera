@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.xiaomi.mone.log.common.Constant.COUNT_NUM;
 import static com.xiaomi.mone.log.parse.LogParser.*;
+import static com.xiaomi.mone.log.stream.common.LogStreamConstants.*;
 
 /**
  * @author wtt
@@ -86,6 +87,7 @@ public class LogDataTransfer {
             String ip = lineMessage.getProperties(LineMessage.KEY_IP);
             Long lineNumber = lineMessage.getLineNumber();
             dataMap = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, lineMessage.getTimestamp(), lineMessage.getFileName());
+            putCommonData(dataMap);
             if (SinkJobEnum.NORMAL_JOB == jobType) {
                 if (null != dataMap && !sinkChain.execute(dataMap)) {
                     sendMessage(dataMap);
@@ -101,6 +103,12 @@ public class LogDataTransfer {
             log.error(jobType.name() + " parse and send error", e);
             throw new RuntimeException(String.format("handleMessage error,msg:%s", msg), e);
         }
+    }
+
+    private void putCommonData(Map<String, Object> dataMap) {
+        dataMap.putIfAbsent(LOG_STREAM_SPACE_ID, sinkJobConfig.getLogSpaceId());
+        dataMap.putIfAbsent(LOG_STREAM_STORE_ID, sinkJobConfig.getLogStoreId());
+        dataMap.putIfAbsent(LOG_STREAM_TAIL_ID, sinkJobConfig.getLogTailId());
     }
 
     private void sendMessage(Map<String, Object> dataMap) throws Exception {

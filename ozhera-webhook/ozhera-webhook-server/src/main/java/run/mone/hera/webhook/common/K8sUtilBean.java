@@ -46,8 +46,7 @@ public class K8sUtilBean {
             List<HasMetadata> hasMetadataList = metaDataes.get();
 
             for (HasMetadata hasMetadata : hasMetadataList) {
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.Service) {
-                    io.fabric8.kubernetes.api.model.Service heraService = (io.fabric8.kubernetes.api.model.Service) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.Service heraService) {
                     if ("delete".equals(action)) {
                         kubernetesClient.services().inNamespace(namespace).delete(heraService);
                     } else {
@@ -56,8 +55,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.PersistentVolume) {
-                    io.fabric8.kubernetes.api.model.PersistentVolume heraPv = (io.fabric8.kubernetes.api.model.PersistentVolume) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.PersistentVolume heraPv) {
                     if ("delete".equals(action)) {
                         kubernetesClient.persistentVolumes().delete(heraPv);
                     } else {
@@ -66,8 +64,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.storage.StorageClass) {
-                    io.fabric8.kubernetes.api.model.storage.StorageClass heraStorageClass = (io.fabric8.kubernetes.api.model.storage.StorageClass) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.storage.StorageClass heraStorageClass) {
                     if ("delete".equals(action)) {
                         kubernetesClient.storage().storageClasses().delete(heraStorageClass);
                     } else {
@@ -76,8 +73,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.PersistentVolumeClaim) {
-                    io.fabric8.kubernetes.api.model.PersistentVolumeClaim heraPvc = (io.fabric8.kubernetes.api.model.PersistentVolumeClaim) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.PersistentVolumeClaim heraPvc) {
                     if ("delete".equals(action)) {
                         kubernetesClient.persistentVolumeClaims().inNamespace(namespace).delete(heraPvc);
                     } else {
@@ -87,8 +83,7 @@ public class K8sUtilBean {
                 }
 
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding) {
-                    io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding heraClusterRoleBinding = (io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding heraClusterRoleBinding) {
                     if ("delete".equals(action)) {
                         kubernetesClient.rbac().clusterRoleBindings().delete(heraClusterRoleBinding);
                     } else {
@@ -97,8 +92,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.rbac.ClusterRole) {
-                    io.fabric8.kubernetes.api.model.rbac.ClusterRole heraClusterRole = (io.fabric8.kubernetes.api.model.rbac.ClusterRole) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.rbac.ClusterRole heraClusterRole) {
                     if ("delete".equals(action)) {
                         kubernetesClient.rbac().clusterRoles().delete(heraClusterRole);
                     } else {
@@ -107,8 +101,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.ServiceAccount) {
-                    io.fabric8.kubernetes.api.model.ServiceAccount heraServiceAccount = (io.fabric8.kubernetes.api.model.ServiceAccount) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.ServiceAccount heraServiceAccount) {
                     if ("delete".equals(action)) {
                         kubernetesClient.serviceAccounts().delete(heraServiceAccount);
                     } else {
@@ -117,8 +110,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.ConfigMap) {
-                    io.fabric8.kubernetes.api.model.ConfigMap heraConfigMap = (io.fabric8.kubernetes.api.model.ConfigMap) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.ConfigMap heraConfigMap) {
                     if ("delete".equals(action)) {
                         kubernetesClient.configMaps().inNamespace(namespace).delete(heraConfigMap);
                     } else {
@@ -127,8 +119,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.apps.DaemonSet) {
-                    io.fabric8.kubernetes.api.model.apps.DaemonSet heraDaemonSet = (io.fabric8.kubernetes.api.model.apps.DaemonSet) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.apps.DaemonSet heraDaemonSet) {
                     if ("delete".equals(action)) {
                         kubernetesClient.apps().daemonSets().delete(heraDaemonSet);
                     } else {
@@ -137,8 +128,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.apps.StatefulSet) {
-                    io.fabric8.kubernetes.api.model.apps.StatefulSet heraStatefulSet = (io.fabric8.kubernetes.api.model.apps.StatefulSet) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.apps.StatefulSet heraStatefulSet) {
                     if ("delete".equals(action)) {
                         kubernetesClient.apps().statefulSets().delete(heraStatefulSet);
                     } else {
@@ -147,8 +137,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequest) {
-                    io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequest heraCertificateSigningRequest = (io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequest) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequest heraCertificateSigningRequest) {
                     if ("delete".equals(action)) {
                         kubernetesClient.certificates().v1().certificateSigningRequests().delete(heraCertificateSigningRequest);
                     } else {
@@ -157,8 +146,7 @@ public class K8sUtilBean {
                     continue;
                 }
 
-                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.admissionregistration.v1.MutatingWebhookConfiguration) {
-                    io.fabric8.kubernetes.api.model.admissionregistration.v1.MutatingWebhookConfiguration heraMutatingWebhookConfiguration = (io.fabric8.kubernetes.api.model.admissionregistration.v1.MutatingWebhookConfiguration) hasMetadata;
+                if (hasMetadata instanceof io.fabric8.kubernetes.api.model.admissionregistration.v1.MutatingWebhookConfiguration heraMutatingWebhookConfiguration) {
                     if ("delete".equals(action)) {
                         kubernetesClient.admissionRegistration().v1().mutatingWebhookConfigurations().delete(heraMutatingWebhookConfiguration);
                     } else {

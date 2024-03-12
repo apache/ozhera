@@ -45,8 +45,8 @@ public class AppBootstrap {
             Stopwatch stopwatch = Stopwatch.createStarted();
             SpringApplication.run(AppBootstrap.class, args);
 
-            log.info("AppBootstrap MAX_MEMORY: {}MB", (Runtime.getRuntime().maxMemory()/1024/1024));
-            log.info("AppBootstrap TOTAL_MEMORY: {}MB", (Runtime.getRuntime().totalMemory()/1024/1024));
+            log.info("AppBootstrap MAX_MEMORY: {}MB", (Runtime.getRuntime().maxMemory() / 1024 / 1024));
+            log.info("AppBootstrap TOTAL_MEMORY: {}MB", (Runtime.getRuntime().totalMemory() / 1024 / 1024));
             log.info("AppBootstrap Start used: {}s", stopwatch.elapsed(TimeUnit.SECONDS));
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);

@@ -20,6 +20,7 @@ import com.xiaomi.mone.log.agent.channel.memory.ChannelMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Paths;
@@ -95,6 +96,21 @@ public class ChannelUtil {
             log.info("buildUnixFileNode error,filePath:{}", filePath, e);
         }
         return new ChannelMemory.UnixFileNode();
+    }
+
+    public static long countFilesRecursive(File directory) {
+        long count = 0;
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    count += countFilesRecursive(file);
+                } else {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
 }

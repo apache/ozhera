@@ -26,10 +26,12 @@ import com.google.gson.Gson;
 public interface DynamicConfigProvider<T> {
 
     Gson gson = new Gson();
+
     /**
      * Get the configuration
-     * @param appName
+     *
+     * @param spaceId
      * @return
      */
-    T getConfig(String appName);
+    T getConfig(Long spaceId);
 }

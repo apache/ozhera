@@ -31,6 +31,7 @@ import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.dao.MilogMiddlewareConfigDao;
 import com.xiaomi.mone.log.manager.domain.EsCluster;
+import com.xiaomi.mone.log.manager.mapper.MilogLogTemplateMapper;
 import com.xiaomi.mone.log.manager.model.pojo.*;
 import com.xiaomi.mone.log.manager.service.MilogConfigNacosService;
 import com.xiaomi.mone.log.manager.service.bind.LogTypeProcessor;
@@ -108,6 +109,9 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private String appEnv;
 
     @Resource
+    private MilogLogTemplateMapper milogLogTemplateMapper;
+
+    @Resource
     private LogTypeProcessorFactory logTypeProcessorFactory;
 
     private TailExtensionService tailExtensionService;
@@ -116,6 +120,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     public void init() {
         tailExtensionService = TailExtensionServiceFactory.getTailExtensionService();
+        logTypeProcessorFactory.setMilogLogTemplateMapper(milogLogTemplateMapper);
         logTypeProcessor = logTypeProcessorFactory.getLogTypeProcessor();
     }
 
@@ -128,17 +133,15 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     @Override
     public void publishStreamConfig(Long spaceId, Integer type, Integer projectTypeCode, String motorRoomEn) {
         //1.Query all stream machine IPs - real-time query
-        List<String> mioneStreamIpList = fetchStreamMachineService.streamMachineUnique();
-        if (CollectionUtils.isEmpty(mioneStreamIpList)) {
-            mioneStreamIpList = tailExtensionService.getStreamMachineUniqueList(projectTypeCode, motorRoomEn);
-        }
+        List<String> mioneStreamIpList = tailExtensionService.fetchStreamUniqueKeyList(fetchStreamMachineService, spaceId, motorRoomEn);
         log.info("Query the list of machines in log-stream：{}", new Gson().toJson(mioneStreamIpList));
         //2.send msg
         streamConfigNacosPublisher.publish(spaceId, dealStreamConfigByRule(mioneStreamIpList, spaceId, type));
+        tailExtensionService.publishStreamConfigPostProcess(streamConfigNacosPublisher, spaceId, motorRoomEn);
     }
 
     private synchronized MiLogStreamConfig dealStreamConfigByRule(List<String> ipList, Long spaceId, Integer type) {
-        MiLogStreamConfig existConfig = streamConfigNacosProvider.getConfig(DEFAULT_APP_NAME);
+        MiLogStreamConfig existConfig = streamConfigNacosProvider.getConfig(spaceId);
         // New configuration
         String spaceKey = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type) || OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
@@ -185,9 +188,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         if (OperateEnum.DELETE_OPERATE.getCode().equals(type)) {
             if (null != existConfig) {
                 Map<String, Map<Long, String>> config = existConfig.getConfig();
-                config.values().forEach(longStringMap -> {
-                    longStringMap.keySet().removeIf(key -> key.equals(spaceId));
-                });
+                config.values().forEach(longStringMap -> longStringMap.keySet().removeIf(key -> key.equals(spaceId)));
             }
             spaceConfigNacosPublisher.remove(spaceId.toString());
         }
@@ -258,7 +259,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     private synchronized MilogSpaceData dealSpaceConfigByRule(
             String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType) {
-        MilogSpaceData existConfig = spaceConfigNacosProvider.getConfig(spaceId.toString());
+        MilogSpaceData existConfig = spaceConfigNacosProvider.getConfig(spaceId);
         // new configuration
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type)) {
             // The configuration is not configured yet, initialize the configuration
@@ -298,10 +299,13 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                         .orElse(null);
                 if (null != currentStoreConfig) {
                     List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
+                    List<LogtailConfig> logtailConfigList = new ArrayList<>(logTailConfigs);
+
                     if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
                             logTailConfigs.stream().anyMatch(config -> config.getLogtailId().equals(tailId))) {
-                        logTailConfigs.removeIf(logtailConfig -> logtailConfig.getLogtailId().equals(tailId));
+                        logtailConfigList.removeIf(logtailConfig -> logtailConfig.getLogtailId().equals(tailId));
                     }
+                    currentStoreConfig.setLogtailConfigs(logtailConfigList);
                 }
             }
         }

@@ -166,9 +166,6 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
 
     private void handleMqTailParam(LogTailParam param) {
-        if (CollectionUtils.isEmpty(param.getMiddlewareConfig())) {
-            return;
-        }
         param.setMiddlewareConfig(param.getMiddlewareConfig().stream().filter(Objects::nonNull).collect(Collectors.toList()));
         if (CollectionUtils.isNotEmpty(param.getMiddlewareConfig()) && param.getMiddlewareConfig().size() == 3) {
             param.setMiddlewareConfigId(((Double) param.getMiddlewareConfig().get(1)).longValue());

@@ -37,9 +37,9 @@ public class SpaceConfigNacosProvider implements DynamicConfigProvider<MilogSpac
     private ConfigService configService;
 
     @Override
-    public MilogSpaceData getConfig(String uniqueSpace) {
+    public MilogSpaceData getConfig(Long spaceId) {
         String rules;
-        String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + uniqueSpace;
+        String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
         try {
             rules = configService.getConfig(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
             log.info("Query the log configuration in NACOS,dataId:{},data:{}", dataId, rules);

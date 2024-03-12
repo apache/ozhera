@@ -39,7 +39,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.xiaomi.mone.log.common.Constant.DEFAULT_APP_NAME;
 import static com.xiaomi.mone.log.common.Constant.TAIL_CONFIG_DATA_ID;
 
 /**
@@ -136,7 +135,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
 
     private MiLogStreamConfig buildMiLogStreamConfig(String machineRoom) {
         logConfigNacosService.chooseCurrentEnvNacosSerevice(machineRoom);
-        MiLogStreamConfig config = logConfigNacosService.getStreamConfigNacosProvider().getConfig("");
+        MiLogStreamConfig config = logConfigNacosService.getStreamConfigNacosProvider().getConfig(null);
         if (config == null) {
             throw new MilogManageException("当前机房nacos配置不存在");
         }

@@ -47,8 +47,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.xiaomi.mone.log.common.Constant.DEFAULT_APP_NAME;
-
 /**
  * @author wtt
  * @version 1.0
@@ -99,13 +97,14 @@ public class MilogStreamServiceImpl implements MilogStreamService {
             spaceConfigNacosPublisher.setConfigService(configService);
             MilogMiddlewareConfig milogMiddlewareConfig = milogMiddlewareConfigDao.queryNacosRegionByNameServer(address.trim());
             if (null != milogMiddlewareConfig) {
-                MiLogStreamConfig existConfig = streamConfigNacosProvider.getConfig(DEFAULT_APP_NAME);
+
+                MiLogStreamConfig existConfig = streamConfigNacosProvider.getConfig(null);
                 Optional.ofNullable(existConfig).map(miLogStreamConfig -> {
                     Map<String, Map<Long, String>> config = existConfig.getConfig();
                     config.entrySet().stream().filter(entry -> entry.getKey().equals(ip)).forEach(entry -> {
                         Map<Long, String> streamMap = entry.getValue();
                         streamMap.keySet().stream().forEach(spaceKey -> {
-                            MilogSpaceData milogSpaceData = spaceConfigNacosProvider.getConfig(spaceKey.toString());
+                            MilogSpaceData milogSpaceData = spaceConfigNacosProvider.getConfig(spaceKey);
                             if (null == milogSpaceData) {
                                 milogSpaceData = new MilogSpaceData();
                             }

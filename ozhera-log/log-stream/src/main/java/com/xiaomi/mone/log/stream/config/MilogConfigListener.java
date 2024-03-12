@@ -78,19 +78,19 @@ public class MilogConfigListener {
     }
 
     private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
-        buildDataLock.lock();
         try {
+            buildDataLock.lock();
             if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
                 List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
-                compareOldStoreJobStop(sinkConfigs);
+                stopUnusedOldStoreJobs(sinkConfigs);
                 for (SinkConfig sinkConfig : sinkConfigs) {
-                    compareOldTailIdJobStop(sinkConfig);
+                    stopOldJobsForRemovedTailIds(sinkConfig);
                     if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
                         //Whether the submission store information changes, the change stops
                         if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
                             restartPerTail(sinkConfig, milogSpaceData);
                         } else {
-                            comparePerTailHandle(sinkConfig, milogSpaceData);
+                            handlePerTailComparison(sinkConfig, milogSpaceData);
                         }
                     } else {
                         newStoreStart(sinkConfig, milogSpaceData);
@@ -107,7 +107,7 @@ public class MilogConfigListener {
 
     private void restartPerTail(SinkConfig sinkConfig, MilogSpaceData newMilogSpaceData) {
         //Stop
-        stopOldJobPerStore(sinkConfig.getLogstoreId());
+        stopOldJobsForStore(sinkConfig.getLogstoreId());
         //Restart
         for (LogtailConfig logtailConfig : sinkConfig.getLogtailConfigs()) {
             startTailPer(sinkConfig, logtailConfig, newMilogSpaceData.getMilogSpaceId());
@@ -115,12 +115,12 @@ public class MilogConfigListener {
         oldSinkConfigMap.put(sinkConfig.getLogstoreId(), sinkConfig);
     }
 
-    private void comparePerTailHandle(SinkConfig sinkConfig, MilogSpaceData newMilogSpaceData) {
+    private void handlePerTailComparison(SinkConfig sinkConfig, MilogSpaceData newMilogSpaceData) {
         // Compare whether each tail is the same
         for (LogtailConfig logtailConfig : sinkConfig.getLogtailConfigs()) {
             if (!isTailSame(logtailConfig, oldLogTailConfigMap.get(logtailConfig.getLogtailId()))) {
                 if (null != oldLogTailConfigMap.get(logtailConfig.getLogtailId())) {
-                    stopOldJobPerTail(logtailConfig, sinkConfig);
+                    stopOldJobForTail(logtailConfig, sinkConfig);
                 }
                 startTailPer(sinkConfig, logtailConfig, newMilogSpaceData.getMilogSpaceId());
             }
@@ -139,13 +139,13 @@ public class MilogConfigListener {
         //Close all
         if (!oldSinkConfigMap.isEmpty()) {
             for (SinkConfig sinkConfig : oldSinkConfigMap.values()) {
-                stopOldJobPerStore(sinkConfig.getLogstoreId());
+                stopOldJobsForStore(sinkConfig.getLogstoreId());
             }
             oldSinkConfigMap.clear();
         }
     }
 
-    private void compareOldTailIdJobStop(SinkConfig sinkConfig) {
+    private void stopOldJobsForRemovedTailIds(SinkConfig sinkConfig) {
         List<Long> newIds = sinkConfig.getLogtailConfigs().stream().map(LogtailConfig::getLogtailId).collect(Collectors.toList());
         List<Long> oldIds = Lists.newArrayList();
         if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
@@ -155,19 +155,19 @@ public class MilogConfigListener {
         if (CollectionUtils.isNotEmpty(collect)) {
             log.info("newIds:{},oldIds:{},collect:{}", gson.toJson(newIds), gson.toJson(oldIds), gson.toJson(collect));
             for (Long tailId : collect) {
-                stopOldJobPerTail(oldLogTailConfigMap.get(tailId), sinkConfig);
+                stopOldJobForTail(oldLogTailConfigMap.get(tailId), sinkConfig);
             }
         }
     }
 
-    private void compareOldStoreJobStop(List<SinkConfig> newSinkConfig) {
-        List<Long> oldIds = oldSinkConfigMap.keySet().stream().collect(Collectors.toList());
-        List<Long> newIds = newSinkConfig.stream().map(SinkConfig::getLogstoreId).collect(Collectors.toList());
-        List<Long> collect = oldIds.stream().filter(tailId -> !newIds.contains(tailId)).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(collect)) {
-            for (Long storeId : collect) {
-                stopOldJobPerStore(storeId);
-            }
+    private void stopUnusedOldStoreJobs(List<SinkConfig> newSinkConfig) {
+        List<Long> oldStoreIds = oldSinkConfigMap.keySet().stream().toList();
+        List<Long> newStoreIds = newSinkConfig.stream().map(SinkConfig::getLogstoreId).toList();
+        List<Long> unusedStoreIds = oldStoreIds.stream()
+                .filter(tailId -> !newStoreIds.contains(tailId))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(unusedStoreIds)) {
+            unusedStoreIds.forEach(this::stopOldJobsForStore);
         }
     }
 
@@ -197,20 +197,20 @@ public class MilogConfigListener {
     /**
      * stop old
      */
-    private void stopOldJobPerStore(Long logStoreId) {
+    private void stopOldJobsForStore(Long logStoreId) {
         SinkConfig sinkConfig = oldSinkConfigMap.get(logStoreId);
         if (null != sinkConfig) {
-            log.info("[Listen tail] The task to stop:{}", gson.toJson(sinkConfig.getLogtailConfigs()));
+            log.info("[listen tail] The task to stop:{}", gson.toJson(sinkConfig.getLogtailConfigs()));
             List<LogtailConfig> logTailConfigs = sinkConfig.getLogtailConfigs();
             for (LogtailConfig logTailConfig : logTailConfigs) {
-                stopOldJobPerTail(logTailConfig, sinkConfig);
+                stopOldJobForTail(logTailConfig, sinkConfig);
             }
         }
         oldSinkConfigMap.remove(logStoreId);
     }
 
-    private void stopOldJobPerTail(LogtailConfig logTailConfig, SinkConfig sinkConfig) {
-        log.info("[Listen tail] needs to stop the old task,oldTail{},oldEsIndex:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex());
+    private void stopOldJobForTail(LogtailConfig logTailConfig, SinkConfig sinkConfig) {
+        log.info("[listen tail] needs to stop the old task,oldTail{},oldEsIndex:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex());
         if (null != logTailConfig) {
             jobManager.stopJob(logTailConfig);
             oldLogTailConfigMap.remove(logTailConfig.getLogtailId());
@@ -269,7 +269,7 @@ public class MilogConfigListener {
             @Override
             public void receiveConfigInfo(String dataValue) {
                 try {
-                    log.info("Listen tail received a configuration request:{},a configuration that already exists:storeMap:{},tailMap:{}", dataValue, gson.toJson(oldSinkConfigMap), gson.toJson(oldLogTailConfigMap));
+                    log.info("listen tail received a configuration request:{},a configuration that already exists:storeMap:{},tailMap:{}", dataValue, gson.toJson(oldSinkConfigMap), gson.toJson(oldLogTailConfigMap));
                     if (StringUtils.isNotEmpty(dataValue) && !Constant.NULLVALUE.equals(dataValue)) {
                         MilogSpaceData newMilogSpaceData = GSON.fromJson(dataValue, MilogSpaceData.class);
                         if (null == newMilogSpaceData || CollectionUtils.isEmpty(newMilogSpaceData.getSpaceConfig())) {

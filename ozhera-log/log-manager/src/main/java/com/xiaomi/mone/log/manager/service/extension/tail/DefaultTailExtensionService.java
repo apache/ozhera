@@ -30,6 +30,8 @@ import com.xiaomi.mone.log.manager.service.extension.agent.MilogAgentServiceImpl
 import com.xiaomi.mone.log.manager.service.impl.HeraAppEnvServiceImpl;
 import com.xiaomi.mone.log.manager.service.impl.LogTailServiceImpl;
 import com.xiaomi.mone.log.manager.service.impl.MilogAppMiddlewareRelServiceImpl;
+import com.xiaomi.mone.log.manager.service.nacos.FetchStreamMachineService;
+import com.xiaomi.mone.log.manager.service.nacos.impl.StreamConfigNacosPublisher;
 import com.xiaomi.mone.log.model.LogtailConfig;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
@@ -187,6 +189,20 @@ public class DefaultTailExtensionService implements TailExtensionService {
             }
         }
         return StringUtils.EMPTY;
+    }
+
+    @Override
+    public void publishStreamConfigPostProcess(StreamConfigNacosPublisher streamConfigNacosPublisher, Long spaceId, String motorRoomEn) {
+
+    }
+
+    @Override
+    public List<String> fetchStreamUniqueKeyList(FetchStreamMachineService fetchStreamMachineService, Long spaceId, String motorRoomEn) {
+        List<String> mioneStreamIpList = fetchStreamMachineService.streamMachineUnique();
+        if (CollectionUtils.isEmpty(mioneStreamIpList)) {
+            mioneStreamIpList = getStreamMachineUniqueList(null, motorRoomEn);
+        }
+        return mioneStreamIpList;
     }
 
 }

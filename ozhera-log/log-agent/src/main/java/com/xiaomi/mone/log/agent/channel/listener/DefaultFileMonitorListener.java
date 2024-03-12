@@ -22,12 +22,12 @@ import com.google.gson.Gson;
 import com.xiaomi.mone.log.agent.channel.ChannelService;
 import com.xiaomi.mone.log.agent.channel.file.FileMonitor;
 import com.xiaomi.mone.log.agent.channel.file.MonitorFile;
+import com.xiaomi.mone.log.agent.common.ChannelUtil;
 import com.xiaomi.mone.log.agent.common.ExecutorUtil;
 import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.common.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.lang3.StringUtils;
 
@@ -90,12 +90,18 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     }
 
     private long getDefaultFileSize() {
-        CompletableFuture<Integer> fileSizeFuture = CompletableFuture
-                .supplyAsync(() -> FileUtils.listFiles(new File(defaultMonitorPath), null, true).size());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Long> fileSizeFuture = executor.submit(() ->
+                ChannelUtil.countFilesRecursive(new File(defaultMonitorPath)));
         try {
+            // set the timeout to 1 seconds
             return fileSizeFuture.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             log.info("getDefaultFileSize error", e);
+            // cancel the task and close the thread pool
+            fileSizeFuture.cancel(true);
+        } finally {
+            executor.shutdown();
         }
         return DEFAULT_FILE_SIZE * 2;
     }

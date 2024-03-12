@@ -33,6 +33,36 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.boot.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>nacos</artifactId>
+                <version>1.5.0-jdk21</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.nacos</groupId>
+                <artifactId>nacos-spring-context</artifactId>
+                <version>0.3.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>nacos-api</artifactId>
+                <version>1.2.1-mone-v3</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>nacos-client</artifactId>
+                <version>1.2.1-mone-v3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>1.0.10-mone</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

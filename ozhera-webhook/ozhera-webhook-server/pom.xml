@@ -53,6 +53,44 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>nacos</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>nacos-client</artifactId>
+                    <groupId>com.alibaba.nacos</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-spring-context</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba.spring</groupId>
+                    <artifactId>spring-context-support</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>nacos-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>nacos-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>spring-context-support</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

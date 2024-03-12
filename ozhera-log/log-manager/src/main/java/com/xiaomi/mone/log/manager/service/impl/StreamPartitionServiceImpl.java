@@ -156,7 +156,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
             }
         }
 
-        logConfigNacosService.getStreamConfigNacosPublisher().publish(DEFAULT_APP_NAME, config);
+        logConfigNacosService.getStreamConfigNacosPublisher().publish(param.getSpaceId(), config);
         return true;
     }
 
@@ -169,7 +169,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
             if (spaceMap.isEmpty()) {
                 config.getConfig().remove(param.getUniqueKey());
             }
-            logConfigNacosService.getStreamConfigNacosPublisher().publish(DEFAULT_APP_NAME, config);
+            logConfigNacosService.getStreamConfigNacosPublisher().publish(param.getSpaceId(), config);
         }
         return true;
     }

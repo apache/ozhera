@@ -26,8 +26,7 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 
 import java.util.Arrays;
 
-import static com.xiaomi.mone.log.common.Constant.DEFAULT_STREAM_SERVER_NAME;
-import static com.xiaomi.mone.log.common.Constant.LOG_MANAGE_PREFIX;
+import static com.xiaomi.mone.log.common.Constant.*;
 import static com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionService.DEFAULT_COMMON_EXTENSION_SERVICE_KEY;
 
 /**
@@ -81,5 +80,10 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     @Override
     public String getSearchIndex(Long logStoreId, String esIndexName) {
         return esIndexName;
+    }
+
+    @Override
+    public String getSpaceDataId(Long spaceId) {
+        return getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID;
     }
 }

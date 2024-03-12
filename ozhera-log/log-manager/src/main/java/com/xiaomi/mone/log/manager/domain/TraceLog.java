@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
 import com.xiaomi.mone.log.common.Constant;
+import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.mapper.MilogEsIndexMapper;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsIndexDO;
 import com.xiaomi.youpin.docean.anno.Service;
@@ -57,7 +58,10 @@ public class TraceLog {
     @Resource
     private MilogEsIndexMapper esIndexMapper;
 
-    public TraceLogDTO getTraceLog(String traceId, String region, String generationTime, String level) throws IOException {
+    @Resource
+    private MilogLogstoreDao logStoreDao;
+
+    public TraceLogDTO getTraceLog(Long appId, String traceId, String region, String generationTime, String level) throws IOException {
         if (StringUtils.isEmpty(traceId)) {
             return null;
         }
@@ -65,17 +69,23 @@ public class TraceLog {
         BoolQueryBuilder queryBuilder = getBoolQueryBuilder(traceId, generationTime, level);
         qb.query(queryBuilder);
         List<MilogEsIndexDO> indexList;
-        if (StringUtils.isEmpty(region)) {
-            // Region is empty to query all regions in the country
-            indexList = esIndexMapper.selectAreaIndexList("cn");
+
+        List<ClusterIndexVO> clusterIndexVOS;
+        if (null != appId) {
+            clusterIndexVOS = logStoreDao.queryClusterIndexByAppId(appId);
         } else {
-            indexList = esIndexMapper.selectRegionIndexList(region);
+            if (StringUtils.isEmpty(region)) {
+                // Region is empty to query all regions in the country
+                indexList = esIndexMapper.selectAreaIndexList("cn");
+            } else {
+                indexList = esIndexMapper.selectRegionIndexList(region);
+            }
+            if (indexList == null || indexList.isEmpty()) {
+                return TraceLogDTO.emptyData();
+            }
+            clusterIndexVOS = indexList.stream()
+                    .map(MilogEsIndexDO::toClusterIndexVO).distinct().collect(Collectors.toList());
         }
-        if (indexList == null || indexList.isEmpty()) {
-            return TraceLogDTO.emptyData();
-        }
-        List<ClusterIndexVO> clusterIndexVOS = indexList.stream()
-                .map(MilogEsIndexDO::toClusterIndexVO).distinct().collect(Collectors.toList());
         return EsAsyncSearch(clusterIndexVOS, qb);
     }
 

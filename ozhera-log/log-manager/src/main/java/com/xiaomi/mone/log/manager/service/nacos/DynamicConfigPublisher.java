@@ -29,10 +29,10 @@ public interface DynamicConfigPublisher<T> {
     /**
      * Data persistence to NACOS
      *
-     * @param app
+     * @param spaceId
      * @param configs
      */
-    void publish(String app, T configs);
+    void publish(Long spaceId, T configs);
 
     /**
      * Remove the configuration

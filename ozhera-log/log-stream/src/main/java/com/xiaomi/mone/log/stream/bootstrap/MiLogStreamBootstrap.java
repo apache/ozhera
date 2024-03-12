@@ -60,7 +60,7 @@ public class MiLogStreamBootstrap {
     }
 
     private static void waitForUserInput() throws IOException {
-        log.info("Press Enter to exit.");
+        log.info("press Enter to exit.");
         System.in.read();
     }
 

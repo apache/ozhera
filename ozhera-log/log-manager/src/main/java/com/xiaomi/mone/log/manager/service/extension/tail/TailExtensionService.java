@@ -21,6 +21,8 @@ import com.xiaomi.mone.log.manager.model.dto.MilogAppEnvDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.mone.log.manager.model.pojo.MilogMiddlewareConfig;
+import com.xiaomi.mone.log.manager.service.nacos.FetchStreamMachineService;
+import com.xiaomi.mone.log.manager.service.nacos.impl.StreamConfigNacosPublisher;
 import com.xiaomi.mone.log.model.LogtailConfig;
 
 import java.util.List;
@@ -65,4 +67,8 @@ public interface TailExtensionService {
     String deleteCheckProcessPre(Long id);
 
     String validLogPath(LogTailParam param);
+
+    void publishStreamConfigPostProcess(StreamConfigNacosPublisher streamConfigNacosPublisher, Long spaceId, String motorRoomEn);
+
+    List<String> fetchStreamUniqueKeyList(FetchStreamMachineService fetchStreamMachineService, Long spaceId, String motorRoomEn);
 }

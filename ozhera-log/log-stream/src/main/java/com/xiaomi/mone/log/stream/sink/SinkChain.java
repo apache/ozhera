@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author wtt
@@ -38,9 +39,11 @@ public class SinkChain {
     /**
      * Have you already scanned and obtained SinkProcessor
      */
-    private boolean isLoad;
+    private volatile boolean isLoad;
 
     private static final List<SinkProcessor> sinkProcessorList = new CopyOnWriteArrayList();
+
+    private ReentrantLock reentrantLock = new ReentrantLock();
 
     /**
      * If one is true, then it is true. (literal translation)
@@ -52,11 +55,9 @@ public class SinkChain {
     public boolean execute(Map<String, Object> map) {
         loadSinkProcessor();
         List<Boolean> res = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(sinkProcessorList)) {
-            for (SinkProcessor sinkProcessor : sinkProcessorList) {
-                if (null != sinkProcessor) {
-                    res.add(sinkProcessor.execute(map));
-                }
+        for (SinkProcessor sinkProcessor : sinkProcessorList) {
+            if (null != sinkProcessor) {
+                res.add(sinkProcessor.execute(map));
             }
         }
         return res.stream().anyMatch(re -> re);
@@ -64,11 +65,18 @@ public class SinkChain {
 
     private void loadSinkProcessor() {
         if (!isLoad) {
-            Set<SinkProcessor> beans = Ioc.ins().getBeans(SinkProcessor.class);
-            if (CollectionUtils.isNotEmpty(beans)) {
-                sinkProcessorList.addAll(beans);
+            reentrantLock.lock();
+            try {
+                if (!isLoad) {
+                    Set<SinkProcessor> beans = Ioc.ins().getBeans(SinkProcessor.class);
+                    if (CollectionUtils.isNotEmpty(beans)) {
+                        sinkProcessorList.addAll(beans);
+                    }
+                    isLoad = true;
+                }
+            } finally {
+                reentrantLock.unlock();
             }
-            isLoad = true;
         }
     }
 }

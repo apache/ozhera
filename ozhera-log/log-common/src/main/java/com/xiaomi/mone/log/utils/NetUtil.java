@@ -25,8 +25,12 @@ import org.apache.commons.lang3.StringUtils;
 public class NetUtil {
 
     private static final String HERA_K8S_ENV = "hera_buildin_k8s";
+    private static final String HERA_IP_ENV = "host_ip";
 
     public static String getLocalIp() {
+        if (StringUtils.isNotEmpty(System.getenv(HERA_IP_ENV))) {
+            return System.getenv(HERA_IP_ENV);
+        }
         String localIp = System.getenv("host.ip") == null ? NetUtils.getLocalHost() : System.getenv("host.ip");
         return localIp;
     }

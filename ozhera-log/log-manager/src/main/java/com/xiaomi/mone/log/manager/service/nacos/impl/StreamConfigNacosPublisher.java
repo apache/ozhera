@@ -20,11 +20,11 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import com.xiaomi.mone.log.manager.service.nacos.DynamicConfigPublisher;
 import com.xiaomi.mone.log.model.MiLogStreamConfig;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_GROUP_ID;
-import static com.xiaomi.mone.log.common.Constant.NAMESPACE_CONFIG_DATA_ID;
 
 /**
  * @author wtt
@@ -36,6 +36,7 @@ import static com.xiaomi.mone.log.common.Constant.NAMESPACE_CONFIG_DATA_ID;
 public class StreamConfigNacosPublisher implements DynamicConfigPublisher<MiLogStreamConfig> {
 
     @Setter
+    @Getter
     private ConfigService configService;
 
     @Override

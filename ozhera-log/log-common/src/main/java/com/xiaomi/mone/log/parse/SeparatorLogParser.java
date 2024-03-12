@@ -28,9 +28,13 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class SeparatorLogParser extends AbstractLogParser {
+    private String[] keysAndTypes;
+    private String[] values;
 
     public SeparatorLogParser(LogParserData parserData) {
         super(parserData);
+        keysAndTypes = StringUtils.split(parserData.getKeyList(), ",");
+        values = StringUtils.split(parserData.getValueList(), ",");
     }
 
     @Override
@@ -44,12 +48,10 @@ public class SeparatorLogParser extends AbstractLogParser {
         if (logData == null) {
             return ret;
         }
-        if (logData.length() == 0) {
+        if (logData.isEmpty()) {
             return ret;
         }
         try {
-            String[] keysAndTypes = StringUtils.split(parserData.getKeyList(), ",");
-            String[] values = StringUtils.split(parserData.getValueList(), ",");
 
             int maxLength = (int) Arrays.stream(values).filter(s -> !s.equals("-1")).count();
 
@@ -98,7 +100,7 @@ public class SeparatorLogParser extends AbstractLogParser {
                 String value = null;
                 int num = -1;
                 try {
-                    num = new Integer(values[i]);
+                    num = Integer.parseInt(values[i]);
                     if (num == -1) {
                         valueCount++;
                         continue;

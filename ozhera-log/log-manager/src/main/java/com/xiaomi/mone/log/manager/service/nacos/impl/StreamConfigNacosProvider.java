@@ -19,6 +19,7 @@ import com.alibaba.nacos.api.config.ConfigService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import com.xiaomi.mone.log.manager.service.nacos.DynamicConfigProvider;
 import com.xiaomi.mone.log.model.MiLogStreamConfig;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,13 +36,19 @@ import static com.xiaomi.mone.log.common.Constant.*;
 public class StreamConfigNacosProvider implements DynamicConfigProvider<MiLogStreamConfig> {
 
     @Setter
+    @Getter
     private ConfigService configService;
 
     @Override
-    public MiLogStreamConfig getConfig(String appName) {
-        String rules = null;
+    public MiLogStreamConfig getConfig(Long spaceId) {
+        String rules;
         try {
-            rules = configService.getConfig(CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+            if (null == spaceId) {
+                rules = configService.getConfig(CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+            } else {
+                rules = configService.getConfig(CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId), DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+
+            }
             log.info("The NACOS query log is initially configured：{}", rules);
             if (StringUtils.isNotEmpty(rules)) {
                 return gson.fromJson(rules, MiLogStreamConfig.class);

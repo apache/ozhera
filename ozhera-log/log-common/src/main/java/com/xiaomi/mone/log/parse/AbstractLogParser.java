@@ -67,7 +67,7 @@ public abstract class AbstractLogParser implements LogParser {
         checkMessageExist(parseData, logData);
         validRet(parseData, logData);
 
-        fieldInterceptors.stream().forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        fieldInterceptors.forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
         return parseData;
     }
 

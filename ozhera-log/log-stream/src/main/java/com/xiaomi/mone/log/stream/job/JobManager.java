@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.stream.job;
 
 import com.google.gson.Gson;
+import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.model.LogtailConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;
 import com.xiaomi.mone.log.model.SinkConfig;
@@ -41,12 +42,16 @@ import java.util.stream.Collectors;
 @Data
 @Slf4j
 public class JobManager {
-    /**
-     * key: logstoreId
-     */
-    private ConcurrentHashMap<Long, Map<SinkJobEnum, SinkJob>> jobs = new ConcurrentHashMap<>();
 
-    private SinkChain sinkChain = Ioc.ins().getBean(SinkChain.class);
+    private static final String SINK_JOB_TYPE_KEY = "sink_job_type";
+    /**
+     * key: logStoreId
+     */
+    private ConcurrentHashMap<Long, Map<SinkJobEnum, SinkJob>> jobs;
+
+    private SinkChain sinkChain;
+
+    private String sinkJobType;
 
     private Gson gson = new Gson();
 
@@ -54,9 +59,15 @@ public class JobManager {
 
     private ReentrantLock startLock = new ReentrantLock();
 
+    public JobManager() {
+        sinkJobType = Config.ins().get(SINK_JOB_TYPE_KEY, "");
+        sinkChain = Ioc.ins().getBean(SinkChain.class);
+        jobs = new ConcurrentHashMap<>();
+    }
+
     public void closeJobs(MilogSpaceData milogSpaceData) {
         List<SinkConfig> configList = milogSpaceData.getSpaceConfig();
-        log.info("Tasks that are already running:{},The task that is about to be shut down:{}", gson.toJson(jobs), gson.toJson(milogSpaceData));
+        log.info("tasks that are already running:{},The task that is about to be shut down:{}", gson.toJson(jobs), gson.toJson(milogSpaceData));
         if (CollectionUtils.isNotEmpty(configList)) {
             for (SinkConfig sinkConfig : configList) {
                 List<LogtailConfig> tailConfigs = sinkConfig.getLogtailConfigs();
@@ -105,12 +116,26 @@ public class JobManager {
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
             SinkJobProvider sinkJobProvider = Ioc.ins().getBean(sinkProviderBean);
 
-            startSinkJob(sinkJobProvider.getSinkJob(sinkJobConfig), SinkJobEnum.NORMAL_JOB,
-                    logtailConfig.getLogtailId());
+            if (StringUtils.equalsAnyIgnoreCase(SinkJobEnum.NORMAL_JOB.name(), sinkJobType)) {
+                sinkJobConfig.setJobType(SinkJobEnum.NORMAL_JOB.name());
+                startSinkJob(sinkJobProvider.getSinkJob(sinkJobConfig), SinkJobEnum.NORMAL_JOB,
+                        logtailConfig.getLogtailId());
+            }
 
-            sinkJobConfig.setJobType(SinkJobEnum.BACKUP_JOB.name());
-            startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
-                    logtailConfig.getLogtailId());
+            if (StringUtils.equalsAnyIgnoreCase(SinkJobEnum.BACKUP_JOB.name(), sinkJobType)) {
+                sinkJobConfig.setJobType(SinkJobEnum.BACKUP_JOB.name());
+                startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
+                        logtailConfig.getLogtailId());
+            }
+
+            if (StringUtils.isEmpty(sinkJobType)) {
+                startSinkJob(sinkJobProvider.getSinkJob(sinkJobConfig), SinkJobEnum.NORMAL_JOB,
+                        logtailConfig.getLogtailId());
+
+                sinkJobConfig.setJobType(SinkJobEnum.BACKUP_JOB.name());
+                startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
+                        logtailConfig.getLogtailId());
+            }
 
             log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()));
         } catch (Throwable e) {

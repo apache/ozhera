@@ -16,6 +16,8 @@
 package run.mone.hera.webhook.controller;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.nacos.api.config.annotation.NacosValue;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import io.fabric8.kubernetes.api.model.admission.v1beta1.AdmissionResponse;
 import io.fabric8.kubernetes.api.model.admission.v1beta1.AdmissionReview;
 import lombok.extern.slf4j.Slf4j;
@@ -43,18 +45,28 @@ public class HeraWebhookController {
     @Autowired
     private HeraWebhookService heraWebhookService;
 
+    @NacosValue("${log-agent.enabled}")
+    private String logAgentEnabled;
+
     @RequestMapping(value = "/hera-env-v1", method = RequestMethod.POST)
     public AdmissionReview heraEnvV1(@RequestBody String admissionReview) {
-        log.info("hera webhook get request body : "+admissionReview);
+        log.info("hera webhook get request log-agent enable:{},body {}: ", logAgentEnabled, admissionReview);
+        if (StringUtils.isEmpty(logAgentEnabled)) {
+            logAgentEnabled = "false";
+        }
         JSONObject admissionReviewJson = JSONObject.parseObject(admissionReview);
         JSONObject admissionReviewRequestJson = admissionReviewJson.getJSONObject("request");
         String kind = admissionReviewRequestJson.getJSONObject("kind").getString("kind");
         String uid = admissionReviewRequestJson.getString("uid");
         String patchsJson = null;
-        if("Pod".equals(kind)){
-            List<JsonPatch> patchs = heraWebhookService.setPodEnv(admissionReviewRequestJson);
-            if(patchs != null || patchs.size() > 0){
-                patchsJson = JSONObject.toJSONString(patchs);
+        if ("Pod".equals(kind)) {
+            List<JsonPatch> patches = heraWebhookService.setPodEnv(admissionReviewRequestJson);
+            if ("true".equals(logAgentEnabled)) {
+                // Fill in log-agent
+                heraWebhookService.setLogAgent(admissionReviewRequestJson, patches);
+            }
+            if (patches != null && !patches.isEmpty()) {
+                patchsJson = JSONObject.toJSONString(patches);
             }
         }
         final AdmissionReview admissionReviewResp = new AdmissionReview();
@@ -63,8 +75,8 @@ public class HeraWebhookController {
         final AdmissionResponse admissionResponse = new AdmissionResponse();
         admissionResponse.setAllowed(true);
         admissionResponse.setUid(uid);
-        if(StringUtils.isNotEmpty(patchsJson)){
-            log.info("patch json is : "+patchsJson);
+        if (StringUtils.isNotEmpty(patchsJson)) {
+            log.info("patch json is : " + patchsJson);
             admissionResponse.setPatch(Base64.getEncoder().encodeToString(patchsJson.getBytes(StandardCharsets.UTF_8)));
             admissionResponse.setPatchType("JSONPatch");
         }

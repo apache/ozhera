@@ -97,7 +97,17 @@ spec:
             name: hera-webhook-tls-sh
       containers:
         - name: hera-webhook-server
-          image: herahub/opensource-pub:hera-webhook-server-v2-1
+          image: herahub/opensource-pub:hera-webhook-server-v2-15-ack
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
           volumeMounts:
             - name: hera-webhook-tls-sh-volume
               mountPath: /tmp/hera-webhook-tls-sh

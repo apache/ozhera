@@ -17,6 +17,7 @@ package com.xiaomi.mone.app.service.mq;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.google.gson.Gson;
 import com.xiaomi.mone.app.api.model.HeraMetaDataMessage;
 import com.xiaomi.mone.app.api.model.HeraMetaDataPortModel;
@@ -175,6 +176,24 @@ public class RocketMqHeraMetaDataConsumer {
                         }
                     }
                 }
+            } else if ("update".equals(heraMetaDataMessage.getOperator())) {
+                int availablePort = getAvailablePort(heraMetaDataMessage.getPort());
+                if (availablePort > 0) {
+                    // Check whether synchronous data blocking is required to prevent repeated data insertion
+                    if (waitSyncData()) {
+                        // Gets a distributed lock to prevent repeated insertions
+                        String key = heraMetaDataMessage.getMetaId() + "_" + heraMetaDataMessage.getHost() + "_" + availablePort;
+                        if (redisService.getDisLock(key)) {
+                            try {
+                                Date date = new Date();
+                                heraMetaData.setUpdateTime(date);
+                                updateByHostAndPort(heraMetaData);
+                            } finally {
+                                redisService.del(key);
+                            }
+                        }
+                    }
+                }
             }
         } catch (Throwable ex) {
             log.error("RocketMqHeraMetaDataConsumer#consumeMessage error:" + ex.getMessage(), ex);
@@ -204,6 +223,16 @@ public class RocketMqHeraMetaDataConsumer {
         queryWrapper.eq("host", ip);
         queryWrapper.eq("port -> '$.dubboPort'", port.getDubboPort());
         return heraMetaDataMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * only support dubbo port update concurrently
+     */
+    private int updateByHostAndPort(HeraMetaData heraMetaData){
+        UpdateWrapper<HeraMetaData> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("host", heraMetaData.getHost());
+        updateWrapper.eq("port -> '$.dubboPort'", heraMetaData.getPort().getDubboPort());
+        return heraMetaDataMapper.update(heraMetaData, updateWrapper);
     }
 
     /**

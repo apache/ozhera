@@ -94,9 +94,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private List<Future<?>> fileCollFutures = Lists.newArrayList();
 
-    private long lastSendTime = System.currentTimeMillis();
+    private volatile long lastSendTime = System.currentTimeMillis();
 
-    private long logCounts = 0;
+    private volatile long logCounts = 0;
 
     private ReentrantLock reentrantLock = new ReentrantLock();
 

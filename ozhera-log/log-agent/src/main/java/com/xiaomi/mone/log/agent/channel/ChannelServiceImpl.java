@@ -93,9 +93,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private ReentrantLock fileReopenLock = new ReentrantLock();
 
-    private long lastSendTime = System.currentTimeMillis();
+    private volatile long lastSendTime = System.currentTimeMillis();
 
-    private long logCounts = 0;
+    private volatile long logCounts = 0;
 
     private ScheduledFuture<?> scheduledFuture;
 

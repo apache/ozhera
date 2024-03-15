@@ -5,7 +5,7 @@
     <parent>
         <groupId>run.mone</groupId>
         <artifactId>ozhera-app</artifactId>
-        <version>1.4-jdk21-2</version>
+        <version>1.4-jdk21-3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>app-common</artifactId>

@@ -52,7 +52,7 @@ public class HeraMetaDataServiceImpl implements HeraMetaDataService {
     public List<HeraMetaDataModel> page(HeraMetaDataQuery query) {
         QueryWrapper<HeraMetaData> wrapper = new QueryWrapper();
         if(query.getId() != null){
-            wrapper.gt("id",query.getId()).last("LIMIT "+query.getPageSize());
+            wrapper.gt("id",query.getId()).orderByAsc("id").last("LIMIT "+query.getPageSize());
         }else {
             query.initPageParam();
             if (query.getLimit() != null && query.getLimit() > 0) {

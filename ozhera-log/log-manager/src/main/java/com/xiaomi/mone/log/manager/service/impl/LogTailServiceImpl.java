@@ -165,7 +165,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
 
-    private void handleMqTailParam(LogTailParam param) {
+    private void handleMqTailParam(MilogLogStoreDO logStoreDO, LogTailParam param) {
         param.setMiddlewareConfig(param.getMiddlewareConfig().stream().filter(Objects::nonNull).collect(Collectors.toList()));
         if (CollectionUtils.isNotEmpty(param.getMiddlewareConfig()) && param.getMiddlewareConfig().size() == 3) {
             param.setMiddlewareConfigId(((Double) param.getMiddlewareConfig().get(1)).longValue());
@@ -174,10 +174,12 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             param.setMiddlewareConfigId(((Double) param.getMiddlewareConfig().get(1)).longValue());
             deleteMqRel(param.getMilogAppId(), param.getId());
         } else {
-            deleteMqRel(param.getMilogAppId(), param.getId());
-            // Take the default
-            MilogMiddlewareConfig config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
-            param.setMiddlewareConfigId(config.getId());
+            if (tailExtensionService.tailHandlePreprocessingSwitch(logStoreDO, param)) {
+                deleteMqRel(param.getMilogAppId(), param.getId());
+                // Take the default
+                MilogMiddlewareConfig config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
+                param.setMiddlewareConfigId(config.getId());
+            }
         }
     }
 
@@ -207,9 +209,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         param.setValueList(IndexUtils.getNumberValueList(logStore.getKeyList(), param.getValueList()));
 
         // Parameter handling
-        if (tailExtensionService.tailHandlePreprocessingSwitch(logStore, param)) {
-            handleMqTailParam(param);
-        }
+        handleMqTailParam(logStore, param);
 
         AppBaseInfo appBaseInfo = getAppBaseInfo(param);
 
@@ -393,9 +393,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
 
         // Process the MqTailParam parameter
-        if (tailExtensionService.tailHandlePreprocessingSwitch(logStoreDO, param)) {
-            handleMqTailParam(param);
-        }
+        handleMqTailParam(logStoreDO, param);
 
         // Check for duplicate aliases
         String tail = param.getTail();

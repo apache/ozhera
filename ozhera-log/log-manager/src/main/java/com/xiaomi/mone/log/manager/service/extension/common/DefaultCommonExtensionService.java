@@ -68,6 +68,11 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     }
 
     @Override
+    public String getSortedKey(LogQuery logQuery, String sortedKey) {
+        return sortedKey;
+    }
+
+    @Override
     public TermQueryBuilder multipleChooseBuilder(Long storeId, String chooseVal) {
         return QueryBuilders.termQuery("tail", chooseVal);
     }

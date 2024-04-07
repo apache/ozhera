@@ -75,6 +75,19 @@ public class MetricsParseService implements IMetricsParseService {
     @NacosValue(value = "${query.slowtime.mysql}", autoRefreshed = true)
     private int mysqlSlowTime;
 
+    /**
+     * degradation measures
+     */
+    @NacosValue(value = "${query.exclude.sql}", autoRefreshed = true)
+    private boolean excludeSql;
+    private static final String DEFAULT_SQL_LABEL = "default select";
+    @NacosValue(value = "${query.exclude.server.ip}", autoRefreshed = true)
+    private boolean excludeServerIp;
+    private static final String DEFAULT_SERVER_IP = "10.0.0.0";
+    @NacosValue(value = "${query.exclude.dubbo.method}", autoRefreshed = true)
+    private boolean excludeDubboMethod;
+    private static final String DEFAULT_DUBBO_METHOD = "default";
+
     @Value("${es.domain}")
     private String esDomain;
 
@@ -162,7 +175,11 @@ public class MetricsParseService implements IMetricsParseService {
         }
         jtd.setEndTime(jtd.getStartTime() + durationUs / 1000);
         jtd.setMethod(operationName);
-        jtd.setServerIp(tSpanData.getExtra().getIp());
+        if(excludeServerIp){
+            jtd.setServerIp(DEFAULT_SERVER_IP);
+        }else{
+            jtd.setServerIp(tSpanData.getExtra().getIp());
+        }
         TAttributes attributes = tSpanData.getAttributes();
         List<TAttributeKey> tagsKeys = attributes.getKeys();
         List<TValue> tagsValues = attributes.getValues();
@@ -194,7 +211,11 @@ public class MetricsParseService implements IMetricsParseService {
                     jtd.setType(value);
                 }
                 if ("rpc.method".equals(key)) {
-                    jtd.setMethod(value);
+                    if(excludeDubboMethod){
+                        jtd.setMethod(DEFAULT_DUBBO_METHOD);
+                    }else {
+                        jtd.setMethod(value);
+                    }
                 }
                 if ("rpc.service".equals(key)) {
                     jtd.setRpcServiceName(value);
@@ -299,7 +320,12 @@ public class MetricsParseService implements IMetricsParseService {
             redisBuild(jtc.getStatement(), jtc);
         }
         if (SpanType.MYSQL.equals(jtc.getType()) || SpanType.MONGODB.equals(jtc.getType())) {
-            jtc.setSql(jtc.getStatement());
+            if(excludeSql) {
+                jtc.setSql(DEFAULT_SQL_LABEL);
+            }else{
+                jtc.setSql(jtc.getStatement());
+
+            }
         }
         String serviceName = jtc.getServiceName();
         String metricsServiceName = formatServiceName(serviceName);

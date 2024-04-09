@@ -14,6 +14,10 @@
     <properties>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <os-maven-plugin.version>1.6.1</os-maven-plugin.version>
+        <!-- MAC arm use this -->
+        <!--        <os.detected.classifier>osx-x86_64</os.detected.classifier>-->
+        <!-- windows use this -->
+        <!--        <os.detected.classifier>windows-x86_64</os.detected.classifier>-->
     </properties>
 
     <dependencies>

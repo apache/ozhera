@@ -176,8 +176,13 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         } else {
             if (tailExtensionService.tailHandlePreprocessingSwitch(logStoreDO, param)) {
                 deleteMqRel(param.getMilogAppId(), param.getId());
-                // Take the default
-                MilogMiddlewareConfig config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
+                MilogMiddlewareConfig config;
+                if (null != logStoreDO.getMqResourceId()) {
+                    config = milogMiddlewareConfigDao.queryById(logStoreDO.getMqResourceId());
+                } else {
+                    // Take the default
+                    config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
+                }
                 param.setMiddlewareConfigId(config.getId());
             }
         }

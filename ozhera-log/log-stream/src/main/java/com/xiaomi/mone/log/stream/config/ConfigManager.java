@@ -103,9 +103,9 @@ public class ConfigManager {
                             MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
                             addListener(spaceId, configListener);
                             milogSpaceDataMap.put(spaceId, milogSpaceData);
+                            log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
                         }
                     }
-                    log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
                 }
             } else {
                 log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);

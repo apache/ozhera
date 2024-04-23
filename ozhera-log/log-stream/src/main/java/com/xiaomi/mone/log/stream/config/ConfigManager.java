@@ -77,7 +77,7 @@ public class ConfigManager {
      *
      * @throws StreamException
      */
-    public void initStream() throws StreamException {
+    public void initializeStreamConfig() throws StreamException {
         log.debug("[initStream} nacos dataId:{},group:{}", spaceDataId, DEFAULT_GROUP_ID);
         String streamConfigStr = nacosConfig.getConfigStr(spaceDataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
         MiLogStreamConfig milogStreamConfig;
@@ -96,19 +96,16 @@ public class ConfigManager {
                 for (Long spaceId : milogStreamDataMap.keySet()) {
                     final String dataId = milogStreamDataMap.get(spaceId);
                     // init spaceData config
-                    String milogSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
-                    if (StringUtils.isNotEmpty(milogSpaceDataStr)) {
-                        MilogSpaceData milogSpaceData = GSON.fromJson(milogSpaceDataStr, MilogSpaceData.class);
-                        if (null != milogSpaceData) {
+                    String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+                    if (StringUtils.isNotEmpty(logSpaceDataStr)) {
+                        MilogSpaceData milogSpaceData = GSON.fromJson(logSpaceDataStr, MilogSpaceData.class);
+                        if (null != milogSpaceData && !milogSpaceDataMap.containsKey(spaceId)) {
+                            MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
+                            addListener(spaceId, configListener);
                             milogSpaceDataMap.put(spaceId, milogSpaceData);
+                            log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
                         }
                     }
-                    MilogSpaceData milogSpaceData = milogSpaceDataMap.get(spaceId);
-                    if (null != milogSpaceData) {
-                        MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
-                        addListener(spaceId, configListener);
-                    }
-                    log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
                 }
             } else {
                 log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);

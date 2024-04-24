@@ -42,7 +42,7 @@ public interface CommonExtensionService {
 
     String getSortedKey(LogQuery logQuery, String sortedKey);
 
-    TermQueryBuilder multipleChooseBuilder(Long storeId, String chooseVal);
+    TermQueryBuilder multipleChooseBuilder(DefaultCommonExtensionService.QueryTypeEnum queryTypeEnum, Long storeId, String chooseVal);
 
     String queryDateHistogramField(Long storeId);
 

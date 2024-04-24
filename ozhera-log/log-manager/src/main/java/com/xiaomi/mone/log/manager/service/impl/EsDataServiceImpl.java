@@ -397,7 +397,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     public Result<EsStatisticResult> EsStatistic(LogQuery logQuery) {
         try {
             EsStatisticResult result = new EsStatisticResult();
-            result.setName(constractEsStatisticRet(logQuery));
+            result.setName(constructEsStatisticRet(logQuery));
             MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 return new Result<>(CommonError.UnknownError.getCode(), "not found logstore", null);
@@ -478,7 +478,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
 
-    public String constractEsStatisticRet(LogQuery logquery) {
+    public String constructEsStatisticRet(LogQuery logquery) {
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isEmpty(logquery.getLogstore())) {
             sb.append("logstore:").append(logquery.getLogstore()).append(";");

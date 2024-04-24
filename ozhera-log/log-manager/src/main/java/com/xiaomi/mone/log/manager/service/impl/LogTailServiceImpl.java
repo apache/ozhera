@@ -207,7 +207,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
         String machineRoom = logStore.getMachineRoom();
         String tail = param.getTail();
-        if (heraConfigValid.checkTailNameSame(tail, null, machineRoom)) {
+        if (heraConfigValid.checkTailNameSame(tail, null, machineRoom, param.getSpaceId())) {
             return new Result<>(CommonError.ParamsError.getCode(), "The alias is duplicated, please confirm and submit");
         }
 
@@ -261,9 +261,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         return mt;
     }
 
-    private boolean checkTailNameSame(String tailName, Long id, String machineRoom) {
+    private boolean checkTailNameSame(String tailName, Long id, String machineRoom, Long spaceId) {
         // Verify the log file with the same name
-        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom);
+        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom, spaceId);
         if (null == id) {
             return CollectionUtils.isNotEmpty(logtailDoList);
         } else {
@@ -404,7 +404,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         String tail = param.getTail();
         Long id = param.getId();
         String machineRoom = logStoreDO.getMachineRoom();
-        if (checkTailNameSame(tail, id, machineRoom)) {
+        if (checkTailNameSame(tail, id, machineRoom, param.getSpaceId())) {
             return new Result<>(CommonError.ParamsError.getCode(), "The alias is duplicated, please confirm and submit");
         }
 

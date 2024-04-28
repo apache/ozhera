@@ -16,7 +16,6 @@
 package com.xiaomi.mone.log.manager.common.validation;
 
 import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
-import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.model.bo.LogTailParam;
@@ -108,9 +107,9 @@ public class HeraConfigValid {
         return sb.toString();
     }
 
-    public boolean checkTailNameSame(String tailName, Long id, String machineRoom) {
+    public boolean checkTailNameSame(String tailName, Long id, String machineRoom, Long spaceId) {
         // Verify the log file with the same name
-        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom);
+        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom, spaceId);
         if (null == id) {
             return CollectionUtils.isNotEmpty(logtailDoList);
         } else {

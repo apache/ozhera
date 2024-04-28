@@ -279,10 +279,13 @@ public class MilogLogTailDao {
         return sql.getList(MilogLogTailDo.class);
     }
 
-    public List<MilogLogTailDo> queryTailNameExists(String tailName, String machineRoom) {
+    public List<MilogLogTailDo> queryTailNameExists(String tailName, String machineRoom, Long spaceId) {
         Sql sql = Sqls.queryEntity("SELECT la.* FROM milog_logstail la LEFT JOIN milog_logstore lt ON la.store_id = lt.id WHERE la.tail = @tailName AND lt.machine_room = @machineRoom");
         sql.params().set("tailName", tailName);
         sql.params().set("machineRoom", machineRoom);
+        if (null != spaceId) {
+            sql.params().set("store_id", spaceId);
+        }
         sql.setEntity(dao.getEntity(MilogLogTailDo.class));
         dao.execute(sql);
         return sql.getList(MilogLogTailDo.class);
@@ -376,5 +379,10 @@ public class MilogLogTailDao {
         return dao.query(MilogLogTailDo.class, Cnd.where("app_id", EQUAL_OPERATE, serviceId)
                 .and("app_type", EQUAL_OPERATE, typeCode)
                 .and("machine_type", EQUAL_OPERATE, MachineTypeEnum.PHYSICAL_MACHINE.getType()));
+    }
+
+    public List<MilogLogTailDo> queryByNames(Long storeId, List<String> nameList) {
+        Cnd cnd = Cnd.where("store_id", EQUAL_OPERATE, storeId).and("tail", "in", nameList);
+        return dao.query(MilogLogTailDo.class, cnd);
     }
 }

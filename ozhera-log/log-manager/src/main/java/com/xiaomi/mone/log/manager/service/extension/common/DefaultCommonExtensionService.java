@@ -19,6 +19,7 @@ import com.xiaomi.mone.log.api.enums.MQSourceEnum;
 import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
 import com.xiaomi.mone.log.manager.model.vo.LogQuery;
 import com.xiaomi.youpin.docean.anno.Service;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -63,7 +64,7 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     public BoolQueryBuilder commonRangeQuery(LogQuery logQuery) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.filter(QueryBuilders.rangeQuery("timestamp").from(logQuery.getStartTime()).to(logQuery.getEndTime()));
-        boolQueryBuilder.filter(QueryBuilders.termQuery("logstore", logQuery.getLogstore()));
+        boolQueryBuilder.filter(QueryBuilders.termQuery("storeId", logQuery.getStoreId()));
         return boolQueryBuilder;
     }
 
@@ -73,7 +74,10 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     }
 
     @Override
-    public TermQueryBuilder multipleChooseBuilder(Long storeId, String chooseVal) {
+    public TermQueryBuilder multipleChooseBuilder(DefaultCommonExtensionService.QueryTypeEnum queryTypeEnum, Long storeId, String chooseVal) {
+        if (QueryTypeEnum.ID == queryTypeEnum) {
+            return QueryBuilders.termQuery("tailId", chooseVal);
+        }
         return QueryBuilders.termQuery("tail", chooseVal);
     }
 
@@ -90,5 +94,11 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     @Override
     public String getSpaceDataId(Long spaceId) {
         return getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID;
+    }
+
+    @Getter
+    public static enum QueryTypeEnum {
+        ID,
+        TEXT
     }
 }

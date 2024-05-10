@@ -280,12 +280,10 @@ public class MilogLogTailDao {
     }
 
     public List<MilogLogTailDo> queryTailNameExists(String tailName, String machineRoom, Long spaceId) {
-        Sql sql = Sqls.queryEntity("SELECT la.* FROM milog_logstail la LEFT JOIN milog_logstore lt ON la.store_id = lt.id WHERE la.tail = @tailName AND lt.machine_room = @machineRoom");
+        Sql sql = Sqls.queryEntity("SELECT la.* FROM milog_logstail la LEFT JOIN milog_logstore lt ON la.store_id = lt.id WHERE la.tail = @tailName AND lt.machine_room = @machineRoom and la.space_id = @spaceId");
         sql.params().set("tailName", tailName);
         sql.params().set("machineRoom", machineRoom);
-        if (null != spaceId) {
-            sql.params().set("store_id", spaceId);
-        }
+        sql.params().set("spaceId", spaceId);
         sql.setEntity(dao.getEntity(MilogLogTailDo.class));
         dao.execute(sql);
         return sql.getList(MilogLogTailDo.class);

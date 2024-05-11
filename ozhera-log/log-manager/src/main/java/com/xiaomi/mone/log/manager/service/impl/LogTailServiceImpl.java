@@ -653,7 +653,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
         tailExtensionService.logTailDoExtraFiled(milogLogtailDo, logStoreDO, logTailParam);
         milogLogtailDo.setDeployWay(logTailParam.getDeployWay());
-        if (logStoreDO.isMatrixAppStore()) {
+        if (logStoreDO.isPlatformResourceStore()) {
             milogLogtailDo.setDeploySpace((StringUtils.isNotEmpty(logTailParam.getDeploySpace()) ? logTailParam.getDeploySpace().trim() : ""));
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));

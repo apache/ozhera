@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.StopWatch;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -145,7 +146,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
 
             // query
             stopWatch.start("bool-query");
-            builder.sort(logQuery.getSortKey(), logQuery.getAsc() ? ASC : DESC);
+            builder.sort(commonExtensionService.getSortedKey(logQuery, logQuery.getSortKey()), logQuery.getAsc() ? ASC : DESC);
 //            if ("cn".equals(milogLogstoreDO.getMachineRoom())) {
 //                builder.sort(LogParser.esKeyMap_lineNumber, logQuery.getAsc() ? ASC : DESC);
 //            }
@@ -403,7 +404,16 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
     private LogDataDTO hit2DTO(SearchHit hit, List<String> keyList) {
         LogDataDTO logData = new LogDataDTO();
         Map<String, Object> ferry = hit.getSourceAsMap();
-        logData.setValue(LogParser.esKeyMap_timestamp, ferry.get(LogParser.esKeyMap_timestamp));
+
+        long time = 0;
+        if (ferry.containsKey("time")) {
+            time = DateUtil.parse(ferry.get("time").toString()).toTimestamp().getTime();
+        }
+        if (null == ferry.get(LogParser.esKeyMap_timestamp)) {
+            logData.setValue(LogParser.esKeyMap_timestamp, time);
+        } else {
+            logData.setValue(LogParser.esKeyMap_timestamp, ferry.get(LogParser.esKeyMap_timestamp));
+        }
         for (String key : keyList) {
             if (!hidenFiledSet.contains(key)) {
                 logData.setValue(key, ferry.get(key));
@@ -412,7 +422,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         logData.setIp(ferry.get(LogParser.esKeyMap_logip) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_logip)));
         logData.setFileName(ferry.get(LogParser.esKyeMap_fileName) == null ? "" : String.valueOf(ferry.get(LogParser.esKyeMap_fileName)));
         logData.setLineNumber(ferry.get(LogParser.esKeyMap_lineNumber) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_lineNumber)));
-        logData.setTimestamp(ferry.get(LogParser.esKeyMap_timestamp) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_timestamp)));
+        logData.setTimestamp(ferry.get(LogParser.esKeyMap_timestamp) == null ? String.valueOf(time) : String.valueOf(ferry.get(LogParser.esKeyMap_timestamp)));
         logData.setLogOfString(new Gson().toJson(logData.getLogOfKV()));
         return logData;
     }

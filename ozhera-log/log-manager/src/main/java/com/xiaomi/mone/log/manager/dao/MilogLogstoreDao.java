@@ -164,10 +164,13 @@ public class MilogLogstoreDao {
         return sql.getString();
     }
 
-    public boolean verifyExistByName(String logstoreName, Long id) {
+    public boolean verifyExistByName(String logstoreName, Long id, Long spaceId) {
         Cnd cnd = Cnd.where("logstoreName", EQUAL_OPERATE, logstoreName);
         if (null != id) {
             cnd.andNot("id", EQUAL_OPERATE, id);
+        }
+        if (null != spaceId) {
+            cnd.and("space_id", EQUAL_OPERATE, spaceId);
         }
         int count = dao.count(MilogLogStoreDO.class, cnd);
         return count > 0;

@@ -18,12 +18,15 @@ package com.xiaomi.mone.log.manager.domain;
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
 import com.xiaomi.mone.log.common.Constant;
+import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.mapper.MilogEsIndexMapper;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsIndexDO;
+import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.es.EsService;
@@ -61,12 +64,15 @@ public class TraceLog {
     @Resource
     private MilogLogstoreDao logStoreDao;
 
+    @Resource
+    private MilogLogTailDao logTailDao;
+
     public TraceLogDTO getTraceLog(Long appId, String traceId, String region, String generationTime, String level) throws IOException {
         if (StringUtils.isEmpty(traceId)) {
             return null;
         }
         SearchSourceBuilder qb = new SearchSourceBuilder();
-        BoolQueryBuilder queryBuilder = getBoolQueryBuilder(traceId, generationTime, level);
+        BoolQueryBuilder queryBuilder = getBoolQueryBuilder(appId, traceId, generationTime, level);
         qb.query(queryBuilder);
         List<MilogEsIndexDO> indexList;
 
@@ -90,11 +96,15 @@ public class TraceLog {
     }
 
     @NotNull
-    private BoolQueryBuilder getBoolQueryBuilder(String traceId, String generationTime, String level) {
+    private BoolQueryBuilder getBoolQueryBuilder(Long appId, String traceId, String generationTime, String level) {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        List<Long> tailIds = queryTailIdByAppId(appId);
         queryBuilder.filter(QueryBuilders.termQuery("traceId", traceId));
         if (StringUtils.isNotBlank(level)) {
             queryBuilder.filter(QueryBuilders.termQuery("level", level));
+        }
+        if(CollectionUtils.isNotEmpty(tailIds)){
+            queryBuilder.filter(QueryBuilders.termsQuery("tailId", tailIds));
         }
         if (StringUtils.isNotEmpty(generationTime)) {
             long time = new DateTime(generationTime).getTime();
@@ -103,6 +113,14 @@ public class TraceLog {
             queryBuilder.filter(QueryBuilders.rangeQuery("timestamp").from(startTime).to(endTime));
         }
         return queryBuilder;
+    }
+
+    private List<Long> queryTailIdByAppId(Long appId) {
+        List<MilogLogTailDo> logTailDos = logTailDao.queryByAppId(appId);
+        if (CollectionUtils.isNotEmpty(logTailDos)) {
+            return logTailDos.stream().map(MilogLogTailDo::getId).collect(Collectors.toList());
+        }
+        return Lists.newArrayList();
     }
 
     public TraceLogDTO EsAsyncSearch(List<ClusterIndexVO> indexList, SearchSourceBuilder qb) {

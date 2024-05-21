@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -83,7 +84,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.DEFAULT_OPERATOR;
@@ -334,7 +334,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(boolQueryBuilder);
 
-        builder.sort(logQuery.getSortKey(), logQuery.getAsc() ? ASC : DESC);
+        builder.sort(commonExtensionService.getSortedKey(logQuery, logQuery.getSortKey()), logQuery.getAsc() ? ASC : DESC);
         if (null != logQuery.getPage()) {
             builder.from((logQuery.getPage() - 1) * logQuery.getPageSize());
         }
@@ -397,7 +397,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     public Result<EsStatisticResult> EsStatistic(LogQuery logQuery) {
         try {
             EsStatisticResult result = new EsStatisticResult();
-            result.setName(constractEsStatisticRet(logQuery));
+            result.setName(constructEsStatisticRet(logQuery));
             MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 return new Result<>(CommonError.UnknownError.getCode(), "not found logstore", null);
@@ -478,7 +478,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
 
-    public String constractEsStatisticRet(LogQuery logquery) {
+    public String constructEsStatisticRet(LogQuery logquery) {
         StringBuilder sb = new StringBuilder();
         if (!StringUtils.isEmpty(logquery.getLogstore())) {
             sb.append("logstore:").append(logquery.getLogstore()).append(";");
@@ -638,7 +638,15 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     private LogDataDTO hit2DTO(SearchHit hit, List<String> keyList) {
         LogDataDTO logData = new LogDataDTO();
         Map<String, Object> ferry = hit.getSourceAsMap();
-        logData.setValue(LogParser.esKeyMap_timestamp, ferry.get(LogParser.esKeyMap_timestamp));
+        long time = 0;
+        if (ferry.containsKey("time")) {
+            time = DateUtil.parse(ferry.get("time").toString()).toTimestamp().getTime();
+        }
+        if (null == ferry.get(LogParser.esKeyMap_timestamp)) {
+            logData.setValue(LogParser.esKeyMap_timestamp, time);
+        } else {
+            logData.setValue(LogParser.esKeyMap_timestamp, ferry.get(LogParser.esKeyMap_timestamp));
+        }
         for (String key : keyList) {
             if (!hidenFiledSet.contains(key)) {
                 logData.setValue(key, ferry.get(key));
@@ -647,7 +655,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         logData.setIp(ferry.get(LogParser.esKeyMap_logip) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_logip)));
         logData.setFileName(ferry.get(LogParser.esKyeMap_fileName) == null ? "" : String.valueOf(ferry.get(LogParser.esKyeMap_fileName)));
         logData.setLineNumber(ferry.get(LogParser.esKeyMap_lineNumber) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_lineNumber)));
-        logData.setTimestamp(ferry.get(LogParser.esKeyMap_timestamp) == null ? "" : String.valueOf(ferry.get(LogParser.esKeyMap_timestamp)));
+        logData.setTimestamp(ferry.get(LogParser.esKeyMap_timestamp) == null ? String.valueOf(time) : String.valueOf(ferry.get(LogParser.esKeyMap_timestamp)));
         logData.setLogOfString(JSON.toJSONString(logData.getLogOfKV()));
         return logData;
     }

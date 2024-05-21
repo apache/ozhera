@@ -63,7 +63,7 @@ public class PingProcessor implements NettyRequestProcessor {
         if (null != ch) {
             ch.setIp(pr.getIp());
         }
-        String requestBody = String.format("%s->%s->%s:%s", version.toString(), dateTimeFormatter.format(LocalDateTime.now()), NetUtil.getLocalIp(), SERVER_PORT);
+        String requestBody = String.format("%s->%s->%s:%s->%s", version.toString(), dateTimeFormatter.format(LocalDateTime.now()), NetUtil.getLocalIp(), SERVER_PORT, remoteAddress);
         response.setBody(requestBody.getBytes());
         if (null != pr && StringUtils.isNotBlank(pr.getIp())) {
             agentHeartTimeStampMap.put(pr.getIp(), Instant.now().toEpochMilli());

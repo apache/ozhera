@@ -165,7 +165,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
 
-    private void handleMqTailParam(LogTailParam param) {
+    private void handleMqTailParam(MilogLogStoreDO logStoreDO, LogTailParam param) {
         param.setMiddlewareConfig(param.getMiddlewareConfig().stream().filter(Objects::nonNull).collect(Collectors.toList()));
         if (CollectionUtils.isNotEmpty(param.getMiddlewareConfig()) && param.getMiddlewareConfig().size() == 3) {
             param.setMiddlewareConfigId(((Double) param.getMiddlewareConfig().get(1)).longValue());
@@ -174,10 +174,17 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             param.setMiddlewareConfigId(((Double) param.getMiddlewareConfig().get(1)).longValue());
             deleteMqRel(param.getMilogAppId(), param.getId());
         } else {
-            deleteMqRel(param.getMilogAppId(), param.getId());
-            // Take the default
-            MilogMiddlewareConfig config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
-            param.setMiddlewareConfigId(config.getId());
+            if (tailExtensionService.tailHandlePreprocessingSwitch(logStoreDO, param)) {
+                deleteMqRel(param.getMilogAppId(), param.getId());
+                MilogMiddlewareConfig config;
+                if (null != logStoreDO.getMqResourceId()) {
+                    config = milogMiddlewareConfigDao.queryById(logStoreDO.getMqResourceId());
+                } else {
+                    // Take the default
+                    config = milogMiddlewareConfigDao.queryDefaultMiddlewareConfig();
+                }
+                param.setMiddlewareConfigId(config.getId());
+            }
         }
     }
 
@@ -200,16 +207,14 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
         String machineRoom = logStore.getMachineRoom();
         String tail = param.getTail();
-        if (heraConfigValid.checkTailNameSame(tail, null, machineRoom)) {
+        if (heraConfigValid.checkTailNameSame(tail, null, machineRoom, param.getSpaceId())) {
             return new Result<>(CommonError.ParamsError.getCode(), "The alias is duplicated, please confirm and submit");
         }
 
         param.setValueList(IndexUtils.getNumberValueList(logStore.getKeyList(), param.getValueList()));
 
         // Parameter handling
-        if (tailExtensionService.tailHandlePreprocessingSwitch(logStore, param)) {
-            handleMqTailParam(param);
-        }
+        handleMqTailParam(logStore, param);
 
         AppBaseInfo appBaseInfo = getAppBaseInfo(param);
 
@@ -256,9 +261,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         return mt;
     }
 
-    private boolean checkTailNameSame(String tailName, Long id, String machineRoom) {
+    private boolean checkTailNameSame(String tailName, Long id, String machineRoom, Long spaceId) {
         // Verify the log file with the same name
-        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom);
+        List<MilogLogTailDo> logtailDoList = milogLogtailDao.queryTailNameExists(tailName, machineRoom, spaceId);
         if (null == id) {
             return CollectionUtils.isNotEmpty(logtailDoList);
         } else {
@@ -393,15 +398,13 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
 
         // Process the MqTailParam parameter
-        if (tailExtensionService.tailHandlePreprocessingSwitch(logStoreDO, param)) {
-            handleMqTailParam(param);
-        }
+        handleMqTailParam(logStoreDO, param);
 
         // Check for duplicate aliases
         String tail = param.getTail();
         Long id = param.getId();
         String machineRoom = logStoreDO.getMachineRoom();
-        if (checkTailNameSame(tail, id, machineRoom)) {
+        if (checkTailNameSame(tail, id, machineRoom, param.getSpaceId())) {
             return new Result<>(CommonError.ParamsError.getCode(), "The alias is duplicated, please confirm and submit");
         }
 
@@ -650,7 +653,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
         tailExtensionService.logTailDoExtraFiled(milogLogtailDo, logStoreDO, logTailParam);
         milogLogtailDo.setDeployWay(logTailParam.getDeployWay());
-        if (logStoreDO.isMatrixAppStore()) {
+        if (logStoreDO.isPlatformResourceStore()) {
             milogLogtailDo.setDeploySpace((StringUtils.isNotEmpty(logTailParam.getDeploySpace()) ? logTailParam.getDeploySpace().trim() : ""));
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));

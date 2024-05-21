@@ -139,26 +139,30 @@ public class EsPlugin {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-                log.debug("success send to es,desc:{}", request.getDescription());
-                AtomicInteger count = new AtomicInteger();
-                response.spliterator().forEachRemaining(x -> {
-                    if (x.isFailed()) {
-                        BulkItemResponse.Failure failure = x.getFailure();
-                        String msg = String.format(
-                                "Index:[%s], type:[%s], id:[%s], itemId:[%s], opt:[%s], version:[%s], errMsg:%s"
-                                , x.getIndex()
-                                , x.getType()
-                                , x.getId()
-                                , x.getItemId()
-                                , x.getOpType().getLowercase()
-                                , x.getVersion()
-                                , failure.getCause().getMessage()
-                        );
-                        log.error("Bulk executionId:[{}] has error messages:\t{}", executionId, msg);
-                        count.incrementAndGet();
-                    }
-                });
-                log.debug("Finished handling bulk commit executionId:[{}] for {} requests with {} errors", executionId, request.numberOfActions(), count.intValue());
+                if (response.hasFailures()) {
+                    AtomicInteger count = new AtomicInteger();
+                    response.spliterator().forEachRemaining(x -> {
+                        if (x.isFailed()) {
+                            BulkItemResponse.Failure failure = x.getFailure();
+                            String msg = String.format(
+                                    "Index:[%s], type:[%s], id:[%s], itemId:[%s], opt:[%s], version:[%s], errMsg:%s"
+                                    , x.getIndex()
+                                    , x.getType()
+                                    , x.getId()
+                                    , x.getItemId()
+                                    , x.getOpType().getLowercase()
+                                    , x.getVersion()
+                                    , failure.getCause().getMessage()
+                            );
+                            log.error("Bulk executionId:[{}] has error messages:{}", executionId, msg);
+                            count.incrementAndGet();
+                        }
+                    });
+                    log.debug("Finished handling bulk commit executionId:[{}] for {} requests with {} errors", executionId, request.numberOfActions(), count.intValue());
+                    sendMessageToTopic(request, esInfo, onFailedConsumer);
+                } else {
+                    log.debug("success send to es,desc:{}", request.getDescription());
+                }
             }
 
             @Override
@@ -172,33 +176,37 @@ public class EsPlugin {
                         , clazz.getTypeName()
                         , clazz.getCanonicalName()
                         , failure.getMessage());
-                MqMessageDTO MqMessageDTO = new MqMessageDTO();
-                MqMessageDTO.setEsInfo(esInfo);
-                List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
-                request.requests().stream().filter(x -> x instanceof IndexRequest)
-                        .forEach(x -> {
-                            Map source = ((IndexRequest) x).sourceAsMap();
-                            log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
-                            MqMessageDTO.CompensateMqDTO compensateMqDTO = new MqMessageDTO.CompensateMqDTO();
-                            compensateMqDTO.setMsg(JSON.toJSONString(source));
-                            compensateMqDTO.setEsIndex(x.index());
-                            compensateMqDTOS.add(compensateMqDTO);
-                        });
-                //The message is sent to mq for consumption - the data cannot be larger than 10M, otherwise it cannot be written, divided into 2 parts
-                int length = JSON.toJSONString(compensateMqDTOS).getBytes().length;
-                if (length > SINGLE_MESSAGE_BYTES_MAXIMAL) {
-                    List<List<MqMessageDTO.CompensateMqDTO>> splitList = ListUtil.partition(compensateMqDTOS, 2);
-                    for (List<MqMessageDTO.CompensateMqDTO> mqDTOS : splitList) {
-                        MqMessageDTO.setCompensateMqDTOS(mqDTOS);
-                        onFailedConsumer.accept(MqMessageDTO);
-                    }
-                } else {
-                    MqMessageDTO.setCompensateMqDTOS(compensateMqDTOS);
-                    onFailedConsumer.accept(MqMessageDTO);
-                }
+                sendMessageToTopic(request, esInfo, onFailedConsumer);
             }
         }));
         return esProcessor;
+    }
+
+    private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
+        MqMessageDTO MqMessageDTO = new MqMessageDTO();
+        MqMessageDTO.setEsInfo(esInfo);
+        List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
+        request.requests().stream().filter(x -> x instanceof IndexRequest)
+                .forEach(x -> {
+                    Map source = ((IndexRequest) x).sourceAsMap();
+                    log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
+                    MqMessageDTO.CompensateMqDTO compensateMqDTO = new MqMessageDTO.CompensateMqDTO();
+                    compensateMqDTO.setMsg(JSON.toJSONString(source));
+                    compensateMqDTO.setEsIndex(x.index());
+                    compensateMqDTOS.add(compensateMqDTO);
+                });
+        //The message is sent to mq for consumption - the data cannot be larger than 10M, otherwise it cannot be written, divided into 2 parts
+        int length = JSON.toJSONString(compensateMqDTOS).getBytes().length;
+        if (length > SINGLE_MESSAGE_BYTES_MAXIMAL) {
+            List<List<MqMessageDTO.CompensateMqDTO>> splitList = ListUtil.partition(compensateMqDTOS, 2);
+            for (List<MqMessageDTO.CompensateMqDTO> mqDTOS : splitList) {
+                MqMessageDTO.setCompensateMqDTOS(mqDTOS);
+                onFailedConsumer.accept(MqMessageDTO);
+            }
+        } else {
+            MqMessageDTO.setCompensateMqDTOS(compensateMqDTOS);
+            onFailedConsumer.accept(MqMessageDTO);
+        }
     }
 
     private static String cacheKey(StorageInfo esInfo) {

@@ -40,7 +40,9 @@ public interface CommonExtensionService {
 
     BoolQueryBuilder commonRangeQuery(LogQuery logQuery);
 
-    TermQueryBuilder multipleChooseBuilder(Long storeId, String chooseVal);
+    String getSortedKey(LogQuery logQuery, String sortedKey);
+
+    TermQueryBuilder multipleChooseBuilder(DefaultCommonExtensionService.QueryTypeEnum queryTypeEnum, Long storeId, String chooseVal);
 
     String queryDateHistogramField(Long storeId);
 

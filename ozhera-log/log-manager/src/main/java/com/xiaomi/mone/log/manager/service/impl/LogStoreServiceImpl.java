@@ -121,7 +121,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         if (StringUtils.isNotEmpty(errorInfos)) {
             return Result.failParam(errorInfos);
         }
-        if (!cmd.getNameSameStatus() && logStoreDao.verifyExistByName(cmd.getLogstoreName(), null)) {
+        if (!cmd.getNameSameStatus() && logStoreDao.verifyExistByName(cmd.getLogstoreName(), null, cmd.getSpaceId())) {
             return new Result<>(CommonError.UnknownError.getCode(), "There is a store name with the same name", "");
         }
         List<MilogLogStoreDO> logStoreDOS = logStoreDao.queryBySpaceIdNamed(cmd.getSpaceId(), cmd.getLogstoreName());
@@ -226,7 +226,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         if (StringUtils.isNotEmpty(errorInfos)) {
             return Result.failParam(errorInfos);
         }
-        if (logStoreDao.verifyExistByName(param.getLogstoreName(), param.getId())) {
+        if (logStoreDao.verifyExistByName(param.getLogstoreName(), param.getId(), param.getSpaceId())) {
             return new Result(CommonError.UnknownError.getCode(), "There is a store name with the same name", "");
         }
 

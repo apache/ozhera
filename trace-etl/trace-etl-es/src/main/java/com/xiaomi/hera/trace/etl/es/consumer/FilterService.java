@@ -40,6 +40,8 @@ public class FilterService {
 
     @NacosValue(value = "${trace.es.filter.spanname}", autoRefreshed = true)
     private String filterSpanName;
+    @NacosValue(value = "${trace.es.filter.app.name}", autoRefreshed = true)
+    private String appName;
     @NacosValue(value = "${trace.threshold}", autoRefreshed = true)
     private int defThreshold;
     @NacosValue(value = "${trace.duration.threshold}", autoRefreshed = true)
@@ -60,6 +62,11 @@ public class FilterService {
         FilterResult filterResult = new FilterResult();
         // spanName Blacklist
         if (filterSpanName.contains(spanName)) {
+            filterResult.setDiscard(true);
+            return filterResult;
+        }
+        // app 黑名单
+        if (appName.contains(serviceName)) {
             filterResult.setDiscard(true);
             return filterResult;
         }

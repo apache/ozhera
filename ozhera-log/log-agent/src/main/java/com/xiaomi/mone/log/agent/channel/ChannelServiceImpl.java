@@ -382,9 +382,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         ReadListener listener = initFileReadListener(mLog, patternCode, usedIp, filePath);
         Map<String, ChannelMemory.FileProgress> fileProgressMap = channelMemory.getFileProgressMap();
-        if (!collectOnce) {
-            log.info("fileProgressMap:{}", gson.toJson(fileProgressMap));
-        }
+        printMapToJson(fileProgressMap, collectOnce);
+
         ILogFile logFile = getLogFile(filePath, listener, fileProgressMap);
         if (null == logFile) {
             log.warn("file:{} marked stop to collect", filePath);
@@ -417,6 +416,25 @@ public class ChannelServiceImpl extends AbstractChannelService {
         Future future = futureMap.get(filePath);
         if (null != future) {
             future.cancel(false);
+        }
+    }
+
+    private void printMapToJson(Map<String, ChannelMemory.FileProgress> map, boolean collectOnce) {
+        if (map == null || map.isEmpty()) {
+            return;
+        }
+
+        Map<String, ChannelMemory.FileProgress> snapshot;
+        try {
+            snapshot = new HashMap<>(map);
+        } catch (ConcurrentModificationException e) {
+            log.error("Failed to create snapshot of fileProgressMap", e);
+            return;
+        }
+
+        if (!collectOnce && !snapshot.isEmpty()) {
+            String jsonMap = gson.toJson(snapshot);
+            log.info("fileProgressMap: {}", jsonMap);
         }
     }
 

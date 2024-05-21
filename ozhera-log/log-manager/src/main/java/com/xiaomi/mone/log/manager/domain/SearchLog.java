@@ -15,21 +15,26 @@
  */
 package com.xiaomi.mone.log.manager.domain;
 
+import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
+import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.mone.log.manager.model.vo.LogContextQuery;
 import com.xiaomi.mone.log.manager.model.vo.LogQuery;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionService;
 import com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionServiceFactory;
+import com.xiaomi.mone.log.manager.service.extension.common.DefaultCommonExtensionService;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.DoceanConfig;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.es.antlr4.common.util.EsQueryUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,10 +42,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class SearchLog {
+
+    @Resource
+    private MilogLogTailDao tailDao;
 
     private CommonExtensionService commonExtensionService;
 
@@ -56,6 +65,9 @@ public class SearchLog {
      * @return
      */
     public BoolQueryBuilder getQueryBuilder(LogQuery logQuery, List<String> keyList) {
+        // process tail id
+        processTailNamesToIds(logQuery);
+
         BoolQueryBuilder boolQueryBuilder = buildCommonBuilder(logQuery);
         if (StringUtils.isEmpty(logQuery.getFullTextSearch())) {
             return boolQueryBuilder;
@@ -70,15 +82,21 @@ public class SearchLog {
     private BoolQueryBuilder buildCommonBuilder(LogQuery logQuery) {
         BoolQueryBuilder boolQueryBuilder = commonExtensionService.commonRangeQuery(logQuery);
         // Support tail multi-selection
-        if (StringUtils.isNotEmpty(logQuery.getTail())) {
-            BoolQueryBuilder tailQueryBuilder = QueryBuilders.boolQuery();
-            String[] tailLimitArray = logQuery.getTail().split(",");
-            for (String tail : tailLimitArray) {
-                tailQueryBuilder.should(commonExtensionService.multipleChooseBuilder(logQuery.getStoreId(), tail));
+        BoolQueryBuilder tailQueryBuilder = QueryBuilders.boolQuery();
+        if (CollectionUtils.isNotEmpty(logQuery.getTailIds())) {
+            for (Long tailId : logQuery.getTailIds()) {
+                tailQueryBuilder.should(commonExtensionService.multipleChooseBuilder(DefaultCommonExtensionService.QueryTypeEnum.ID, logQuery.getStoreId(), tailId.toString()));
             }
-            tailQueryBuilder.minimumShouldMatch(1);
-            boolQueryBuilder.filter(tailQueryBuilder);
+        } else {
+            if (StringUtils.isNotEmpty(logQuery.getTail())) {
+                String[] tailLimitArray = logQuery.getTail().split(",");
+                for (String tail : tailLimitArray) {
+                    tailQueryBuilder.should(commonExtensionService.multipleChooseBuilder(DefaultCommonExtensionService.QueryTypeEnum.TEXT, logQuery.getStoreId(), tail));
+                }
+            }
         }
+        tailQueryBuilder.minimumShouldMatch(1);
+        boolQueryBuilder.filter(tailQueryBuilder);
         return boolQueryBuilder;
     }
 
@@ -354,6 +372,17 @@ public class SearchLog {
             return duration + "s";
         } else {
             return "";
+        }
+    }
+
+    private void processTailNamesToIds(LogQuery logQuery) {
+        if (StringUtils.isNotEmpty(logQuery.getTail())) {
+            List<String> tailNames = List.of(logQuery.getTail().split(","));
+            List<MilogLogTailDo> logTailDos = tailDao.queryByNames(logQuery.getStoreId(), tailNames);
+            List<Long> tailIds = logTailDos.stream()
+                    .map(MilogLogTailDo::getId)
+                    .collect(Collectors.toList());
+            logQuery.setTailIds(tailIds);
         }
     }
 }

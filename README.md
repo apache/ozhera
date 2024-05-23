@@ -31,7 +31,7 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 
 ## Getting Started
 ### Live Demo
-+ [https://ozhera.demo.yling.top](https://ozhera.demo.yling.top/)
++ [https://ozhera.demo.m.one.mi.com/](https://ozhera.demo.yling.top/)
 + username: ozhera@ozhera.com
 + password: 123456
 

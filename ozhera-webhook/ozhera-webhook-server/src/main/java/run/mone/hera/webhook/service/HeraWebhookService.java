@@ -55,7 +55,7 @@ public class HeraWebhookService {
     private static final String MIONE_PROJECT_ENV_ID = "MIONE_PROJECT_ENV_ID";
     // cad need env
     // "-" replace of "_"
-    private static final String APPLICATION = "APPLICATION";
+    private static final String APPLICATION = "application";
     private static final String SERVER_ENV = "serverEnv";
 
     private static final String POD_IP_CAD = "POD_IP";
@@ -508,7 +508,7 @@ public class HeraWebhookService {
     private String getEnvValueByEnvKeyType(JSONObject admissionRequest) {
         String envLabelValue = null;
         if ("label".equals(envKeyType)) {
-            envLabelValue = getLabelValue(appKeyName, admissionRequest.getJSONObject("object")
+            envLabelValue = getLabelValue(envKeyName, admissionRequest.getJSONObject("object")
                     .getJSONObject("metadata").getJSONObject("labels"));
         } else if ("env".equals(envKeyType)) {
             envLabelValue = System.getenv(envKeyName);

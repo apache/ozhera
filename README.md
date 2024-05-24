@@ -35,13 +35,19 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 + username: ozhera@ozhera.com
 + password: 123456
 
+---
+
 ### Official Website
 
 Welcome to visit the [official website](https://ozhera.m.one.mi.com/) of OzHera.
 
+---
+
 ### Community Website
 
 Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
+
+---
 
 ### Deployment
 [operator-usage-document.md](readme%2Fdeploy%2Fozhera-deploy-document.md)

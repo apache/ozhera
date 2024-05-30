@@ -229,7 +229,6 @@ public class MetricDetailQuery implements Serializable {
     }
 
     /**
-     * //TODO 添加子类别（区分慢查询/异常 等待丁涛）、sql（对应url），errorCode，耗时-duration
      * @return
      */
     public Map<String,String> convertEsParam(String exceptionTraceDomain){

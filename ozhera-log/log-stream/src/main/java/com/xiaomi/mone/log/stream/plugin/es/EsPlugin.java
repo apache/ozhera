@@ -18,6 +18,7 @@ package com.xiaomi.mone.log.stream.plugin.es;
 import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.xiaomi.mone.es.EsProcessor;
 import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.model.StorageInfo;
@@ -36,9 +37,11 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
@@ -53,9 +56,11 @@ public class EsPlugin {
 
     public static final int SINGLE_MESSAGE_BYTES_MAXIMAL = 10 * 1024 * 1024;
 
-    private static int DEFAULT_PROCESSOR_COUNT = 3;
+    private static int DEFAULT_PROCESSOR_COUNT = 1;
 
     private static ReentrantLock esLock = new ReentrantLock();
+
+    private static Gson gson = new Gson();
 
     public static boolean InitEsConfig() {
         EsConfig config = new EsConfig();
@@ -119,17 +124,19 @@ public class EsPlugin {
                 esLock.unlock();
             }
         }
-        return getEsProcessorAverage(esProcessorMap.get(cacheKey(esInfo)));
+        return getLeastUsedEsProcessor(esProcessorMap.get(cacheKey(esInfo)));
     }
 
-    private static EsProcessor getEsProcessorAverage(List<Pair<EsProcessor, Integer>> esProcessorList) {
-        Collections.sort(esProcessorList, Comparator.comparingInt(Pair::getValue));
-        Pair<EsProcessor, Integer> esProcessorIntegerPair = esProcessorList.get(0);
+    private static EsProcessor getLeastUsedEsProcessor(List<Pair<EsProcessor, Integer>> esProcessorList) {
+        List<Pair<EsProcessor, Integer>> unmodifiableEsProcessorList = new ArrayList<>(esProcessorList);
+        Collections.sort(unmodifiableEsProcessorList, Comparator.comparingInt(Pair::getValue));
+        Pair<EsProcessor, Integer> esProcessorIntegerPair = unmodifiableEsProcessorList.get(0);
         esProcessorIntegerPair.setValue(esProcessorIntegerPair.getValue() + 1);
         return esProcessorIntegerPair.getKey();
     }
 
     private static EsProcessor buildEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer, EsService esService) {
+        AtomicLong errorCount = new AtomicLong(0);
         EsProcessor esProcessor = esService.getEsProcessor(new EsProcessorConf(config.getBulkActions(), config.getByteSize(), config.getConcurrentRequest(), config.getFlushInterval(),
                 config.getRetryNumber(), config.getRetryInterval(), new BulkProcessor.Listener() {
             @Override
@@ -140,6 +147,7 @@ public class EsPlugin {
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 if (response.hasFailures()) {
+                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests()), gson.toJson(response));
                     AtomicInteger count = new AtomicInteger();
                     response.spliterator().forEachRemaining(x -> {
                         if (x.isFailed()) {
@@ -159,7 +167,7 @@ public class EsPlugin {
                         }
                     });
                     log.debug("Finished handling bulk commit executionId:[{}] for {} requests with {} errors", executionId, request.numberOfActions(), count.intValue());
-                    sendMessageToTopic(request, esInfo, onFailedConsumer);
+//                    sendMessageToTopic(request, esInfo, onFailedConsumer);
                 } else {
                     log.debug("success send to es,desc:{}", request.getDescription());
                 }
@@ -167,6 +175,14 @@ public class EsPlugin {
 
             @Override
             public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                if (failure instanceof IOException &&
+                        failure.getMessage().contains("Unable to parse response body for")) {
+                    long errorDecrement = errorCount.getAndDecrement();
+                    if (errorDecrement == 0 || errorDecrement % 500 == 0) {
+                        log.error("afterBulk response error", failure);
+                    }
+                    return;
+                }
                 log.error(String.format("fail send %s message to es,desc:%s,es addr:%s", request.numberOfActions(), request.getDescription(), esInfo.getAddr()), new RuntimeException(failure));
                 Class clazz = failure.getClass();
                 log.error("Bulk [{}] finished with [{}] requests of error:{}, {}, {}:-[{}]", executionId

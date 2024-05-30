@@ -229,7 +229,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                     /**
                      * OPENTELEMETRY Special processing of logs
                      */
-                    if (LogTypeEnum.OPENTELEMETRY == monitorFile.getLogTypeEnum()) {
+                    if (LogTypeEnum.OPENTELEMETRY == monitorFile.getLogTypeEnum() || reOpenFilePath.contains(PATH_WILDCARD)) {
                         reOpenFilePath = String.format("%s%s%s", StringUtils.substringBeforeLast(changedFilePath, SEPARATOR),
                                 SEPARATOR, StringUtils.substringAfterLast(reOpenFilePath, SEPARATOR));
                     }
@@ -243,7 +243,6 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                             changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress(), channelServiceEntry.getValue().instanceId());
                 }
             }
-
         }
     }
 

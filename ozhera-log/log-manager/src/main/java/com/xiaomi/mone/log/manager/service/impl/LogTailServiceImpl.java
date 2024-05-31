@@ -189,7 +189,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     private void deleteMqRel(Long milogAppId, Long tailId) {
-        milogAppMiddlewareRelDao.deleteRel(milogAppId, tailId);
+        if (null != tailId) {
+            milogAppMiddlewareRelDao.deleteRel(milogAppId, tailId);
+        }
     }
 
     @Override
@@ -434,7 +436,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                     boolean supportedConsume = logTypeProcessor.supportedConsume(logStoreDO.getLogType());
                     tailExtensionService.updateSendMsg(milogLogtailDo, oldIps, supportedConsume);
                 } catch (Exception e) {
-                    new Result<>(CommonError.UnknownError.getCode(), CommonError.UnknownError.getMessage(), "Push configuration error");
+                    log.error("update tail error", e);
                 }
             }
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());

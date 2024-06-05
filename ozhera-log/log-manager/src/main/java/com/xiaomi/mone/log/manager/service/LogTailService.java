@@ -77,7 +77,7 @@ public interface LogTailService {
      * @param deployWay
      * @return
      */
-    Result<List<MilogAppEnvDTO>> getEnInfosByAppId(Long milogAppId, Integer deployWay);
+    Result<List<MilogAppEnvDTO>> getEnInfosByAppId(Long milogAppId, Integer deployWay, String machineRoom);
 
     Result<List<String>> getTailNamesBystoreId(String tail, Integer appType, Long id);
 

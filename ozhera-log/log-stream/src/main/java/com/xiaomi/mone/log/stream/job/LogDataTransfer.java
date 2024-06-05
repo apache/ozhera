@@ -15,13 +15,16 @@
  */
 package com.xiaomi.mone.log.stream.job;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
+import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.parse.LogParser;
 import com.xiaomi.mone.log.stream.common.LogStreamConstants;
 import com.xiaomi.mone.log.stream.common.SinkJobEnum;
 import com.xiaomi.mone.log.stream.job.extension.DefaultLogSendFilter;
+import com.xiaomi.mone.log.stream.job.extension.MessageLifecycleManager;
 import com.xiaomi.mone.log.stream.job.extension.MessageSender;
 import com.xiaomi.mone.log.stream.job.extension.MqMessagePostProcessing;
 import com.xiaomi.mone.log.stream.sink.SinkChain;
@@ -67,6 +70,8 @@ public class LogDataTransfer {
 
     private LogSendFilter logSendFilter;
 
+    private MessageLifecycleManager messageLifecycleManager;
+
     public LogDataTransfer(SinkChain sinkChain, LogParser logParser,
                            MessageSender messageSender, SinkJobConfig sinkJobConfig) {
         this.sinkChain = sinkChain;
@@ -76,33 +81,58 @@ public class LogDataTransfer {
         String mqPostProcessingBean = sinkJobConfig.getMqType() + LogStreamConstants.postProcessingProviderBeanSuffix;
         this.messagePostProcessing = Ioc.ins().getBean(mqPostProcessingBean);
         this.logSendFilter = Ioc.ins().getBean(DefaultLogSendFilter.class);
+
+        this.messageLifecycleManager = getMessageLifecycleManager();
+    }
+
+    private MessageLifecycleManager getMessageLifecycleManager() {
+        String factualServiceName = Config.ins().get("message.lifecycle.manager", DEFAULT_MESSAGE_LIFECYCLE_MANAGER);
+        return Ioc.ins().getBean(factualServiceName);
     }
 
 
     public void handleMessage(String type, String msg, String time) {
-        Map<String, Object> dataMap;
         try {
-            LineMessage lineMessage = objectMapper.readValue(msg, LineMessage.class);
+            LineMessage lineMessage = parseLineMessage(msg);
 
-            String ip = lineMessage.getProperties(LineMessage.KEY_IP);
-            Long lineNumber = lineMessage.getLineNumber();
-            dataMap = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, lineMessage.getTimestamp(), lineMessage.getFileName());
-            putCommonData(dataMap);
-            if (SinkJobEnum.NORMAL_JOB == jobType) {
-                if (null != dataMap && !sinkChain.execute(dataMap)) {
-                    sendMessage(dataMap);
-                }
-            } else {
-                sendMessage(dataMap);
-            }
-            if (sendMsgNumber.get() % COUNT_NUM == 0 || sendMsgNumber.get() == 1) {
-                log.info(jobType.name() + " send msg:{}", dataMap);
-            }
+            messageLifecycleManager.beforeProcess(sinkJobConfig, lineMessage);
+
+            Map<String, Object> dataMap = parseMessage(lineMessage);
+
+            messageLifecycleManager.afterProcess(sinkJobConfig, lineMessage, dataMap);
+
+            toSendMessage(dataMap);
+
             messagePostProcessing.postProcessing(sinkJobConfig, msg);
         } catch (Exception e) {
             log.error(jobType.name() + " parse and send error", e);
             throw new RuntimeException(String.format("handleMessage error,msg:%s", msg), e);
         }
+    }
+
+    private void toSendMessage(Map<String, Object> dataMap) throws Exception {
+        if (SinkJobEnum.NORMAL_JOB == jobType) {
+            if (null != dataMap && !sinkChain.execute(dataMap)) {
+                sendMessage(dataMap);
+            }
+        } else {
+            sendMessage(dataMap);
+        }
+        if (sendMsgNumber.get() % COUNT_NUM == 0 || sendMsgNumber.get() == 1) {
+            log.info(jobType.name() + " send msg:{}", dataMap);
+        }
+    }
+
+    private Map<String, Object> parseMessage(LineMessage lineMessage) {
+        String ip = lineMessage.getProperties(LineMessage.KEY_IP);
+        Long lineNumber = lineMessage.getLineNumber();
+        Map<String, Object> dataMap = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, lineMessage.getTimestamp(), lineMessage.getFileName());
+        putCommonData(dataMap);
+        return dataMap;
+    }
+
+    private LineMessage parseLineMessage(String msg) throws JsonProcessingException {
+        return objectMapper.readValue(msg, LineMessage.class);
     }
 
     private void putCommonData(Map<String, Object> dataMap) {

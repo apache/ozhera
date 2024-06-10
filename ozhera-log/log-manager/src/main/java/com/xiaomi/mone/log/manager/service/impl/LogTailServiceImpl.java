@@ -189,7 +189,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     private void deleteMqRel(Long milogAppId, Long tailId) {
-        milogAppMiddlewareRelDao.deleteRel(milogAppId, tailId);
+        if (null != tailId) {
+            milogAppMiddlewareRelDao.deleteRel(milogAppId, tailId);
+        }
     }
 
     @Override
@@ -434,7 +436,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                     boolean supportedConsume = logTypeProcessor.supportedConsume(logStoreDO.getLogType());
                     tailExtensionService.updateSendMsg(milogLogtailDo, oldIps, supportedConsume);
                 } catch (Exception e) {
-                    new Result<>(CommonError.UnknownError.getCode(), CommonError.UnknownError.getMessage(), "Push configuration error");
+                    log.error("update tail error", e);
                 }
             }
             return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage());
@@ -548,7 +550,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
      * @return
      */
     @Override
-    public Result<List<MilogAppEnvDTO>> getEnInfosByAppId(Long milogAppId, Integer deployWay) {
+    public Result<List<MilogAppEnvDTO>> getEnInfosByAppId(Long milogAppId, Integer deployWay, String machineRoom) {
         if (null == milogAppId) {
             return Result.failParam("The parameter cannot be empty");
         }
@@ -556,7 +558,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         if (null == appBaseInfo) {
             return Result.failParam("The app does not exist");
         }
-        List<MilogAppEnvDTO> appEnvDTOList = tailExtensionService.getEnInfosByAppId(appBaseInfo, milogAppId, deployWay);
+        List<MilogAppEnvDTO> appEnvDTOList = tailExtensionService.getEnInfosByAppId(appBaseInfo, milogAppId, deployWay,machineRoom);
         return Result.success(appEnvDTOList);
     }
 

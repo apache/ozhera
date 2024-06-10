@@ -149,7 +149,7 @@ public class DefaultTailExtensionService implements TailExtensionService {
     }
 
     @Override
-    public List<MilogAppEnvDTO> getEnInfosByAppId(AppBaseInfo appBaseInfo, Long milogAppId, Integer deployWay) {
+    public List<MilogAppEnvDTO> getEnInfosByAppId(AppBaseInfo appBaseInfo, Long milogAppId, Integer deployWay, String machineRoom) {
         List<HeraSimpleEnv> heraSimpleEnvs = null;
         try {
             heraSimpleEnvs = heraAppEnvService.querySimpleEnvAppBaseInfoId(milogAppId.intValue());

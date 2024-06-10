@@ -13,16 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.agent.common;
+package com.xiaomi.mone.log.stream.job.extension;
+
+import com.xiaomi.mone.log.api.model.msg.LineMessage;
+import com.xiaomi.mone.log.stream.job.SinkJobConfig;
+
+import java.util.Map;
 
 /**
- * @Author goodjava@qq.com
- * @Date 2021/6/22 13:46
+ *
+ * @description
+ * @version 1.0
+ * @author wtt
+ * @date 2024/6/4 11:20
+ *
  */
-public class Version {
+public interface MessageLifecycleManager {
 
-    @Override
-    public String toString() {
-        return "0.0.1:20240528";
-    }
+    void beforeProcess(SinkJobConfig sinkJobConfig, LineMessage lineMessage);
+
+    void afterProcess(SinkJobConfig sinkJobConfig, LineMessage lineMessage, Map<String, Object> message);
 }

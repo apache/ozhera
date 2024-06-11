@@ -310,7 +310,7 @@ public class AlertHelper {
         if (interval == null) {
             return;
         }
-        content.append("每").append(interval.getMessage());
+        content.append("每").append(interval.getLabel());
     }
 
     /**

@@ -43,12 +43,6 @@ Welcome to visit the [official website](https://ozhera.m.one.mi.com/) of OzHera.
 
 ---
 
-### Community Website
-
-Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
-
----
-
 ### Deployment
 [operator-usage-document.md](readme%2Fdeploy%2Fozhera-deploy-document.md)
 
@@ -85,6 +79,7 @@ We warmly welcome your valuable opinions and suggestions about the project. Whet
 
 #### Community Engagement
 - We also welcome you to join our community for discussions and exchanges:
+    - Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
     - [GitHub Discussions](https://github.com/your/project/discussions)
 
 ---

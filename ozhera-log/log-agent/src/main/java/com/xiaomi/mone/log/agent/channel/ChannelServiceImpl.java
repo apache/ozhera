@@ -399,6 +399,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     log.info("thread {} {}", Thread.currentThread().isVirtual(), Thread.currentThread());
                     logFile.readLine();
                 } catch (Exception e) {
+                    logFile.setExceptionFinish();
                     log.error("logFile read line err,channelId:{},localIp:{},file:{},patternCode:{}", channelId, usedIp, fileProgressMap, patternCode, e);
                 }
             });
@@ -565,7 +566,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             ILogFile logFile = logFileMap.get(filePath);
             String tailPodIp = getTailPodIp(filePath);
             String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
-            if (null == logFile) {
+            if (null == logFile || logFile.getExceptionFinish()) {
                 // Add new log file
                 readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
                 log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);

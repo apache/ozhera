@@ -116,13 +116,13 @@ public class JobManager {
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
             SinkJobProvider sinkJobProvider = Ioc.ins().getBean(sinkProviderBean);
 
-            if (StringUtils.equalsAnyIgnoreCase(SinkJobEnum.NORMAL_JOB.name(), sinkJobType)) {
+            if (StringUtils.equalsIgnoreCase(SinkJobEnum.NORMAL_JOB.name(), sinkJobType)) {
                 sinkJobConfig.setJobType(SinkJobEnum.NORMAL_JOB.name());
                 startSinkJob(sinkJobProvider.getSinkJob(sinkJobConfig), SinkJobEnum.NORMAL_JOB,
                         logtailConfig.getLogtailId());
             }
 
-            if (StringUtils.equalsAnyIgnoreCase(SinkJobEnum.BACKUP_JOB.name(), sinkJobType)) {
+            if (StringUtils.equalsIgnoreCase(SinkJobEnum.BACKUP_JOB.name(), sinkJobType)) {
                 sinkJobConfig.setJobType(SinkJobEnum.BACKUP_JOB.name());
                 startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
                         logtailConfig.getLogtailId());

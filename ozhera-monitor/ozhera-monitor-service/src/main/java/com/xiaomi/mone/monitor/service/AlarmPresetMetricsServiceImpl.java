@@ -35,6 +35,7 @@ public class AlarmPresetMetricsServiceImpl implements AlarmPresetMetricsService 
                 continue;
             }
             MetricsRule rule = new MetricsRule(value.getCode(),value.getMessage(), value.getUnit().getCode(), value.getStrategyType().getCode(),value.getMetricType().getName(),value.getHideValueConfig());
+            rule.setEnLable(value.getMessageEn());
             kind = map.get(value);
             if (kind != null) {
                 rule.setKind(kind.getKind());

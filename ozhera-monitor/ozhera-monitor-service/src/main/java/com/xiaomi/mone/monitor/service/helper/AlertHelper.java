@@ -23,11 +23,8 @@ import com.xiaomi.mone.monitor.service.model.alarm.duty.DutyInfo;
 import com.xiaomi.mone.monitor.service.prometheus.AlarmService;
 import com.xiaomi.mone.monitor.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -302,7 +299,7 @@ public class AlertHelper {
             content.append("立即触发").append(", ");
             return;
         }
-        content.append(count.getMessage()).append(", ");
+        content.append(count.getLabel()).append(", ");
     }
 
     private void buildAlarmSendInterval(StringBuilder content, JsonObject data) {

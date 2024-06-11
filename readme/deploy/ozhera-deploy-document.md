@@ -8,7 +8,7 @@ OzHera is an enterprise-level observability platform with a very high complexity
 
 ## 2. Deployment Steps
 
-ozhera-all/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
+ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 
 ### 2.1 Create a Separate Namespace and Account
 
@@ -87,7 +87,7 @@ The purpose is to select a usable mysql database for ozhera.
 - If you already have a database and don't need k8s to create it:
   1. Turn off the "Create resources based on yaml" button;
   2. Fill in the correct existing database url, username, and password;
-  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera-all/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql directory.
+  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql directory.
 
 ![ozhera-mysql2.jpg](images%2Fozhera-mysql2.jpg)
 
@@ -118,7 +118,7 @@ The purpose is to select a RocketMQ available for ozhera.
 - If you need k8s to automatically set up a RocketMQ:
   1. You need to turn on the "Create resources based on yaml" button;
   2. The RocketMQ created by the default yaml has no accessKey or secretKey. If you need to set up accessKey or secretKey, you need to modify the values of ozhera.rocketmq.ak and ozhera.rocketmq.sk on the right "Connection Information";
-  3. If you need to change the service of the RocketMQ broker, you need to replace the service in the yaml and the "brokerAddr" member variable value of the run.mone.ozhera.operator.service.RocketMQSerivce class in the ozoperator code.
+  3. If you need to change the service of the RocketMQ broker, you need to replace the service in the yaml and the "brokerAddr" member variable value of the run.mone.ozhera.operator.service.RocketMQSerivce class in the ozhera-operator code.
 
 ![ozhera-rocketmq.jpg](images%2Fozhera-rocketmq.jpg)
 
@@ -344,6 +344,15 @@ Please note:
 - The number of pod replicas and pod resource limits should be adjusted based on the amount of traffic.
 
 ![ozhera-log-manager.jpg](images%2Fozhera-log-manager.jpg)
+
+##### OzHera-log-stream
+ozhera-log-stream is responsible for consuming application log information in MQ, then parsing the application logs, and finally storing them in the storage space (ES)
+
+Please note:
+* This service is a StatefulSet service.
+* You need to inject an environment variable MONE_CONTAINER_S_POD_NAME, whose value is the name of the container pod.
+
+![ozhera-log-stream.jpg](images%2Fozhera-log-stream.jpg)
 
 #### Cluster Deployment
 

@@ -525,12 +525,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-api</artifactId>
-                <version>1.4-jdk21-2</version>
+                <version>1.4-jdk21-3</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>app-common</artifactId>
-                <version>1.4-jdk21-1</version>
+                <version>1.4-jdk21-3</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -605,7 +605,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>file</artifactId>
-                <version>${jcommon.release.version}</version>
+                <version>1.5.1-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

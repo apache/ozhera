@@ -24,7 +24,7 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 - 准：基于业务错误码提取可用性指标
 - 快：metrics-tracing-logging联动
 - 经济：<0.1%存储成本，满足99.9%的tracing诉求
-- 拥抱云原生：遵循Opentracing标准、深度适配K8S、集成集成Opentelemetry、Grafana、Prometheus、ES等多个开源明星产品
+- 拥抱云原生：遵循Opentracing标准、深度适配K8S、集成Opentelemetry、Grafana、Prometheus、ES等多个开源明星产品
 - 企业级可观测产品
 
 ---
@@ -72,6 +72,20 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 - 回答 [issues](https://github.com/XiaoMi/ozhera/issues)上的问题.
 - 修复 [issues](https://github.com/XiaoMi/ozhera/issues)上报告的错误,并向我们发送一个拉取请求.
 - 审查现有的 [pull request](https://github.com/XiaoMi/ozhera/pulls).
+
+---
+
+### 联系我们
+
+我们非常欢迎您对项目提出宝贵的意见和建议。无论您有技术问题、功能需求还是想要加入我们的开发团队，都可以通过以下方式与我们取得联系：
+
+#### 邮件联系
+- **邮箱地址**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **响应时间**: 我们会在收到邮件后的24小时内回复
+
+#### 社区交流
+- 我们也欢迎您加入我们的社区，参与讨论和交流：
+    - [GitHub Discussions](https://github.com/your/project/discussions)
 
 ---
 

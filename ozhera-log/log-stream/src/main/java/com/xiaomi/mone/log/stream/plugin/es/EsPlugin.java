@@ -147,7 +147,7 @@ public class EsPlugin {
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 if (response.hasFailures()) {
-                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests()), gson.toJson(response));
+                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests()), response.buildFailureMessage());
                     AtomicInteger count = new AtomicInteger();
                     response.spliterator().forEachRemaining(x -> {
                         if (x.isFailed()) {

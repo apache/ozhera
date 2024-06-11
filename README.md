@@ -75,6 +75,20 @@ How can I contribute?
 
 ---
 
+### Contact Us
+
+We warmly welcome your valuable opinions and suggestions about the project. Whether you have technical questions, feature requests, or wish to join our development team, please feel free to contact us through the following methods:
+
+#### Email Contact
+- **Email Address**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **Response Time**: We will respond to your email within 24 hours of receipt.
+
+#### Community Engagement
+- We also welcome you to join our community for discussions and exchanges:
+    - [GitHub Discussions](https://github.com/your/project/discussions)
+
+---
+
 ## User List
 
 If you are using OzHera and think that it helps you or want to contribute code for mone, please add your company to the user list to let us know your needs.

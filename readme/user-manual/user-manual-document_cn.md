@@ -32,7 +32,7 @@
 
 ##### (1) 应用健康度
 
-选择好自己的应用后（可以进一步选择环境、ip、时间范围），可以看到可用性、实例列表、调用量三个看图，其中可以主机列表和容器列表可以跳转到该物理机和容器的更加详细的监控，如下图所示：
+选择好自己的应用后（可以进一步选择环境、ip、时间范围），可以看到可用性、实例列表、调用量三个看图，其中主机列表和容器列表可以跳转到该物理机和容器的更加详细的监控，如下图所示：
 
 ![ozhera-app-healthy.png](images%2Fozhera-app-healthy.png)
 
@@ -42,7 +42,7 @@
 
 ##### (2) 业务指标
 
-业务指标提供http、dubbo调出（自己作为consumer）、dubbo调入(自己作为provider)三种调用方式的qps、p99-rt、avg-rt、top10-rt的图表。
+业务指标提供http、dubbo、grpc三类指标调入、调出的qps、p99-rt、avg-rt、top10-rt的图表。
 
 ![ozhera-business-metrics.png](images%2Fozhera-business-metrics.png)
 
@@ -94,9 +94,9 @@ jvm监控看图提供多维度的指标供用户查看，如下图所示：
 
 ### 4、接口大盘
 
-hera监控中，点击接口大盘，有如下图的监控看图，分为Dubbo Provider接口总览、Dubbo Provider接口大盘、Dubbo Consumer接口总览、Dubbo Consumer接口大盘、Http Server接口总览 以及Http Server接口大盘。
+点击接口大盘，有如下图的监控看图，分为Dubbo Provider接口总览、Dubbo Provider接口大盘、Dubbo Consumer接口总览、Dubbo Consumer接口大盘、Grpc Provider接口总览、Grpc Provider接口大盘、Grpc Consumer接口总览、Grpc Consumer接口大盘、Http Server接口总览 以及Http Server接口大盘。
 
-接口总览后缀的监控图表是以Table形式组织的监控数据，分为所有service聚合的总览、Dubbo service级别的总览和Dubbo method级别的总览。
+接口总览后缀的监控图表是以Table形式组织的监控数据，分为所有service聚合的总览、service级别的总览和method级别的总览。
 
 ![ozhera-large-cap.png](images%2Fozhera-large-cap.png)
 
@@ -118,7 +118,6 @@ hera监控中，点击接口大盘，有如下图的监控看图，分为Dubbo P
 
 在大盘中，可以查看多个服务的DB、http、dubbo、redis、load等重要的信息，并且在下方的应用列表中，点击应用的名字，可以快速跳转到此服务的详细监控页面。
 
-![ozhera-large-cap-detail.png](images%2Fozhera-large-cap-detail.png)
 
 ### 6、资源利用率大盘列表
 

@@ -43,12 +43,6 @@ Welcome to visit the [official website](https://ozhera.m.one.mi.com/) of OzHera.
 
 ---
 
-### Community Website
-
-Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
-
----
-
 ### Deployment
 [operator-usage-document.md](readme%2Fdeploy%2Fozhera-deploy-document.md)
 
@@ -72,6 +66,21 @@ How can I contribute?
 - Answer questions on [issues](https://github.com/XiaoMi/ozhera/issues).
 - Fix bugs reported on [issues](https://github.com/XiaoMi/ozhera/issues), and send us a pull request.
 - Review the existing [pull request](https://github.com/XiaoMi/ozhera/pulls).
+
+---
+
+### Contact Us
+
+We warmly welcome your valuable opinions and suggestions about the project. Whether you have technical questions, feature requests, or wish to join our development team, please feel free to contact us through the following methods:
+
+#### Email Contact
+- **Email Address**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **Response Time**: We will respond to your email within 24 hours of receipt.
+
+#### Community Engagement
+- We also welcome you to join our community for discussions and exchanges:
+    - Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
+    - [GitHub Discussions](https://github.com/your/project/discussions)
 
 ---
 

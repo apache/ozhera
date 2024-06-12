@@ -9,23 +9,25 @@ import java.util.*;
  */
 public enum AlarmCheckDataCount {
 
-    zero("0","立即触发"),
-    one("1","持续20s"),
-    two("2","持续40s"),
-    three("3","持续60s"),
-    five("5","持续100s"),
-    six("6","持续120s"),
-    seven("7","持续140s"),
-    eight("8","持续160s"),
-    nine("9","持续180s"),
-    fifteen("15","持续5m");
+    zero("0","立即触发","Trigger immediately"),
+    one("1","持续20s", "Lasts 20 seconds"),
+    two("2","持续40s", "Lasts 40 seconds"),
+    three("3","持续60s", "Lasts 60 seconds"),
+    five("5","持续100s", "Lasts 100 seconds"),
+    six("6","持续120s", "Lasts 120 seconds"),
+    seven("7","持续140s", "Lasts 140 seconds"),
+    eight("8","持续160s", "Lasts 160 seconds"),
+    nine("9","持续180s", "Lasts 180 seconds"),
+    fifteen("15","持续5m","Lasts 5 minutes");
 
     private String code;
-    private String message;
+    private String label;
+    private String enLabel;
 
-    AlarmCheckDataCount(String code, String message){
+    AlarmCheckDataCount(String code, String label, String enLabel){
         this.code = code;
-        this.message = message;
+        this.label = label;
+        this.enLabel = enLabel;
     }
 
     public static final AlarmCheckDataCount getByCode(String code) {
@@ -49,35 +51,43 @@ public enum AlarmCheckDataCount {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getLabel() {
+        return label;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getEnLabel() {
+        return enLabel;
+    }
+
+    public void setEnLabel(String enLabel) {
+        this.enLabel = enLabel;
     }
 
     public static Map<String,String> getEnumMap(){
         Map<String,String> map = new TreeMap<>();
         AlarmCheckDataCount[] values = AlarmCheckDataCount.values();
         for(AlarmCheckDataCount value : values){
-            map.put(value.getCode(),value.getMessage());
+            map.put(value.getCode(),value.getLabel());
         }
         return map;
     }
 
-    public static List<Pair> getEnumList(){
-        List <Pair> list = new ArrayList<>();
+    public static List<Triple> getEnumList(){
+        List <Triple> list = new ArrayList<>();
         AlarmCheckDataCount[] values = AlarmCheckDataCount.values();
         for(AlarmCheckDataCount value : values){
-            Pair pair = new Pair(Integer.parseInt(value.getCode()),value.getMessage());
-            list.add(pair);
+            Triple triple = new Triple(Integer.parseInt(value.getCode()),value.getLabel(), value.getEnLabel());
+            list.add(triple);
         }
         return list;
     }
 
     public static void main(String[] args) {
-        System.out.println(getEnumMap());
+        System.out.println(getEnumList());
     }
 
 }

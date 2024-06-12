@@ -7,16 +7,18 @@ import java.util.*;
  */
 public enum AlarmAlertLevel {
 
-    P0("P0","P0"),
-    P1("P1","P1"),
-    P2("P2","P2");
+    P0("P0","P0","P0"),
+    P1("P1","P1","P1"),
+    P2("P2","P2","P2");
 
     private String code;
-    private String message;
+    private String label;
+    private String labelEn;
 
-    AlarmAlertLevel(String code, String message){
+    AlarmAlertLevel(String code, String label, String labelEn){
         this.code = code;
-        this.message = message;
+        this.label = label;
+        this.labelEn = labelEn;
     }
 
     public String getCode() {
@@ -27,29 +29,37 @@ public enum AlarmAlertLevel {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getLabel() {
+        return label;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabelEn() {
+        return labelEn;
+    }
+
+    public void setLabelEn(String labelEn) {
+        this.labelEn = labelEn;
     }
 
     public static Map<String,String> getEnumMap(){
         Map<String,String> map = new TreeMap<>();
         AlarmAlertLevel[] values = AlarmAlertLevel.values();
         for(AlarmAlertLevel value : values){
-            map.put(value.getCode(),value.getMessage());
+            map.put(value.getCode(),value.getLabel());
         }
         return map;
     }
 
-    public static List<Pair> getEnumList(){
-        List <Pair> list = new ArrayList<>();
+    public static List<Triple> getEnumList(){
+        List <Triple> list = new ArrayList<>();
         AlarmAlertLevel[] values = AlarmAlertLevel.values();
         for(AlarmAlertLevel value : values){
-            Pair pair = new Pair(value.getCode(),value.getMessage());
-            list.add(pair);
+            Triple triple = new Triple(value.getCode(), value.getLabel(), value.getLabelEn());
+            list.add(triple);
         }
         return list;
     }

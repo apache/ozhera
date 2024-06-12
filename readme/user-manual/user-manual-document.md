@@ -455,7 +455,7 @@ First, you need to go to the Hera node in the TPC platform to add a new node:
 
 Enter the Logstore name, select the data center, and the type of log:
 
-![ozhera-log-store-create.png](images%2Fozhera-log-store-create.png)
+![ozhera-log-store-create.png](images%2Fen%2Fozhera-log-store-create.png)
 
 **Detailed Configuration Meaning:**
 
@@ -474,7 +474,7 @@ Enter the Logstore name, select the data center, and the type of log:
 
 ### 3. Create Logtail
 
-![ozhera-log-tail-create.png](images%2Fozhera-log-tail-create.png)
+![ozhera-log-tail-create.png](images%2Fen%2Fozhera-log-tail-create.png)
 
 **Configuration Meaning:**
 
@@ -510,7 +510,7 @@ Enter the Logstore name, select the data center, and the type of log:
 
 Supports full-text search of logs, v queries, k:v queries, and combined queries of and, or, not.
 
-![ozhera-log-query.png](images%2Fozhera-log-query.png)
+![ozhera-log-query.png](images%2Fen%2Fozhera-log-query.png)
 
 Detailed query syntax:
 - Keyword query: Directly input keywords for searching
@@ -526,7 +526,7 @@ Detailed query syntax:
 
 When the parsed log contains a traceId or trace_id field, a "View Trace" tag will be displayed.
 
-![ozhera-log-to-trace.png](images%2Fozhera-log-to-trace.png)
+![ozhera-log-to-trace.png](images%2Fen%2Fozhera-log-to-trace.png)
 
 ### 6. Collection Progress
 
@@ -534,17 +534,17 @@ Here you can see the current log collection application name, collection time, c
 
 From this progress, you can determine whether your logs are being collected properly. Contact us if the collection progress is abnormal for an extended period.
 
-![ozhera-log-collect-process.png](images%2Fozhera-log-collect-process.png)
+![ozhera-log-collect-process.png](images%2Fen%2Fozhera-log-collect-process.png)
 
 ### 7. Log Analysis
 
-![ozhera-log-analyze.png](images%2Fozhera-log-analyze.png)
+![ozhera-log-analyze.png](images%2Fen%2Fozhera-log-analyze.png)
 
 You can create a new chart. Selecting fields from the left will group them accordingly. Various types of charts clearly show proportions, assisting in log analysis and processing.
 
 ### 8. Log Authorization
 
-![ozhera-log-shouquan2.png](images%2Fozhera-log-shouquan2.png)
+![ozhera-log-shouquan2.png](images%2Fen%2Fozhera-log-shouquan2.png)
 
 Authorize the space you want to display, and the authorized space can also see the current store.
 
@@ -556,7 +556,7 @@ First, resources need to be created.
 
 Add RocketMQ resources:
 
-![ozhera-log-resource-mq.png](images%2Fozhera-log-resource-mq.png)
+![ozhera-log-resource-mq.png](images%2Fen%2Fozhera-log-resource-mq.png)
 
 **Configuration meaning:**
 
@@ -570,7 +570,7 @@ Add RocketMQ resources:
 
 Add ES resources:
 
-![ozhera-log-resource-es.png](images%2Fozhera-log-resource-es.png)
+![ozhera-log-resource-es.png](images%2Fen%2Fozhera-log-resource-es.png)
 
 **Configuration meaning:**
 

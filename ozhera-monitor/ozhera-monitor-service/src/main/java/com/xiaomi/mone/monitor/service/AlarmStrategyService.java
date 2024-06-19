@@ -5,6 +5,7 @@
  */
 package com.xiaomi.mone.monitor.service;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.xiaomi.mone.monitor.bo.AlarmStrategyInfo;
@@ -60,6 +61,9 @@ public class AlarmStrategyService {
     private AppAlarmRuleTemplateDao appAlarmRuleTemplateDao;
     @Autowired
     private MoneUserDetailService moneUserDetailService;
+
+    private static final List<String> orderSorts = Lists.newArrayList("asc","ASC","desc","DESC");
+    private static final List<String> orderColumn = Lists.newArrayList("update_time","strategy_name");
 
     public AlarmStrategy getById(Integer id){
         return appAlarmStrategyDao.getById(id);
@@ -331,6 +335,10 @@ public class AlarmStrategyService {
     }
 
     public Result<PageData<List<AlarmStrategyInfo>>> search(String user, AlarmStrategyParam param) {
+
+        if(!paramCheck(param)){
+            return Result.fail(ErrorCode.invalidParamError);
+        }
         AlarmStrategy strategy = new AlarmStrategy();
         strategy.setStrategyName(param.getStrategyName());
         strategy.setStrategyType(param.getStrategyType());
@@ -350,6 +358,20 @@ public class AlarmStrategyService {
         PageData<List<AlarmStrategyInfo>> pageData = appAlarmStrategyDao.searchByCond(user, param.isOwner(),strategy, param.getPage(), param.getPageSize(),param.getSortBy(),param.getSortOrder());
         ruleDataHandler(pageData.getList());
         return Result.success(pageData);
+    }
+
+    private boolean paramCheck(AlarmStrategyParam param){
+        if(!orderColumn.contains(param.getSortBy())){
+            log.info("param sortBy is error!");
+            log.error("param sortBy is error!");
+            return false;
+        }
+        if(!orderSorts.contains(param.getSortOrder())){
+            log.info("param sortOrder is error!");
+            log.error("param sortOrder is error!");
+            return false;
+        }
+        return true;
     }
 
     private List<AlarmStrategyInfo> listStrategyByAppIdAndIamId(Integer appId,Integer iamId){

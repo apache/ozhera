@@ -79,7 +79,7 @@ public class MilogLogStoreDO extends BaseCommon {
     @Column(value = "is_matrix_app")
     @ColDefine(type = ColType.BOOLEAN)
     @Default("false")
-    private Boolean isMatrixApp;
+    private Boolean usePlatformResource;
 
     @Column(value = "es_index")
     @ColDefine(type = ColType.VARCHAR, width = 256)
@@ -99,18 +99,18 @@ public class MilogLogStoreDO extends BaseCommon {
     public MilogLogStoreDO() {
     }
 
-    public MilogLogStoreDO(Long spaceId, String logstoreName, Integer storePeriod, Integer shardCnt, String keyList, Integer logType, Boolean isMatrixApp) {
+    public MilogLogStoreDO(Long spaceId, String logstoreName, Integer storePeriod, Integer shardCnt, String keyList, Integer logType, Boolean usePlatformResource) {
         this.logstoreName = logstoreName;
         this.spaceId = spaceId;
         this.storePeriod = storePeriod;
         this.shardCnt = shardCnt;
         this.keyList = keyList;
         this.logType = logType;
-        this.isMatrixApp = isMatrixApp;
+        this.usePlatformResource = usePlatformResource;
     }
 
-    public boolean isMatrixAppStore() {
-        return this.isMatrixApp == null ? false : this.isMatrixApp;
+    public boolean isPlatformResourceStore() {
+        return this.usePlatformResource == null ? false : this.usePlatformResource;
     }
 
 }

@@ -89,9 +89,7 @@ public class MilogAppMiddlewareRelDao {
     public void deleteRel(Long milogAppId, Long tailId) {
         List<MilogAppMiddlewareRel> milogAppMiddlewareRels = queryByCondition(milogAppId, null, tailId);
         if (CollectionUtils.isNotEmpty(milogAppMiddlewareRels)) {
-            milogAppMiddlewareRels.forEach(middlewareRel -> {
-                dao.delete(MilogAppMiddlewareRel.class, middlewareRel.getId());
-            });
+            milogAppMiddlewareRels.forEach(middlewareRel -> dao.delete(MilogAppMiddlewareRel.class, middlewareRel.getId()));
         }
     }
 

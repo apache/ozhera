@@ -249,8 +249,9 @@ public class MilogConfigController {
      */
     @RequestMapping(path = "/milog/project/env/appId", method = "get")
     public Result<List<MilogAppEnvDTO>> getEnInfosByAppId(@RequestParam(value = "milogAppId") Long milogAppId,
-                                                          @RequestParam(value = "deployWay") Integer deployWay) {
-        return logTailService.getEnInfosByAppId(milogAppId, deployWay);
+                                                          @RequestParam(value = "deployWay") Integer deployWay,
+                                                          @RequestParam(value = "machineRoom") String machineRoom) {
+        return logTailService.getEnInfosByAppId(milogAppId, deployWay,machineRoom);
     }
 
     /**

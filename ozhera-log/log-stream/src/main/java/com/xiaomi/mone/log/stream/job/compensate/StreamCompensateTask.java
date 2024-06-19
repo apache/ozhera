@@ -31,10 +31,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StreamCompensateTask {
 
-    @Value("${hera.stream.compensate.enable}")
+    @Value("$hera.stream.compensate.enable")
     private String compensateEnable;
 
-    @Value("${hera.stream.compensate.mq}")
+    @Value("$hera.stream.compensate.mq")
     private String compensateMqType;
 
     public void init() {

@@ -39,7 +39,7 @@ public class LogStoreParam {
      * 1. Service application logs
      */
     private Integer logType;
-    private Boolean isMatrixApp;
+    private Boolean usePlatformResource;
     private String esIndex;
     private String machineRoom;
     /**
@@ -55,7 +55,7 @@ public class LogStoreParam {
 
     private Boolean nameSameStatus = Boolean.FALSE;
 
-    public boolean isMatrixAppStore() {
-        return this.isMatrixApp == null ? false : this.isMatrixApp;
+    public boolean isPlatformResourceStore() {
+        return this.usePlatformResource == null ? false : this.usePlatformResource;
     }
 }

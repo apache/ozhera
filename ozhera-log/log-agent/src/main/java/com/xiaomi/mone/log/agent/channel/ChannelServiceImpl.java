@@ -265,7 +265,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         if (StringUtils.isNotBlank(logSplitExpress)) {
             PathUtils.dismantlingStrWithSymbol(logSplitExpress, cleanedPathList);
         }
-        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
+        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum || realFilePaths.isEmpty()) {
             opentelemetryMonitor(configPath);
             return;
         }

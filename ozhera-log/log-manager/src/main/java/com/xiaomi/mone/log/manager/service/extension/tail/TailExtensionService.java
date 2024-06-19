@@ -58,7 +58,7 @@ public interface TailExtensionService {
 
     void logTailDelPostProcess(MilogLogStoreDO logStoreDO, MilogLogTailDo milogLogtailDo);
 
-    List<MilogAppEnvDTO> getEnInfosByAppId(AppBaseInfo appBaseInfo, Long milogAppId, Integer deployWay);
+    List<MilogAppEnvDTO> getEnInfosByAppId(AppBaseInfo appBaseInfo, Long milogAppId, Integer deployWay, String machineRoom);
 
     boolean decorateTailDTOValId(Integer logType, Integer appType);
 

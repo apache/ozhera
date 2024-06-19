@@ -9,7 +9,7 @@ OzHera是⼀套企业级的可观测性平台，部署时复杂度⾮常⾼，�
 
 ## 2.部署步骤
 
-ozhera-all/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
+ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 
 ### 2.1 创建独⽴命名空间及账号
 
@@ -91,7 +91,7 @@ ozhera-all/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 * 如果已有数据库，⽆需k8s创建
   1. 关闭"基于yaml创建资源"按钮；
   2. 填写正确的已有数据库url、⽤⼾名、密码；
-  3. 默认operator执⾏时会⾃动去改数据库进⾏创建ozhera数据库及表，**如果填写的账号⽆建库、建表权限，则需提前⼿动去⽬标库中建好ozhera数据库和表**，建表语句在operator源码ozhera-all/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql ⽬录下。
+  3. 默认operator执⾏时会⾃动去改数据库进⾏创建ozhera数据库及表，**如果填写的账号⽆建库、建表权限，则需提前⼿动去⽬标库中建好ozhera数据库和表**，建表语句在operator源码ozhera/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql ⽬录下。
 
 ![ozhera-mysql2.jpg](images%2Fozhera-mysql2.jpg)
 
@@ -123,7 +123,7 @@ ozhera-all/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 * 如果需要k8s⾃动搭建⼀个RocketMQ
   1. 需要开启“基于yaml创建资源”按钮；
   2. 使⽤默认yaml创建的RocketMQ没有accessKey\secretKey，如果需要设置accessKey\secretKey，则需要修改右侧“连接信息”中的ozhera.rocketmq.ak与ozhera.rocketmq.sk的值；
-  3. 如果需要更换RocketMQ broker的service，需要同时替换yaml中的service，以及ozoperator代码中的run.mone.ozhera.operator.service.RocketMQSerivce类的成员变量"brokerAddr"的值。
+  3. 如果需要更换RocketMQ broker的service，需要同时替换yaml中的service，以及ozhera-operator代码中的run.mone.ozhera.operator.service.RocketMQSerivce类的成员变量"brokerAddr"的值。
 
 ![ozhera-rocketmq.jpg](images%2Fozhera-rocketmq.jpg)
 
@@ -278,7 +278,7 @@ ozhera-monitor是hera监控⾸⻚应⽤中⼼、指标监控、报警配置的�
   按照nacos上的配置，在对应的ES服务器上创建es相应的索引。
 
 
-* 使⽤operator⾃动创建资源，可以根据⾃⼰的实际流量情况调整副本数，replicas。实例中是⼀个副本；同样，可是根据需要在operator的yaml⽂件中调整k8s相关的资源，如 cpu、memory。
+* 使⽤operator⾃动创建资源，可以根据⾃⼰的实际流量情况调整副本数，replicas。实例中是⼀个副本；同样，可以根据需要在operator的yaml⽂件中调整k8s相关的资源，如 cpu、memory。
 
 ![ozhera-monitor.jpg](images%2Fozhera-monitor.jpg)
 

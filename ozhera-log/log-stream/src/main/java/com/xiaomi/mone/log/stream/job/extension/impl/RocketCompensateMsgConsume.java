@@ -113,7 +113,6 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
                 String message = compensateMqDTO.getMsg();
                 LinkedTreeMap hashMap = GSON.fromJson(message, new TypeToken<LinkedTreeMap<String, Object>>() {
                 }.getType());
-                Object timestampObject = hashMap.get(LogParser.esKeyMap_timestamp);
                 try {
                     Long timeStamp = JSON.parseObject(message).getLong(LogParser.esKeyMap_timestamp);
                     if (null != timeStamp && String.valueOf(timeStamp).length() != LogParser.TIME_STAMP_MILLI_LENGTH) {
@@ -122,7 +121,7 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
                 } catch (Exception e) {
                     hashMap.put(LogParser.esKeyMap_timestamp, Instant.now().toEpochMilli());
                 }
-                log.info("mq index timestamp data:{},current timestamp:{}", timestampObject, Instant.now().toEpochMilli());
+                log.info("mq index timestamp data:{},current timestamp:{}", hashMap.get(LogParser.esKeyMap_timestamp), Instant.now().toEpochMilli());
                 EsProcessor esProcessor = EsPlugin.getEsProcessor(mqMessageDTO.getEsInfo(),
                         mqMessageDTO1 -> log.error("compensate msg store failed, data size:{}", mqMessageDTO1.getCompensateMqDTOS().size()));
                 esProcessor.bulkInsert(esIndex, hashMap);

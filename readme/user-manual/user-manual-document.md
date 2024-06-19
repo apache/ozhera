@@ -8,7 +8,7 @@
 
 Add to the projects I'm following or the projects I'm involved in (as shown below)
 
-![ozhera-home-page.jpg](images/ozhera-home-page.jpg)
+![ozhera-home-page.png](images/en/ozhera-home-page.png)
 
 Note: Those marked with participation are projects with permissions on the corresponding platform and can be added to the list of projects I'm involved in. Otherwise, they can be added to the watchlist.
 
@@ -16,7 +16,7 @@ Note: Those marked with participation are projects with permissions on the corre
 
 You can see the applications I'm involved in and the applications I'm following in the Application Center.
 
-![ozhera-app-list.jpeg](images%2Fozhera-app-list.jpeg)
+![ozhera-app-list.png](images/en/ozhera-app-list.png)
 
 For each project card, you can see statistics of alarms, call anomalies, slow queries, etc., for each project (click for details; later tutorials will explain the details page).
 
@@ -32,31 +32,31 @@ Within the dashboard, the main sections are divided into basic monitoring charts
 
 ##### (1) Application Health
 
-After selecting the desired application (with further options to select environment, IP, and time range), you can view the charts on availability, instance list, and call volume. Additionally, links are provided to view more detailed monitoring of the host and container, as shown below:
+After selecting your application (with further options to choose the environment, IP, and time range), you can view three graphs: availability, instance list, and call volume. The host list and container list can be used to navigate to more detailed monitoring of the physical machine and container, as shown in the figure below:
 
-![ozhera-app-healthy.png](images%2Fozhera-app-healthy.png)
+![ozhera-app-healthy.png](images/en/ozhera-app-healthy.png)
 
-![ozhera-py-machine.png](images%2Fozhera-py-machine.png)
+![ozhera-py-machine.png](images/en/ozhera-py-machine.png)
 
-![ozhera-container.png](images%2Fozhera-container.png)
+![ozhera-container.png](images/en/ozhera-container.png)
 
 ##### (2) Business Metrics
 
-Business metrics provide charts on QPS, P99-RT, AVG-RT, and TOP10-RT for three types of calls: HTTP, dubbo outgoing (acting as a consumer), and dubbo incoming (acting as a provider).
+Business metrics provide charts for three types of metrics: HTTP, Dubbo, and gRPC. These charts include QPS, P99-RT, Avg-RT, and Top10-RT for both inbound and outbound metrics.
 
-![ozhera-business-metrics.png](images%2Fozhera-business-metrics.png)
+![ozhera-business-metrics.png](images/en/ozhera-business-metrics.png)
 
 ##### (3) Middleware
 
 Middleware charts currently provide P99-RT, AVG-RT, TOP10-RT, and TOP10-query for both DB and Redis, as shown below:
 
-![ozhera-middleware.png](images%2Fozhera-middleware.png)
+![ozhera-middleware.png](images/en/ozhera-middleware.png)
 
 ##### (4) JVM
 
 JVM monitoring charts offer multi-dimensional metrics for user reference, as shown below:
 
-![ozhera-jvm.png](images%2Fozhera-jvm.png)
+![ozhera-jvm.png](images/en/ozhera-jvm.png)
 
 #### 2) Custom Charts
 
@@ -68,41 +68,41 @@ For a more detailed description and usage of custom charts, refer to: [OzHera Cu
 
 #### 1) Anomaly List
 
-![ozhera-exception-list.png](images%2Fozhera-exception-list.png)
+![ozhera-exception-list.png](images/en/ozhera-exception-list.png)
 
 Note: Overview includes HTTP call anomaly list, dubbo call anomaly list, and DB call anomaly list (example above shows HTTP).
 
 #### 2) Anomaly Details
 
-![ozhera-exception-detail.png](images%2Fozhera-exception-detail.png)
+![ozhera-exception-detail.png](images/en/ozhera-exception-detail.png)
 
 Note: Clicking on details in the image above will navigate to a page showing basic anomaly information, **call trace**, and **logs**.
 
-![ozhera-trace1.png](images/en/ozhera-trace1-en.png)
+![ozhera-trace1-en.png](images/en/ozhera-trace1-en.png)
 
 ### 3. Overview of Slow Queries
 
 #### 1) Slow Query List
 
-![ozhera-slow-list.png](images%2Fozhera-slow-list.png)
+![ozhera-slow-list.png](images/en/ozhera-slow-list.png)
 
 #### 2) Slow Query Details
 
-![ozhera-slow-detail.png](images%2Fozhera-slow-detail.png)
+![ozhera-slow-detail.png](images/en/ozhera-slow-detail.png)
 
 Clicking on details, as shown above, will reveal slow call information and **call trace**.
 
 ### 4. Interface Overview
 
-Within Hera monitoring, clicking on the interface overview reveals the monitoring charts shown below, divided into Dubbo Provider Interface Overview, Dubbo Provider Interface, Dubbo Consumer Interface Overview, Dubbo Consumer Interface, HTTP Server Interface Overview, and HTTP Server Interface.
+By clicking on the interface dashboard, you can see the monitoring charts as shown below, categorized into: Dubbo Provider Interface Overview, Dubbo Provider Interface Dashboard, Dubbo Consumer Interface Overview, Dubbo Consumer Interface Dashboard, Grpc Provider Interface Overview, Grpc Provider Interface Dashboard, Grpc Consumer Interface Overview, Grpc Consumer Interface Dashboard, Http Server Interface Overview, and Http Server Interface Dashboard.
 
-Charts with the "overview" suffix are organized in a table format, with aggregated views of all services, views at the Dubbo service level, and views at the Dubbo method level.
+The monitoring charts with the "Interface Overview" suffix are organized in a table format, categorized into an overview of all services aggregated, service-level overviews, and method-level overviews.
 
-![ozhera-large-cap.png](images%2Fozhera-large-cap.png)
+![ozhera-large-cap.png](images/en/ozhera-large-cap.png)
 
 Charts with the "interface" suffix are in chart form, and users can select multiple Dubbo services to view.
 
-![ozhera-interface-large-cap.png](images%2Fozhera-interface-large-cap.png)
+![ozhera-interface-large-cap.png](images/en/ozhera-interface-large-cap.png)
 
 ### 5. Project Overview List
 
@@ -110,7 +110,7 @@ The original intention of designing the project dashboard was to meet the needs 
 
 As shown below, several services can be added to the application package.
 
-![ozhera-create-large-cap.png](images%2Fozhera-create-large-cap.png)
+![ozhera-create-large-cap.png](images/en/ozhera-create-large-cap.png)
 
 Once created, the dashboard will appear in the list. Clicking on the dashboard button under operations will navigate to the dashboard monitoring.
 
@@ -118,13 +118,12 @@ Once created, the dashboard will appear in the list. Clicking on the dashboard b
 
 Within the dashboard, one can view important information from multiple services like DB, HTTP, dubbo, redis, load, etc. Clicking on the application name in the application list below will quickly navigate to the detailed monitoring page for that service.
 
-![ozhera-large-cap-detail.png](images%2Fozhera-large-cap-detail.png)
 
 ### 6. Resource Utilization Overview List
 
 The resource utilization dashboard allows users to quickly view related monitoring charts of a service deployment. Different from container monitoring charts, this chart provides an aggregated view of monitoring information across multiple instances of a service, making it easy to get a comprehensive view of the service's overall deployment resources, as shown below:
 
-![ozhera-resource-used.png](images%2Fozhera-resource-used.png)
+![ozhera-resource-used.png](images/en/ozhera-resource-used.png)
 
 ### (ii) Alarm Settings
 
@@ -150,7 +149,7 @@ First, click on the "Application Alarm Strategy" option from the left menu. On t
 
 On the alarm strategy list page, you can start/stop, copy, edit, and delete alarm strategies.
 
-![ozhera-alert-strategy.png](images%2Fozhera-alert-strategy.png)
+![ozhera-alert-strategy.png](images/en/ozhera-alert-strategy.png)
 
 Note: Project participants can search, add, copy, modify, and delete rules. **Observers can only view rules and cannot copy, modify, or delete them.**
 
@@ -162,7 +161,7 @@ First, select the application for which you wish to create an alarm strategy, th
 
 Strategy name, alarm rules (metrics, operation, threshold, duration, alarm level, alarm frequency), notify personnel, and @personnel list. Once completed, click the confirm button below to finalize the creation of the alarm strategy.
 
-![ozhera-alert-strategy-create.png](images%2Fozhera-alert-strategy-create.png)
+![ozhera-alert-strategy-create.png](images/en/ozhera-alert-strategy-create.png)
 
 Note: Only projects with permission (listed under "Applications I'm involved in") can create strategies.
 
@@ -247,11 +246,11 @@ The interface alarm strategy mainly deals with business-related metric alarms, s
 
 For self-defined metrics, you'll need to manually write a PromQL configuration for the alarm. The configuration location is:
 
-![ozhera-customize-promql.png](images%2Fozhera-customize-promql.png)
+![ozhera-customize-promql.png](images/en/ozhera-customize-promql.png)
 
 After filling it out, you can click the link in the bottom right to test your PromQL:
 
-![ozhera-customize-promql-test.png](images%2Fozhera-customize-promql-test.png)
+![ozhera-customize-promql-test.png](images/en/ozhera-customize-promql-test.png)
 
 ## III. Tracing
 
@@ -269,7 +268,7 @@ Used to switch between trace list queries and traceID detail query pages.
 
 You can enter an application name to search. Clicking on "Advanced Filter" will open a multi-condition query box:
 
-![ozhera-trace3.png](images%2Fozhera-trace3.png)
+![ozhera-trace3.png](images/en/ozhera-trace3.png)
 
     You can search by start time and end time.
     
@@ -340,7 +339,7 @@ Displays application name, status, method, duration, current node instance IP, a
     ```
 3. Add the @Trace annotation from the com.xiaomi.hera.trace.annotation package to methods where custom trace is needed, e.g.:
 
-![ozhera-trace-customize.png](images%2Fozhera-trace-customize.png)
+![ozhera-trace-customize.png](images/en/ozhera-trace-customize.png)
 
 ### 2. HeraContext - Custom Tracing Context
 
@@ -368,7 +367,7 @@ Usage:
 4. Passing Context in the Frontend:
    Add a key named "heracontext" to the HTTP request header, with values formatted as "key1:value1;key2:value2;...". For example:
 
-    ![ozhera-trace-heracontext.png](images%2Fozhera-trace-heracontext.png)
+    ![ozhera-trace-heracontext.png](images/en/ozhera-trace-heracontext.png)
 
 5. Restrictions on using HeraContext:
 
@@ -404,7 +403,7 @@ Spaces can be created under Logging Service -> Log Ingestion:
 
 ![ozhera-space1.png](images/en/ozhera-space1-en.png)
 
-![ozhera-space2.png](images%2Fozhera-space2.png)
+![ozhera-space2.png](images/en/ozhera-space2.png)
 
 #### 2) Authorization
 
@@ -456,7 +455,7 @@ First, you need to go to the Hera node in the TPC platform to add a new node:
 
 Enter the Logstore name, select the data center, and the type of log:
 
-![ozhera-log-store-create.png](images%2Fozhera-log-store-create.png)
+![ozhera-log-store-create.png](images%2Fen%2Fozhera-log-store-create.png)
 
 **Detailed Configuration Meaning:**
 
@@ -475,7 +474,7 @@ Enter the Logstore name, select the data center, and the type of log:
 
 ### 3. Create Logtail
 
-![ozhera-log-tail-create.png](images%2Fozhera-log-tail-create.png)
+![ozhera-log-tail-create.png](images%2Fen%2Fozhera-log-tail-create.png)
 
 **Configuration Meaning:**
 
@@ -511,7 +510,7 @@ Enter the Logstore name, select the data center, and the type of log:
 
 Supports full-text search of logs, v queries, k:v queries, and combined queries of and, or, not.
 
-![ozhera-log-query.png](images%2Fozhera-log-query.png)
+![ozhera-log-query.png](images%2Fen%2Fozhera-log-query.png)
 
 Detailed query syntax:
 - Keyword query: Directly input keywords for searching
@@ -527,7 +526,7 @@ Detailed query syntax:
 
 When the parsed log contains a traceId or trace_id field, a "View Trace" tag will be displayed.
 
-![ozhera-log-to-trace.png](images%2Fozhera-log-to-trace.png)
+![ozhera-log-to-trace.png](images%2Fen%2Fozhera-log-to-trace.png)
 
 ### 6. Collection Progress
 
@@ -535,17 +534,17 @@ Here you can see the current log collection application name, collection time, c
 
 From this progress, you can determine whether your logs are being collected properly. Contact us if the collection progress is abnormal for an extended period.
 
-![ozhera-log-collect-process.png](images%2Fozhera-log-collect-process.png)
+![ozhera-log-collect-process.png](images%2Fen%2Fozhera-log-collect-process.png)
 
 ### 7. Log Analysis
 
-![ozhera-log-analyze.png](images%2Fozhera-log-analyze.png)
+![ozhera-log-analyze.png](images%2Fen%2Fozhera-log-analyze.png)
 
 You can create a new chart. Selecting fields from the left will group them accordingly. Various types of charts clearly show proportions, assisting in log analysis and processing.
 
 ### 8. Log Authorization
 
-![ozhera-log-shouquan2.png](images%2Fozhera-log-shouquan2.png)
+![ozhera-log-shouquan2.png](images%2Fen%2Fozhera-log-shouquan2.png)
 
 Authorize the space you want to display, and the authorized space can also see the current store.
 
@@ -557,7 +556,7 @@ First, resources need to be created.
 
 Add RocketMQ resources:
 
-![ozhera-log-resource-mq.png](images%2Fozhera-log-resource-mq.png)
+![ozhera-log-resource-mq.png](images%2Fen%2Fozhera-log-resource-mq.png)
 
 **Configuration meaning:**
 
@@ -571,7 +570,7 @@ Add RocketMQ resources:
 
 Add ES resources:
 
-![ozhera-log-resource-es.png](images%2Fozhera-log-resource-es.png)
+![ozhera-log-resource-es.png](images%2Fen%2Fozhera-log-resource-es.png)
 
 **Configuration meaning:**
 

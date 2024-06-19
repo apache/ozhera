@@ -8,31 +8,33 @@ import java.util.List;
  */
 public enum AlarmStrategyType {
 
-    SYSTEM(0,"基础类监控"),
-    INTERFACE(1,"接口类监控"),
-    PAOMQL(2,"自定义PromQL"),
-    TESLA(3,"TESLA监控"),
+    SYSTEM(0,"基础类监控", "Basic monitoring"),
+    INTERFACE(1,"接口类监控", "Interface monitoring"),
+    PAOMQL(2,"自定义PromQL", "Custom PromQL"),
+    TESLA(3,"TESLA监控", "TESLA Monitoring"),
     ;
     private Integer code;
-    private String message;
+    private String label;
+    private String labelEn;
 
-    AlarmStrategyType(Integer code, String message){
+    AlarmStrategyType(Integer code, String label, String labelEn){
         this.code = code;
-        this.message = message;
+        this.label = label;
+        this.labelEn = labelEn;
     }
 
-    public static List<Pair> getTemplateStrategyTypeList() {
-        List<Pair> list = new ArrayList<>(2);
-        list.add(new Pair(AlarmStrategyType.SYSTEM.getCode() + "", AlarmStrategyType.SYSTEM.getMessage()));
-        list.add(new Pair(AlarmStrategyType.INTERFACE.getCode() + "", AlarmStrategyType.INTERFACE.getMessage()));
+    public static List<Triple> getTemplateStrategyTypeList() {
+        List<Triple> list = new ArrayList<>(2);
+        list.add(new Triple(AlarmStrategyType.SYSTEM.getCode() + "", AlarmStrategyType.SYSTEM.getLabel(), AlarmStrategyType.SYSTEM.getLabelEn()));
+        list.add(new Triple(AlarmStrategyType.INTERFACE.getCode() + "", AlarmStrategyType.INTERFACE.getLabel(),  AlarmStrategyType.INTERFACE.getLabelEn()));
         return list;
     }
 
-    public static List<Pair> getRuleStrategyTypeList() {
-        List<Pair> list = new ArrayList<>(3);
-        list.add(new Pair(AlarmStrategyType.SYSTEM.getCode(), AlarmStrategyType.SYSTEM.getMessage()));
-        list.add(new Pair(AlarmStrategyType.INTERFACE.getCode(), AlarmStrategyType.INTERFACE.getMessage()));
-        list.add(new Pair(AlarmStrategyType.PAOMQL/**/.getCode(), AlarmStrategyType.PAOMQL.getMessage()));
+    public static List<Triple> getRuleStrategyTypeList() {
+        List<Triple> list = new ArrayList<>(3);
+        list.add(new Triple(AlarmStrategyType.SYSTEM.getCode() + "", AlarmStrategyType.SYSTEM.getLabel(), AlarmStrategyType.SYSTEM.getLabelEn()));
+        list.add(new Triple(AlarmStrategyType.INTERFACE.getCode() + "", AlarmStrategyType.INTERFACE.getLabel(),  AlarmStrategyType.INTERFACE.getLabelEn()));
+        list.add(new Triple(AlarmStrategyType.PAOMQL.getCode(), AlarmStrategyType.PAOMQL.getLabel(), AlarmStrategyType.PAOMQL.getLabelEn()));
         return list;
     }
 
@@ -44,12 +46,19 @@ public enum AlarmStrategyType {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getLabel() {
+        return label;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
+    public String getLabelEn() {
+        return labelEn;
+    }
+
+    public void setLabelEn(String labelEn) {
+        this.labelEn = labelEn;
+    }
 }

@@ -43,12 +43,6 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 
 ---
 
-### 社区
-
-欢迎访问OzHera的[社区网站](https://m.one.mi.com/index)，我们会将OzHera的技术向分享、思考与最新成果发布在上面， 欢迎大家共同交流
-
----
-
 ### 部署
 [operator使用文档.md](readme%2Fdeploy%2Fozhera-deploy-document_cn.md)
 
@@ -72,6 +66,21 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 - 回答 [issues](https://github.com/XiaoMi/ozhera/issues)上的问题.
 - 修复 [issues](https://github.com/XiaoMi/ozhera/issues)上报告的错误,并向我们发送一个拉取请求.
 - 审查现有的 [pull request](https://github.com/XiaoMi/ozhera/pulls).
+
+---
+
+### 联系我们
+
+我们非常欢迎您对项目提出宝贵的意见和建议。无论您有技术问题、功能需求还是想要加入我们的开发团队，都可以通过以下方式与我们取得联系：
+
+#### 邮件联系
+- **邮箱地址**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **响应时间**: 我们会在收到邮件后的24小时内回复
+
+#### 社区交流
+- 我们也欢迎您加入我们的社区，参与讨论和交流：
+    - 欢迎访问OzHera的[社区网站](https://m.one.mi.com/index)，我们会将OzHera的技术向分享、思考与最新成果发布在上面， 欢迎大家共同交流
+    - [GitHub Discussions](https://github.com/your/project/discussions)
 
 ---
 

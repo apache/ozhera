@@ -13,6 +13,7 @@ public class MetricsRule implements Serializable {
 
     String value;
     String label;
+    String enLable;
     String unit;
     Integer strategyType;
     private int kind;

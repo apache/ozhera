@@ -9,18 +9,20 @@ import java.util.*;
  */
 public enum AlarmSendInterval {
 
-    interval_5m("5m","5分钟报警一次"),
-    interval_15m("15m","15分钟报警一次"),
-    interval_30m("30m","30分钟报警一次"),
-    interval_1h("1h","1小时报警一次"),
-    interval_2h("2h","2小时报警一次");
+    interval_5m("5m","5分钟报警一次", "Alarm every 5 minutes"),
+    interval_15m("15m","15分钟报警一次", "Alarm every 15 minutes"),
+    interval_30m("30m","30分钟报警一次", "Alarm every 30 minutes"),
+    interval_1h("1h","1小时报警一次", "Alarm every 1 hour"),
+    interval_2h("2h","2小时报警一次", "Alarm every 2 hours");
 
     private String code;
-    private String message;
+    private String label;
+    private String labelEn;
 
-    AlarmSendInterval(String code,String message){
+    AlarmSendInterval(String code,String label, String labelEn){
         this.code = code;
-        this.message = message;
+        this.label = label;
+        this.labelEn = labelEn;
     }
 
     public String getCode() {
@@ -31,29 +33,37 @@ public enum AlarmSendInterval {
         this.code = code;
     }
 
-    public String getMessage() {
-        return message;
+    public String getLabel() {
+        return label;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabelEn() {
+        return labelEn;
+    }
+
+    public void setLabelEn(String labelEn) {
+        this.labelEn = labelEn;
     }
 
     public static Map<String,String> getEnumMap(){
         Map<String,String> map = new LinkedHashMap<>();
         AlarmSendInterval[] values = AlarmSendInterval.values();
         for(AlarmSendInterval value : values){
-            map.put(value.getCode(),value.getMessage());
+            map.put(value.getCode(),value.getLabelEn());
         }
         return map;
     }
 
-    public static List<Pair> getEnumList(){
-        List <Pair> list = new ArrayList<>();
+    public static List<Triple> getEnumList(){
+        List <Triple> list = new ArrayList<>();
         AlarmSendInterval[] values = AlarmSendInterval.values();
         for(AlarmSendInterval value : values){
-            Pair pair = new Pair(value.getCode(),value.getMessage());
-            list.add(pair);
+            Triple triple = new Triple(value.getCode(), value.getLabel(), value.getLabelEn());
+            list.add(triple);
         }
         return list;
     }

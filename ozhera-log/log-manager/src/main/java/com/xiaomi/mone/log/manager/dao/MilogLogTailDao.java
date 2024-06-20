@@ -230,7 +230,7 @@ public class MilogLogTailDao {
      * @return
      */
     public List<MilogLogTailDo> queryByIp(String ip) {
-        Sql sql = Sqls.queryEntity("SELECT * FROM milog_logstail WHERE JSON_CONTAINS(`ips`, JSON_ARRAY( @ip ))");
+        Sql sql = Sqls.queryEntity("SELECT * FROM milog_logstail WHERE JSON_CONTAINS(`ips`, JSON_ARRAY( @ip )) and collection_ready = 1");
         sql.params().set("ip", ip);
         sql.setEntity(dao.getEntity(MilogLogTailDo.class));
         dao.execute(sql);

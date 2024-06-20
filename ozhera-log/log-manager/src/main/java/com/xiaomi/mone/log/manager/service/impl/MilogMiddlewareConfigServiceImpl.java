@@ -263,7 +263,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private Wrapper generateEsQueryWrapper(ResourcePage resourcePage) {
         QueryWrapper queryWrapper = new QueryWrapper<MilogEsClusterDO>();
-        if (null != resourcePage.getRegionEnCode()) {
+        if (StringUtils.isNotBlank(resourcePage.getRegionEnCode())) {
             queryWrapper.eq("area", resourcePage.getRegionEnCode());
         }
         if (StringUtils.isNotBlank(resourcePage.getAliasName())) {

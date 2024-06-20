@@ -15,34 +15,18 @@
  */
 package com.xiaomi.mone.log.manager.model.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.xiaomi.mone.log.manager.model.PageVo;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
- * @author wtt
- * @version 1.0
+ *
  * @description
- * @date 2022/4/28 11:16
+ * @version 1.0
+ * @author wtt
+ * @date 2024/6/18 9:49
+ *
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class QuickQueryVO implements Serializable {
-    private Long spaceId;
-    private String spaceName;
-    private Long storeId;
-    private String storeName;
-    private Long tailId;
-    private String tailName;
-    private Long envId;
-    private String envName;
-    private Integer isFavourite;
-    private String deploySpace;
-
-    private Boolean collectionReady;
+public class KeywordPageParam extends PageVo {
+    private String keyword;
 }

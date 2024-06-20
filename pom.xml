@@ -34,6 +34,9 @@
         <module>ozhera-webhook</module>
         <module>prometheus-starter-all</module>
         <module>trace-etl</module>
+        <module>chaos</module>
+        <module>chaos/chaos-api</module>
+        <module>chaos/chaos-service</module>
     </modules>
 
     <properties>

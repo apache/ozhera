@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>dev.morphia.morphia</groupId>
                 <artifactId>core</artifactId>
-                <version>1.6.1-mone-SNAPSHOT</version>
+                <version>1.6.1</version>
             </dependency>
 
             <dependency>

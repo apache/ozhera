@@ -5,9 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>run.mone</groupId>
-        <artifactId>ozhera</artifactId>
+        <artifactId>chaos</artifactId>
         <version>1.4.0-jdk21-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>chaos-service</artifactId>

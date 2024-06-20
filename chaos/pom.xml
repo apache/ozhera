@@ -9,7 +9,9 @@
         <version>1.4.0-jdk21-SNAPSHOT</version>
     </parent>
 
+    <version>1.4.0-jdk21-SNAPSHOT</version>
     <artifactId>chaos</artifactId>
+    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

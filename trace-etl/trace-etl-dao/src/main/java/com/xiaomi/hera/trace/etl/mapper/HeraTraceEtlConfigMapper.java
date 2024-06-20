@@ -15,29 +15,32 @@
  */
 package com.xiaomi.hera.trace.etl.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.pagehelper.Page;
-import com.xiaomi.hera.trace.etl.domain.HeraTraceConfigVo;
 import com.xiaomi.hera.trace.etl.domain.HeraTraceEtlConfig;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
+@Mapper
+public interface HeraTraceEtlConfigMapper extends BaseMapper<HeraTraceEtlConfig> {
 
-public interface HeraTraceEtlConfigMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(HeraTraceEtlConfig record);
-
-    int insertSelective(HeraTraceEtlConfig record);
-
-    HeraTraceEtlConfig selectByPrimaryKey(Integer id);
-
-    List<HeraTraceEtlConfig> getAll(HeraTraceConfigVo vo);
-
+    @Select("<script>" +
+            "select a.* from hera_trace_etl_config a" +
+            "<if test=\"user != null and user != '' \">" +
+            "INNER JOIN app_monitor c ON a.bind_id = c.project_id and a.platform_type = c.app_source" +
+            "</if>" +
+            "where a.status = '1'" +
+            "<if test=\"user != null and user != '' \">" +
+            "and c.OWNER = #{user,jdbcType=VARCHAR} and c.status='0'" +
+            "</if>"+
+            "</script>")
     Page<HeraTraceEtlConfig> getAllPage(@Param("user") String user);
 
-    HeraTraceEtlConfig getByBaseInfoId(Integer baseInfoId);
-
-    int updateByPrimaryKeySelective(HeraTraceEtlConfig record);
-
-    int updateByPrimaryKey(HeraTraceEtlConfig record);
+    @Select("select a.* from hera_trace_etl_config a " +
+            "    inner join hera_app_base_info b " +
+            "    on a.base_info_id = b.id " +
+            "    where a.base_info_id = #{baseInfoId,jdbcType=INTEGER} " +
+            "    and a.status = '1'")
+    HeraTraceEtlConfig getByBaseInfoId(@Param("baseInfoId") Integer baseInfoId);
 }

@@ -32,3 +32,9 @@
 `java -jar trace-etl-server-1.0.0-SNAPSHOT.jar`
 
 就可以运行trace-etl-server。
+
+## JVM启动参数
+--add-opens java.base/java.util=ALL-UNNAMED
+
+## 建议
+我们也建议启动的时候配置zgc： -XX:+UseZGC

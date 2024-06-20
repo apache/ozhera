@@ -72,10 +72,6 @@ public class PodChaosService {
     public String containerKill(PodBO podBo) {
         ChaosTask chaosTask = ChaosTask.of(podBo, TaskEnum.pod.type(), podBo.getMode(), StatusEnum.un_action.type(), podBo.getExperimentName());
         try {
-           /* ManagedChannel channel = ManagedChannelBuilder
-                    .forAddress("10.38.201.28", Integer.parseInt("31767"))
-                    .usePlaintext()
-                    .build();*/
 
             List<Pod> podList = podClient.inAnyNamespace().withLabel("pipeline-id", podBo.getPipelineId().toString()).list().getItems();
             if (podList == null || podList.isEmpty()) {

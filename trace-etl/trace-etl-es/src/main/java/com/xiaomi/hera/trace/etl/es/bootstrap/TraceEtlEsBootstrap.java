@@ -17,6 +17,7 @@ package com.xiaomi.hera.trace.etl.es.bootstrap;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.spring.context.annotation.DubboComponentScan;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,6 +28,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl", "com.xiaomi.data.push.redis", "run.mone.trace.etl"})
 @DubboComponentScan(basePackages = "com.xiaomi.hera.trace.etl.es.dubbo")
+@MapperScan("com.xiaomi.hera.trace.etl.mapper")
 @Slf4j
 public class TraceEtlEsBootstrap {
 

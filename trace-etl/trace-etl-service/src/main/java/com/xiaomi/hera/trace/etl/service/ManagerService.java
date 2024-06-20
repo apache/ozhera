@@ -15,6 +15,7 @@
  */
 package com.xiaomi.hera.trace.etl.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +28,7 @@ import com.xiaomi.hera.trace.etl.util.pool.AsyncNotify;
 import com.xiaomi.youpin.infra.rpc.Result;
 import com.xiaomi.youpin.infra.rpc.errors.GeneralCodes;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -57,7 +59,15 @@ public class ManagerService {
     }
 
     public List<HeraTraceEtlConfig> getAll(HeraTraceConfigVo vo) {
-        return heraTraceEtlConfigMapper.getAll(vo);
+        QueryWrapper<HeraTraceEtlConfig> qw = new QueryWrapper();
+        qw.eq("status", "1");
+        if (vo.getBindId() != null) {
+            qw.eq("bind_id", vo.getBindId());
+        }
+        if (StringUtils.isNotEmpty(vo.getAppName())) {
+            qw.eq("app_name", vo.getAppName());
+        }
+        return heraTraceEtlConfigMapper.selectList(qw);
     }
 
     public PageData<List<HeraTraceEtlConfig>> getAllPage(HeraTraceConfigVo vo) {
@@ -78,7 +88,7 @@ public class ManagerService {
     }
 
     public HeraTraceEtlConfig getById(Integer id) {
-        return heraTraceEtlConfigMapper.selectByPrimaryKey(id);
+        return heraTraceEtlConfigMapper.selectById(id);
     }
 
     public Result insertOrUpdate(HeraTraceEtlConfig config, String user) {
@@ -93,7 +103,7 @@ public class ManagerService {
             config.setCreateTime(now);
             config.setUpdateTime(now);
             config.setCreateUser(user);
-            i = heraTraceEtlConfigMapper.insertSelective(config);
+            i = heraTraceEtlConfigMapper.insert(config);
             if (i > 0) {
                 asyncNotify.submit(() -> {
                     try {
@@ -106,7 +116,7 @@ public class ManagerService {
         } else {
             config.setUpdateTime(now);
             config.setUpdateUser(user);
-            i = heraTraceEtlConfigMapper.updateByPrimaryKeySelective(config);
+            i = heraTraceEtlConfigMapper.updateById(config);
             if (i > 0) {
                 asyncNotify.submit(() -> {
                     try {
@@ -121,8 +131,8 @@ public class ManagerService {
     }
 
     public int delete(HeraTraceEtlConfig config) {
-        HeraTraceEtlConfig heraTraceEtlConfig = heraTraceEtlConfigMapper.selectByPrimaryKey(config.getId());
-        int i = heraTraceEtlConfigMapper.deleteByPrimaryKey(config.getId());
+        HeraTraceEtlConfig heraTraceEtlConfig = heraTraceEtlConfigMapper.selectById(config.getId());
+        int i = heraTraceEtlConfigMapper.deleteById(config.getId());
         if (i > 0) {
             asyncNotify.submit(() -> {
                 try {

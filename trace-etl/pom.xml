@@ -26,6 +26,7 @@
         <module>trace-etl-manager</module>
         <module>trace-etl-dao</module>
         <module>trace-etl-extensions</module>
+        <module>trace-etl-metadata</module>
     </modules>
 
     <properties>
@@ -43,6 +44,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>1.4.2.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>1.4.2.Final</version>
+            </dependency>
             <dependency>
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>

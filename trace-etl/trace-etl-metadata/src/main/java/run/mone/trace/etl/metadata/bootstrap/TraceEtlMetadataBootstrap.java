@@ -13,8 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.hera.trace.etl.manager.bootstrap;
+package run.mone.trace.etl.metadata.bootstrap;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.spring.context.annotation.DubboComponentScan;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -26,14 +27,15 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl", "run.mone.trace.etl"})
-@DubboComponentScan(basePackages = "com.xiaomi.hera.trace.etl")
+@DubboComponentScan(basePackages = "run.mone.trace.etl")
 @MapperScan("com.xiaomi.hera.trace.etl.mapper")
-public class TraceEtlManagerBootstrap {
-
+@Slf4j
+public class TraceEtlMetadataBootstrap {
     public static void main(String... args) {
         try {
-            SpringApplication.run(TraceEtlManagerBootstrap.class, args);
+            SpringApplication.run(TraceEtlMetadataBootstrap.class, args);
         } catch (Throwable throwable) {
+            log.error(throwable.getMessage(), throwable);
             System.exit(-1);
         }
     }

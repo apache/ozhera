@@ -72,7 +72,7 @@ public class TimeChaosService {
 
             //todo 多容器需要根据image过滤
             ManagedChannel channel = ManagedChannelBuilder
-                    .forAddress("10.38.201.28", Integer.parseInt("31767"))
+                    .forAddress("127.0.0.1", Integer.parseInt("31767"))
                     .usePlaintext()
                     .build();
 
@@ -103,7 +103,7 @@ public class TimeChaosService {
         ChaosTask chaosTaskFromDb = taskDao.getById(timeBO.getId(), ChaosTask.class);
         if (Objects.nonNull(chaosTaskFromDb) && Objects.nonNull(chaosTaskFromDb.getTimePO())) {
             ManagedChannel channel = ManagedChannelBuilder
-                    .forAddress("10.38.201.28", Integer.parseInt("31767"))
+                    .forAddress("127.0.0.1", Integer.parseInt("31767"))
                     .usePlaintext()
                     .build();
             TimePO timePO = chaosTaskFromDb.getTimePO();

@@ -15,5 +15,21 @@
  */
 package run.mone.hera.intelligence.bootstrap;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+
+@EnableAutoConfiguration
+@ComponentScan(basePackages = {"run.mone.hera.intelligence"})
+@Slf4j
 public class IntelligenceBootStrap {
+    public static void main(String... args) {
+        try {
+            SpringApplication.run(IntelligenceBootStrap.class, args);
+        } catch (Throwable throwable) {
+            log.error(throwable.getMessage(), throwable);
+            System.exit(-1);
+        }
+    }
 }

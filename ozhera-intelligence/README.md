@@ -1,5 +1,12 @@
 # Overview
-+ A system for data extraction, loading, and transformation.
-+ Currently, trace-etl mainly consists of four modules: trace-etl-server, trace-etl-es, trace-etl-manager, and trace-etl-nginx.
++ OzHera Intelligence Platform is responsible for generating intelligent-related functionalities.
++ Currently, features are under development.
++ Planned features to be developed:
+    + Root cause analysis, including trace, alerts, and topology-based intelligent analysis at the application level.
 
 # Module Introduction
+
+## ozhera-intelligence-server
+
++ Service to initiate intelligent functionalities.
+

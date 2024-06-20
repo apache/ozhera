@@ -41,12 +41,12 @@ public class HeraMetaData {
     private Long id;
 
     /**
-     * 元数据id，比如appId
+     * Metadata id, such as appId
      */
     private Integer metaId;
 
     /**
-     * 元数据的名称，app类型就是appName，mysql类型就是DBA定义的DBName等等
+     * The name of the metadata, the app type is appName, the mysql type is DBName defined by the DBA, and so on
      */
     private String metaName;
 
@@ -55,22 +55,22 @@ public class HeraMetaData {
     private String envName;
 
     /**
-     * dubbo service 元数据，group/service/version，多个以逗号分隔
+     * dubbo service metadata, group/service/version, separated by commas
      */
     private String dubboServiceMeta;
 
     /**
-     * 元数据类型，有APP、MYSQL、REDIS、ES、MQ等，具体可以参照{@link HeraMetaDataType}
+     * Metadata types include APP, MYSQL, REDIS, ES, MQ, etc., for details, see{@link HeraMetaDataType}
      */
     private String type;
 
     /**
-     *元数据的实例，有可能是IP，有可能是域名，也有可能是hostName
+     * The instance of metadata may be IP, domain name, or hostName
      */
     private String host;
 
     /**
-     *该元数据暴露的端口
+     * The port exposed by the metadata
      */
     @TableField(value = "port", typeHandler = JacksonTypeHandler.class)
     private HeraMetaDataPort port;

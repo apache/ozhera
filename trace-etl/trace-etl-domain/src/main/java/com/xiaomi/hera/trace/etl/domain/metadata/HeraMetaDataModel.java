@@ -38,7 +38,7 @@ public class HeraMetaDataModel implements Serializable {
     private Integer metaId;
 
     /**
-     * 元数据的名称，app类型就是appName，mysql类型就是DBA定义的DBName等等
+     * The name of the metadata, the app type is appName, the mysql type is DBName defined by the DBA, and so on
      */
     private String metaName;
 

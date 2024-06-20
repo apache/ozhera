@@ -16,33 +16,21 @@
 package com.xiaomi.hera.trace.etl.manager.config;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.github.pagehelper.PageInterceptor;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
-import java.util.Properties;
 
 @Slf4j
 @Configuration
-@MapperScan(basePackages = DataSourceConfig.PACKAGE, sqlSessionFactoryRef = "masterSqlSessionFactory")
 public class DataSourceConfig {
-
-    static final String PACKAGE = "com.xiaomi.hera.trace.etl.mapper";
-    static final String MAPPER_LOCATION = "classpath*:sqlmappers/*.xml";
 
     @Value("${spring.datasource.driverClassName}")
     private String driverClass;
@@ -101,30 +89,4 @@ public class DataSourceConfig {
     public DataSourceTransactionManager masterTransactionManager() throws PropertyVetoException, NamingException {
         return new DataSourceTransactionManager(masterDataSource());
     }
-
-    @Bean(name = "masterSqlSessionFactory")
-    @Primary
-    public SqlSessionFactory masterSqlSessionFactory(@Qualifier("masterDataSource") DataSource masterDataSource)
-            throws Exception {
-        final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(masterDataSource);
-        sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver()
-                .getResources(DataSourceConfig.MAPPER_LOCATION));
-        sessionFactory.setPlugins(new Interceptor[]{buildPageInterceptor()});
-        return sessionFactory.getObject();
-    }
-
-    /**
-     * page plugin
-     *
-     * @return
-     */
-    private PageInterceptor buildPageInterceptor() {
-        PageInterceptor pageInterceptor = new PageInterceptor();
-        Properties prop = new Properties();
-        prop.setProperty("helperDialect", "mysql");
-        pageInterceptor.setProperties(prop);
-        return pageInterceptor;
-    }
-
 }

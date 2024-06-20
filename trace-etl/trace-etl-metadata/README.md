@@ -16,16 +16,16 @@ Execute in the root directory of the project (trace-etl):
 
 `mvn clean compile -P opensource-outer -Dmaven.test.skip=true`
 
-It will generate a target directory under the trace-etl-server module, and the trace-etl-server-1.0.0-SNAPSHOT.jar in
+It will generate a target directory under the trace-etl-metadata module, and the trace-etl-metadata-1.0.1-jdk21.jar in
 the target directory is the executable jar file.
 
 ##Run
 
 Execution:
 
-`java -jar trace-etl-server-1.0.0-SNAPSHOT.jar`
+`java -jar trace-etl-metadata-1.0.1-jdk21.jar`
 
-You can run trace-etl-server.
+You can run trace-etl-metadata.
 
 ## JVM startup parameters
 --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED

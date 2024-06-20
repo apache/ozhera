@@ -12,13 +12,13 @@
 
 `mvn clean install -U -P opensource-outer -DskipTests`
 
-会在trace-etl-server模块下生成target目录，target目录中的trace-etl-server-1.0.0-SNAPSHOT.jar就是运行的jar文件。
+会在trace-etl-metadata模块下生成target目录，target目录中的trace-etl-metadata-1.0.1-jdk21.jar就是运行的jar文件。
 ## 运行
 执行：
 
 `java -jar trace-etl-metadata-1.0.1-jdk21.jar`
 
-就可以运行trace-etl-server。
+就可以运行trace-etl-metadata。
 
 ## JVM启动参数
 --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED

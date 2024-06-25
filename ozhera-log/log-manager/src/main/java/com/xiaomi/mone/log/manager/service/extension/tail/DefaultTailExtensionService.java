@@ -107,7 +107,9 @@ public class DefaultTailExtensionService implements TailExtensionService {
         /**
          * Send configuration information ---log-agent
          */
-        CompletableFuture.runAsync(() -> logTailService.sengMessageToAgent(milogAppId, mt));
+        if (param.getCollectionReady()) {
+            CompletableFuture.runAsync(() -> logTailService.sengMessageToAgent(milogAppId, mt));
+        }
         /**
          * Send final configuration information ---log-stream -- View the log template type, if it is OpenTelemetry logs, only send MQ and do not consume
          */
@@ -121,7 +123,9 @@ public class DefaultTailExtensionService implements TailExtensionService {
         /**
          * Synchronous log-agent
          */
-        CompletableFuture.runAsync(() -> milogAgentService.publishIncrementConfig(milogLogtailDo.getId(), milogLogtailDo.getMilogAppId(), milogLogtailDo.getIps()));
+        if (milogLogtailDo.getCollectionReady()) {
+            CompletableFuture.runAsync(() -> milogAgentService.publishIncrementConfig(milogLogtailDo.getId(), milogLogtailDo.getMilogAppId(), milogLogtailDo.getIps()));
+        }
         /**
          * Synchronous log-stream If it is OpenTelemetry logs, only send MQ and do not consume it
          */

@@ -236,7 +236,7 @@ public class EsDataController {
      */
     @RequestMapping(path = "/log/save/defavourite", method = "get")
     public Result<Integer> defavourite(@RequestParam(value = "sort") Integer sort, @RequestParam(value = "id") Long id) {
-        return searchSaveService.defavourite(sort, id);
+        return searchSaveService.deFavourite(sort, id);
     }
 
     /**
@@ -272,9 +272,9 @@ public class EsDataController {
         return esDataService.getTraceAppLogUrl(query);
     }
 
-    @RequestMapping(path = "/log/save/storeTree", method = "get")
-    public Result<List<SpaceTreeFavouriteDTO>> storeTree() {
-        return searchSaveService.storeTree();
+    @RequestMapping(path = "/log/save/storeTree")
+    public Result<List<SpaceTreeFavouriteDTO>> storeTree(KeywordPageParam keywordPageParam) {
+        return searchSaveService.storeTree(keywordPageParam);
     }
 
     @RequestMapping(path = "/log/save/initOrder", method = "get")

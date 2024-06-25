@@ -83,11 +83,6 @@ public class HeraConfigValid {
             return "The store ID cannot be empty";
         }
         String path = param.getLogPath();
-        MilogLogStoreDO milogLogstoreDO = milogLogstoreDao.queryById(param.getStoreId());
-        if (Objects.equals("staging", serverType) &&
-                !MachineRegionEnum.CN_MACHINE.getEn().equals(milogLogstoreDO.getMachineRoom())) {
-            return "The test environment only supports mainland data centers, and other data centers are not supported due to network problems";
-        }
         if (path.equals("/home/work/log/") || path.equals("/home/work/log") || path.startsWith("/home/work/log") && path.split("/").length < 4) {
             return "The log path is wrong, please confirm and submit";
         }

@@ -161,6 +161,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                 .envName(logTailDo.getEnvName())
                 .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
                 .deploySpace(logTailDo.getDeploySpace())
+                .collectionReady(logTailDo.getCollectionReady())
                 .build();
     }
 
@@ -244,7 +245,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             }
         } catch (Exception e) {
             log.warn("[MilogLogtailService.newMilogLogtail] creator MilogLogtail err,milogAppId:{},logpath:{}", param.getMilogAppId(), param.getLogPath(), e);
-            return new Result<>(CommonError.UnknownError.getCode(), CommonError.UnknownError.getMessage());
+            return new Result<>(CommonError.UnknownError.getCode(), e.getMessage());
         }
     }
 
@@ -558,7 +559,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         if (null == appBaseInfo) {
             return Result.failParam("The app does not exist");
         }
-        List<MilogAppEnvDTO> appEnvDTOList = tailExtensionService.getEnInfosByAppId(appBaseInfo, milogAppId, deployWay,machineRoom);
+        List<MilogAppEnvDTO> appEnvDTOList = tailExtensionService.getEnInfosByAppId(appBaseInfo, milogAppId, deployWay, machineRoom);
         return Result.success(appEnvDTOList);
     }
 
@@ -659,6 +660,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             milogLogtailDo.setDeploySpace((StringUtils.isNotEmpty(logTailParam.getDeploySpace()) ? logTailParam.getDeploySpace().trim() : ""));
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));
+        milogLogtailDo.setCollectionReady(logTailParam.getCollectionReady());
         return milogLogtailDo;
     }
 
@@ -692,11 +694,12 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         logTailDTO.setAppType(milogLogtailDo.getAppType());
         logTailDTO.setMachineType(milogLogtailDo.getMachineType());
         logTailDTO.setMotorRooms(milogLogtailDo.getMotorRooms());
-        // filterconf to tailRate
+        // filterConf to tailRate
         logTailDTO.setTailRate(RateLimitEnum.consTailRate(milogLogtailDo.getFilter()));
         logTailDTO.setDeployWay(milogLogtailDo.getDeployWay());
         logTailDTO.setDeploySpace(milogLogtailDo.getDeploySpace());
         logTailDTO.setFirstLineReg(milogLogtailDo.getFirstLineReg());
+        logTailDTO.setCollectionReady(milogLogtailDo.getCollectionReady());
         return logTailDTO;
     }
 

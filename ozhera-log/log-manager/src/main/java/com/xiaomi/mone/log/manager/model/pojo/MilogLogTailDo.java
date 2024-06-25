@@ -149,6 +149,11 @@ public class MilogLogTailDo extends BaseCommon {
     @Comment("A regular match expression at the beginning of a row")
     private String firstLineReg;
 
+    @Column(value = "collection_ready")
+    @ColDefine(type = ColType.VARCHAR, width = 1024)
+    @Comment("start to ready coll")
+    private Boolean collectionReady;
+
     public MilogLogTailDo() {
     }
 

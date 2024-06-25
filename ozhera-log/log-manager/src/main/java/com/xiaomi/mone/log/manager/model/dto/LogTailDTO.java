@@ -74,4 +74,6 @@ public class LogTailDTO {
     private Integer projectSource;
 
     private Integer batchSendSize;
+
+    private Boolean collectionReady;
 }

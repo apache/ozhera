@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
+import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.api.enums.FavouriteSearchEnum;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.exception.CommonError;
@@ -33,6 +34,7 @@ import com.xiaomi.mone.log.manager.model.dto.StoreTreeDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogSearchSaveDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
+import com.xiaomi.mone.log.manager.model.vo.KeywordPageParam;
 import com.xiaomi.mone.log.manager.model.vo.SearchSaveInsertCmd;
 import com.xiaomi.mone.log.manager.model.vo.SearchSaveUpdateCmd;
 import com.xiaomi.mone.log.manager.service.IMilogLogSearchSaveService;
@@ -178,7 +180,7 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
         return Result.success(fromRes + toRes == 2);
     }
 
-    public Result<Integer> defavourite(Integer sort, Long id) {
+    public Result<Integer> deFavourite(Integer sort, Long id) {
         if (sort == null || id == null) {
             Result.failParam("The parameter cannot be empty");
         }
@@ -199,40 +201,32 @@ public class MilogLogSearchSaveServiceImpl implements IMilogLogSearchSaveService
         return res == 1 ? Result.success() : Result.fail(CommonError.ParamsError);
     }
 
-    public Result<List<SpaceTreeFavouriteDTO>> storeTree() {
+    public Result<List<SpaceTreeFavouriteDTO>> storeTree(KeywordPageParam keywordPageParam) {
         List<SpaceTreeFavouriteDTO> dtoList = new CopyOnWriteArrayList<>();
-        int pageNum = 1;
         List<MilogSpaceDTO> spaceDTOList = new ArrayList<>();
 
-        while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpace = spaceAuthService.getUserPermSpace("", pageNum, 100);
+        com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> userPermSpace = spaceAuthService.getUserPermSpace(keywordPageParam.getKeyword(), keywordPageParam.getPageNum(), keywordPageParam.getPageSize());
 
-            if (userPermSpace.getCode() != 0) {
-                return Result.fail(CommonError.UNAUTHORIZED);
-            }
-            List<NodeVo> list = userPermSpace.getData() != null ? userPermSpace.getData().getList() : null;
-
-            if (CollectionUtils.isEmpty(list)) {
-                break;
-            }
-            List<MilogSpaceDTO> spaceDTOListPage = MilogSpaceConvert.INSTANCE.fromTpcPage(userPermSpace.getData()).getList();
-            spaceDTOList.addAll(spaceDTOListPage);
-            pageNum++;
+        if (userPermSpace.getCode() != 0) {
+            return Result.fail(CommonError.UNAUTHORIZED);
         }
+        if (CollectionUtils.isEmpty(userPermSpace.getData().getList())) {
+            return Result.success(dtoList);
+        }
+        List<MilogSpaceDTO> spaceDTOListPage = MilogSpaceConvert.INSTANCE.fromTpcPage(userPermSpace.getData()).getList();
+        spaceDTOList.addAll(spaceDTOListPage);
         if (CollectionUtils.isEmpty(spaceDTOList)) {
             return Result.success(dtoList);
         }
         List<Long> spaceIdList = spaceDTOList.stream().map(MilogSpaceDTO::getId).collect(Collectors.toList());
-        List<MilogLogStoreDO> storeList = store.getStoreList(spaceIdList);
+        List<MilogLogStoreDO> storeList = store.getStoreList(spaceIdList, keywordPageParam.getKeyword());
         Map<Long, List<MilogLogStoreDO>> spaceStoreMap = new HashMap<>();
         if (storeList != null && !storeList.isEmpty()) {
             for (MilogLogStoreDO store : storeList) {
                 if (spaceStoreMap.containsKey(store.getSpaceId())) {
                     spaceStoreMap.get(store.getSpaceId()).add(store);
                 } else {
-                    List storeFerryList = new ArrayList();
-                    storeFerryList.add(store);
-                    spaceStoreMap.put(store.getSpaceId(), storeFerryList);
+                    spaceStoreMap.put(store.getSpaceId(), Lists.newArrayList(store));
                 }
             }
         }

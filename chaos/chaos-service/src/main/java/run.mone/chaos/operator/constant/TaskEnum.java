@@ -17,7 +17,6 @@ package run.mone.chaos.operator.constant;
 
 import lombok.Getter;
 import run.mone.chaos.operator.bo.*;
-import run.mone.chaos.operator.bo.http.HttpBO;
 import run.mone.chaos.operator.dao.domain.*;
 import run.mone.chaos.operator.service.TaskBaseService;
 import run.mone.chaos.operator.service.impl.*;

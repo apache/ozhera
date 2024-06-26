@@ -30,7 +30,6 @@ import run.mone.chaos.operator.aspect.anno.ParamValidate;
 import run.mone.chaos.operator.bo.CreateChaosTaskBo;
 import run.mone.chaos.operator.bo.PipelineBO;
 import run.mone.chaos.operator.bo.TaskQryParam;
-import run.mone.chaos.operator.bo.chaosBot.CreateBotCronBo;
 import run.mone.chaos.operator.common.Config;
 import run.mone.chaos.operator.constant.ModeEnum;
 import run.mone.chaos.operator.constant.StatusEnum;

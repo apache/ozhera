@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import run.mone.chaos.operator.bo.CreateChaosTaskBo;
 import run.mone.chaos.operator.bo.PipelineBO;
-import run.mone.chaos.operator.bo.chaosBot.CreateBotCronBo;
 import run.mone.chaos.operator.constant.StatusEnum;
 import run.mone.chaos.operator.dao.domain.ChaosTask;
 import run.mone.chaos.operator.dto.grpc.GrpcPodAndChannel;

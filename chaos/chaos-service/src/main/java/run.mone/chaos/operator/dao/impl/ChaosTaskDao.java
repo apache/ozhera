@@ -124,19 +124,6 @@ public class ChaosTaskDao extends BaseDao {
      */
     private String getOperateParam(ChaosTask task) {
         String operateParam = "";
-        if (Objects.nonNull(task.getJvmPO())) {
-            operateParam = gson.toJson(task.getJvmPO());
-        } else if (Objects.nonNull(task.getStressPO())) {
-            operateParam = gson.toJson(task.getStressPO());
-        } else if (Objects.nonNull(task.getNetworkPO())) {
-            operateParam = gson.toJson(task.getNetworkPO());
-        } else if (Objects.nonNull(task.getHttpPO())) {
-            operateParam = gson.toJson(task.getHttpPO());
-        } else if (Objects.nonNull(task.getIoPO())) {
-            operateParam = gson.toJson(task.getIoPO());
-        } else if (Objects.nonNull(task.getTimePO())) {
-            operateParam = gson.toJson(task.getTimePO());
-        }
         return operateParam;
     }
 

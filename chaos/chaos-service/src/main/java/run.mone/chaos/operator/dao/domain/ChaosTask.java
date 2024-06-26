@@ -71,18 +71,6 @@ public class ChaosTask extends BaseDomain implements Serializable {
 
     private String containerName;
 
-    private StressPO stressPO;
-
-    private NetworkPO networkPO;
-
-    private HttpPO httpPO;
-
-    private IOPO ioPO;
-
-    private JvmPO jvmPO;
-
-    private TimePO timePO;
-
     private PodPO podPO;
 
     public static ChaosTask of(PipelineBO pipelineBO, int taskType, int modeType, int statusType, String experimentName) {

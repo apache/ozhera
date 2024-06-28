@@ -27,18 +27,18 @@ import java.util.Date;
 @ToString
 public class AppCapacityAutoAdjustBo implements Serializable {
 
-    private Integer appId;//Application ID
+    private Integer appId;// Application ID
 
-    private Integer pipelineId;//Pipeline ID
+    private Integer pipelineId;// Pipeline ID
 
-    private String container;//Container Name
+    private String container;// Container Name
 
-    private Integer minInstance;//Minimum number of instances
+    private Integer minInstance;// Minimum number of instances
 
-    private Integer maxInstance;//Maximum number of instances
+    private Integer maxInstance;// Maximum number of instances
 
-    private Integer autoCapacity;//Auto-scaling: 1 for Yes, 0 for No
+    private Integer autoCapacity;// Auto-scaling: 1 for Yes, 0 for No
 
-    private Integer dependOn;//Scaling criteria: 0 for CPU, 1 for Memory, 2 for CPU and Memory
+    private Integer dependOn;// Scaling criteria: 0 for CPU, 1 for Memory, 2 for CPU and Memory
 
 }

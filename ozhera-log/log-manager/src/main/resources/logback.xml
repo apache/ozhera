@@ -15,8 +15,34 @@
             <pattern>%d|%-5level|%X{trace_id}|%thread|%logger{40}|%L|%msg%n</pattern>
         </encoder>
 
+        <!-- add a filter to exclude error level logs -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${log.path}/server.log.%d{yyyy-MM-dd-HH}</FileNamePattern>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <maxHistory>168</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="error_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.path}/error.log</File>
+        <encoder>
+            <pattern>%d|%-5level|%X{trace_id}|%thread|%logger{40}|%L|%msg%n</pattern>
+        </encoder>
+        <!--add a filter that only accepts error logs-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.path}/error.log.%d{yyyy-MM-dd-HH}</FileNamePattern>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
             <maxHistory>168</maxHistory>
         </rollingPolicy>
@@ -32,12 +58,12 @@
     <logger name="ch.qos.logback" level="ERROR"/>
     <logger name="com.xiaomi.data.push.service.state" level="ERROR"/>
     <logger name="org.reflections.Reflections" level="ERROR"/>
-    <logger name="com.xiaomi.infra.galaxy" level="ERROR"/>
-    <logger name="com.*.*.mapper" level="debug" additivity="true" />
+    <logger name="com.*.*.mapper" level="debug"/>
 
     <root level="INFO">
         <appender-ref ref="stdout"/>
         <appender-ref ref="logfile"/>
+        <appender-ref ref="error_file"/>
     </root>
 
 

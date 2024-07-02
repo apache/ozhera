@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Xiaomi
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.service.bo;
 
 import lombok.Data;
@@ -12,18 +27,18 @@ import java.util.Date;
 @ToString
 public class AppCapacityAutoAdjustBo implements Serializable {
 
-    private Integer appId;//应用id
+    private Integer appId;//app id
 
-    private Integer pipelineId;//流水线id
+    private Integer pipelineId;//pipeline id
 
-    private String container;//容器名称
+    private String container;//The name of the container
 
-    private Integer minInstance;//最小实例数
+    private Integer minInstance;//Minimum number of instances
 
-    private Integer maxInstance;//最大实例数
+    private Integer maxInstance;//Maximum number of instances
 
-    private Integer autoCapacity;//是否自动扩容 1 是，0否
+    private Integer autoCapacity;//Auto-scaling 1 Yes, 0 No
 
-    private Integer dependOn;//扩容依据 0 cpu 1内存 2cpu及内存
+    private Integer dependOn;//Expansion is based on 0 CPU 1 RAM 2 CPU and memory
 
 }

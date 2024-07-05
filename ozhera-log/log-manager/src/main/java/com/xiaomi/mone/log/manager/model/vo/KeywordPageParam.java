@@ -13,19 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.monitor.service.bo;
+package com.xiaomi.mone.log.manager.model.vo;
 
+import com.xiaomi.mone.log.manager.model.PageVo;
 import lombok.Data;
 
 /**
  *
- * @author zhanggaofeng1
+ * @description
+ * @version 1.0
+ * @author wtt
+ * @date 2024/6/18 9:49
+ *
  */
 @Data
-public class CensusInfo {
-
-    private long duration = 30 * 60l;
-    private int pageSize = 100;
-    private int maxPageNo = 100;
-    
+public class KeywordPageParam extends PageVo {
+    private String keyword;
 }

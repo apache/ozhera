@@ -20,6 +20,7 @@ import com.xiaomi.mone.log.manager.dao.MilogStoreSpaceAuthDao;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogStoreSpaceAuth;
 import com.xiaomi.youpin.docean.anno.Service;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -34,9 +35,14 @@ public class Store {
     @Resource
     private MilogStoreSpaceAuthDao storeSpaceAuthDao;
 
-    public List<MilogLogStoreDO> getStoreList(List<Long> spaceIdList) {
+    public List<MilogLogStoreDO> getStoreList(List<Long> spaceIdList, String keyword) {
         List<MilogLogStoreDO> storeList = logstoreDao.getMilogLogstoreBySpaceId(spaceIdList);
-        Set<Long> storeIdSet = storeList.stream().map(MilogLogStoreDO::getId).collect(Collectors.toSet());
+        Set<Long> storeIdSet = storeList.stream().filter(store -> {
+            if (StringUtils.isNotEmpty(keyword)) {
+                return store.getLogstoreName().contains(keyword);
+            }
+            return true;
+        }).map(MilogLogStoreDO::getId).collect(Collectors.toSet());
         List<MilogStoreSpaceAuth> storeAuthList = storeSpaceAuthDao.queryBySpaceId(spaceIdList);
         if (storeAuthList != null && !storeAuthList.isEmpty()) {
             List<Long> authStoreIdList = storeAuthList.stream().filter(auth -> !storeIdSet.contains(auth.getStoreId())).map(MilogStoreSpaceAuth::getStoreId).collect(Collectors.toList());

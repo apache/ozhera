@@ -49,6 +49,7 @@ public class LogTailParam {
     private Long middlewareConfigId;
 
     private String logSplitExpress;
+
     /**
      * Beginning of line rule
      */
@@ -74,4 +75,6 @@ public class LogTailParam {
     private Integer deployWay;
 
     private Integer batchSendSize = 20;
+
+    private Boolean collectionReady = true;
 }

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2020 Xiaomi
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.utils;
 
 import com.google.gson.JsonObject;
@@ -44,7 +59,7 @@ public class FreeMarkerUtil {
         StringWriter writer = new StringWriter();
         getTemplate(name, pathPrefix).process(rootMap, writer);
         String jsonStr = writer.toString();
-        JsonObject returnData = new JsonParser().parse(jsonStr).getAsJsonObject();//先将模板文件转为json对象，再转为json字符串
+        JsonObject returnData = new JsonParser().parse(jsonStr).getAsJsonObject();//Convert the template file to a JSON object and then to a JSON string
         return returnData.toString();
     }
 
@@ -65,7 +80,7 @@ public class FreeMarkerUtil {
      */
     public static void printFile(String pathPrefix, String name, Map<String, Object> rootMap, File file) throws TemplateException, IOException {
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-        getTemplate(name, pathPrefix).process(rootMap, out); //将模板文件内容以UTF-8编码输出到相应的流中
+        getTemplate(name, pathPrefix).process(rootMap, out); //Output the content of the template file to the corresponding stream in UTF-8 encoding
         if (null != out) {
             out.close();
         }
@@ -92,9 +107,9 @@ public class FreeMarkerUtil {
 
     public static String getTemplateStr(String pathPrefix, String name) throws IOException {
         Configuration cfg = new Configuration();
-        cfg.setClassForTemplateLoading(FreeMarkerUtil.class, pathPrefix); //设置模板文件的目录
+        cfg.setClassForTemplateLoading(FreeMarkerUtil.class, pathPrefix); //Set the directory of the template file
         cfg.setDefaultEncoding("UTF-8");       //Set the default charset of the template files
-        Template temp = cfg.getTemplate(name); //在模板文件目录中寻找名为"name"的模板文件
+        Template temp = cfg.getTemplate(name); //Look for the template file named "name" in the template file directory
         return temp.toString();
     }
 

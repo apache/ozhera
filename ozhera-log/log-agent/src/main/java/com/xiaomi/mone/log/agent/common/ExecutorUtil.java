@@ -18,7 +18,6 @@ package com.xiaomi.mone.log.agent.common;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author shanwb
@@ -27,7 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class ExecutorUtil {
 
-    public static ScheduledThreadPoolExecutor STP_EXECUTOR = new ScheduledThreadPoolExecutor(15, new CustomThreadFactory("ExecutorUtil-STP-Thread"));
+    public static ScheduledThreadPoolExecutor STP_EXECUTOR = new ScheduledThreadPoolExecutor(20,
+            Thread.ofVirtual().name("ExecutorUtil-STP-Virtual-Thread", 0)
+                    .uncaughtExceptionHandler((t, e) -> {
+                        log.error("ExecutorUtil-STP-Virtual-Thread uncaughtException:{}", e.getMessage(), e);
+                    }).factory());
 
     public static ExecutorService TP_EXECUTOR = createPool();
 
@@ -40,7 +43,11 @@ public class ExecutorUtil {
 
     public static ExecutorService createPool() {
         System.setProperty("jdk.virtualThreadScheduler.parallelism", String.valueOf(Runtime.getRuntime().availableProcessors() + 1));
-        return Executors.newVirtualThreadPerTaskExecutor();
+        ThreadFactory factory = Thread.ofVirtual().name("ExecutorUtil-TP-Virtual-Thread", 0)
+                .uncaughtExceptionHandler((t, e) -> {
+                    log.error("ExecutorUtil-TP-Virtual-Thread uncaughtException:{}", e.getMessage(), e);
+                }).factory();
+        return Executors.newThreadPerTaskExecutor(factory);
     }
 
     public static Future<?> submit(Runnable task) {
@@ -48,43 +55,11 @@ public class ExecutorUtil {
         return TP_EXECUTOR.submit(task);
     }
 
-    public static class CustomThreadFactory implements ThreadFactory {
-
-        private String threadNamePrefix;
-        private AtomicInteger count = new AtomicInteger(0);
-
-        public CustomThreadFactory(String threadNamePrefix) {
-            this.threadNamePrefix = threadNamePrefix;
-        }
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread t = new Thread(r);
-            String threadName = threadNamePrefix + count.addAndGet(1);
-            t.setName(threadName);
-            return t;
-        }
-    }
-
-    static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            try {
-                executor.getQueue().put(r);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     static {
         //Regularly print thread pool information
-        STP_EXECUTOR.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                log.warn("Executor statistic TP_EXECUTOR:{}", TP_EXECUTOR.toString());
-                log.warn("Executor statistic STP_EXECUTOR:{}", STP_EXECUTOR.toString());
-            }
+        STP_EXECUTOR.scheduleAtFixedRate(() -> {
+            log.warn("Executor statistic TP_EXECUTOR:{}", TP_EXECUTOR.toString());
+            log.warn("Executor statistic STP_EXECUTOR:{}", STP_EXECUTOR.toString());
         }, 17, 30, TimeUnit.SECONDS);
     }
 

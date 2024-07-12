@@ -21,6 +21,8 @@ import com.xiaomi.mone.tpc.common.vo.NodeVo;
 import com.xiaomi.mone.tpc.common.vo.PageDataVo;
 import com.xiaomi.youpin.infra.rpc.Result;
 
+import java.util.List;
+
 /**
  * @author wtt
  * @version 1.0
@@ -76,4 +78,13 @@ public interface SpaceAuthService {
      * @param memberCode
      */
     void addSpaceMember(Long spaceId, String userAccount, Integer userType, Integer memberCode);
+
+    /**
+     * query access to user node list
+     * @param spaceName
+     * @param userName
+     * @return
+     */
+    Result<List<NodeVo>> queryUserListNode(String spaceName, String userName);
+
 }

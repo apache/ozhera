@@ -25,6 +25,7 @@ import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.infra.rpc.Result;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author wtt
@@ -65,6 +66,11 @@ public class TpcSpaceAuthService implements SpaceAuthService {
     @Override
     public void addSpaceMember(Long spaceId, String userAccount, Integer userType, Integer memberCode) {
         tpc.addSpaceMember(spaceId, userAccount, userType, memberCode);
+    }
+
+    @Override
+    public Result<List<NodeVo>> queryUserListNode(String spaceName, String userName) {
+        return Result.success(tpc.queryUserListNode(spaceName, userName));
     }
 
 }

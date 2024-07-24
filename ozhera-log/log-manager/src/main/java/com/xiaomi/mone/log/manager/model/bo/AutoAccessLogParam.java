@@ -13,11 +13,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.monitor.utils;
+package com.xiaomi.mone.log.manager.model.bo;
 
-public class ConstUtil {
+import lombok.Data;
 
-    public static final String detailRedirectUrl = "detailRedirectUrl";
-    public static final String paramMapping = "paramMapping";
-    public static final String paramType = "paramType";
+import java.util.List;
+
+/**
+ *
+ * @description
+ * @version 1.0
+ * @author wtt
+ * @date 2024/7/10 10:54
+ *
+ */
+@Data
+public class AutoAccessLogParam {
+
+    private Long appId;
+    private String appName;
+    private Long envId;
+    private String envName;
+    private List<String> ips;
+    private String logPath;
+
+    private String tailName;
+
+    private Long spaceId;
+    private Long storeId;
 }

@@ -15,6 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.domain;
 
+import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.dao.MilogSpaceDao;
@@ -38,9 +39,11 @@ import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
 import com.xiaomi.youpin.infra.rpc.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
@@ -108,6 +111,50 @@ public class Tpc {
         // The admin user queries all
         param.setMyNode(!currentUser.getIsAdmin());
         return tpcService.orgNodelist(param);
+    }
+
+    public List<NodeVo> queryUserListNode(String spaceName, String userName) {
+        handleRemoteTpcId(tpcNodeCode, userName, UserTypeEnum.CAS_TYPE.getCode());
+
+        boolean isAdmin = isAdmin(userName, UserTypeEnum.CAS_TYPE.getCode());
+
+        List<NodeVo> nodeVoList = Lists.newArrayList();
+        int page = 1;
+        Integer pageSize = 100;
+        while (true) {
+            NodeQryParam param = createNodeQryParam(spaceName, userName, page, isAdmin, pageSize);
+            Result<PageDataVo<NodeVo>> pageDataVoResult = tpcService.orgNodelist(param);
+
+            Optional.ofNullable(pageDataVoResult)
+                    .map(Result::getData)
+                    .map(PageDataVo::getList)
+                    .ifPresentOrElse(nodeVoList::addAll, () -> log.info("No more nodes found. Breaking out of the loop."));
+
+            if (pageDataVoResult == null || pageDataVoResult.getData() == null || CollectionUtils.isEmpty(pageDataVoResult.getData().getList())) {
+                break;
+            }
+
+            page++;
+        }
+
+        return nodeVoList;
+    }
+
+    private NodeQryParam createNodeQryParam(String spaceName, String userName, int page, boolean isAdmin, Integer pageSize) {
+        NodeQryParam param = new NodeQryParam();
+        param.setPager(true);
+        param.setPage(page);
+        param.setPageSize(pageSize);
+        param.setParentId(tpcPId);
+        param.setAccount(userName);
+        param.setType(NodeTypeEnum.PRO_SUB_GROUP.getCode());
+        param.setUserType(UserTypeEnum.CAS_TYPE.getCode());
+        param.setStatus(NodeStatusEnum.ENABLE.getCode());
+        param.setMyNode(!isAdmin);
+        if (StringUtils.isNotEmpty(spaceName)) {
+            param.setNodeName(spaceName);
+        }
+        return param;
     }
 
     /**

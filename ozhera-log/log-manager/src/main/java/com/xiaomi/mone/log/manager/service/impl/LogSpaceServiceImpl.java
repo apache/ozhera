@@ -17,6 +17,8 @@ package com.xiaomi.mone.log.manager.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.api.enums.LogStructureEnum;
 import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
@@ -25,6 +27,7 @@ import com.xiaomi.mone.log.api.enums.ProjectSourceEnum;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.exception.CommonError;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
+import com.xiaomi.mone.log.manager.common.exception.MilogManageException;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.dao.MilogSpaceDao;
 import com.xiaomi.mone.log.manager.domain.Tpc;
@@ -37,6 +40,7 @@ import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogSpaceDO;
 import com.xiaomi.mone.log.manager.service.BaseService;
 import com.xiaomi.mone.log.manager.service.LogSpaceService;
+import com.xiaomi.mone.log.manager.user.MoneUser;
 import com.xiaomi.mone.tpc.common.enums.NodeUserRelTypeEnum;
 import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
 import com.xiaomi.mone.tpc.common.vo.NodeVo;
@@ -51,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,6 +76,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
     @Resource
     private Tpc tpc;
+
+    private static final Cache<String, List<MapDTO<String, Long>>> SPACE_ALL_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(100)
+            .expireAfterWrite(3, TimeUnit.MINUTES)
+            .build();
 
     /**
      * new
@@ -104,7 +114,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
                 otherAdmins = CollectionUtil.sub(param.getAdmins(), 1, param.getAdmins().size());
             }
         }
-       com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
+        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
@@ -178,32 +188,56 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     @Override
     public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId) {
         int pageNum = 1;
-        List<MapDTO<String, Long>> ret = new ArrayList<>();
+        int defaultPageSize = 300;
+        String defaultSpaceKey = buildCacheKey(tenantId);
+        List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
+
+        // return cached result if available
+        if (CollectionUtils.isNotEmpty(cachedResult)) {
+            return Result.success(cachedResult);
+        }
+
+        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize);
+
+        // transform nodeVos to MapDTO list
+        List<MapDTO<String, Long>> result = nodeVos.parallelStream()
+                .map(nodeVo -> new MapDTO<>(nodeVo.getNodeName(), nodeVo.getOutId()))
+                .collect(Collectors.toList());
+
+        // cache the result
+        SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+        return Result.success(result);
+    }
+
+    private static String buildCacheKey(Long tenantId) {
+        MoneUser currentUser = MoneUserContext.getCurrentUser();
+        return String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+    }
+
+    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize) {
         List<NodeVo> nodeVos = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> tpcRes = spaceAuthService.getUserPermSpace("", pageNum, 100);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace("", pageNum, pageSize);
 
-            if (tpcRes.getCode() != 0) {
-                return Result.fail(CommonError.UNAUTHORIZED);
+            if (response.getCode() != 0) {
+                throw new MilogManageException("query space from tpc error");
             }
 
-            List<NodeVo> list = tpcRes.getData() != null ? tpcRes.getData().getList() : null;
-
-            if (CollectionUtils.isEmpty(list)) {
+            PageDataVo<NodeVo> pageData = response.getData();
+            if (pageData == null || CollectionUtils.isEmpty(pageData.getList())) {
                 break;
             }
 
-            nodeVos.addAll(list);
+            nodeVos.addAll(pageData.getList());
+
+            if (pageData.getList().size() < pageSize) {
+                break;
+            }
             pageNum++;
         }
 
-        for (NodeVo s : nodeVos) {
-            ret.add(new MapDTO<>(s.getNodeName(), s.getOutId()));
-        }
-
-        return Result.success(ret);
-
+        return nodeVos;
     }
 
     /**

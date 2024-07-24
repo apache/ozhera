@@ -383,4 +383,14 @@ public class MilogLogTailDao {
         Cnd cnd = Cnd.where("store_id", EQUAL_OPERATE, storeId).and("tail", "in", nameList);
         return dao.query(MilogLogTailDo.class, cnd);
     }
+
+    public List<MilogLogTailDo> queryByCondition(Long spaceId, Long storeId, String tailName, Long heraAppId, Long envId,
+                                                 String logPath) {
+        return dao.query(MilogLogTailDo.class, Cnd.where("space_id", EQUAL_OPERATE, spaceId)
+                .and("store_id", EQUAL_OPERATE, storeId)
+                .and("tail", EQUAL_OPERATE, tailName)
+                .and("milog_app_id", EQUAL_OPERATE, heraAppId)
+                .and("env_id", EQUAL_OPERATE, envId)
+                .and("log_path", EQUAL_OPERATE, logPath));
+    }
 }

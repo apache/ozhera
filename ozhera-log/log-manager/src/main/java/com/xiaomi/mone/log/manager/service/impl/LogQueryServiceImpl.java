@@ -406,7 +406,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         Map<String, Object> ferry = hit.getSourceAsMap();
 
         long time = 0;
-        if (ferry.containsKey("time")) {
+        if (ferry.containsKey("time") && null != ferry.get("time") && StringUtils.isNotBlank(ferry.get("time").toString())) {
             time = DateUtil.parse(ferry.get("time").toString()).toTimestamp().getTime();
         }
         if (null == ferry.get(LogParser.esKeyMap_timestamp)) {

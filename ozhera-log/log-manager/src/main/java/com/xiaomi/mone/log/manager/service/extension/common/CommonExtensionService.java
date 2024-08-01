@@ -19,6 +19,8 @@ import com.xiaomi.mone.log.manager.model.vo.LogQuery;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 
+import java.util.List;
+
 /**
  * @author wtt
  * @version 1.0
@@ -49,4 +51,6 @@ public interface CommonExtensionService {
     String getSearchIndex(Long logStoreId, String esIndex);
 
     String getSpaceDataId(Long spaceId);
+
+    List<String> queryMachineRegions();
 }

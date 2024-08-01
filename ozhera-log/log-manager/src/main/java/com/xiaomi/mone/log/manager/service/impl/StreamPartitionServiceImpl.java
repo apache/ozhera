@@ -135,13 +135,12 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
 
     private MiLogStreamConfig buildMiLogStreamConfig(String machineRoom) {
         logConfigNacosService.chooseCurrentEnvNacosSerevice(machineRoom);
-        MiLogStreamConfig config = logConfigNacosService.getStreamConfigNacosProvider().getConfig(null);
+        MiLogStreamConfig config = logConfigNacosService.getStreamConfigNacosProvider(machineRoom).getConfig(null);
         if (config == null) {
             throw new MilogManageException("当前机房nacos配置不存在");
         }
         return config;
     }
-
 
     @Override
     public Boolean addSpaceToIp(SpaceIpParam param) {
@@ -155,7 +154,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
             }
         }
 
-        logConfigNacosService.getStreamConfigNacosPublisher().publish(param.getSpaceId(), config);
+        logConfigNacosService.getStreamConfigNacosPublisher(param.getMachineRoom()).publish(param.getSpaceId(), config);
         return true;
     }
 
@@ -168,7 +167,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
             if (spaceMap.isEmpty()) {
                 config.getConfig().remove(param.getUniqueKey());
             }
-            logConfigNacosService.getStreamConfigNacosPublisher().publish(param.getSpaceId(), config);
+            logConfigNacosService.getStreamConfigNacosPublisher(param.getMachineRoom()).publish(param.getSpaceId(), config);
         }
         return true;
     }

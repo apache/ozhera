@@ -165,6 +165,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     private synchronized MiLogStreamConfig dealStreamConfigByRule(String motorRoomEn, List<String> ipList, Long spaceId, Integer type) {
         MiLogStreamConfig existConfig = getStreamConfigNacosProvider(motorRoomEn).getConfig(spaceId);
+        ipList = ensureDefaultCompatibility(existConfig, ipList);
         // New configuration
         String spaceKey = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type) || OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
@@ -201,8 +202,9 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                 // The number of name spaces held per machine
                 Map<String, Integer> ipSizeMap = config.entrySet().stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, stringMapEntry -> stringMapEntry.getValue().size()));
+                List<String> finalIpList = ipList;
                 String key = ipSizeMap.entrySet().stream()
-                        .filter(entry -> ipList.contains(entry.getKey()))
+                        .filter(entry -> finalIpList.contains(entry.getKey()))
                         .min(Map.Entry.comparingByValue()).get().getKey();
                 config.get(key).put(spaceId, spaceKey);
             }
@@ -216,6 +218,22 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             getSpaceConfigNacosPublisher(motorRoomEn).remove(spaceId.toString());
         }
         return existConfig;
+    }
+
+    /**
+     * compatible When the queried IP is different from the actual one, the actual one is returned
+     *
+     * @param existConfig
+     * @param ipList
+     * @return
+     */
+    private List<String> ensureDefaultCompatibility(MiLogStreamConfig existConfig, List<String> ipList) {
+        Set<String> keySet = existConfig.getConfig().keySet();
+        if (!CollectionUtils.isEqualCollection(keySet, ipList)) {
+            log.info("ipList not belong to config,query list:{},actual list:{}", GSON.toJson(ipList), GSON.toJson(keySet));
+            ipList = keySet.stream().toList();
+        }
+        return ipList;
     }
 
     @Override

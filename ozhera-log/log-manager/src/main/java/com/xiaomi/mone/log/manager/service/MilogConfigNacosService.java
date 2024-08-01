@@ -31,5 +31,5 @@ public interface MilogConfigNacosService {
 
     void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType);
 
-    void removeStreamConfig(Long id);
+    void removeStreamConfig(String motorRoomEn, Long id);
 }

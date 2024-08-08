@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Xiaomi Corporation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.controller;
 
 import com.google.common.collect.Lists;
@@ -228,7 +243,8 @@ public class AppMonitorController {
         }
 
         /**
-         * 不再区分区域及是否参与角色，替换为全量的应用查询，并适配原有参数类型
+         * No longer distinguish between regions and whether or not to participate in roles,
+         * replaced by full application query, and adapted to the original parameter type
          */
         return appMonitorService.getProjectInfos(userInfo.genFullAccount(), param.getAppName(), param.getPage(), param.getPageSize());
 
@@ -277,7 +293,7 @@ public class AppMonitorController {
 
         try {
             if (param.getPageSize() == null) {
-                //默认最大显示 1000
+                //The default maximum display is 1000
                 param.setPageSize(1000);
             }
             log.info("AppMonitorController.listApp param : {} ", param);
@@ -299,7 +315,7 @@ public class AppMonitorController {
                 return appMonitorService.listApp(param.getAppName(), user, param.getPage(), param.getPageSize());
             }
 
-            //指定了查询我关注的应用，返回我关注的应用列表！
+            //Specifies to query the apps I follow, and returns a list of apps I follow!
             if (param.getViewType() != null && param.getViewType().intValue() == 1) {
                 return appMonitorService.listMyCareApp(param.getAppName(), user, param.getPage(), param.getPageSize());
             }
@@ -346,7 +362,7 @@ public class AppMonitorController {
         }
         String user = userInfo.genFullAccount();
 
-        // 只允许添加一条（单个应用）
+        // Only one entry is allowed (single application)
         AppMonitorModel param = params.get(0);
 
         log.info("AppMonitorController.addApp param : {} ,user : {}", param, user);

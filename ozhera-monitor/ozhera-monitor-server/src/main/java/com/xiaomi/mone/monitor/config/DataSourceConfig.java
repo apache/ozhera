@@ -121,7 +121,7 @@ public class DataSourceConfig {
     }
 
     /**
-     * 分页插件
+     * Pagination plugin
      * @return
      */
     private PageInterceptor buildPageInterceptor() {

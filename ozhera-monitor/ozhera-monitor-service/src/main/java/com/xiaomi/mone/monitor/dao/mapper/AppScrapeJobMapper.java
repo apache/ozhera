@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppScrapeJob;
 import com.xiaomi.mone.monitor.dao.model.AppScrapeJobExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppScrapeJobMapper {
     long countByExample(AppScrapeJobExample example);

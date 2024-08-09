@@ -15,8 +15,6 @@
  */
 package run.mone.trace.etl.extension.doris.domain;
 
-import lombok.Data;
-
 public class HeraTraceSpanColumn {
     public static final String duration = "duration";
     public static final String flags = "flags";

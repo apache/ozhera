@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppQualityMarket;
 import com.xiaomi.mone.monitor.dao.model.AppQualityMarketExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppQualityMarketMapper {
     long countByExample(AppQualityMarketExample example);

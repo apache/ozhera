@@ -1,7 +1,6 @@
 package com.xiaomi.mone.monitor.dao.model;
 
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 import org.nutz.dao.entity.annotation.Column;

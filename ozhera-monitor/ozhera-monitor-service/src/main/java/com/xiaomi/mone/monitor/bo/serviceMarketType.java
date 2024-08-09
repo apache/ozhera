@@ -1,7 +1,5 @@
 package com.xiaomi.mone.monitor.bo;
 
-import org.nutz.dao.util.cri.Static;
-
 /**
  * @author zhangxiaowei
  * @date 2022/4/13

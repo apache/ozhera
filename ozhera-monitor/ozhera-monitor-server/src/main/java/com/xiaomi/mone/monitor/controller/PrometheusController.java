@@ -1,6 +1,5 @@
 package com.xiaomi.mone.monitor.controller;
 
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
 import com.xiaomi.mone.log.api.model.vo.TraceLogQuery;
 import com.xiaomi.mone.log.api.service.LogDataService;

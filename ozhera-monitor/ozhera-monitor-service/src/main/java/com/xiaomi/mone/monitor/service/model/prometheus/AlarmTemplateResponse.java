@@ -5,9 +5,7 @@ import com.xiaomi.mone.monitor.dao.model.AppAlarmRuleTemplate;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author gaoxihui

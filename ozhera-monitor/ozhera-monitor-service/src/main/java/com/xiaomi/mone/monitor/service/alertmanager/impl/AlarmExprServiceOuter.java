@@ -12,7 +12,6 @@ import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.alertmanager.AlarmExprService;
 import com.xiaomi.mone.monitor.service.api.AlarmPresetMetricsService;
 import com.xiaomi.mone.monitor.service.api.MetricsLabelKindService;
-import com.xiaomi.mone.monitor.service.api.TeslaService;
 import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.monitor.service.model.prometheus.AlarmRuleData;
 import com.xiaomi.mone.monitor.service.model.prometheus.Metric;
@@ -25,7 +24,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

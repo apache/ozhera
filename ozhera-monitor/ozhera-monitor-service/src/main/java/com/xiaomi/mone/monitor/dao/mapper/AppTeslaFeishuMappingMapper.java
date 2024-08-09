@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppTeslaFeishuMapping;
 import com.xiaomi.mone.monitor.dao.model.AppTeslaFeishuMappingExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppTeslaFeishuMappingMapper {
     long countByExample(AppTeslaFeishuMappingExample example);

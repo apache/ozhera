@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppCapacityAutoAdjust;
 import com.xiaomi.mone.monitor.dao.model.AppCapacityAutoAdjustExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppCapacityAutoAdjustMapper {
     long countByExample(AppCapacityAutoAdjustExample example);

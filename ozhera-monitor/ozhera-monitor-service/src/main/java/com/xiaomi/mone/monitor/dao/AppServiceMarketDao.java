@@ -1,8 +1,6 @@
 package com.xiaomi.mone.monitor.dao;
 
 import com.xiaomi.mone.monitor.dao.mapper.AppServiceMarketMapper;
-import com.xiaomi.mone.monitor.dao.model.AppScrapeJob;
-import com.xiaomi.mone.monitor.dao.model.AppScrapeJobExample;
 import com.xiaomi.mone.monitor.dao.model.AppServiceMarket;
 import com.xiaomi.mone.monitor.dao.model.AppServiceMarketExample;
 import lombok.extern.slf4j.Slf4j;

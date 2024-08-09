@@ -8,7 +8,6 @@ import com.xiaomi.mone.monitor.service.RulePromQLTemplateService;
 import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.tpc.login.util.UserUtil;
 import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
-import com.xiaomi.mone.tpc.login.vo.UserInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

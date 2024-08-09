@@ -15,11 +15,10 @@
  */
 package com.xiaomi.mione.prometheus.starter.all.factory;
 
+import com.xiaomi.mione.prometheus.starter.all.domain.Const;
 import com.xiaomi.mione.prometheus.starter.all.service.MilinePrometheusService;
 import com.xiaomi.mione.prometheus.starter.all.service.PrometheusService;
 import org.apache.commons.lang3.StringUtils;
-
-import com.xiaomi.mione.prometheus.starter.all.domain.Const ;
 
 
 /**

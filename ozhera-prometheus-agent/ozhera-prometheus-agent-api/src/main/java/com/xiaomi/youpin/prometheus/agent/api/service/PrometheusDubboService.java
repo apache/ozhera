@@ -19,7 +19,6 @@ package com.xiaomi.youpin.prometheus.agent.api.service;
 import com.xiaomi.youpin.prometheus.agent.api.bo.PrometheusReq;
 import com.xiaomi.youpin.prometheus.agent.api.bo.Result;
 
-import java.util.List;
 import java.util.Set;
 
 /**

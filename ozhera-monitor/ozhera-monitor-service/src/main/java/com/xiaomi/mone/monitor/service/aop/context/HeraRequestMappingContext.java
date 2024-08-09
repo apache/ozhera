@@ -2,7 +2,6 @@ package com.xiaomi.mone.monitor.service.aop.context;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @project: mimonitor

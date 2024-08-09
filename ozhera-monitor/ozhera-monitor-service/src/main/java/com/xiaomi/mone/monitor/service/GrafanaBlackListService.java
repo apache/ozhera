@@ -1,6 +1,5 @@
 package com.xiaomi.mone.monitor.service;
 
-import com.xiaomi.mone.monitor.bo.GrafanaBlackListParam;
 import com.xiaomi.mone.monitor.dao.GrafanaBlackListDao;
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaBlackList;
 import com.xiaomi.mone.monitor.result.ErrorCode;

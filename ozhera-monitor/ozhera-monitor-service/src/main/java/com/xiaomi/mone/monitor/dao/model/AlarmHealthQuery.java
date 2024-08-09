@@ -1,6 +1,5 @@
 package com.xiaomi.mone.monitor.dao.model;
 
-import com.google.gson.Gson;
 import lombok.Data;
 import lombok.ToString;
 

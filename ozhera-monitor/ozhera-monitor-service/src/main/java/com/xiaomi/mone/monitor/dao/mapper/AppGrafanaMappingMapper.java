@@ -2,10 +2,10 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaMapping;
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaMappingExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Resource
 public interface AppGrafanaMappingMapper {

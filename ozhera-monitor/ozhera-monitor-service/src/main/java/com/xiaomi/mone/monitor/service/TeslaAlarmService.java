@@ -1,17 +1,7 @@
 package com.xiaomi.mone.monitor.service;
 
-import com.xiaomi.mone.monitor.dao.AppTeslaAlarmRuleDao;
-import com.xiaomi.mone.monitor.dao.AppTeslaFeishuMappingDao;
-import com.xiaomi.mone.monitor.dao.model.AppTeslaAlarmRule;
-import com.xiaomi.mone.monitor.dao.model.AppTeslaFeishuMapping;
-import com.xiaomi.mone.monitor.result.ErrorCode;
-import com.xiaomi.mone.monitor.result.Result;
-import com.xiaomi.mone.monitor.service.model.PageData;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author gaoxihui

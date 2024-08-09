@@ -1,11 +1,10 @@
 package com.xiaomi.mone.monitor.dao.mapper;
 
-import com.xiaomi.mone.monitor.dao.model.AlarmHealthQuery;
-import com.xiaomi.mone.monitor.dao.model.AlarmHealthResult;
 import com.xiaomi.mone.monitor.dao.model.AlertManagerRules;
 import com.xiaomi.mone.monitor.dao.model.AlertManagerRulesExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AlertManagerRulesMapper {
     long countByExample(AlertManagerRulesExample example);

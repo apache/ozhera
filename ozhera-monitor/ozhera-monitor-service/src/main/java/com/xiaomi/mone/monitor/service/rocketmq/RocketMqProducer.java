@@ -1,7 +1,6 @@
 package com.xiaomi.mone.monitor.service.rocketmq;
 
 import com.alibaba.fastjson.JSON;
-import com.xiaomi.mone.monitor.service.model.AppMonitorModel;
 import com.xiaomi.mone.monitor.service.rocketmq.model.HeraAppMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;

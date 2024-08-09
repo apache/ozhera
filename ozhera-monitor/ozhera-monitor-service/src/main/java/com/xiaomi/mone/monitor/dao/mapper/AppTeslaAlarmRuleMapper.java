@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppTeslaAlarmRule;
 import com.xiaomi.mone.monitor.dao.model.AppTeslaAlarmRuleExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppTeslaAlarmRuleMapper {
     long countByExample(AppTeslaAlarmRuleExample example);

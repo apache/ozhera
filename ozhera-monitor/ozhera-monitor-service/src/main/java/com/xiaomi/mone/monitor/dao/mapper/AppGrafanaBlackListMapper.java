@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaBlackList;
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaBlackListExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface AppGrafanaBlackListMapper {
     long countByExample(AppGrafanaBlackListExample example);

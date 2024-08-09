@@ -1,9 +1,6 @@
 package com.xiaomi.mone.monitor.dao;
 
-import com.xiaomi.mone.monitor.dao.mapper.AppScrapeJobMapper;
 import com.xiaomi.mone.monitor.dao.mapper.GrafanaTemplateMapper;
-import com.xiaomi.mone.monitor.dao.model.AppScrapeJob;
-import com.xiaomi.mone.monitor.dao.model.AppScrapeJobExample;
 import com.xiaomi.mone.monitor.dao.model.GrafanaTemplate;
 import com.xiaomi.mone.monitor.dao.model.GrafanaTemplateExample;
 import lombok.extern.slf4j.Slf4j;

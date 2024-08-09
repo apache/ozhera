@@ -1,8 +1,6 @@
 package com.xiaomi.mone.monitor.dao;
 
-import com.xiaomi.mone.monitor.dao.mapper.AlertManagerRulesMapper;
 import com.xiaomi.mone.monitor.dao.mapper.AppScrapeJobMapper;
-import com.xiaomi.mone.monitor.dao.model.AlertManagerRules;
 import com.xiaomi.mone.monitor.dao.model.AppScrapeJob;
 import com.xiaomi.mone.monitor.dao.model.AppScrapeJobExample;
 import lombok.extern.slf4j.Slf4j;

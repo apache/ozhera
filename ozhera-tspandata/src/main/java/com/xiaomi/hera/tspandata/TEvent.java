@@ -20,14 +20,6 @@
 
 package com.xiaomi.hera.tspandata;
 
-import java.io.Serializable;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TBaseHelper;
 import org.apache.thrift.TException;
@@ -39,6 +31,15 @@ import org.apache.thrift.protocol.TField;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolUtil;
 import org.apache.thrift.protocol.TStruct;
+
+import java.io.Serializable;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class TEvent implements TBase<TEvent, TEvent._Fields>, Serializable, Cloneable {
     private static final TStruct STRUCT_DESC = new TStruct("TEvent");

@@ -16,9 +16,9 @@
 
 package com.xiaomi.mone.monitor.config;
 
+import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.mone.tpc.login.filter.HttpReqUserFilter;
 import com.xiaomi.mone.tpc.login.util.ConstUtil;
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

@@ -1,7 +1,5 @@
 package com.xiaomi.mone.monitor.bo;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * @author gaoxihui
  */

@@ -2,8 +2,9 @@ package com.xiaomi.mone.monitor.dao.mapper;
 
 import com.xiaomi.mone.monitor.dao.model.HeraAppRole;
 import com.xiaomi.mone.monitor.dao.model.HeraAppRoleExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface HeraAppRoleMapper {
     long countByExample(HeraAppRoleExample example);

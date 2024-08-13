@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * @author gaoxihui
- * @date 2021/9/14 3:17 下午
+ * @date 2021/9/14 3:17 PM
  */
 @Data
 public class Triple<T extends Object> implements Serializable {

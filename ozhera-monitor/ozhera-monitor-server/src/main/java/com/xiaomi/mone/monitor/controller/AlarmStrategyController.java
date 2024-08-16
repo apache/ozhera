@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Xiaomi Corporation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.controller;
 
 import com.google.common.collect.Lists;
@@ -12,7 +27,6 @@ import com.xiaomi.mone.monitor.service.model.PageData;
 import com.xiaomi.mone.monitor.service.user.UserConfigService;
 import com.xiaomi.mone.tpc.login.util.UserUtil;
 import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
-import com.xiaomi.mone.tpc.login.vo.UserInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +84,7 @@ public class AlarmStrategyController {
             log.info("AlarmStrategyController.enabled param : {} ,user : {}", param, user);
             return alarmStrategyService.enabled(user, param);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.enabled异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.enabled exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -102,7 +116,7 @@ public class AlarmStrategyController {
             }
             return alarmStrategyService.batchDeleteStrategy(user, param.getIds());
         } catch (Exception e) {
-            log.error("AlarmStrategyController.deleteById异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.deleteById exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -129,7 +143,7 @@ public class AlarmStrategyController {
             log.info("AlarmStrategyController.deleteByStrategyId strategyId : {} ,user : {}", strategyId, user);
             return alarmStrategyService.deleteByStrategyId(user,strategyId);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.deleteByStrategyId异常 strategyId : {} ,userInfo :{}", strategyId, userInfo, e);
+            log.error("AlarmStrategyController.deleteByStrategyId exception! strategyId : {} ,userInfo :{}", strategyId, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -151,7 +165,7 @@ public class AlarmStrategyController {
             log.info("AlarmStrategyController.detailed param : {} ,user : {}", param, user);
             return alarmStrategyService.detailed(user, param);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.detailed异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.detailed exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -173,7 +187,7 @@ public class AlarmStrategyController {
             log.info("AlarmStrategyController.search param : {} ,user : {},result:{}", param, user,result);
             return result;
         } catch (Exception e) {
-            log.error("AlarmStrategyController.search异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.search exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -196,7 +210,7 @@ public class AlarmStrategyController {
             log.info("AlarmStrategyController.dubboSearch param : {} ,user : {}", param, user);
             return alarmStrategyService.dubboSearch(user, param);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.dubboSearch异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.dubboSearch exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }

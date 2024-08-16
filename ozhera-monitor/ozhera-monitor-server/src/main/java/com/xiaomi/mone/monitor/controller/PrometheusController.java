@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Xiaomi Corporation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.controller;
 
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
@@ -22,11 +37,7 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +46,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author gaoxihui
- * @date 2021/8/9 5:39 下午
+ * @date 2021/8/9 5:39 PM
  */
 @Slf4j
 @RestController
@@ -69,11 +80,11 @@ public class PrometheusController {
 
         log.info("PrometheusController.queryRange request param : {} ",param.toString());
 
-        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //默认查询最近7天
+        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //Default query is the last 7 days
 
         Long endTime = param.getEndTime()!=null ? param.getEndTime()/1000 : System.currentTimeMillis() / 1000L;
 
-        Long step = param.getStep() != null ? param.getStep() : (endTime - startTime)/2; // 默认为查询的时间区间，即step = 查询区间/2
+        Long step = param.getStep() != null ? param.getStep() : (endTime - startTime)/2; // The default is the query time interval, that is, step = query interval/2
 
         String projectName = new StringBuilder().append(param.getProjectId()).append("_").append(param.getProjectName()).toString();
 
@@ -91,13 +102,13 @@ public class PrometheusController {
 
         log.info("PrometheusController.queryRange request param : {} ",param.toString());
 
-        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //默认查询最近7天
+        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //Default query is the last 7 days
 
         Long endTime = param.getEndTime()!=null ? param.getEndTime()/1000 : System.currentTimeMillis() / 1000L;
 
         Long duration = endTime - startTime;
 
-        Long step = param.getStep() != null ? param.getStep() : duration; // 默认为查询的时间区间，即step = 查询区间
+        Long step = param.getStep() != null ? param.getStep() : duration; // The default is the query time interval, that is, step = query interval
 
         String projectName = new StringBuilder().append(param.getProjectId()).append("_").append(param.getProjectName()).toString();
 
@@ -113,7 +124,7 @@ public class PrometheusController {
     @PostMapping("/prometheus/queryCountOverTime")
     public Result<PageData> queryCountOverTime(@RequestBody PromQueryRangeParam param){
 
-        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //默认查询最近7天
+        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //Default query is the last 7 days
 
         Long endTime = param.getEndTime()!=null ? param.getEndTime()/1000 : System.currentTimeMillis() / 1000L;
 
@@ -135,13 +146,13 @@ public class PrometheusController {
     @PostMapping("/prometheus/queryIncrease")
     public Result<PageData> queryIncrease(@RequestBody PromQueryRangeParam param){
 
-        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //默认查询最近7天
+        Long startTime = param.getStartTime() != null ? param.getStartTime()/1000 : (System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000) / 1000L; //Default query is the last 7 days
 
         Long endTime = param.getEndTime()!=null ? param.getEndTime()/1000 : System.currentTimeMillis() / 1000L;
 
         Long duration = endTime - startTime;
 
-        Long step = param.getStep() != null ? param.getStep() : duration; // 默认为查询的时间区间，即step = 查询区间
+        Long step = param.getStep() != null ? param.getStep() : duration; // The default is the query time interval, that is, step = query interval
 
         String projectName = new StringBuilder().append(param.getProjectId()).append("_").append(param.getProjectName()).toString();
 
@@ -231,7 +242,7 @@ public class PrometheusController {
         }
     }
 
-    //获取tesla错误大盘的数据
+    //Get the data of Tesla error disk
     @GetMapping("/prometheus/getTeslaError")
     public Result<PageData> getTeslaError(String department,String area) {
             if (StringUtils.isEmpty(department) || StringUtils.isEmpty(area)) {
@@ -265,7 +276,7 @@ public class PrometheusController {
 
     }
 
-    //获取服务的QPS接口
+    //Get the QPS interface of the service
     @GetMapping("/api/prometheus/getServiceQps")
     public Result getServiceQps(String serviceName,String type) {
         if (StringUtils.isEmpty(serviceName)) {
@@ -274,13 +285,13 @@ public class PrometheusController {
         return prometheusService.getServiceQps(serviceName,type);
     }
 
-    //获取dubbo服务的service列表  (type = http/dubbo/dubboConsumer/grpcServer/grpcClient/thriftServer/thriftClient/apusClient/apusServer)
+    //Get the service list of dubbo service  (type = http/dubbo/dubboConsumer/grpcServer/grpcClient/thriftServer/thriftClient/apusClient/apusServer)
     @GetMapping("/api/prometheus/getDubboServiceList")
     public Result getDubboServiceList(String serviceName,String type,String startTime,String endTime) {
         if (StringUtils.isEmpty(serviceName) || StringUtils.isEmpty(startTime) || StringUtils.isEmpty(endTime) || Long.parseLong(startTime) > Long.parseLong(endTime)) {
             return Result.fail(ErrorCode.success);
         }
-        //默认dubbo
+        //The default is dubbo
         if (StringUtils.isEmpty(type)) {
             type = "dubbo";
         }

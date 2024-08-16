@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Xiaomi Corporation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.controller;
 
 import com.xiaomi.mone.monitor.bo.RulePromQLTemplateInfo;
@@ -47,7 +62,7 @@ public class RulePromQLTemplateController {
             log.info("RulePromQLTemplateController.add param : {} ,user : {}", param, user);
             return rulePromQLTemplateService.add(user, param);
         } catch (Exception e) {
-            log.error("RulePromQLTemplateController.add异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("RulePromQLTemplateController.add exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -69,7 +84,7 @@ public class RulePromQLTemplateController {
             log.info("RulePromQLTemplateController.edit param : {} ,user : {}", param, user);
             return rulePromQLTemplateService.edit(user, param);
         } catch (Exception e) {
-            log.error("RulePromQLTemplateController.edit异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("RulePromQLTemplateController.edit exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -91,7 +106,7 @@ public class RulePromQLTemplateController {
             log.info("RulePromQLTemplateController.deleteById param : {} ,user : {}", param, user);
             return rulePromQLTemplateService.deleteById(user, param.getId());
         } catch (Exception e) {
-            log.error("RulePromQLTemplateController.deleteById异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("RulePromQLTemplateController.deleteById exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -111,7 +126,7 @@ public class RulePromQLTemplateController {
             log.info("AlarmStrategyController.search param : {} ,user : {}", param, user);
             return rulePromQLTemplateService.search(user, param);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.search异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.search exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }
@@ -133,7 +148,7 @@ public class RulePromQLTemplateController {
             log.info("AlarmStrategyController.testPromQL param : {} ,user : {}", param, user);
             return rulePromQLTemplateService.testPromQL(user, param);
         } catch (Exception e) {
-            log.error("AlarmStrategyController.testPromQL异常 param : {} ,userInfo :{}", param, userInfo, e);
+            log.error("AlarmStrategyController.testPromQL exception! param : {} ,userInfo :{}", param, userInfo, e);
             return Result.fail(ErrorCode.unknownError);
         }
     }

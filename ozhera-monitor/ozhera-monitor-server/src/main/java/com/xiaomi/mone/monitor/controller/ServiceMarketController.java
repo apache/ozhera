@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2020 Xiaomi Corporation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.xiaomi.mone.monitor.controller;
 
 import com.xiaomi.mone.monitor.result.ErrorCode;
@@ -24,7 +39,7 @@ public class ServiceMarketController {
     @Autowired
     ServiceMarketService serviceMarket;
 
-    //创建服务大盘
+    //Create a service dashboard
     @PostMapping("/serviceMarket/mimonitor/createMarket")
     public Result createServiceMarket(HttpServletRequest request, @RequestBody ServiceMarketQuery param) {
         log.info("ServiceMarket.createMarket : {} " , param);
@@ -38,7 +53,7 @@ public class ServiceMarketController {
         return Result.fail(ErrorCode.RequestBodyIsEmpty);
     }
 
-    //查看创建的market
+    //View the created market
     @GetMapping("/serviceMarket/mimonitor/searchMarket")
     public Result searchServiceMarket(HttpServletRequest request,Integer primaryId) {
         String user = checkUser(request);
@@ -51,7 +66,7 @@ public class ServiceMarketController {
         return Result.fail(ErrorCode.ScrapeIdIsEmpty);
     }
 
-    //更新创建的market
+    //Update the created market
     @PostMapping("/serviceMarket/mimonitor/updateMarket")
     public Result updateServiceMarket(HttpServletRequest request,@RequestBody ServiceMarketQuery param) {
         log.info("ServiceMarket.updateServiceMarket : {} " , param);
@@ -66,7 +81,7 @@ public class ServiceMarketController {
         return Result.fail(ErrorCode.invalidParamError);
     }
 
-    //删除market
+    //Delete Market
     @PostMapping("/serviceMarket/mimonitor/deleteMarket")
     public Result deleteServiceMarket(HttpServletRequest request,Integer primaryId) {
         log.info("ServiceMarket.deleteServiceMarket id:{} " ,primaryId);
@@ -80,14 +95,14 @@ public class ServiceMarketController {
         return Result.fail(ErrorCode.invalidParamError);
     }
 
-    //查列表
+    //Query List
     @GetMapping("/serviceMarket/mimonitor/searchMarketList")
     public Result searchMarketList(HttpServletRequest request, Integer pageSize, Integer page, String creator,String marketName,String serviceName) {
         String user = checkUser(request);
         if (StringUtils.isEmpty(user)) {
             return Result.fail(ErrorCode.ThisUserNotHaveAuth);
         }
-        //如果不传默认为看第一页前十条
+        //If you do not send a message, it is assumed that you will see the first ten items on the first page.
         if (pageSize == 0) {
             pageSize = 10;
         }
@@ -97,7 +112,7 @@ public class ServiceMarketController {
         return serviceMarket.searchMarketList(user, pageSize,page,creator,marketName,serviceName);
     }
 
-    //查看大盘，获取grafanaUrl
+    //View the dashboard and get the grafana Url
     @GetMapping("/serviceMarket/mimonitor/getServiceMarketGrafana")
     public Result getServiceMarketGrafana(HttpServletRequest request, Integer serviceType) {
         log.info("ServiceMarket.getServiceMarketGrafana type: {} " , serviceType);

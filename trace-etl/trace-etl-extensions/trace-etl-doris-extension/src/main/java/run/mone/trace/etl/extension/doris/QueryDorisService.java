@@ -32,7 +32,6 @@ import com.xiaomi.hera.trace.etl.domain.tracequery.TraceQueryResult;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import run.mone.doris.DorisService;
 import run.mone.trace.etl.extension.doris.domain.HeraTraceSpanColumn;
 import run.mone.trace.etl.extension.doris.domain.HeraTraceTable;

@@ -1,8 +1,6 @@
 package com.xiaomi.mone.monitor.service.model.prometheus;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.xiaomi.mone.monitor.bo.AlarmCheckDataCount;
-import com.xiaomi.mone.monitor.bo.AlarmSendInterval;
 import com.xiaomi.mone.monitor.dao.model.AppAlarmRule;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;

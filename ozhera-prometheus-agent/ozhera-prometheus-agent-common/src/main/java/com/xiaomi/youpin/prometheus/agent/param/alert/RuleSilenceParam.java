@@ -20,8 +20,6 @@ import com.xiaomi.youpin.prometheus.agent.param.BaseParam;
 import lombok.Data;
 import lombok.ToString;
 
-
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 

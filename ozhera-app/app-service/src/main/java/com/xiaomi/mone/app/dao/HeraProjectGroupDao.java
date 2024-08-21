@@ -15,12 +15,8 @@
  */
 package com.xiaomi.mone.app.dao;
 
-import com.google.gson.Gson;
 import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupModel;
-import com.xiaomi.mone.app.dao.mapper.HeraAppRoleMapper;
 import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupMapper;
-import com.xiaomi.mone.app.model.HeraAppRole;
-import com.xiaomi.mone.app.model.HeraAppRoleExample;
 import com.xiaomi.mone.app.model.HeraProjectGroup;
 import com.xiaomi.mone.app.model.HeraProjectGroupExample;
 import lombok.extern.slf4j.Slf4j;

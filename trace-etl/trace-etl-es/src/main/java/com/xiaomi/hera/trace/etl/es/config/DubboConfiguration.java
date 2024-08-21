@@ -17,7 +17,6 @@ package com.xiaomi.hera.trace.etl.es.config;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ProtocolConfig;
 import org.apache.dubbo.config.RegistryConfig;

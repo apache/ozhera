@@ -16,9 +16,7 @@
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
-import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.springframework.stereotype.Repository;

@@ -17,10 +17,8 @@ package com.xiaomi.mone.app.dao;
 
 import com.google.gson.Gson;
 import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupAppMapper;
-import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupMapper;
 import com.xiaomi.mone.app.model.HeraProjectGroupApp;
 import com.xiaomi.mone.app.model.HeraProjectGroupAppExample;
-import com.xiaomi.mone.app.model.HeraProjectGroupUserExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;

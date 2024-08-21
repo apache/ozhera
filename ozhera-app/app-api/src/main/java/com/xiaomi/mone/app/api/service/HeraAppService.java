@@ -21,7 +21,6 @@ import com.xiaomi.mone.app.api.model.HeraAppBaseQuery;
 import com.xiaomi.mone.app.api.model.HeraAppRoleModel;
 import com.xiaomi.mone.app.api.response.AppBaseInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

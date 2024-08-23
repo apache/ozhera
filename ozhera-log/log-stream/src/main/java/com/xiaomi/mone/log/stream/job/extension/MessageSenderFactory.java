@@ -51,7 +51,7 @@ public class MessageSenderFactory {
     private static MessageSender getEsMessageSender(SinkJobConfig sinkJobConfig, MqMessageProduct mqMessageProduct) {
         String index = sinkJobConfig.getIndex();
         EsMessageSender esMessageSender = new EsMessageSender(index, mqMessageProduct);
-        EsProcessor esProcessor = EsPlugin.getEsProcessor(sinkJobConfig.getStorageInfo(), mqMessageDTO -> esMessageSender.compensateSend(mqMessageDTO));
+        EsProcessor esProcessor = EsPlugin.getEsProcessor(sinkJobConfig.getStorageInfo(), esMessageSender::compensateSend);
         esMessageSender.setEsProcessor(esProcessor);
         return esMessageSender;
     }

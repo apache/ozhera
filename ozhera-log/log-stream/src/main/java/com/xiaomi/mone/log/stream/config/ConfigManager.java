@@ -17,10 +17,13 @@ package com.xiaomi.mone.log.stream.config;
 
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.gson.Gson;
+import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.model.MiLogStreamConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;
 import com.xiaomi.mone.log.stream.common.util.StreamUtils;
 import com.xiaomi.mone.log.stream.exception.StreamException;
+import com.xiaomi.mone.log.stream.job.extension.StreamCommonExtension;
+import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
@@ -40,6 +43,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.xiaomi.mone.log.common.Constant.*;
+import static com.xiaomi.mone.log.stream.common.LogStreamConstants.DEFAULT_COMMON_STREAM_EXTENSION;
 
 @Service
 @Slf4j
@@ -48,7 +52,7 @@ public class ConfigManager {
     private NacosConfig nacosConfig;
 
 
-    @Value("${hera.stream.monitor_space_data_id}")
+    @Value("$hera.stream.monitor_space_data_id")
     private String spaceDataId;
 
     //final String spaceDataId = LOG_MANAGE_PREFIX + NAMESPACE_CONFIG_DATA_ID;
@@ -158,16 +162,24 @@ public class ConfigManager {
     }
 
     private void processConfigForUniqueMark(String uniqueMark, Map<String, Map<Long, String>> config) {
-        if (config.containsKey(uniqueMark)) {
-            Map<Long, String> dataIdMap = config.get(uniqueMark);
-            try {
-                spaceLock.tryLock();
-                stopUnusefulListenerAndJob(dataIdMap);
-                startNewListenerAndJob(dataIdMap);
-            } finally {
-                spaceLock.unlock();
-            }
+        StreamCommonExtension extensionInstance = getStreamCommonExtensionInstance();
+        if (!extensionInstance.checkUniqueMarkExists(uniqueMark, config)) {
+            log.warn("listen dataID:{},groupId:{},but receive config is empty", spaceDataId, DEFAULT_GROUP_ID);
+            return;
         }
+        Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
+        try {
+            spaceLock.tryLock();
+            stopUnusefulListenerAndJob(dataIdMap);
+            startNewListenerAndJob(dataIdMap);
+        } finally {
+            spaceLock.unlock();
+        }
+    }
+
+    private StreamCommonExtension getStreamCommonExtensionInstance() {
+        String factualServiceName = Config.ins().get("common.stream.extension", DEFAULT_COMMON_STREAM_EXTENSION);
+        return Ioc.ins().getBean(factualServiceName);
     }
 
     /**

@@ -18,7 +18,6 @@ package com.xiaomi.youpin.prometheus.agent.service.prometheus;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
-import com.xiaomi.youpin.prometheus.agent.Impl.ScrapeConfigDao;
 import com.xiaomi.youpin.prometheus.agent.Impl.SilenceDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;

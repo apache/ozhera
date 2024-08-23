@@ -16,7 +16,6 @@
 package com.xiaomi.youpin.prometheus.agent.param.alert;
 
 import lombok.Data;
-import lombok.ToString;
 
 @Data
 public class Matcher {

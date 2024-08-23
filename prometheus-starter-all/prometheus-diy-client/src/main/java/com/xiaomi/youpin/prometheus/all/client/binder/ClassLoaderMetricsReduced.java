@@ -15,7 +15,6 @@
  */
 package com.xiaomi.youpin.prometheus.all.client.binder;
 
-import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;

@@ -16,7 +16,6 @@
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
-import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

@@ -17,7 +17,6 @@ package com.xiaomi.mone.monitor.service.impl;
 
 import com.xiaomi.mone.monitor.service.AA;
 import com.xiaomi.mone.monitor.service.AppMonitorService;
-import com.xiaomi.mone.monitor.service.GrafanaApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;

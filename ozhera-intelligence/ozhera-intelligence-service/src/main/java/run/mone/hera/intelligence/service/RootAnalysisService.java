@@ -18,9 +18,7 @@ package run.mone.hera.intelligence.service;
 import com.xiaomi.youpin.infra.rpc.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import run.mone.hera.intelligence.domain.rootanalysis.LogParam;
 import run.mone.hera.intelligence.domain.rootanalysis.MarkDownParam;
-import run.mone.hera.intelligence.domain.rootanalysis.TracePromptResult;
 import run.mone.hera.intelligence.domain.rootanalysis.TraceQueryParam;
 
 @Service

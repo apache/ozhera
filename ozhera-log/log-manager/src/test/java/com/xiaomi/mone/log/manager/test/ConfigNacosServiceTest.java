@@ -15,32 +15,11 @@
  */
 package com.xiaomi.mone.log.manager.test;
 
-import com.alibaba.nacos.api.config.ConfigFactory;
-import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.google.gson.Gson;
-import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
-import com.xiaomi.mone.log.api.enums.OperateEnum;
-import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
-import com.xiaomi.mone.log.common.Result;
-import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
-import com.xiaomi.mone.log.manager.service.impl.LogSpaceServiceImpl;
-import com.xiaomi.mone.log.manager.service.impl.LogTailServiceImpl;
-import com.xiaomi.mone.log.manager.service.impl.MilogStreamServiceImpl;
-import com.xiaomi.mone.log.manager.service.nacos.MultipleNacosConfig;
-import com.xiaomi.mone.log.manager.service.nacos.impl.SpaceConfigNacosProvider;
-import com.xiaomi.mone.log.manager.service.nacos.impl.StreamConfigNacosPublisher;
-import com.xiaomi.mone.log.model.MiLogStreamConfig;
-import com.xiaomi.mone.log.model.MilogSpaceData;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 

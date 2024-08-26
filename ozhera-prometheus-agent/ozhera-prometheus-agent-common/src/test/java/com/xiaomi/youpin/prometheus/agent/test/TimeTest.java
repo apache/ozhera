@@ -17,11 +17,6 @@ package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import org.junit.jupiter.api.Test;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 
 import java.sql.Timestamp;
 

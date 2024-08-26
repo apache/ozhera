@@ -19,12 +19,9 @@ import com.google.gson.Gson;
 import com.xiaomi.youpin.feishu.FeiShu;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
-import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
-import freemarker.template.TemplateException;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

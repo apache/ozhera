@@ -19,7 +19,6 @@ import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsClusterDO;
-import com.xiaomi.mone.log.manager.service.extension.store.DorisLogStorageService;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.DOceanPlugin;
 import com.xiaomi.youpin.docean.plugin.IPlugin;

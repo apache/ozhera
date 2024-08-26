@@ -15,12 +15,10 @@
  */
 package com.xiaomi.mone.log.manager.common.validation;
 
-import com.xiaomi.mone.log.api.enums.MachineRegionEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.model.bo.LogTailParam;
 import com.xiaomi.mone.log.manager.model.bo.MlogParseParam;
-import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogTailDo;
 import com.xiaomi.mone.log.manager.service.extension.agent.MilogAgentService;
 import com.xiaomi.mone.log.manager.service.extension.agent.MilogAgentServiceFactory;
@@ -39,7 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Component

@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.manager.domain;
 
-import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.mapper.MilogLogTemplateMapper;

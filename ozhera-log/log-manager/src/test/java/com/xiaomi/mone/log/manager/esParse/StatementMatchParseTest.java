@@ -22,9 +22,7 @@ import com.xiaomi.mone.log.manager.service.statement.QueryEntity;
 import com.xiaomi.youpin.docean.plugin.es.EsService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -32,7 +30,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class StatementMatchParseTest {

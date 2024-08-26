@@ -15,9 +15,6 @@
  */
 package com.xiaomi.mone.log.stream;
 
-import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.stream.job.extension.impl.RocketCompensateMsgConsume;
-import com.xiaomi.mone.log.stream.job.extension.impl.RocketMqMessageProduct;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

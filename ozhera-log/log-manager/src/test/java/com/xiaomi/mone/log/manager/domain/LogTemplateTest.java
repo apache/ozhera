@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.manager.domain;
 
-import com.xiaomi.youpin.docean.Ioc;
 import org.junit.Test;
 
 public class LogTemplateTest {

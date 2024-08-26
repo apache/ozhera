@@ -15,17 +15,8 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
-import com.google.gson.Gson;
-import com.xiaomi.mone.log.api.model.meta.LogCollectMeta;
-import com.xiaomi.mone.log.api.service.AgentConfigService;
-import com.xiaomi.mone.log.manager.service.extension.agent.MilogAgentServiceImpl;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-
-import java.util.Arrays;
-
-import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 
 @Slf4j
 public class MilogAgentServiceImplTest {

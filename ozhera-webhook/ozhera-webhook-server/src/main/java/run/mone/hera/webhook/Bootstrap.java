@@ -15,7 +15,6 @@
  */
 package run.mone.hera.webhook;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.youpin.docean.Ioc;
 import io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequest;
 import io.fabric8.kubernetes.api.model.certificates.v1.CertificateSigningRequestList;
@@ -31,7 +30,6 @@ import run.mone.hera.webhook.common.K8sUtilBean;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

@@ -15,9 +15,7 @@
  */
 package com.xiaomi.mone.test;
 
-import com.xiaomi.mone.app.AppBootstrap;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;

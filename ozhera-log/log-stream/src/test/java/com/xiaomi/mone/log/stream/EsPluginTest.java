@@ -15,9 +15,6 @@
  */
 package com.xiaomi.mone.log.stream;
 
-import com.xiaomi.mone.es.EsProcessor;
-import com.xiaomi.mone.log.model.StorageInfo;
-import com.xiaomi.mone.log.stream.plugin.es.EsPlugin;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;

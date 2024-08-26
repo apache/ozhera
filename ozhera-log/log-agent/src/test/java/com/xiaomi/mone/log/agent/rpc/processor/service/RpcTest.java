@@ -16,11 +16,7 @@
 package com.xiaomi.mone.log.agent.rpc.processor.service;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.google.gson.Gson;
-import com.xiaomi.mone.log.agent.channel.ChannelDefine;
-import com.xiaomi.mone.log.agent.channel.locator.ChannelDefineRpcLocator;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;

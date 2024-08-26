@@ -15,16 +15,7 @@
  */
 package com.xiaomi.mone.test;
 
-import com.google.gson.Gson;
-import com.xiaomi.mone.app.AppBootstrap;
-import com.xiaomi.mone.app.api.model.HeraAppEnvData;
-import com.xiaomi.mone.app.api.service.HeraAppEnvOutwardService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 /**
  * @author wtt

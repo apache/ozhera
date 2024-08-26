@@ -16,9 +16,6 @@
 package com.xiaomi.mone.log.agent;
 
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.agent.channel.memory.ChannelMemory;
-import com.xiaomi.mone.log.agent.common.ChannelUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 

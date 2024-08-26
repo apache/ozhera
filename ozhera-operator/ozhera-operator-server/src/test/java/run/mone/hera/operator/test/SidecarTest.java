@@ -16,12 +16,8 @@
 package run.mone.hera.operator.test;
 
 import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * @author goodjava@qq.com

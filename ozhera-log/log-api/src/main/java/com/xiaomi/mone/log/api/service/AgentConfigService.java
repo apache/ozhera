@@ -17,8 +17,6 @@ package com.xiaomi.mone.log.api.service;
 
 import com.xiaomi.mone.log.api.model.meta.LogCollectMeta;
 
-import java.util.List;
-
 /**
  * @author wtt
  * @version 1.0

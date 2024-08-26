@@ -20,11 +20,9 @@ import com.google.gson.Gson;
 import com.xiaomi.youpin.feishu.FeiShu;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 
 @Service
 @Slf4j

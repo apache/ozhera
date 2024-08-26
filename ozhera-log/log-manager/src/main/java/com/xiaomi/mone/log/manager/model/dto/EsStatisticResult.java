@@ -17,7 +17,6 @@ package com.xiaomi.mone.log.manager.model.dto;
 
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 
 import java.util.List;
 import java.util.Objects;

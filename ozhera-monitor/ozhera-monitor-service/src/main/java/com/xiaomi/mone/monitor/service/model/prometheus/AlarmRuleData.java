@@ -1,3 +1,18 @@
+/*
+ *  Copyright (C) 2020 Xiaomi Corporation
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package com.xiaomi.mone.monitor.service.model.prometheus;
 
 import com.google.gson.Gson;
@@ -99,29 +114,29 @@ public class AlarmRuleData implements Serializable {
 
     private String exceptHttpDomains;
 
-    private List<String> includeEnvs;//包含环境列表
+    private List<String> includeEnvs;
 
-    private List<String> exceptEnvs;//不包含环境列表
+    private List<String> exceptEnvs;
 
-    private List<String> includeZones;//包含zone列表
+    private List<String> includeZones;
 
-    private List<String> exceptZones;//不包含zone列表
+    private List<String> exceptZones;
 
-    private List<String> includeModules;//包含模块列表
+    private List<String> includeModules;
 
-    private List<String> exceptModules;//不包含模块列表
+    private List<String> exceptModules;
 
-    private List<String> includeFunctions;//包含函数列表
+    private List<String> includeFunctions;
 
-    private List<String> exceptFunctions;//不包含函数列表
+    private List<String> exceptFunctions;
 
-    private List<String> includeContainerName;//包含容器名称
+    private List<String> includeContainerName;
 
-    private List<String> exceptContainerName;//不包含容器名称
+    private List<String> exceptContainerName;
 
-    private List<String> alertMembers;//报警人员列表
+    private List<String> alertMembers;
 
-    private List<String> atMembers;//@人员列表
+    private List<String> atMembers;
 
     private String alarmCallbackUrl;
 

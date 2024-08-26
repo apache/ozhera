@@ -1,17 +1,43 @@
+/*
+ *  Copyright (C) 2020 Xiaomi Corporation
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package com.xiaomi.mone.monitor.service.prometheus;
 
 import com.google.gson.Gson;
 import com.xiaomi.mone.monitor.dao.AppCapacityAutoAdjustDao;
 import com.xiaomi.mone.monitor.dao.model.AppCapacityAutoAdjust;
-import com.xiaomi.mone.monitor.service.api.PrometheusServiceExtension;
-import com.xiaomi.mone.monitor.service.extension.MetricsExtensionService;
-import com.xiaomi.mone.monitor.service.kubernetes.CapacityAdjustMessageService;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
+import com.xiaomi.mone.monitor.service.api.PrometheusServiceExtension;
+import com.xiaomi.mone.monitor.service.extension.MetricsExtensionService;
 import com.xiaomi.mone.monitor.service.http.MoneSpec;
 import com.xiaomi.mone.monitor.service.http.RestTemplateService;
+import com.xiaomi.mone.monitor.service.kubernetes.CapacityAdjustMessageService;
 import com.xiaomi.mone.monitor.service.model.PageData;
-import com.xiaomi.mone.monitor.service.model.prometheus.*;
+import com.xiaomi.mone.monitor.service.model.prometheus.Metric;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricData;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricDataSet;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricDataSetVector;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricDataVector;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricResponse;
+import com.xiaomi.mone.monitor.service.model.prometheus.MetricResponseVector;
+import com.xiaomi.mone.monitor.service.model.prometheus.ServiceQps;
+import com.xiaomi.mone.monitor.service.model.prometheus.TeslaMetric;
+import com.xiaomi.mone.monitor.service.model.prometheus.TeslaMetricData;
+import com.xiaomi.mone.monitor.service.model.prometheus.TeslaMetricDataSet;
+import com.xiaomi.mone.monitor.service.model.prometheus.TeslaMetricResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +46,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author gaoxihui
- * @date 2021/7/22 4:21 下午
+ * @date 2021/7/22 4:21 PM
  */
 @Slf4j
 @Service

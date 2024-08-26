@@ -15,11 +15,16 @@
  */
 package com.xiaomi.youpin.prometheus.agent.param.scrapeConfig;
 
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.*;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.BasicAuth;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.Http_sd_configs;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.Metric_relabel_configs;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.Relabel_configs;
+import com.xiaomi.youpin.prometheus.agent.param.prometheus.Static_configs;
 import lombok.Data;
 import lombok.ToString;
-import java.util.Map;
+
 import java.util.List;
+import java.util.Map;
 
 @Data
 @ToString(callSuper = true)

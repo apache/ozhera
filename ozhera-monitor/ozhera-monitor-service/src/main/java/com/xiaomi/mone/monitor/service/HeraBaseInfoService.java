@@ -1,3 +1,18 @@
+/*
+ *  Copyright (C) 2020 Xiaomi Corporation
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package com.xiaomi.mone.monitor.service;
 
 import com.google.common.collect.Lists;
@@ -5,7 +20,6 @@ import com.google.gson.Gson;
 import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant;
 import com.xiaomi.mone.app.api.model.HeraAppRoleModel;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.app.api.service.HeraAppService;
 import com.xiaomi.mone.monitor.bo.AlertGroupParam;
 import com.xiaomi.mone.monitor.bo.PlatForm;
@@ -15,7 +29,11 @@ import com.xiaomi.mone.monitor.dao.model.HeraAppRole;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.extension.PlatFormTypeExtensionService;
-import com.xiaomi.mone.monitor.service.model.*;
+import com.xiaomi.mone.monitor.service.model.Area;
+import com.xiaomi.mone.monitor.service.model.EnvMapping;
+import com.xiaomi.mone.monitor.service.model.HeraAppBaseQuery;
+import com.xiaomi.mone.monitor.service.model.PageData;
+import com.xiaomi.mone.monitor.service.model.Region;
 import com.xiaomi.mone.tpc.login.util.UserUtil;
 import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +51,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author gaoxihui
- * @date 2022/3/24 4:51 下午
+ * @date 2022/3/24 4:51 PM
  */
 @Slf4j
 @Service

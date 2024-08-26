@@ -17,19 +17,14 @@ package com.xiaomi.youpin.prometheus.agent.service.prometheus;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.xiaomi.youpin.feishu.FeiShu;
 import com.xiaomi.youpin.prometheus.agent.Commons;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
-import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
-import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
-import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
+import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
+import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
+import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.DingAlertContact;
 import com.xiaomi.youpin.prometheus.agent.service.alarmContact.FeishuAlertContact;
@@ -40,7 +35,9 @@ import org.nutz.lang.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service

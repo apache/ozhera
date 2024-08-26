@@ -16,11 +16,8 @@
 package com.xiaomi.mone.monitor.dao;
 
 import com.xiaomi.mone.monitor.dao.mapper.AppQualityMarketMapper;
-import com.xiaomi.mone.monitor.dao.mapper.AppServiceMarketMapper;
 import com.xiaomi.mone.monitor.dao.model.AppQualityMarket;
 import com.xiaomi.mone.monitor.dao.model.AppQualityMarketExample;
-import com.xiaomi.mone.monitor.dao.model.AppServiceMarket;
-import com.xiaomi.mone.monitor.dao.model.AppServiceMarketExample;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

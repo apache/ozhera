@@ -16,36 +16,37 @@
 package com.xiaomi.youpin.prometheus.agent.prometheusClient;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.aliyun.arms20190808.models.*;
+import com.aliyun.arms20190808.models.CreateEnvCustomJobResponse;
+import com.aliyun.arms20190808.models.CreateEnvironmentResponse;
+import com.aliyun.arms20190808.models.DeleteEnvCustomJobResponse;
+import com.aliyun.arms20190808.models.ListEnvCustomJobsResponse;
+import com.aliyun.arms20190808.models.ListEnvCustomJobsResponseBody;
+import com.aliyun.arms20190808.models.ListEnvironmentsResponse;
+import com.aliyun.arms20190808.models.ListEnvironmentsResponseBody;
+import com.aliyun.arms20190808.models.UpdateEnvCustomJobResponse;
 import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
 import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
+import com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator;
 import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigDetail;
-import com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.ScrapeJobService;
 import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
-import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
-
-import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 
 /**
  * @author zhangxiaowei6

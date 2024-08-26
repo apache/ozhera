@@ -18,7 +18,6 @@ package run.mone.trace.etl.extension.rocketmq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
-import run.mone.trace.etl.extension.rocketmq.RocketMQExtension;
 
 import java.util.ArrayList;
 import java.util.List;

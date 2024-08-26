@@ -17,8 +17,6 @@ package run.mone.hera.webhook.domain.k8s;
 
 import lombok.Data;
 import lombok.ToString;
-import run.mone.hera.webhook.domain.k8s.Limits;
-import run.mone.hera.webhook.domain.k8s.Requests;
 
 /**
  * @author zhangxiaowei6

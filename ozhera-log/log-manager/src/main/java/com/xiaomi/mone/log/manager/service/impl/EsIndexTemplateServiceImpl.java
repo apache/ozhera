@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.xiaomi.mone.log.manager.service.impl;
 
 import com.xiaomi.mone.log.manager.domain.EsCluster;
@@ -29,15 +30,16 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class EsIndexTemplateServiceImpl implements EsIndexTemplateService {
+    
     @Resource
     private EsCluster esCluster;
-
+    
     @Resource
     private EsIndexTemplate esIndexTemplate;
-
+    
     @Resource
     private LogTemplate logTemplate;
-
+    
     /**
      * Update the index template
      *
@@ -48,7 +50,7 @@ public class EsIndexTemplateServiceImpl implements EsIndexTemplateService {
     public boolean updateIndexTemplate(UpdateIndexTemplateCommand command) throws IOException {
         return false;
     }
-
+    
     /**
      * Create an index
      *
@@ -59,5 +61,5 @@ public class EsIndexTemplateServiceImpl implements EsIndexTemplateService {
     public boolean createIndex(String templateName) throws IOException {
         return esIndexTemplate.createIndex(templateName);
     }
-
+    
 }

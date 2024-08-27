@@ -15,8 +15,6 @@
  */
 package com.xiaomi.mone.log.agent.common.trace;
 
-import com.xiaomi.hera.tspandata.TSpanData;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TraceUtilTest {

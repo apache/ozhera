@@ -16,14 +16,7 @@
 package com.xiaomi.mone.log.server;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.ApplicationConfig;
-import org.apache.dubbo.config.ReferenceConfig;
-import org.apache.dubbo.config.RegistryConfig;
-import org.apache.dubbo.config.utils.ReferenceConfigCache;
-import org.apache.dubbo.rpc.service.GenericService;
 import org.junit.Test;
-
-import static com.xiaomi.mone.log.common.Constant.GSON;
 
 /**
  * @author wtt

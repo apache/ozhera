@@ -18,7 +18,8 @@ package com.xiaomi.mone.monitor.dao;
 import com.xiaomi.mone.monitor.bo.AlarmStrategyInfo;
 import com.xiaomi.mone.monitor.dao.model.AlarmStrategy;
 import com.xiaomi.mone.monitor.service.model.PageData;
-import java.util.*;
+
+import java.util.List;
 
 public interface AppAlarmStrategyDao {
 

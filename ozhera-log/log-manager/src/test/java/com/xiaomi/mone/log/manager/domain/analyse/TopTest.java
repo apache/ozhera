@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.manager.domain.analyse;
 
-import com.xiaomi.youpin.docean.Ioc;
 import org.junit.Before;
 import org.junit.Test;
 

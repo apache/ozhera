@@ -19,8 +19,6 @@ import com.google.gson.Gson;
 import com.xiaomi.mone.log.manager.dao.MilogAppMiddlewareRelDao;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
 
 import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 

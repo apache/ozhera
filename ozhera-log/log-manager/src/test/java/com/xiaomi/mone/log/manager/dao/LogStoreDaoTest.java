@@ -16,16 +16,9 @@
 package com.xiaomi.mone.log.manager.dao;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.log.manager.domain.ClusterIndexVO;
-import com.xiaomi.mone.log.manager.service.impl.KafkaMqConfigService;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 
 /**
  * @author wtt

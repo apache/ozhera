@@ -15,22 +15,7 @@
  */
 package com.xiaomi.youpin.prometheus.agent.test;
 
-import com.aliyun.arms20190808.Client;
-import com.aliyun.arms20190808.models.*;
-import com.aliyun.tea.TeaException;
-import com.aliyun.teaopenapi.models.Config;
-import com.aliyun.teautil.models.RuntimeOptions;
-import com.google.gson.Gson;
-import com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator;
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.ali.AliNotifyObjects;
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.ali.AliNotifyRule;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.xiaomi.youpin.prometheus.agent.operators.ali.AliPrometheusOperator.*;
 
 /**
  * @author zhangxiaowei6

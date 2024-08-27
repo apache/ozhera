@@ -15,17 +15,9 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
-import com.xiaomi.mone.log.manager.model.pojo.MilogLogProcessDO;
-import com.xiaomi.mone.log.manager.model.pojo.MilogLogProcessDOMybatis;
-import com.xiaomi.youpin.docean.Ioc;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class LogProcessServiceImplTest {
 

@@ -16,33 +16,6 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.xiaomi.youpin.prometheus.agent.bootstrap.PrometheusAgentBootstrap;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
-import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
-import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.CommonLabels;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.GroupLabels;
-import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
-import com.xiaomi.youpin.prometheus.agent.service.alarmContact.FeishuAlertContact;
-import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
-import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
-import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 /**
  * @author zhangxiaowei6
  */

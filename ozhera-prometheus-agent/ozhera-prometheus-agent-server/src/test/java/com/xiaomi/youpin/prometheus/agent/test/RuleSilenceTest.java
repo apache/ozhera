@@ -20,24 +20,6 @@ package com.xiaomi.youpin.prometheus.agent.test;
  * @Date 2023/10/17 16:40
  **/
 
-import com.xiaomi.youpin.prometheus.agent.Impl.SilenceDao;
-import com.xiaomi.youpin.prometheus.agent.bootstrap.PrometheusAgentBootstrap;
-import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
-import com.xiaomi.youpin.prometheus.agent.enums.RuleSilenceStatusEnum;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.TimeZone;
-
 public class RuleSilenceTest {
    /* @Test
     public void insertSilenceDb() {

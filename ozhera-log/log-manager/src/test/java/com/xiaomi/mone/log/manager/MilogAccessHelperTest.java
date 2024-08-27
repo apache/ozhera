@@ -15,9 +15,6 @@
  */
 package com.xiaomi.mone.log.manager;
 
-import com.xiaomi.mone.log.manager.common.helper.MilogAccessHelper;
-import com.xiaomi.mone.log.manager.model.bo.AccessMilogParam;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

@@ -16,8 +16,6 @@
 package com.xiaomi.mone.log.manager.service.impl;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.log.api.model.dto.MontorAppDTO;
-import com.xiaomi.youpin.docean.Ioc;
 import org.junit.Test;
 
 /**

@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.agent;
 
-import com.xiaomi.mone.log.agent.channel.listener.DefaultFileMonitorListener;
 import org.junit.Test;
 
 import java.io.IOException;

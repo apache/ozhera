@@ -15,20 +15,8 @@
  */
 package com.xiaomi.mone.log.manager.test;
 
-import com.google.gson.Gson;
-import com.xiaomi.mone.log.common.Result;
-import com.xiaomi.mone.log.manager.model.MilogSpaceParam;
-import com.xiaomi.mone.log.manager.model.bo.LogTailParam;
-import com.xiaomi.mone.log.manager.model.dto.MilogAppEnvDTO;
-import com.xiaomi.mone.log.manager.service.impl.LogSpaceServiceImpl;
-import com.xiaomi.mone.log.manager.service.impl.LogTailServiceImpl;
-import com.xiaomi.mone.log.manager.service.impl.MilogConfigNacosServiceImpl;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * @author wtt

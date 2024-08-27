@@ -45,7 +45,7 @@ import java.util.Objects;
 @Component
 public class HeraConfigValid {
 
-    @Value("$server.type")
+    @Value("${server.type}")
     private String serverType;
 
     @Resource

@@ -43,10 +43,10 @@ public class KafkaService implements OutPutService {
 
     private ConcurrentHashMap<String, Producer> producerMap;
 
-    @Value("$kafka.use.ssl")
+    @Value("${kafka.use.ssl}")
     private String kafkaUseSsl;
 
-    @Value("$kafka.sll.location")
+    @Value("${kafka.sll.location}")
     private String kafkaSllLocation;
 
     public void init() {

@@ -18,11 +18,14 @@ package com.xiaomi.mone.log.stream.config;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.xiaomi.mone.log.common.Config;
 import com.xiaomi.mone.log.common.Constant;
 import com.xiaomi.mone.log.model.LogtailConfig;
 import com.xiaomi.mone.log.model.MilogSpaceData;
 import com.xiaomi.mone.log.model.SinkConfig;
 import com.xiaomi.mone.log.stream.job.JobManager;
+import com.xiaomi.mone.log.stream.job.extension.StreamCommonExtension;
+import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Component;
 import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
@@ -42,6 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.GSON;
+import static com.xiaomi.mone.log.stream.common.LogStreamConstants.DEFAULT_COMMON_STREAM_EXTENSION;
 
 @Component
 @Slf4j
@@ -66,6 +70,8 @@ public class MilogConfigListener {
 
     private ReentrantLock buildDataLock = new ReentrantLock();
 
+    private StreamCommonExtension streamCommonExtension;
+
     public MilogConfigListener(Long spaceId, String dataId, String group, MilogSpaceData milogSpaceData, NacosConfig nacosConfig) {
         this.spaceId = spaceId;
         this.dataId = dataId;
@@ -75,6 +81,12 @@ public class MilogConfigListener {
         this.jobManager = new JobManager();
         this.listener = getListener(dataId, milogSpaceData);
         nacosConfig.addListener(dataId, group, listener);
+        streamCommonExtension = getStreamCommonExtensionInstance();
+    }
+
+    private StreamCommonExtension getStreamCommonExtensionInstance() {
+        String factualServiceName = Config.ins().get("common.stream.extension", DEFAULT_COMMON_STREAM_EXTENSION);
+        return Ioc.ins().getBean(factualServiceName);
     }
 
     private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
@@ -248,7 +260,12 @@ public class MilogConfigListener {
 
     private void startTailPer(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId) {
         if (null == logSpaceId) {
-            log.error("startTailPer error,logSpaceId is null,LogtailConfig:{}", gson.toJson(logTailConfig), new RuntimeException());
+            log.warn("startTailPer error,logSpaceId is null,LogTailConfig:{}", gson.toJson(logTailConfig));
+            return;
+        }
+        Boolean isStart = streamCommonExtension.preCheckTaskExecution(sinkConfig, logTailConfig, logSpaceId);
+        if (!isStart) {
+            log.warn("preCheckTaskExecution error,preCheckTaskExecution is false,LogTailConfig:{}", gson.toJson(logTailConfig));
             return;
         }
         log.info("【Listen tail】Initialize the new task, tail configuration:{},index:{},cluster information：{},spaceId:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex(), gson.toJson(sinkConfig.getEsInfo()), logSpaceId);
@@ -271,9 +288,10 @@ public class MilogConfigListener {
                 try {
                     log.info("listen tail received a configuration request:{},a configuration that already exists:storeMap:{},tailMap:{}", dataValue, gson.toJson(oldSinkConfigMap), gson.toJson(oldLogTailConfigMap));
                     if (StringUtils.isNotEmpty(dataValue) && !Constant.NULLVALUE.equals(dataValue)) {
+                        dataValue = streamCommonExtension.dataPreProcess(dataValue);
                         MilogSpaceData newMilogSpaceData = GSON.fromJson(dataValue, MilogSpaceData.class);
                         if (null == newMilogSpaceData || CollectionUtils.isEmpty(newMilogSpaceData.getSpaceConfig())) {
-                            log.error("Listen tail received configuration error,dataId:{},spaceId:{}", dataId, milogSpaceData.getMilogSpaceId());
+                            log.warn("Listen tail received configuration error,dataId:{},spaceId:{}", dataId, milogSpaceData.getMilogSpaceId());
                             return;
                         }
                         handleNacosConfigDataJob(newMilogSpaceData);

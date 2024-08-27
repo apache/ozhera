@@ -348,6 +348,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     private void transformSearchResponse(SearchResponse searchResponse, final LogDTO logDTO, List<String> keyList) {
         SearchHit[] hits = searchResponse.getHits().getHits();
         if (hits == null || hits.length == 0) {
+            log.info("es query result is empty,es response:{}", searchResponse);
             return;
         }
         List<LogDataDTO> logDataList = Lists.newArrayList();
@@ -640,9 +641,13 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         Map<String, Object> ferry = hit.getSourceAsMap();
         long time = 0;
         if (ferry.containsKey("time") && null != ferry.get("time") && StringUtils.isNotBlank(ferry.get("time").toString())) {
-            time = DateUtil.parse(ferry.get("time").toString()).toTimestamp().getTime();
+            try {
+                time = DateUtil.parse(ferry.get("time").toString()).toTimestamp().getTime();
+            } catch (Exception e) {
+                log.error("Log query error, log context error,time:{}", ferry.get("time"), e);
+            }
         }
-        if (null == ferry.get(LogParser.esKeyMap_timestamp)) {
+        if (!ferry.containsKey(LogParser.esKeyMap_timestamp) || null == ferry.get(LogParser.esKeyMap_timestamp)) {
             logData.setValue(LogParser.esKeyMap_timestamp, time);
         } else {
             logData.setValue(LogParser.esKeyMap_timestamp, ferry.get(LogParser.esKeyMap_timestamp));

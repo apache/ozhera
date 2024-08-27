@@ -22,6 +22,10 @@ import com.xiaomi.mone.log.stream.job.extension.impl.DorisMessageSender;
 import com.xiaomi.mone.log.stream.job.extension.impl.EsMessageSender;
 import com.xiaomi.mone.log.stream.job.extension.impl.RocketMqMessageProduct;
 import com.xiaomi.mone.log.stream.plugin.es.EsPlugin;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import static com.xiaomi.mone.log.common.Constant.GSON;
 
 /**
  * @author wtt
@@ -29,6 +33,7 @@ import com.xiaomi.mone.log.stream.plugin.es.EsPlugin;
  * @description
  * @date 2023/11/14 15:09
  */
+@Slf4j
 public class MessageSenderFactory {
 
     public static MessageSender getMessageSender(SinkJobConfig sinkJobConfig) {
@@ -50,6 +55,10 @@ public class MessageSenderFactory {
 
     private static MessageSender getEsMessageSender(SinkJobConfig sinkJobConfig, MqMessageProduct mqMessageProduct) {
         String index = sinkJobConfig.getIndex();
+        if (StringUtils.isEmpty(index)) {
+            log.error("es index is null,sinkJobConfig:{}", GSON.toJson(sinkJobConfig));
+            throw new RuntimeException("es index is null");
+        }
         EsMessageSender esMessageSender = new EsMessageSender(index, mqMessageProduct);
         EsProcessor esProcessor = EsPlugin.getEsProcessor(sinkJobConfig.getStorageInfo(), esMessageSender::compensateSend);
         esMessageSender.setEsProcessor(esProcessor);

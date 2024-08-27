@@ -29,6 +29,9 @@ public class LogStreamConstants {
 
     public static final String DEFAULT_MESSAGE_LIFECYCLE_MANAGER = "defaultMessageLifecycleManager";
 
+    public static final String DEFAULT_COMMON_STREAM_EXTENSION = "defaultCommonStreamExtension";
+
+
     public static final String LOG_STREAM_SPACE_ID = "spaceId";
     public static final String LOG_STREAM_STORE_ID = "storeId";
     public static final String LOG_STREAM_TAIL_ID = "tailId";

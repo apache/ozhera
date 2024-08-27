@@ -84,13 +84,15 @@ public class JobManager {
 
     private void sinkJobsShutDown(LogtailConfig logtailConfig) {
         Map<SinkJobEnum, SinkJob> sinkJobs = jobs.get(logtailConfig.getLogtailId());
-        sinkJobs.values().forEach(sinkJob -> {
-            try {
-                sinkJob.shutdown();
-            } catch (Exception e) {
-                log.error("[JobManager.shutdown] closeJobs.shutdown error,logTailID:{}", logtailConfig.getLogtailId(), e);
-            }
-        });
+        if (null != sinkJobs && !sinkJobs.isEmpty()) {
+            sinkJobs.values().forEach(sinkJob -> {
+                try {
+                    sinkJob.shutdown();
+                } catch (Exception e) {
+                    log.error("[JobManager.shutdown] closeJobs.shutdown error,logTailID:{}", logtailConfig.getLogtailId(), e);
+                }
+            });
+        }
         jobs.remove(logtailConfig.getLogtailId());
     }
 

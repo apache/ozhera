@@ -33,7 +33,7 @@ public class TailLogCountJob {
     @Resource
     private LogCountServiceImpl logCountService;
 
-    @Value("$job_start_flag")
+    @Value("${job_start_flag}")
     public String jobStartFlag;
 
     public void init() {

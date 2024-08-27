@@ -60,7 +60,7 @@ public class StoreValidation {
     @Resource
     private EsCluster esCluster;
 
-    @Value("$tpc.devMode")
+    @Value("${tpc.devMode}")
     private String tpcDevMode;
 
     public void init() {

@@ -55,7 +55,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
     private MilogConfigNacosServiceImpl logConfigNacosService;
     @Resource
     private MilogSpaceDao logSpaceDao;
-    @Value("$log_stream_name")
+    @Value("${log_stream_name}")
     private String log_stream_name;
 
     private ResourceExtensionService resourceExtensionService;

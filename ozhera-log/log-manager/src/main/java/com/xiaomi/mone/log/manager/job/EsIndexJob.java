@@ -39,7 +39,7 @@ public class EsIndexJob {
 
     private static final String OPEN_TYPE = "open";
 
-    @Value("$server.type")
+    @Value("${server.type}")
     private String serverType;
 
     @Resource

@@ -25,7 +25,7 @@ public enum LogStorageTypeEnum {
 
     ELASTICSEARCH,
     DORIS,
-    CLICKEHOUSE;
+    CLICKHOUSE;
 
     public static LogStorageTypeEnum queryByName(String name) {
         if (null == name || name.isEmpty()) {

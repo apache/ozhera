@@ -35,10 +35,10 @@ import static com.xiaomi.mone.log.stream.common.util.StreamUtils.*;
 @Slf4j
 public class ServiceRegistryService {
 
-    @Value("$app_name")
+    @Value("${app_name}")
     private String serviceName;
 
-    @Value("$nacos_config_server_addr")
+    @Value("${nacos_config_server_addr}")
     private String nacosAddr;
 
     @Resource

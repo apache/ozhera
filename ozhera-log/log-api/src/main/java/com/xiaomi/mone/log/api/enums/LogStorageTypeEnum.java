@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.xiaomi.mone.log.api.enums;
 
 /**
@@ -22,11 +23,11 @@ package com.xiaomi.mone.log.api.enums;
  * @date 2023/11/10 14:31
  */
 public enum LogStorageTypeEnum {
-
+    
     ELASTICSEARCH,
     DORIS,
-    CLICKEHOUSE;
-
+    CLICKHOUSE;
+    
     public static LogStorageTypeEnum queryByName(String name) {
         if (null == name || name.isEmpty()) {
             return null;

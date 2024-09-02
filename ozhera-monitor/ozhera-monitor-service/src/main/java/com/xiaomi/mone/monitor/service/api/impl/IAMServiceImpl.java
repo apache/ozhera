@@ -13,34 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.xiaomi.mone.monitor.service;
+package com.xiaomi.mone.monitor.service.api.impl;
 
-import com.xiaomi.mone.monitor.result.Result;
-import com.xiaomi.mone.monitor.service.api.AppAlarmServiceExtension;
+import com.xiaomi.mone.monitor.service.api.IAMService;
+import com.xiaomi.mone.tpc.common.param.NodeQryParam;
+import com.xiaomi.mone.tpc.common.vo.NodeVo;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Description
  * @Author dingtao
- * @Date 2023/4/21 2:53 PM
+ * @Date 2023/4/20 6:44 PM
  */
 @Service
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
-public class AppAlarmServiceExtensionImpl implements AppAlarmServiceExtension {
+public class IAMServiceImpl implements IAMService {
     @Override
-    public Result queryFunctionList(Integer projectId) {
+    public List<NodeVo> list(NodeQryParam nodeQryParam) {
         return null;
-    }
-
-    @Override
-    public Result queryRulesByIamId(Integer iamId, String userName) {
-        return null;
-    }
-
-    @Override
-    public Integer getAlarmIdByResult(Result result) {
-        Double alarmId = (Double) result.getData();
-        return alarmId == null ? null : alarmId.intValue();
     }
 }

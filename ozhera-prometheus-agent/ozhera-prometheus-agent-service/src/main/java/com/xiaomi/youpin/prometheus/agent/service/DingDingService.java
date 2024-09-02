@@ -22,11 +22,11 @@ package com.xiaomi.youpin.prometheus.agent.service;
  */
 public interface DingDingService {
     
-    public void init() throws Exception;
+    void init() throws Exception;
     
-    public void sendDingDing(String content, String[] unionIds, String cardBizId);
+    void sendDingDing(String content, String[] unionIds, String cardBizId);
     
-    public void updateDingDingCard(String content, String cardBizId);
+    void updateDingDingCard(String content, String cardBizId);
     
-    public String getNameByUserId(String userId);
+    String getNameByUserId(String userId);
 }

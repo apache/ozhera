@@ -18,9 +18,9 @@ package com.xiaomi.youpin.prometheus.agent.service;
 
 public interface FeishuService {
     
-    public void sendFeishu(String content, String[] receivers, String[] feishuGroups);
+    void sendFeishu(String content, String[] receivers, String[] feishuGroups);
     
-    public void sendFeishu(String content, String[] receivers, String[] feishuGroups, boolean sendCard);
+    void sendFeishu(String content, String[] receivers, String[] feishuGroups, boolean sendCard);
     
-    public String getUserIdByEmail(String email);
+    String getUserIdByEmail(String email);
 }

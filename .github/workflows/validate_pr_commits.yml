@@ -5,5 +5,8 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: wagoid/commitlint-github-action@v5
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+      - uses: ./.github/actions/commitlint-github-action

@@ -1,0 +1,3 @@
+[submodule ".github/actions/commitlint-github-action"]
+	path = .github/actions/commitlint-github-action
+	url = https://github.com/wagoid/commitlint-github-action

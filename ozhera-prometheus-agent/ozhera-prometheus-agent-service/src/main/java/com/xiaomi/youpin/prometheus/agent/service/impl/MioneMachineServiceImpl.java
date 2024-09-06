@@ -13,24 +13,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.xiaomi.youpin.prometheus.agent.service.impl;
 
 import com.xiaomi.youpin.prometheus.agent.domain.Ips;
+import com.xiaomi.youpin.prometheus.agent.service.MioneMachineService;
 import com.xiaomi.youpin.prometheus.agent.service.api.MioneMachineServiceExtension;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-/**
- * @author zhangxiaowei6
- */
+
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
-public class MioneMachineServiceImpl implements MioneMachineServiceExtension {
-    @Override
+public class MioneMachineServiceImpl implements MioneMachineService {
+    
+    @Autowired
+    private MioneMachineServiceExtension mioneMachineServiceExtension;
+    
     public List<Ips> queryMachineList(String type) {
-        return null;
+        
+        return mioneMachineServiceExtension.queryMachineList(type);
     }
 }

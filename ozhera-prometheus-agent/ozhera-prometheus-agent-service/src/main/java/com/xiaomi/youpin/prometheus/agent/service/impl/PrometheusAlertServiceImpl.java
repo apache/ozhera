@@ -26,7 +26,7 @@ import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service(timeout = 5000, group = "${dubbo.group}")
-public class PrometheusAlertImpl implements PrometheusAlertService {
+public class PrometheusAlertServiceImpl implements PrometheusAlertService {
     @Autowired
     RuleAlertService ruleAlertService;
 

@@ -13,25 +13,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package com.xiaomi.youpin.prometheus.agent.service;
+package com.xiaomi.youpin.prometheus.agent.service.api.impl;
 
 import com.xiaomi.youpin.prometheus.agent.domain.Ips;
+import com.xiaomi.youpin.prometheus.agent.service.api.MioneMachineServiceExtension;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-
-public interface PrometheusIpService {
-    
-    
-    List<Ips> getByType(String type);
-    
-    Set<String> getIpsByAppName(String name);
-    
-    Set<String> getEtcdHosts();
-    
-    List<Ips> getK8sNodeIp(String type);
-    
-    List<Ips> getHeraAppPodIp();
-    
+/**
+ * @author zhangxiaowei6
+ */
+@Slf4j
+@Service
+@ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
+public class MioneMachineServiceExtensionImpl implements MioneMachineServiceExtension {
+    @Override
+    public List<Ips> queryMachineList(String type) {
+        return null;
+    }
 }

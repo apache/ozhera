@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.xiaomi.hera.tspandata.TSpanData;
 import com.xiaomi.mone.log.agent.common.HashUtil;
 import com.xiaomi.mone.log.agent.common.trace.TraceUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;
-import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.api.model.msg.LineMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 ///*
-// * Copyright 2020 Xiaomi
+// * Copyright (C) 2020 Xiaomi Corporation
 // *
 // *  Licensed under the Apache License, Version 2.0 (the "License");
 // *  you may not use this file except in compliance with the License.

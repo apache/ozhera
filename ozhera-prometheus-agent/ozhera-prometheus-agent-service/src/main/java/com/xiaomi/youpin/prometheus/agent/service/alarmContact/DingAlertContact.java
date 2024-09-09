@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,21 +19,18 @@ import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.Impl.RuleAlertDao;
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.*;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
+import com.xiaomi.youpin.prometheus.agent.result.alertManager.Labels;
 import com.xiaomi.youpin.prometheus.agent.service.DingDingService;
-import com.xiaomi.youpin.prometheus.agent.service.FeishuService;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FreeMarkerUtil;
-import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 

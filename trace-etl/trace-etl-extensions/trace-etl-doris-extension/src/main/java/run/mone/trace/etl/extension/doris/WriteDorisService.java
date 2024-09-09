@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import com.xiaomi.hera.tspandata.TValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import run.mone.doris.DorisService;
 import run.mone.trace.etl.extension.doris.domain.HeraErrorSlowTraceColumn;
 import run.mone.trace.etl.extension.doris.domain.HeraTraceDriverColumn;

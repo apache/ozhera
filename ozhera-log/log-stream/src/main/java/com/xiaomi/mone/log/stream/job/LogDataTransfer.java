@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -111,15 +111,15 @@ public class LogDataTransfer {
     }
 
     private void toSendMessage(Map<String, Object> dataMap) throws Exception {
+        if (sendMsgNumber.get() % COUNT_NUM == 0 || sendMsgNumber.get() == 1) {
+            log.info(jobType.name() + " send msg:{}", dataMap);
+        }
         if (SinkJobEnum.NORMAL_JOB == jobType) {
             if (null != dataMap && !sinkChain.execute(dataMap)) {
                 sendMessage(dataMap);
             }
         } else {
             sendMessage(dataMap);
-        }
-        if (sendMsgNumber.get() % COUNT_NUM == 0 || sendMsgNumber.get() == 1) {
-            log.info(jobType.name() + " send msg:{}", dataMap);
         }
     }
 

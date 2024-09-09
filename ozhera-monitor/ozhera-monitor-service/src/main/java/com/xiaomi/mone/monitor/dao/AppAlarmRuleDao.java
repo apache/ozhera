@@ -1,5 +1,5 @@
 /*
- *  Copyright 2020 Xiaomi
+ *  Copyright (C) 2020 Xiaomi Corporation
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.xiaomi.mone.monitor.dao.mapper.AppAlarmRuleMapper;
 import com.xiaomi.mone.monitor.dao.model.AppAlarmRule;
 import com.xiaomi.mone.monitor.dao.model.AppAlarmRuleExample;
-import com.xiaomi.mone.monitor.dao.model.AppMonitorExample;
 import com.xiaomi.mone.monitor.service.model.prometheus.AppWithAlarmRules;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

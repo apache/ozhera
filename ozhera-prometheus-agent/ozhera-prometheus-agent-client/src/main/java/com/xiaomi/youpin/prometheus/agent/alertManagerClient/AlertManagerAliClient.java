@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,15 @@
 package com.xiaomi.youpin.prometheus.agent.alertManagerClient;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.aliyun.arms20190808.models.*;
+import com.aliyun.arms20190808.models.CreateOrUpdateAlertRuleResponse;
+import com.aliyun.arms20190808.models.CreateOrUpdateNotificationPolicyResponse;
+import com.aliyun.arms20190808.models.CreateOrUpdateWebhookContactResponse;
+import com.aliyun.arms20190808.models.DeleteAlertRuleResponse;
+import com.aliyun.arms20190808.models.DescribeWebhookContactsResponse;
+import com.aliyun.arms20190808.models.GetAlertRulesResponse;
+import com.aliyun.arms20190808.models.GetAlertRulesResponseBody;
+import com.aliyun.arms20190808.models.ListNotificationPoliciesResponse;
+import com.aliyun.arms20190808.models.ListNotificationPoliciesResponseBody;
 import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.prometheus.agent.client.Client;
@@ -32,10 +40,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;

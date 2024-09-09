@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,20 @@ package com.xiaomi.mone.log.manager.common;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.xiaomi.mone.log.common.Constant.*;
+import static com.xiaomi.mone.log.common.Constant.COMMON_MQ_PREFIX;
+import static com.xiaomi.mone.log.common.Constant.COMMON_MQ_SUFFIX;
+import static com.xiaomi.mone.log.common.Constant.DEFAULT_TAGS;
+import static com.xiaomi.mone.log.common.Constant.UNDERLINE_SYMBOL;
 
 @Slf4j
 public class Utils {

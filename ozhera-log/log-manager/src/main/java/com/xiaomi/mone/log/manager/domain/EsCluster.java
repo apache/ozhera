@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.xiaomi.mone.log.manager.domain;
 
 import com.xiaomi.mone.log.common.Constant;
+import com.xiaomi.mone.log.manager.bootstrap.LogStoragePlugin;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;
 import com.xiaomi.mone.log.manager.mapper.MilogEsClusterMapper;
 import com.xiaomi.mone.log.manager.model.pojo.MilogEsClusterDO;
@@ -37,6 +38,9 @@ public class EsCluster {
     @Resource
     private MilogEsClusterMapper esClusterMapper;
 
+    @Resource
+    private LogStoragePlugin logStoragePlugin;
+
     private StoreExtensionService storeExtensionService;
 
     public void init() {
@@ -53,11 +57,23 @@ public class EsCluster {
         if (esClusterId == null) {
             return null;
         }
-        if (Ioc.ins().containsBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + esClusterId)) {
-            return Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + esClusterId);
-        } else {
-            return null;
+
+        String beanName = Constant.LOG_STORAGE_SERV_BEAN_PRE + esClusterId;
+
+        if (isBeanInitialized(esClusterId, beanName)) {
+            return Ioc.ins().getBean(beanName);
         }
+
+        return null;
+    }
+
+    private boolean isBeanInitialized(Long esClusterId, String beanName) {
+        if (Ioc.ins().containsBean(beanName)) {
+            return true;
+        }
+
+        logStoragePlugin.initializeLogStorage(getById(esClusterId));
+        return Ioc.ins().containsBean(beanName);
     }
 
     /**

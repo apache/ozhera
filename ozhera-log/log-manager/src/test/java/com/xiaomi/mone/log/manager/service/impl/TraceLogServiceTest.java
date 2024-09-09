@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,20 +16,11 @@
 package com.xiaomi.mone.log.manager.service.impl;
 
 import com.xiaomi.mone.es.EsClient;
-import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
-import com.xiaomi.mone.log.api.model.vo.TraceLogQuery;
-import com.xiaomi.mone.log.common.Result;
-import com.xiaomi.mone.log.manager.model.dto.LogDTO;
-import com.xiaomi.mone.log.manager.model.dto.LogDataDTO;
-import com.xiaomi.mone.log.manager.model.vo.LogQuery;
-import com.xiaomi.youpin.docean.Ioc;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TraceLogServiceTest {
     @Test

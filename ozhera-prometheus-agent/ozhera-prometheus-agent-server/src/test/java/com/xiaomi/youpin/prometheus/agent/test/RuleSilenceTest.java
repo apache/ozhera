@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,24 +19,6 @@ package com.xiaomi.youpin.prometheus.agent.test;
  * @author zhangxiaowei6
  * @Date 2023/10/17 16:40
  **/
-
-import com.xiaomi.youpin.prometheus.agent.Impl.SilenceDao;
-import com.xiaomi.youpin.prometheus.agent.bootstrap.PrometheusAgentBootstrap;
-import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
-import com.xiaomi.youpin.prometheus.agent.enums.RuleSilenceStatusEnum;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.TimeZone;
 
 public class RuleSilenceTest {
    /* @Test

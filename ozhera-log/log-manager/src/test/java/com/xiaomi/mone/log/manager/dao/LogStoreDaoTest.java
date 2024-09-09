@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 package com.xiaomi.mone.log.manager.dao;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.log.manager.domain.ClusterIndexVO;
-import com.xiaomi.mone.log.manager.service.impl.KafkaMqConfigService;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 
 /**
  * @author wtt

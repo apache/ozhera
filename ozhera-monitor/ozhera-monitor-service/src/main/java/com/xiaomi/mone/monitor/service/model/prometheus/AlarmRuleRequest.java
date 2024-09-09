@@ -1,3 +1,18 @@
+/*
+ *  Copyright (C) 2020 Xiaomi Corporation
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 package com.xiaomi.mone.monitor.service.model.prometheus;
 
 import com.google.gson.JsonObject;
@@ -30,20 +45,20 @@ public class AlarmRuleRequest implements Serializable {
     private String strategyDesc;
     private String alertTeam;
     private String appAlias;
-    private List<String> includeEnvs;//包含环境列表
-    private List<String> exceptEnvs;//不包含环境列表
-    private List<String> includeZones;//包含zone列表
-    private List<String> exceptZones;//不包含zone列表
-    private List<String> includeModules;//包含模块列表
-    private List<String> exceptModules;//不包含模块列表
-    private List<String> includeFunctions;//包含函数列表
-    private List<String> exceptFunctions;//不包含函数列表
-    private List<String> includeContainerName;//包含容器名称
-    private List<String> exceptContainerName;//不包含容器名称
-    private List<String> alertMembers;//报警人员列表
-    private List<String> atMembers;//@人员列表
+    private List<String> includeEnvs;//Included environment list
+    private List<String> exceptEnvs;//Does not include environment list
+    private List<String> includeZones;//Contains a list of zones
+    private List<String> exceptZones;//Does not include zone list
+    private List<String> includeModules;//Included module list
+    private List<String> exceptModules;//Does not include module list
+    private List<String> includeFunctions;//Contains a list of functions
+    private List<String> exceptFunctions;//Does not include function list
+    private List<String> includeContainerName;//Contains the container name
+    private List<String> exceptContainerName;//Does not include container name
+    private List<String> alertMembers;//List of alarm personnel
+    private List<String> atMembers;//@ Staff List
     private List<AlarmRuleData> alarmRules;
-    private String user;//当前操作人
+    private String user;//Current operator
 
     public String convertEnvs(){
 

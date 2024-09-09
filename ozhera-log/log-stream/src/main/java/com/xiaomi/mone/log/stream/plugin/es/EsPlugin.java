@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+
+import static com.xiaomi.mone.log.common.Constant.GSON;
 
 @Slf4j
 @Service
@@ -105,6 +107,7 @@ public class EsPlugin {
             try {
                 EsService esService = esServiceMap.get(cacheKey(esInfo));
                 if (esService == null) {
+                    log.info("init es service started,esInfo:{}", GSON.toJson(esInfo));
                     if (StringUtils.isNotBlank(esInfo.getUser()) && StringUtils.isNotBlank(esInfo.getPwd())) {
                         esService = new EsService(esInfo.getAddr(), esInfo.getUser(), esInfo.getPwd());
                     } else if (StringUtils.isNotBlank(esInfo.getToken())) {
@@ -112,6 +115,7 @@ public class EsPlugin {
                     } else {
                         esService = new EsService(esInfo.getAddr(), esInfo.getUser(), esInfo.getPwd());
                     }
+                    log.info("init es service finished,esInfo:{}", GSON.toJson(esInfo));
                     esServiceMap.put(cacheKey(esInfo), esService);
                 }
                 esProcessorList = new ArrayList<>();
@@ -135,6 +139,38 @@ public class EsPlugin {
         return esProcessorIntegerPair.getKey();
     }
 
+    private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
+        String enable = Config.ins().get("hera.stream.compensate.message,enable", "false");
+        if (StringUtils.isNotBlank(enable) && StringUtils.equalsIgnoreCase(enable, "false")) {
+            log.warn("[EsPlugin.sendMessageToTopic] hera.stream.compensate.message,enable is false,do not send message to topic,enable:{}", enable);
+            return;
+        }
+        MqMessageDTO MqMessageDTO = new MqMessageDTO();
+        MqMessageDTO.setEsInfo(esInfo);
+        List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
+        request.requests().stream().filter(x -> x instanceof IndexRequest)
+                .forEach(x -> {
+                    Map source = ((IndexRequest) x).sourceAsMap();
+                    log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
+                    MqMessageDTO.CompensateMqDTO compensateMqDTO = new MqMessageDTO.CompensateMqDTO();
+                    compensateMqDTO.setMsg(JSON.toJSONString(source));
+                    compensateMqDTO.setEsIndex(x.index());
+                    compensateMqDTOS.add(compensateMqDTO);
+                });
+        //The message is sent to mq for consumption - the data cannot be larger than 10M, otherwise it cannot be written, divided into 2 parts
+        int length = JSON.toJSONString(compensateMqDTOS).getBytes().length;
+        if (length > SINGLE_MESSAGE_BYTES_MAXIMAL) {
+            List<List<MqMessageDTO.CompensateMqDTO>> splitList = ListUtil.partition(compensateMqDTOS, 2);
+            for (List<MqMessageDTO.CompensateMqDTO> mqDTOS : splitList) {
+                MqMessageDTO.setCompensateMqDTOS(mqDTOS);
+                onFailedConsumer.accept(MqMessageDTO);
+            }
+        } else {
+            MqMessageDTO.setCompensateMqDTOS(compensateMqDTOS);
+            onFailedConsumer.accept(MqMessageDTO);
+        }
+    }
+
     private static EsProcessor buildEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer, EsService esService) {
         AtomicLong errorCount = new AtomicLong(0);
         EsProcessor esProcessor = esService.getEsProcessor(new EsProcessorConf(config.getBulkActions(), config.getByteSize(), config.getConcurrentRequest(), config.getFlushInterval(),
@@ -147,7 +183,7 @@ public class EsPlugin {
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 if (response.hasFailures()) {
-                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests()), response.buildFailureMessage());
+                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests().getFirst()), response.buildFailureMessage());
                     AtomicInteger count = new AtomicInteger();
                     response.spliterator().forEachRemaining(x -> {
                         if (x.isFailed()) {
@@ -196,33 +232,6 @@ public class EsPlugin {
             }
         }));
         return esProcessor;
-    }
-
-    private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
-        MqMessageDTO MqMessageDTO = new MqMessageDTO();
-        MqMessageDTO.setEsInfo(esInfo);
-        List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
-        request.requests().stream().filter(x -> x instanceof IndexRequest)
-                .forEach(x -> {
-                    Map source = ((IndexRequest) x).sourceAsMap();
-                    log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
-                    MqMessageDTO.CompensateMqDTO compensateMqDTO = new MqMessageDTO.CompensateMqDTO();
-                    compensateMqDTO.setMsg(JSON.toJSONString(source));
-                    compensateMqDTO.setEsIndex(x.index());
-                    compensateMqDTOS.add(compensateMqDTO);
-                });
-        //The message is sent to mq for consumption - the data cannot be larger than 10M, otherwise it cannot be written, divided into 2 parts
-        int length = JSON.toJSONString(compensateMqDTOS).getBytes().length;
-        if (length > SINGLE_MESSAGE_BYTES_MAXIMAL) {
-            List<List<MqMessageDTO.CompensateMqDTO>> splitList = ListUtil.partition(compensateMqDTOS, 2);
-            for (List<MqMessageDTO.CompensateMqDTO> mqDTOS : splitList) {
-                MqMessageDTO.setCompensateMqDTOS(mqDTOS);
-                onFailedConsumer.accept(MqMessageDTO);
-            }
-        } else {
-            MqMessageDTO.setCompensateMqDTOS(compensateMqDTOS);
-            onFailedConsumer.accept(MqMessageDTO);
-        }
     }
 
     private static String cacheKey(StorageInfo esInfo) {

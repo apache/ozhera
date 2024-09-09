@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,22 +28,20 @@ import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
 import com.xiaomi.youpin.prometheus.agent.util.Http;
 import com.xiaomi.youpin.prometheus.agent.util.YamlUtil;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
-
-import java.util.*;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_GET;
 import static com.xiaomi.youpin.prometheus.agent.Commons.HTTP_POST;
 
 @Slf4j

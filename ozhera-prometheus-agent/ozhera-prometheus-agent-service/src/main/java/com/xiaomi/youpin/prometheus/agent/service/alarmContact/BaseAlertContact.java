@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ package com.xiaomi.youpin.prometheus.agent.service.alarmContact;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
 import com.xiaomi.youpin.prometheus.agent.result.alertManager.Alerts;
 import com.xiaomi.youpin.prometheus.agent.util.DateUtil;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public abstract class BaseAlertContact {

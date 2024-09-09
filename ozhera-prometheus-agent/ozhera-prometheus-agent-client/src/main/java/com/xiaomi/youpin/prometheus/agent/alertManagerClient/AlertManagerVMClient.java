@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.AlertManagerConfig;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.Group;
 import com.xiaomi.youpin.prometheus.agent.param.alertManager.Rule;
-import com.xiaomi.youpin.prometheus.agent.param.prometheus.Scrape_configs;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
 import com.xiaomi.youpin.prometheus.agent.util.CommitPoolUtil;
 import com.xiaomi.youpin.prometheus.agent.util.FileUtil;
@@ -37,7 +36,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;

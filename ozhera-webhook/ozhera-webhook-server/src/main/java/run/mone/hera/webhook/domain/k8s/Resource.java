@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package run.mone.hera.webhook.domain.k8s;
 
 import lombok.Data;
 import lombok.ToString;
-import run.mone.hera.webhook.domain.k8s.Limits;
-import run.mone.hera.webhook.domain.k8s.Requests;
 
 /**
  * @author zhangxiaowei6

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * @author gaoxihui
- * @date 2021/9/14 3:17 下午
+ * @date 2021/9/14 3:17 PM
  */
 @Data
 public class Triple<T extends Object> implements Serializable {

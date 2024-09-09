@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package run.mone.hera.webhook.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import io.fabric8.kubernetes.api.model.admission.v1beta1.AdmissionResponse;
 import io.fabric8.kubernetes.api.model.admission.v1beta1.AdmissionReview;
 import lombok.extern.slf4j.Slf4j;

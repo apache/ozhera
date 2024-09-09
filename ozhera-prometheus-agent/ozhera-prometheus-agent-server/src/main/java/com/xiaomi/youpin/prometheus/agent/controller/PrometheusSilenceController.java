@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@
 package com.xiaomi.youpin.prometheus.agent.controller;
 
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
+import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.service.dto.SilenceAlertManagerReqBuilder;
 import com.xiaomi.youpin.prometheus.agent.service.dto.dingding.SilenceCallBack;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleSilenceService;
 import lombok.extern.slf4j.Slf4j;
-import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.xiaomi.youpin.prometheus.agent.result.Result;
 
 import java.util.Arrays;
 import java.util.List;

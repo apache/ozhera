@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package com.xiaomi.mone.log.stream;
 
-import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.stream.job.extension.impl.RocketCompensateMsgConsume;
-import com.xiaomi.mone.log.stream.job.extension.impl.RocketMqMessageProduct;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

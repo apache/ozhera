@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,9 +25,6 @@ import com.xiaomi.mone.log.stream.job.extension.MessageSender;
 import com.xiaomi.mone.log.stream.job.extension.MessageSenderFactory;
 import com.xiaomi.mone.log.stream.job.extension.SinkJob;
 import com.xiaomi.mone.log.stream.job.extension.SinkJobProvider;
-import com.xiaomi.mone.log.stream.job.extension.rocketmq.RocketMqSinkJob;
-import com.xiaomi.mone.log.stream.job.extension.rocketmq.RocketmqConfig;
-import com.xiaomi.mone.log.stream.job.extension.rocketmq.RocketmqPlugin;
 import com.xiaomi.mone.log.stream.sink.SinkChain;
 import com.xiaomi.youpin.docean.anno.Service;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;

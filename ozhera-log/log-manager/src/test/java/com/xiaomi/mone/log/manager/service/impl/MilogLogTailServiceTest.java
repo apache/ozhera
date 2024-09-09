@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,21 +14,6 @@
  *  limitations under the License.
  */
 package com.xiaomi.mone.log.manager.service.impl;
-
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.xiaomi.mone.log.api.enums.LogTypeEnum;
-import com.xiaomi.mone.log.manager.mapper.MilogLogTemplateMapper;
-import com.xiaomi.mone.log.manager.service.bind.LogTypeProcessor;
-import com.xiaomi.mone.log.manager.service.bind.LogTypeProcessorFactory;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author wtt

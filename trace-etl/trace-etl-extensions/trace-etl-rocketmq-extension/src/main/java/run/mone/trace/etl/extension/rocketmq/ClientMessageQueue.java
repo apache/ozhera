@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import com.xiaomi.hera.trace.etl.common.HashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.common.message.MessageQueue;
-import run.mone.trace.etl.extension.rocketmq.RocketMQExtension;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;

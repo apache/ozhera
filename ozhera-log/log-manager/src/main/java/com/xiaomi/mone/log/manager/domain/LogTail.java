@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.xiaomi.mone.log.manager.domain;
 
-import com.xiaomi.mone.log.api.enums.LogTypeEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
 import com.xiaomi.mone.log.manager.dao.MilogLogstoreDao;
 import com.xiaomi.mone.log.manager.mapper.MilogLogTemplateMapper;

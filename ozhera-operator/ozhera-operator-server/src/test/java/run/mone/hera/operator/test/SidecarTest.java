@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 package run.mone.hera.operator.test;
 
 import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.apps.Deployment;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * @author goodjava@qq.com

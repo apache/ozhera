@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ public class LogStreamConstants {
     public static final String postProcessingProviderBeanSuffix = "postProcessing";
 
     public static final String DEFAULT_MESSAGE_LIFECYCLE_MANAGER = "defaultMessageLifecycleManager";
+
+    public static final String DEFAULT_COMMON_STREAM_EXTENSION = "defaultCommonStreamExtension";
+
 
     public static final String LOG_STREAM_SPACE_ID = "spaceId";
     public static final String LOG_STREAM_STORE_ID = "storeId";

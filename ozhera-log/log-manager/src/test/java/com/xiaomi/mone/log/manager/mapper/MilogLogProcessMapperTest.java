@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,20 +15,10 @@
  */
 package com.xiaomi.mone.log.manager.mapper;
 
-import com.google.common.collect.Lists;
-import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;
-import com.xiaomi.mone.log.manager.model.pojo.MilogLogProcessDOMybatis;
-import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 @Slf4j
 public class MilogLogProcessMapperTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.xiaomi.youpin.prometheus.agent.api.service;
 import com.xiaomi.youpin.prometheus.agent.api.bo.PrometheusReq;
 import com.xiaomi.youpin.prometheus.agent.api.bo.Result;
 
-import java.util.List;
 import java.util.Set;
 
 /**

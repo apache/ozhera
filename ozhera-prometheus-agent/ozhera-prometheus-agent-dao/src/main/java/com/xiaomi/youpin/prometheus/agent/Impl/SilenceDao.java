@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.xiaomi.youpin.prometheus.agent.entity.RuleSilenceEntity;
-import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

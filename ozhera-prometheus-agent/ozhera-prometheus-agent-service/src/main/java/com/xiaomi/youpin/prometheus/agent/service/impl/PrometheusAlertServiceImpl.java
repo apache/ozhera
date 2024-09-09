@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service(timeout = 5000, group = "${dubbo.group}")
-public class PrometheusAlertImpl implements PrometheusAlertService {
+public class PrometheusAlertServiceImpl implements PrometheusAlertService {
     @Autowired
     RuleAlertService ruleAlertService;
 

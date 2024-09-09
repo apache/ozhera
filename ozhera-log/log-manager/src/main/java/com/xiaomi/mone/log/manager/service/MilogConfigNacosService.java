@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,5 +31,5 @@ public interface MilogConfigNacosService {
 
     void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType);
 
-    void removeStreamConfig(Long id);
+    void removeStreamConfig(String motorRoomEn, Long id);
 }

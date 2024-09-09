@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 package com.xiaomi.youpin.prometheus.agent.controller;
 
 import com.xiaomi.youpin.prometheus.agent.Commons;
-import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
 import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigParam;
+import com.xiaomi.youpin.prometheus.agent.result.Result;
 import com.xiaomi.youpin.prometheus.agent.service.prometheus.ScrapeJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 //Grab exporter job related interfaces.
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,6 @@
 package com.xiaomi.youpin.prometheus.agent.test;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.xiaomi.youpin.prometheus.agent.bootstrap.PrometheusAgentBootstrap;
-import com.xiaomi.youpin.prometheus.agent.result.alertManager.AlertManagerFireResult;
-import com.xiaomi.youpin.prometheus.agent.service.alarmContact.MailAlertContact;
-import com.xiaomi.youpin.prometheus.agent.service.prometheus.RuleAlertService;
-import com.xiaomi.youpin.prometheus.agent.util.MailUtil;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author zhangxiaowei6

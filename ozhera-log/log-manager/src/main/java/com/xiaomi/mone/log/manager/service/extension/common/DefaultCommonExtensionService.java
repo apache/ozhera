@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.*;
 import static com.xiaomi.mone.log.manager.service.extension.common.CommonExtensionService.DEFAULT_COMMON_EXTENSION_SERVICE_KEY;
@@ -94,6 +96,11 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     @Override
     public String getSpaceDataId(Long spaceId) {
         return getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID;
+    }
+
+    @Override
+    public List<String> queryMachineRegions() {
+        return Arrays.stream(MachineRegionEnum.values()).map(MachineRegionEnum::getEn).collect(Collectors.toList());
     }
 
     @Getter

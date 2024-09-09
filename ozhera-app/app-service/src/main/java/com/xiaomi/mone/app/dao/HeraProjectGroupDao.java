@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +15,8 @@
  */
 package com.xiaomi.mone.app.dao;
 
-import com.google.gson.Gson;
 import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupModel;
-import com.xiaomi.mone.app.dao.mapper.HeraAppRoleMapper;
 import com.xiaomi.mone.app.dao.mapper.HeraProjectGroupMapper;
-import com.xiaomi.mone.app.model.HeraAppRole;
-import com.xiaomi.mone.app.model.HeraAppRoleExample;
 import com.xiaomi.mone.app.model.HeraProjectGroup;
 import com.xiaomi.mone.app.model.HeraProjectGroupExample;
 import lombok.extern.slf4j.Slf4j;

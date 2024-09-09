@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package run.mone.hera.intelligence.service;
 import com.xiaomi.youpin.infra.rpc.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import run.mone.hera.intelligence.domain.rootanalysis.LogParam;
 import run.mone.hera.intelligence.domain.rootanalysis.MarkDownParam;
-import run.mone.hera.intelligence.domain.rootanalysis.TracePromptResult;
 import run.mone.hera.intelligence.domain.rootanalysis.TraceQueryParam;
 
 @Service

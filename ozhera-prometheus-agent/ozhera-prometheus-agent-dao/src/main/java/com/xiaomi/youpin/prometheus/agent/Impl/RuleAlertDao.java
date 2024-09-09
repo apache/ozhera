@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.xiaomi.youpin.prometheus.agent.entity.RuleAlertEntity;
-import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
 import com.xiaomi.youpin.prometheus.agent.enums.RuleAlertStatusEnum;
-import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.springframework.stereotype.Repository;

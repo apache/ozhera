@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -303,9 +303,18 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private void checkEsAddressPortOperate(MiLogResource miLogResource) {
         String serviceUrl = miLogResource.getServiceUrl();
-        String portStr = serviceUrl.substring(serviceUrl.lastIndexOf(":") + 1);
-        if (StringUtils.isBlank(portStr)) {
+        if (StringUtils.isBlank(serviceUrl)) {
+            return;
+        }
+
+        int index = serviceUrl.lastIndexOf(":");
+        if (index == -1) {
             serviceUrl = String.format("%s:%s", serviceUrl, "80");
+        } else {
+          String portStr = serviceUrl.substring(index + 1);
+          if (StringUtils.isBlank(portStr)) {
+              serviceUrl = String.format("%s%s", serviceUrl, "80");
+          }
         }
         miLogResource.setServiceUrl(serviceUrl);
     }

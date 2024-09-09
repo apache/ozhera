@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Xiaomi
+ * Copyright (C) 2020 Xiaomi Corporation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.xiaomi.youpin.prometheus.agent.Impl;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.xiaomi.youpin.prometheus.agent.entity.ScrapeConfigEntity;
-import com.xiaomi.youpin.prometheus.agent.enums.ClientType;
 import com.xiaomi.youpin.prometheus.agent.enums.ErrorCode;
 import com.xiaomi.youpin.prometheus.agent.enums.ScrapeJobStatusEnum;
 import lombok.extern.slf4j.Slf4j;

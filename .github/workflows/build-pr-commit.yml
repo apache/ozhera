@@ -14,10 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup Maven Action
-        uses: s4u/setup-maven-action@v1.7.0
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
           java-version: 21
+          distribution: 'zulu'
+          cache: maven
 
       - run: echo '<settings>    <interactiveMode>false</interactiveMode>    <profiles>        <profile>            <repositories>                <repository>                    <snapshots />                    <id>ossrh</id>                    <name>ossrh-snapshot</name>                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>                </repository>            </repositories>            <pluginRepositories>                <pluginRepository>                    <snapshots />                    <id>ossrh</id>                    <name>ossrh-snapshot</name>                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>                </pluginRepository>            </pluginRepositories>            <id>artifactory</id>        </profile>    </profiles>    <activeProfiles>        <activeProfile>artifactory</activeProfile>    </activeProfiles>    <servers>        <server>            <id>github</id>            <username>${env.GITHUB_ACTOR}</username>            <password>${env.GITHUB_TOKEN}</password>        </server>    </servers>    <mirrors/>    <proxies/></settings>' > ~/.m2/settings.xml
 

@@ -357,7 +357,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
             esClusterDOS.add(milogEsClusterMapper.selectById(id));
         }
         if (CollectionUtils.isEmpty(esClusterDOS)) {
-            esClusterDOS = milogEsClusterMapper.selectAll();
+            esClusterDOS = milogEsClusterMapper.selectList(new QueryWrapper<>());
         }
         esClusterDOS.forEach(clusterDO -> {
             updateEsResourceLabel(clusterDO);

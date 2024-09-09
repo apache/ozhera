@@ -140,7 +140,7 @@ public class EsPlugin {
     }
 
     private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
-        String enable = Config.ins().get("hera.stream.compensate.message,enable", "false");
+        String enable = Config.ins().get("hera.stream.compensate.message.enable", "");
         if (StringUtils.isNotBlank(enable) && StringUtils.equalsIgnoreCase(enable, "false")) {
             log.warn("[EsPlugin.sendMessageToTopic] hera.stream.compensate.message,enable is false,do not send message to topic,enable:{}", enable);
             return;
@@ -183,7 +183,7 @@ public class EsPlugin {
             @Override
             public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
                 if (response.hasFailures()) {
-                    log.error("afterBulk request:{},response:{}", gson.toJson(request.requests().getFirst()), response.buildFailureMessage());
+                    log.error("afterBulk request:{},response:{}", request.requests().getFirst().toString(), response.buildFailureMessage());
                     AtomicInteger count = new AtomicInteger();
                     response.spliterator().forEachRemaining(x -> {
                         if (x.isFailed()) {
@@ -198,11 +198,11 @@ public class EsPlugin {
                                     , x.getVersion()
                                     , failure.getCause().getMessage()
                             );
-                            log.error("Bulk executionId:[{}] has error messages:{}", executionId, msg);
+                            log.error("esInfo:{},Bulk executionId:[{}] has error messages:{}", GSON.toJson(esInfo), executionId, msg);
                             count.incrementAndGet();
                         }
                     });
-                    log.debug("Finished handling bulk commit executionId:[{}] for {} requests with {} errors", executionId, request.numberOfActions(), count.intValue());
+                    log.debug("Finished handling bulk commit executionId:[{}] for {} requests with {} errors,esInfo:{}", executionId, request.numberOfActions(), count.intValue(), GSON.toJson(esInfo));
 //                    sendMessageToTopic(request, esInfo, onFailedConsumer);
                 } else {
                     log.debug("success send to es,desc:{}", request.getDescription());

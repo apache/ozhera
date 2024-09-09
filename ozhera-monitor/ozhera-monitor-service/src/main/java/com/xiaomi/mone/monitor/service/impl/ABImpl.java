@@ -30,7 +30,6 @@ import java.util.Map;
 public class ABImpl implements AB {
     @Override
     public void testA() {
-        //TODO
         log.info("=================Dubbo 服务 AB被调用=================");
     }
 

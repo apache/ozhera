@@ -13,10 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.xiaomi.hera.trace.etl.es.config;
 
 import com.xiaomi.hera.trace.etl.mapper.HeraTraceEtlConfigMapper;
 import com.xiaomi.hera.trace.etl.service.ManagerService;
+import com.xiaomi.hera.trace.etl.service.impl.ManagerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,14 +30,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ServiceConfiguration {
-
+    
     @Autowired
     private HeraTraceEtlConfigMapper heraTraceEtlConfigMapper;
-
-
+    
+    
     @Bean
-    public ManagerService managerService(){
-        return new ManagerService(heraTraceEtlConfigMapper);
+    public ManagerService managerService() {
+        return new ManagerServiceImpl(heraTraceEtlConfigMapper);
     }
-
+    
 }

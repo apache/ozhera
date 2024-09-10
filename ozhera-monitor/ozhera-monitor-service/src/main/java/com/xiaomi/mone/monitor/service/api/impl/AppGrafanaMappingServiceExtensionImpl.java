@@ -13,26 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.xiaomi.mone.monitor.service;
+package com.xiaomi.mone.monitor.service.api.impl;
 
-import com.xiaomi.mone.monitor.service.api.IAMService;
-import com.xiaomi.mone.tpc.common.param.NodeQryParam;
-import com.xiaomi.mone.tpc.common.vo.NodeVo;
+import com.xiaomi.mone.monitor.dao.model.GrafanaTemplate;
+import com.xiaomi.mone.monitor.service.api.AppGrafanaMappingServiceExtension;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @Description
  * @Author dingtao
- * @Date 2023/4/20 6:44 PM
+ * @Date 2023/4/21 11:32 AM
  */
 @Service
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
-public class IAMServiceImpl implements IAMService {
+public class AppGrafanaMappingServiceExtensionImpl implements AppGrafanaMappingServiceExtension {
     @Override
-    public List<NodeVo> list(NodeQryParam nodeQryParam) {
-        return null;
+    public void setPlatFormByLanguage(GrafanaTemplate template, String appLanguage) {
+
+    }
+
+    @Override
+    public void dealRequestGrafanaTemplateCode(Integer code, String bindId, String appName) {
+
     }
 }

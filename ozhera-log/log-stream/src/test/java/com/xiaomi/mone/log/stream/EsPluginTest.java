@@ -33,7 +33,7 @@ public class EsPluginTest {
 
     @Before
     public void init() {
-        getConfigFromNacos();
+//        getConfigFromNacos();
         Ioc.ins().init("com.xiaomi.mone.log.stream", "com.xiaomi.youpin.docean");
     }
 

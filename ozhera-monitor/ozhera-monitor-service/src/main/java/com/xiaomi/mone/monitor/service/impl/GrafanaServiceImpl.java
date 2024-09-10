@@ -13,41 +13,97 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package com.xiaomi.mone.monitor.service.impl;
 
-import com.google.gson.Gson;
-import com.xiaomi.mone.monitor.service.AppGrafanaMappingService;
-import com.xiaomi.mone.monitor.service.GrafanaApiService;
+import com.google.gson.JsonArray;
+import com.xiaomi.mone.monitor.dao.model.GrafanaTemplate;
+import com.xiaomi.mone.monitor.service.GrafanaService;
+import com.xiaomi.mone.monitor.service.api.GrafanaServiceExtension;
+import com.xiaomi.mone.monitor.service.model.MutiGrafanaResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * @author gaoxihui
- * @date 2021/7/10 5:23 PM
+ * @author zhangxiaowei6
  */
 @Slf4j
-@Service(registry = "registryConfig",interfaceClass = GrafanaApiService.class, retries = 0,group = "${dubbo.group}")
-public class GrafanaServiceImpl implements GrafanaApiService {
-
+@Service
+public class GrafanaServiceImpl implements GrafanaService {
+    
     @Autowired
-    AppGrafanaMappingService appGrafanaMappingService;
-
+    GrafanaServiceExtension grafanaServiceExtension;
+    
     @Override
-    public String getUrlByAppName(String appName) {
-        log.info("Dubbo.GrafanaServiceImpl.getUrlByAppName param appName : {}" ,appName);
-
-        String result = new Gson().toJson(appGrafanaMappingService.getGrafanaUrlByAppName(appName));
-        log.info("Dubbo.GrafanaServiceImpl.getUrlByAppName param appName : {} ,return result : {}" ,appName,result);
-        return result;
+    public void setFolderData(String area) {
+        grafanaServiceExtension.setFolderData(area);
     }
-
+    
     @Override
-    public String createGrafanaUrlByAppName(String appName,String area) {
-        log.info("Dubbo.GrafanaServiceImpl.createGrafanaUrlByAppName param appName : {}" ,appName);
-
-        String result = appGrafanaMappingService.createGrafanaUrlByAppName(appName,area);
-        log.info("Dubbo.GrafanaServiceImpl.createGrafanaUrlByAppName param appName : {} ,return result : {}" ,appName,result);
-        return result;
+    public void setContainerAndHostUrl(String area) {
+        grafanaServiceExtension.setContainerAndHostUrl(area);
+    }
+    
+    @Override
+    public String requestGrafana(String serverType, String appName, String area) {
+        return grafanaServiceExtension.requestGrafana(serverType, appName, area);
+    }
+    
+    @Override
+    public MutiGrafanaResponse requestGrafanaTemplate(String group, String title, String area, GrafanaTemplate template,
+            List<String> funcList) {
+        return grafanaServiceExtension.requestGrafanaTemplate(group, title, area, template, funcList);
+    }
+    
+    @Override
+    public Map<String, String> beforeRequestGrafana(String area, String title) {
+        return grafanaServiceExtension.beforeRequestGrafana(area, title);
+    }
+    
+    @Override
+    public String innerRequestGrafanaStr(String area, String title, String containerName, String group,
+            GrafanaTemplate template, String application) {
+        return grafanaServiceExtension.innerRequestGrafanaStr(area, title, containerName, group, template, application);
+    }
+    
+    //Get grafana template variables
+    @Override
+    public Map<String, Object> getTemplateVariables(String folderId, String group, String title, String folderUid,
+            String grafanaUrl, String containerName, String area, String application) {
+        return grafanaServiceExtension.getTemplateVariables(folderId, group, title, folderUid, grafanaUrl,
+                containerName, area, application);
+    }
+    
+    //Replace the base panel and keep the user-defined panel
+    @Override
+    public String getFinalData(String data, String url, String apiKey, String method, String title,
+            String panelIdList) {
+        return grafanaServiceExtension.getFinalData(data, url, apiKey, method, title, panelIdList, false, null);
+    }
+    
+    @Override
+    public String innerRequestGrafana(String data, String url, String apiKey, String method) {
+        return grafanaServiceExtension.innerRequestGrafana(data, url, apiKey, method);
+    }
+    
+    @Override
+    public void getCustomPanels(String grafanaStr, JsonArray basicPanels, int basicDiyPanelGirdPosY, String title,
+            String panelIdList) {
+        grafanaServiceExtension.getCustomPanels(grafanaStr, basicPanels, basicDiyPanelGirdPosY, title, panelIdList);
+    }
+    
+    //Determine whether the request result of generating/updating the grafana graph is json in the specific format of grafana
+    @Override
+    public String isGrafanaDataJson(String jobJson) {
+        return grafanaServiceExtension.isGrafanaDataJson(jobJson);
+    }
+    
+    @Override
+    public String getDashboardLastVersion(String dashboardId) {
+        return grafanaServiceExtension.getDashboardLastVersion(dashboardId);
     }
 }

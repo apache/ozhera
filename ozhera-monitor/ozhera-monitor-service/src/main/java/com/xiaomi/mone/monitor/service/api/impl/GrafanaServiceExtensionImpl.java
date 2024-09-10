@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.xiaomi.mone.monitor.service.impl;
+package com.xiaomi.mone.monitor.service.api.impl;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;

@@ -13,6 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package com.xiaomi.mone.log.server.service;
 
 import com.xiaomi.mone.log.api.model.meta.LogCollectMeta;
@@ -29,11 +30,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Slf4j
-public class DefaultAgentConfigAcquirer implements AgentConfigAcquirer {
-
+public class DefaultAgentConfigAcquirer implements AgentConfigService {
+    
     @Reference(interfaceClass = AgentConfigService.class, group = "$dubbo.group", check = false, timeout = 10000)
     private AgentConfigService agentConfigService;
-
+    
     @Override
     public LogCollectMeta getLogCollectMetaFromManager(String ip) {
         LogCollectMeta logCollectMeta = new LogCollectMeta();

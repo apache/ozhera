@@ -17,6 +17,7 @@ package com.xiaomi.hera.trace.etl.config;
 
 import com.xiaomi.hera.trace.etl.mapper.HeraTraceEtlConfigMapper;
 import com.xiaomi.hera.trace.etl.service.ManagerService;
+import com.xiaomi.hera.trace.etl.service.impl.ManagerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +35,7 @@ public class ServiceConfiguration {
 
     @Bean
     public ManagerService managerService(){
-        return new ManagerService(heraTraceEtlConfigMapper);
+        return new ManagerServiceImpl(heraTraceEtlConfigMapper);
     }
 
 

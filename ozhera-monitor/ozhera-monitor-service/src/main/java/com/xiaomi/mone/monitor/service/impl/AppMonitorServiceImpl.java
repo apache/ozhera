@@ -18,10 +18,10 @@ package com.xiaomi.mone.monitor.service.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.xiaomi.mone.app.api.message.HeraAppInfoModifyMessage;
-import com.xiaomi.mone.app.api.message.HeraAppModifyType;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
-import com.xiaomi.mone.app.api.service.HeraAppService;
+import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
+import org.apache.ozhera.app.api.message.HeraAppModifyType;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.service.HeraAppService;
 import com.xiaomi.mone.monitor.bo.AlarmStrategyInfo;
 import com.xiaomi.mone.monitor.bo.AppViewType;
 import com.xiaomi.mone.monitor.bo.RuleStatusType;

@@ -16,14 +16,14 @@
 package com.xiaomi.mone.monitor.service.project.group;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
-import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupAppRequest;
-import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupDataRequest;
-import com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupModel;
-import com.xiaomi.mone.app.api.model.project.group.ProjectGroupTreeNode;
-import com.xiaomi.mone.app.api.service.HeraAuthorizationApi;
-import com.xiaomi.mone.app.api.service.HeraProjectGroupServiceApi;
-import com.xiaomi.mone.app.common.Result;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.project.group.HeraProjectGroupAppRequest;
+import org.apache.ozhera.app.api.model.project.group.HeraProjectGroupDataRequest;
+import org.apache.ozhera.app.api.model.project.group.HeraProjectGroupModel;
+import org.apache.ozhera.app.api.model.project.group.ProjectGroupTreeNode;
+import org.apache.ozhera.app.api.service.HeraAuthorizationApi;
+import org.apache.ozhera.app.api.service.HeraProjectGroupServiceApi;
+import org.apache.ozhera.app.common.Result;
 import com.xiaomi.mone.monitor.dao.model.AppMonitor;
 import com.xiaomi.mone.monitor.service.AppMonitorService;
 import com.xiaomi.mone.monitor.service.HeraBaseInfoService;

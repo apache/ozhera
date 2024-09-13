@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiaomi.mone.app.dao.mapper.HeraAppBaseInfoMapper">
-    <resultMap id="BaseResultMap" type="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+<mapper namespace="org.apache.ozhera.app.dao.mapper.HeraAppBaseInfoMapper">
+    <resultMap id="BaseResultMap" type="org.apache.ozhera.app.model.HeraAppBaseInfo">
         <id column="id" jdbcType="INTEGER" property="id" />
         <result column="bind_id" jdbcType="VARCHAR" property="bindId" />
         <result column="bind_type" jdbcType="INTEGER" property="bindType" />
@@ -17,7 +17,7 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     </resultMap>
-    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.apache.ozhera.app.model.HeraAppBaseInfo">
         <result column="envs_map" jdbcType="LONGVARCHAR" property="envsMap" />
     </resultMap>
     <sql id="Example_Where_Clause">
@@ -85,7 +85,7 @@
     <sql id="Blob_Column_List">
         envs_map
     </sql>
-    <select id="selectByExampleWithBLOBs" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfoExample" resultMap="ResultMapWithBLOBs">
+    <select id="selectByExampleWithBLOBs" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfoExample" resultMap="ResultMapWithBLOBs">
         select
         <if test="distinct">
             distinct
@@ -105,7 +105,7 @@
         </if>
     </select>
 
-    <resultMap id="HeraAppBaseInfoParticipantResult" type="com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant">
+    <resultMap id="HeraAppBaseInfoParticipantResult" type="org.apache.ozhera.app.api.model.HeraAppBaseInfoParticipant">
         <id column="id" jdbcType="INTEGER" property="id" />
         <result column="bind_id" jdbcType="VARCHAR" property="appId" />
         <result column="bind_type" jdbcType="INTEGER" property="bindType" />
@@ -121,12 +121,12 @@
         <result column="participant" jdbcType="INTEGER" property="participant" />
     </resultMap>
 
-    <!--<resultMap extends="BaseResultMap" id="HeraAppBaseInfoParticipantResult" type="com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant">
+    <!--<resultMap extends="BaseResultMap" id="HeraAppBaseInfoParticipantResult" type="model.org.apache.ozhera.app.api.HeraAppBaseInfoParticipant">
       <result column="envs_map" jdbcType="LONGVARCHAR" property="envsMap" />
       <result column="participant" jdbcType="INTEGER" property="participant" />
     </resultMap>-->
 
-    <select id="countByParticipant" parameterType="com.xiaomi.mone.app.api.model.HeraAppBaseQuery" resultType="java.lang.Long">
+    <select id="countByParticipant" parameterType="org.apache.ozhera.app.api.model.HeraAppBaseQuery" resultType="java.lang.Long">
         select count(1)  from hera_app_base_info app
         <if test="myParticipant != null">
             INNER JOIN
@@ -157,7 +157,7 @@
 
     </select>
 
-    <select id="selectByParticipant" parameterType="com.xiaomi.mone.app.api.model.HeraAppBaseQuery" resultMap="HeraAppBaseInfoParticipantResult">
+    <select id="selectByParticipant" parameterType="org.apache.ozhera.app.api.model.HeraAppBaseQuery" resultMap="HeraAppBaseInfoParticipantResult">
         select
         app.id,
         app.bind_id,
@@ -203,7 +203,7 @@
             limit #{offset} , #{limit}
         </if>
     </select>
-    <select id="selectByExample" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfoExample" resultMap="BaseResultMap">
+    <select id="selectByExample" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfoExample" resultMap="BaseResultMap">
         select
         <if test="distinct">
             distinct
@@ -232,13 +232,13 @@
         delete from hera_app_base_info
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <delete id="deleteByExample" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfoExample">
+    <delete id="deleteByExample" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfoExample">
         delete from hera_app_base_info
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
     </delete>
-    <insert id="insert" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <insert id="insert" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfo">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -253,7 +253,7 @@
         #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
         #{envsMap,jdbcType=LONGVARCHAR})
     </insert>
-    <insert id="insertSelective" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <insert id="insertSelective" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfo">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -347,7 +347,7 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfoExample" resultType="java.lang.Long">
+    <select id="countByExample" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfoExample" resultType="java.lang.Long">
         select count(*) from hera_app_base_info
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
@@ -447,7 +447,7 @@
             <include refid="Update_By_Example_Where_Clause" />
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <update id="updateByPrimaryKeySelective" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfo">
         update hera_app_base_info
         <set>
             <if test="bindId != null">
@@ -495,7 +495,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfo">
         update hera_app_base_info
         set bind_id = #{bindId,jdbcType=VARCHAR},
             bind_type = #{bindType,jdbcType=INTEGER},
@@ -513,7 +513,7 @@
             envs_map = #{envsMap,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.xiaomi.mone.app.model.HeraAppBaseInfo">
+    <update id="updateByPrimaryKey" parameterType="org.apache.ozhera.app.model.HeraAppBaseInfo">
         update hera_app_base_info
         set bind_id = #{bindId,jdbcType=VARCHAR},
             bind_type = #{bindType,jdbcType=INTEGER},
@@ -600,7 +600,7 @@
         </foreach>
     </insert>
 
-    <resultMap id="queryAppResultMap" type="com.xiaomi.mone.app.api.response.AppBaseInfo">
+    <resultMap id="queryAppResultMap" type="org.apache.ozhera.app.api.response.AppBaseInfo">
         <id column="id" jdbcType="INTEGER" property="id" />
         <result column="bindId" jdbcType="VARCHAR" property="bindId" />
         <result column="bindType" jdbcType="INTEGER" property="bindType" />

@@ -15,9 +15,9 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
-import com.xiaomi.mone.app.api.model.HeraAppEnvData;
-import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
-import com.xiaomi.mone.app.api.service.HeraAppEnvOutwardService;
+import org.apache.ozhera.app.api.model.HeraAppEnvData;
+import org.apache.ozhera.app.api.model.HeraSimpleEnv;
+import org.apache.ozhera.app.api.service.HeraAppEnvOutwardService;
 import com.xiaomi.mone.log.manager.service.HeraAppEnvService;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;

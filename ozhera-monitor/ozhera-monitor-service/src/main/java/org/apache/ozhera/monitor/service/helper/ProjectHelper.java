@@ -15,8 +15,8 @@
  */
 package org.apache.ozhera.monitor.service.helper;
 
-import com.xiaomi.mone.log.api.model.dto.MontorAppDTO;
-import com.xiaomi.mone.log.api.service.MilogOpenService;
+import org.apache.ozhera.log.api.model.dto.MontorAppDTO;
+import org.apache.ozhera.log.api.service.MilogOpenService;
 import org.apache.ozhera.monitor.bo.PlatForm;
 import org.apache.ozhera.monitor.dao.AppMonitorDao;
 import org.apache.ozhera.monitor.dao.model.AppMonitor;

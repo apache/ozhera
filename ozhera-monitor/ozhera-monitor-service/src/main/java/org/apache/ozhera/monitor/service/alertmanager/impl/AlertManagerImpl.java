@@ -31,8 +31,8 @@ import com.xiaomi.mone.tpc.common.vo.PageDataVo;
 import com.xiaomi.mone.tpc.common.vo.UserVo;
 import com.xiaomi.mone.tpc.login.util.UserUtil;
 import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
-import com.xiaomi.youpin.prometheus.agent.api.service.PrometheusAlertService;
-import com.xiaomi.youpin.prometheus.agent.param.alert.RuleAlertParam;
+import org.apache.ozhera.prometheus.agent.api.service.PrometheusAlertService;
+import org.apache.ozhera.prometheus.agent.param.alert.RuleAlertParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -66,7 +66,7 @@ public class AlertManagerImpl implements AlertManager {
         Result result = null;
         try {
             RuleAlertParam ruleAlertParam = new Gson().fromJson(new Gson().toJson(param), RuleAlertParam.class);
-            com.xiaomi.youpin.prometheus.agent.result.Result ruleAlert = prometheusAlertService.createRuleAlert(ruleAlertParam);
+            org.apache.ozhera.prometheus.agent.result.Result ruleAlert = prometheusAlertService.createRuleAlert(ruleAlertParam);
             result = new Gson().fromJson(new Gson().toJson(ruleAlert), Result.class);
 
             log.info("open alert add, request : {} ,result:{}",new Gson().toJson(ruleAlertParam),new Gson().toJson(ruleAlert));
@@ -84,7 +84,7 @@ public class AlertManagerImpl implements AlertManager {
         log.info("open alert update api param :{}",param.toString());
         try {
             RuleAlertParam ruleAlertParam = new Gson().fromJson(new Gson().toJson(param), RuleAlertParam.class);
-            com.xiaomi.youpin.prometheus.agent.result.Result ruleAlert = prometheusAlertService.UpdateRuleAlert(String.valueOf(alertId),ruleAlertParam);
+            org.apache.ozhera.prometheus.agent.result.Result ruleAlert = prometheusAlertService.UpdateRuleAlert(String.valueOf(alertId),ruleAlertParam);
             result = new Gson().fromJson(new Gson().toJson(ruleAlert), Result.class);
 
             log.info("open alert update request,alertId:{}, param : {} ,result:{}",alertId,new Gson().toJson(ruleAlertParam),new Gson().toJson(ruleAlert));
@@ -100,7 +100,7 @@ public class AlertManagerImpl implements AlertManager {
 
         Result result = null;
         try {
-            com.xiaomi.youpin.prometheus.agent.result.Result ruleAlert = prometheusAlertService.DeleteRuleAlert(String.valueOf(alertId));
+            org.apache.ozhera.prometheus.agent.result.Result ruleAlert = prometheusAlertService.DeleteRuleAlert(String.valueOf(alertId));
             result = new Gson().fromJson(new Gson().toJson(ruleAlert), Result.class);
 
             log.info("open alert delete request,alertId:{}, result:{}",alertId,new Gson().toJson(ruleAlert));
@@ -116,7 +116,7 @@ public class AlertManagerImpl implements AlertManager {
 
         Result result = null;
         try {
-            com.xiaomi.youpin.prometheus.agent.result.Result ruleAlert = prometheusAlertService.EnabledRuleAlert(String.valueOf(alertId),String.valueOf(pauseStatus));
+            org.apache.ozhera.prometheus.agent.result.Result ruleAlert = prometheusAlertService.EnabledRuleAlert(String.valueOf(alertId),String.valueOf(pauseStatus));
             result = new Gson().fromJson(new Gson().toJson(ruleAlert), Result.class);
 
             log.info("open alert enableRule request,alertId:{}, pauseStatus:{},result:{}",alertId,pauseStatus,new Gson().toJson(ruleAlert));

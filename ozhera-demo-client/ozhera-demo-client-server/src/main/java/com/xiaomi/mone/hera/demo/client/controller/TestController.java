@@ -19,7 +19,7 @@ import com.xiaomi.hera.trace.annotation.Trace;
 import com.xiaomi.mone.hera.demo.client.api.service.DubboHealthService;
 import com.xiaomi.mone.hera.demo.client.grpc.GrpcClientService;
 import com.xiaomi.mone.hera.demo.client.util.HttpClientUtil;
-import com.xiaomi.youpin.prometheus.all.client.Metrics;
+import org.apache.ozhera.prometheus.all.client.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;

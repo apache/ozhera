@@ -41,7 +41,7 @@ https://github.com/XiaoMi/ozhera/tree/master/prometheus-starter-all
     只要是在进行打点前完成初始化PrometheusConfigure.init()方法的调用即可。
     
     ```java
-    import com.xiaomi.mione.prometheus.starter.all.config.PrometheusConfigure;
+    import config.org.apache.ozhera.prometheus.starter.all.PrometheusConfigure;
     
     PrometheusConfigure.init(nacosAddr, serverType);
     ```
@@ -71,7 +71,7 @@ Counter：只增不减的计数器，我们可以在应用程序中记录某些�
 #### 2）代码示例
 
 ```java
-import com.xiaomi.youpin.prometheus.all.client.Metrics;
+import org.apache.ozhera.prometheus.all.client.Metrics;
 
 Metrics.getInstance().newCounter("testCounter","methodName","url").with("ok","/test/ok").add(1, "ok","/test/ok");
 ```

@@ -41,7 +41,7 @@ After a successful compilation, push the pom to the company's Maven repository, 
    Just ensure that the initialization of the `PrometheusConfigure.init()` method is called before any monitoring points.
 
    ```java
-   import com.xiaomi.mione.prometheus.starter.all.config.PrometheusConfigure;
+   import config.org.apache.ozhera.prometheus.starter.all.PrometheusConfigure;
 
    PrometheusConfigure.init(nacosAddr, serverType);
     ```
@@ -70,7 +70,7 @@ Counter: An always-increasing counter. We can use it to record the frequency of 
 #### 2) Code Example
 
 ```java
-import com.xiaomi.youpin.prometheus.all.client.Metrics;
+import org.apache.ozhera.prometheus.all.client.Metrics;
 
 Metrics.getInstance().newCounter("testCounter","methodName","url").with("ok","/test/ok").add(1, "ok","/test/ok");
 ```

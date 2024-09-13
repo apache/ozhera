@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.xiaomi.mone.monitor.service;
+package com.xiaomi.mone.monitor.service.api.impl;
 
 import com.xiaomi.mone.monitor.bo.MetricLabelKind;
 import com.xiaomi.mone.monitor.service.api.MetricsLabelKindService;

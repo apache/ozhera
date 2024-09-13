@@ -13,40 +13,34 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.xiaomi.mone.monitor.service;
+package com.xiaomi.mone.monitor.service.api.impl;
 
 import com.xiaomi.mone.monitor.result.Result;
-import com.xiaomi.mone.monitor.service.api.TeslaService;
-import com.xiaomi.mone.monitor.service.model.prometheus.AlarmRuleData;
+import com.xiaomi.mone.monitor.service.api.AppAlarmServiceExtension;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
  * @Description
  * @Author dingtao
- * @Date 2023/4/20 5:07 PM
+ * @Date 2023/4/21 2:53 PM
  */
 @Service
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")
-public class TeslaServiceImpl implements TeslaService {
+public class AppAlarmServiceExtensionImpl implements AppAlarmServiceExtension {
     @Override
-    public String getTeslaTimeCost4P99(AlarmRuleData rule) {
+    public Result queryFunctionList(Integer projectId) {
         return null;
     }
 
     @Override
-    public String getTeslaAvailability(AlarmRuleData rule) {
+    public Result queryRulesByIamId(Integer iamId, String userName) {
         return null;
     }
 
     @Override
-    public void checkTeslaMetrics(StringBuilder title, String alert) {
-
+    public Integer getAlarmIdByResult(Result result) {
+        Double alarmId = (Double) result.getData();
+        return alarmId == null ? null : alarmId.intValue();
     }
-
-    @Override
-    public Result getTeslaAlarmHealthByUser(String user) {
-        return null;
-    }
-
 }

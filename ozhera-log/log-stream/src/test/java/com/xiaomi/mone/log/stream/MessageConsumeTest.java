@@ -28,8 +28,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.xiaomi.mone.log.stream.common.util.StreamUtils.getConfigFromNacos;
-
 /**
  * @author wtt
  * @version 1.0
@@ -41,7 +39,7 @@ public class MessageConsumeTest {
 
     @Before
     public void init() {
-        getConfigFromNacos();
+//        getConfigFromNacos();
         Ioc.ins().init("com.xiaomi.mone.log.stream", "com.xiaomi.youpin.docean");
     }
 
@@ -89,7 +87,7 @@ public class MessageConsumeTest {
 
         JobManager jobManager = new JobManager();
         SinkConfig sinkConfig = new SinkConfig();
-        jobManager.startJob(logtailConfig, sinkConfig, sinkJobConfig.getLogSpaceId());
-        System.in.read();
+//        jobManager.startJob(logtailConfig, sinkConfig, sinkJobConfig.getLogSpaceId());
+//        System.in.read();
     }
 }

@@ -39,7 +39,7 @@ OzHera is an Application Observable Platform in the Cloud Native Era. open-sourc
 
 ### Official Website
 
-Welcome to visit the [official website](https://ozhera.m.one.mi.com/) of OzHera.
+Welcome to visit the [official website](https://ozhera.apache.org/) of OzHera.
 
 ---
 
@@ -62,10 +62,10 @@ Welcome to visit the [official website](https://ozhera.m.one.mi.com/) of OzHera.
 Contributors are welcomed to join ozhera project. Please check [contributing.md](readme%2Fcontributing%2Fcontributing.md) about how to contribute to this project.
 
 How can I contribute?
-- Take a look at issues with tags marked [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted).
-- Answer questions on [issues](https://github.com/XiaoMi/ozhera/issues).
-- Fix bugs reported on [issues](https://github.com/XiaoMi/ozhera/issues), and send us a pull request.
-- Review the existing [pull request](https://github.com/XiaoMi/ozhera/pulls).
+- Take a look at issues with tags marked [good first issue](https://github.com/apache/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/apache/ozhera/labels/help%20wanted).
+- Answer questions on [issues](https://github.com/apache/ozhera/issues).
+- Fix bugs reported on [issues](https://github.com/apache/ozhera/issues), and send us a pull request.
+- Review the existing [pull request](https://github.com/apache/ozhera/pulls).
 
 ---
 
@@ -74,13 +74,13 @@ How can I contribute?
 We warmly welcome your valuable opinions and suggestions about the project. Whether you have technical questions, feature requests, or wish to join our development team, please feel free to contact us through the following methods:
 
 #### Email Contact
-- **Email Address**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **Email Address**: [dev@ozhera.apache.org](mailto:dev@ozhera.apache.org)
 - **Response Time**: We will respond to your email within 24 hours of receipt.
 
 #### Community Engagement
 - We also welcome you to join our community for discussions and exchanges:
     - Welcome to visit the [community website](https://m.one.mi.com/index) of OzHera, where we will publish OzHera's technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
-    - [GitHub Discussions](https://github.com/your/project/discussions)
+    - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---
 

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.log.manager.service;
+package com.xiaomi.mone.log.manager.service.impl;
 
 import cn.hutool.core.util.NumberUtil;
 import com.google.common.collect.Lists;
@@ -28,6 +28,7 @@ import com.xiaomi.mone.log.manager.model.StatisticsQuery;
 import com.xiaomi.mone.log.manager.model.dto.EsStatisticsKeyWord;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;
 import com.xiaomi.mone.log.manager.model.vo.LogQuery;
+import com.xiaomi.mone.log.manager.service.StatisticsService;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.es.EsService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ import static com.xiaomi.mone.log.manager.common.utils.ManagerUtil.getKeyColonPr
 
 @Service
 @Slf4j
-public class StatisticsServiceImpl {
+public class StatisticsServiceImpl implements StatisticsService {
 
 
     @Resource
@@ -79,6 +80,7 @@ public class StatisticsServiceImpl {
     /**
      * Hourly data volume statistics for a single tail
      */
+    @Override
     public Result<Map<String, Long>> queryTailStatisticsByHour(StatisticsQuery statisticsQuery) throws IOException {
 
         Map<String, Long> result = new LinkedHashMap<>();
@@ -123,6 +125,7 @@ public class StatisticsServiceImpl {
     /**
      * Top 5 in the data volume of all tails in a single store on the day
      */
+    @Override
     public Result<Map<String, Long>> queryStoreTopTailStatisticsByDay(StatisticsQuery statisticsQuery) throws IOException {
 
         if (statisticsQuery.getStartTime() == null || statisticsQuery.getStartTime() == 0) {
@@ -161,6 +164,7 @@ public class StatisticsServiceImpl {
     /**
      * Top 5 in the volume of data of all stores in a single space
      */
+    @Override
     public Result<Map<String, Long>> querySpaceTopStoreByDay(StatisticsQuery statisticsQuery) throws IOException {
 
         Map<String, Long> result = new LinkedHashMap<>();
@@ -196,7 +200,8 @@ public class StatisticsServiceImpl {
         }
         return Result.success(result);
     }
-
+    
+    @Override
     public Result<List<EsStatisticsKeyWord>> queryEsStatisticsRation(LogQuery logQuery) {
         List<EsStatisticsKeyWord> results = Lists.newArrayList();
         if (null == logQuery.getStoreId()) {

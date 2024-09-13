@@ -16,11 +16,11 @@
 package com.xiaomi.mone.log.manager.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.PageDto;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.log.api.enums.*;
 import com.xiaomi.mone.log.api.model.bo.MiLogResource;
@@ -71,7 +71,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.xiaomi.mone.log.common.Constant.*;
-import static com.xiaomi.mone.log.manager.common.ManagerConstant.*;
+import static com.xiaomi.mone.log.manager.common.ManagerConstant.RESOURCE_NOT_INITIALIZED_MESSAGE;
 
 /**
  * @author wtt
@@ -220,7 +220,6 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
         Long esResourceTotal = queryStorageResource(pageList, resourcePage);
 
-        pageList = resourceExtensionService.userShowAuthority(pageList);
         List<ResourceInfo> resourceInfos = pageList.stream().map(MilogMiddlewareConfig::configToResourceVO).collect(Collectors.toList());
 
         return new PageInfo(resourcePage.getPage(), resourcePage.getPageSize(), mqResourceTotal + esResourceTotal.intValue(), resourceInfos);
@@ -249,14 +248,14 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
     private Long queryStorageResource(List<MilogMiddlewareConfig> milogMiddlewareConfigs, ResourcePage resourcePage) {
         Integer count = 0;
         if (Objects.equals(ResourceEnum.STORAGE.getCode(), resourcePage.getResourceCode())) {
-            PageDto page = new PageDto<MilogEsClusterDO>(resourcePage.getPage(), resourcePage.getPageSize());
-            Wrapper queryWrapper = generateEsQueryWrapper(resourcePage);
 
-            PageDto<MilogEsClusterDO> esClusterPage = milogEsClusterMapper.selectPage(page, queryWrapper);
-            List<MilogMiddlewareConfig> configEsList = esClusterPage.getRecords().stream().map(MilogEsClusterDO::miLogEsResourceToConfig).toList();
-            milogMiddlewareConfigs.addAll(configEsList);
+            List<MilogEsClusterDO> clusterDOList = milogEsClusterMapper.selectList(generateEsQueryWrapper(resourcePage));
+            List<MilogMiddlewareConfig> configEsList = clusterDOList.stream().map(MilogEsClusterDO::miLogEsResourceToConfig).toList();
+            configEsList = resourceExtensionService.userShowAuthority(configEsList);
+            List<MilogMiddlewareConfig> pageList = CollectionUtil.page(resourcePage.getPage() - 1, resourcePage.getPageSize(), configEsList);
+            milogMiddlewareConfigs.addAll(pageList);
 
-            count = milogEsClusterMapper.selectCount(queryWrapper);
+            count = configEsList.size();
         }
         return count.longValue();
     }
@@ -311,10 +310,10 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (index == -1) {
             serviceUrl = String.format("%s:%s", serviceUrl, "80");
         } else {
-          String portStr = serviceUrl.substring(index + 1);
-          if (StringUtils.isBlank(portStr)) {
-              serviceUrl = String.format("%s%s", serviceUrl, "80");
-          }
+            String portStr = serviceUrl.substring(index + 1);
+            if (StringUtils.isBlank(portStr)) {
+                serviceUrl = String.format("%s%s", serviceUrl, "80");
+            }
         }
         miLogResource.setServiceUrl(serviceUrl);
     }
@@ -346,9 +345,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (CollectionUtils.isEmpty(milogMiddlewareConfigs)) {
             milogMiddlewareConfigs = milogMiddlewareConfigDao.queryAll();
         }
-        milogMiddlewareConfigs.forEach(milogMiddlewareConfig -> {
-            updateMqResourceLabel(milogMiddlewareConfig);
-        });
+        milogMiddlewareConfigs.forEach(this::updateMqResourceLabel);
     }
 
     private void synchronousEsResourceLabel(Long id) {
@@ -357,11 +354,9 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
             esClusterDOS.add(milogEsClusterMapper.selectById(id));
         }
         if (CollectionUtils.isEmpty(esClusterDOS)) {
-            esClusterDOS = milogEsClusterMapper.selectAll();
+            esClusterDOS = milogEsClusterMapper.selectList(new QueryWrapper<>());
         }
-        esClusterDOS.forEach(clusterDO -> {
-            updateEsResourceLabel(clusterDO);
-        });
+        esClusterDOS.forEach(this::updateEsResourceLabel);
     }
 
     /**
@@ -524,7 +519,7 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (Constant.DEFAULT_OPERATOR.equals(milogMiddlewareConfig.getUpdater())) {
             return;
         }
-        List<String> newLabels = generateResourceLabels(milogMiddlewareConfig.getUpdater(), labels);
+        List<String> newLabels = mergeUserAndResourceLabels(milogMiddlewareConfig.getCreator(), milogMiddlewareConfig.getUpdater(), labels);
         milogMiddlewareConfig.setLabels(newLabels);
         milogMiddlewareConfigDao.updateMiddlewareConfig(milogMiddlewareConfig);
     }
@@ -534,18 +529,18 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
         if (StringUtils.isBlank(clusterDO.getUpdater()) && StringUtils.isBlank(clusterDO.getCreator())) {
             return;
         }
-        List<String> newLabels = generateResourceLabels(StringUtils.isBlank(clusterDO.getUpdater()) ? clusterDO.getCreator() : clusterDO.getUpdater(), labels);
+        List<String> newLabels = mergeUserAndResourceLabels(clusterDO.getCreator(), StringUtils.isBlank(clusterDO.getUpdater()) ? clusterDO.getCreator() : clusterDO.getUpdater(), labels);
         clusterDO.setLabels(newLabels);
         milogEsClusterMapper.updateById(clusterDO);
     }
 
-    private List<String> generateResourceLabels(String updaterUId, List<String> existLabels) {
+    private List<String> mergeUserAndResourceLabels(String creatorUId, String updaterUId, List<String> existLabels) {
         List<String> resourceDeptLabels = resourceExtensionService.generateResourceLabels(updaterUId);
-        if (CollectionUtils.isNotEmpty(existLabels)) {
-            List<String> userLabelList = existLabels.stream().filter(label -> !label.startsWith(DEPT_LEVEL_PREFIX) || !label.contains(DEPT_NAME_PREFIX)).collect(Collectors.toList());
-            resourceDeptLabels.addAll(userLabelList);
+        if (!Objects.equals(creatorUId, updaterUId) &&
+                CollectionUtils.isNotEmpty(existLabels) && !CollUtil.containsAll(existLabels, resourceDeptLabels)) {
+            existLabels.addAll(resourceDeptLabels);
         }
-        return resourceDeptLabels;
+        return existLabels;
     }
 
     /**

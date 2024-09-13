@@ -15,9 +15,9 @@
  */
 package com.xiaomi.mone.monitor.controller;
 
-import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;
-import com.xiaomi.mone.log.api.model.vo.TraceLogQuery;
-import com.xiaomi.mone.log.api.service.LogDataService;
+import org.apache.ozhera.log.api.model.dto.TraceLogDTO;
+import org.apache.ozhera.log.api.model.vo.TraceLogQuery;
+import org.apache.ozhera.log.api.service.LogDataService;
 import com.xiaomi.mone.monitor.controller.model.PromQueryRangeParam;
 import com.xiaomi.mone.monitor.controller.model.TimeUnit;
 import com.xiaomi.mone.monitor.result.ErrorCode;

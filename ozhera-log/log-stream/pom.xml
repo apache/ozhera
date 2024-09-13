@@ -176,7 +176,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
-                            <mainClass>com.xiaomi.mone.log.stream.bootstrap.MiLogStreamBootstrap</mainClass>
+                            <mainClass>org.apache.ozhera.log.stream.bootstrap.MiLogStreamBootstrap</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

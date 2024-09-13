@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiaomi.mone.log.manager.mapper.MilogAnalyseGraphMapper">
+<mapper namespace="org.apache.ozhera.log.manager.mapper.MilogAnalyseGraphMapper">
 
-    <select id="getDashboardGraph" resultType="com.xiaomi.mone.log.manager.model.dto.DashboardGraphDTO">
+    <select id="getDashboardGraph" resultType="org.apache.ozhera.log.manager.model.dto.DashboardGraphDTO">
         SELECT
             ref.private_name graphPrivateName,
             graph.`name` graphName,
@@ -18,7 +18,7 @@
           AND graph.graph_type = type.id
           and ref.dashboard_id = #{dashboardId}
     </select>
-    <select id="search" resultType="com.xiaomi.mone.log.manager.model.dto.GraphDTO">
+    <select id="search" resultType="org.apache.ozhera.log.manager.model.dto.GraphDTO">
         SELECT
             graph.`name` name,
             graph.field_name fieldName,

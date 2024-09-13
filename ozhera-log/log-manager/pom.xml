@@ -313,7 +313,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
-                            <mainClass>com.xiaomi.mone.log.manager.bootstrap.MiLogManagerBootstrap</mainClass>
+                            <mainClass>org.apache.ozhera.log.manager.bootstrap.MiLogManagerBootstrap</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

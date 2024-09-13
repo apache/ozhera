@@ -206,7 +206,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
-                            <mainClass>com.xiaomi.mone.log.agent.bootstrap.MiLogAgentBootstrap</mainClass>
+                            <mainClass>org.apache.ozhera.log.agent.bootstrap.MiLogAgentBootstrap</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

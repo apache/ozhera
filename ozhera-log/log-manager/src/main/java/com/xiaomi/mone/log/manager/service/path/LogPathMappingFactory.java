@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.path;
 
-import com.xiaomi.mone.app.enums.ProjectTypeEnum;
+import org.apache.ozhera.app.enums.ProjectTypeEnum;
 import com.xiaomi.youpin.docean.anno.Service;
 
 import javax.annotation.Resource;

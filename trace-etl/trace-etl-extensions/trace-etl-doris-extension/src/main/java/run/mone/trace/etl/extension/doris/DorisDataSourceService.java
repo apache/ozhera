@@ -23,7 +23,7 @@ import com.xiaomi.hera.trace.etl.domain.tracequery.TraceIdQueryVo;
 import com.xiaomi.hera.trace.etl.domain.tracequery.TraceListQueryVo;
 import com.xiaomi.hera.trace.etl.domain.tracequery.TraceOperationsVo;
 import com.xiaomi.hera.trace.etl.domain.tracequery.TraceQueryResult;
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

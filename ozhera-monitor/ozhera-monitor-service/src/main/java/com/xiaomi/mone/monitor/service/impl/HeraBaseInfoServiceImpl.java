@@ -18,10 +18,10 @@ package com.xiaomi.mone.monitor.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant;
-import com.xiaomi.mone.app.api.model.HeraAppRoleModel;
-import com.xiaomi.mone.app.api.service.HeraAppService;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoParticipant;
+import org.apache.ozhera.app.api.model.HeraAppRoleModel;
+import org.apache.ozhera.app.api.service.HeraAppService;
 import com.xiaomi.mone.monitor.bo.AlertGroupParam;
 import com.xiaomi.mone.monitor.bo.PlatForm;
 import com.xiaomi.mone.monitor.bo.UserInfo;
@@ -397,7 +397,7 @@ public class HeraBaseInfoServiceImpl implements HeraBaseInfoService {
     @Override
     public Result queryByParticipantRemote(HeraAppBaseQuery query) {
         
-        com.xiaomi.mone.app.api.model.HeraAppBaseQuery queryRemote = new com.xiaomi.mone.app.api.model.HeraAppBaseQuery();
+        org.apache.ozhera.app.api.model.HeraAppBaseQuery queryRemote = new org.apache.ozhera.app.api.model.HeraAppBaseQuery();
         BeanUtils.copyProperties(query, queryRemote);
         
         //MyParticipant只有值为yes才查询我参与的应用，传其他值均查询所有

@@ -15,8 +15,8 @@
  */
 package com.xiaomi.hera.trace.etl.util;
 
-import com.xiaomi.hera.tspandata.TAttributeType;
-import com.xiaomi.hera.tspandata.TValue;
+import org.apache.ozhera.tspandata.TAttributeType;
+import org.apache.ozhera.tspandata.TValue;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 

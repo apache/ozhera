@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.extension.tail;
 
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.manager.model.bo.LogTailParam;
 import com.xiaomi.mone.log.manager.model.dto.MilogAppEnvDTO;
 import com.xiaomi.mone.log.manager.model.pojo.MilogLogStoreDO;

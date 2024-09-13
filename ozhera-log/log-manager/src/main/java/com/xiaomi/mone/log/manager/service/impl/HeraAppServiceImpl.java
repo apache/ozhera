@@ -17,10 +17,10 @@ package com.xiaomi.mone.log.manager.service.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant;
-import com.xiaomi.mone.app.api.model.HeraAppBaseQuery;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoParticipant;
+import org.apache.ozhera.app.api.model.HeraAppBaseQuery;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.manager.service.HeraAppService;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
@@ -41,8 +41,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class HeraAppServiceImpl implements HeraAppService {
 
-    @Reference(interfaceClass = com.xiaomi.mone.app.api.service.HeraAppService.class, group = "$dubbo.env.group", check = false, timeout = 5000)
-    private com.xiaomi.mone.app.api.service.HeraAppService heraAppService;
+    @Reference(interfaceClass = org.apache.ozhera.app.api.service.HeraAppService.class, group = "$dubbo.env.group", check = false, timeout = 5000)
+    private org.apache.ozhera.app.api.service.HeraAppService heraAppService;
 
     private static final Cache<Long, AppBaseInfo> CACHE_LOCAL = CacheBuilder.newBuilder()
             .maximumSize(100)

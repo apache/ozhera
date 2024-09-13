@@ -19,7 +19,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.app.api.model.HeraAppEnvData;
+import org.apache.ozhera.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.es.EsClient;
 import com.xiaomi.mone.log.api.enums.LogStorageTypeEnum;
 import com.xiaomi.mone.log.api.model.dto.TraceLogDTO;

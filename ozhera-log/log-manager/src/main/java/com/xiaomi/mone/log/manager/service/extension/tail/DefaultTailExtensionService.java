@@ -16,8 +16,8 @@
 package com.xiaomi.mone.log.manager.service.extension.tail;
 
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.model.HeraSimpleEnv;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;

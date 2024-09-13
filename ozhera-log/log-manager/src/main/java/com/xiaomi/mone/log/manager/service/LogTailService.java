@@ -15,8 +15,8 @@
  */
 package com.xiaomi.mone.log.manager.service;
 
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
-import com.xiaomi.mone.app.model.vo.HeraEnvIpVo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.model.vo.HeraEnvIpVo;
 import com.xiaomi.mone.log.api.enums.LogStructureEnum;
 import com.xiaomi.mone.log.common.Result;
 import com.xiaomi.mone.log.manager.model.bo.LogTailParam;

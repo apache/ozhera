@@ -15,8 +15,8 @@
  */
 package com.xiaomi.mone.log.manager.dao;
 
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
-import com.xiaomi.mone.app.api.service.HeraAppService;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.service.HeraAppService;
 import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
 import com.xiaomi.mone.log.manager.model.pojo.MilogAppTopicRelDO;
 import com.xiaomi.youpin.docean.anno.Service;

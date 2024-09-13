@@ -20,7 +20,7 @@ import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.google.gson.reflect.TypeToken;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.api.enums.OperateEnum;
 import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
 import com.xiaomi.mone.log.manager.dao.MilogLogTailDao;

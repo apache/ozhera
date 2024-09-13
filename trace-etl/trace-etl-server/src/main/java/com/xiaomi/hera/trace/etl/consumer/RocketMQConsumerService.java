@@ -21,7 +21,7 @@ import com.xiaomi.hera.trace.etl.api.service.IMetricsParseService;
 import com.xiaomi.hera.trace.etl.api.service.MQExtension;
 import com.xiaomi.hera.trace.etl.bo.MqConfig;
 import com.xiaomi.hera.trace.etl.util.ThriftUtil;
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;

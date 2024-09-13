@@ -15,10 +15,10 @@
  */
 package com.xiaomi.mone.log.manager.service;
 
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoParticipant;
-import com.xiaomi.mone.app.api.model.HeraAppBaseQuery;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoParticipant;
+import org.apache.ozhera.app.api.model.HeraAppBaseQuery;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 
 import java.util.List;
 

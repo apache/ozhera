@@ -15,8 +15,8 @@
  */
 package com.xiaomi.mone.log.manager.service;
 
-import com.xiaomi.mone.app.api.model.HeraAppEnvData;
-import com.xiaomi.mone.app.api.model.HeraSimpleEnv;
+import org.apache.ozhera.app.api.model.HeraAppEnvData;
+import org.apache.ozhera.app.api.model.HeraSimpleEnv;
 
 import java.util.List;
 

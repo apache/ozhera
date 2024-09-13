@@ -82,7 +82,7 @@
                         <artifactId>spring-boot-maven-plugin</artifactId>
                         <version>2.7.15</version>
                         <configuration>
-                            <mainClass>com.xiaomi.mone.monitor.bootstrap.MiMonitorBootstrap</mainClass>
+                            <mainClass>org.apache.ozhera.monitor.bootstrap.MiMonitorBootstrap</mainClass>
                         </configuration>
                         <executions>
                             <execution>

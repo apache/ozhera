@@ -14,8 +14,8 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-prometheus-agent-common</artifactId>
-            <groupId>run.mone</groupId>
             <version>${project.parent.version}</version>
         </dependency>
 

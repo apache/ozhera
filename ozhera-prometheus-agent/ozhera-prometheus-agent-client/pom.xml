@@ -15,13 +15,13 @@
     <dependencies>
         <dependency>
             <artifactId>ozhera-prometheus-agent-common</artifactId>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <artifactId>ozhera-prometheus-agent-service</artifactId>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <version>${project.parent.version}</version>
         </dependency>
 

@@ -47,7 +47,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.15</version>
                 <configuration>
-                    <mainClass>run.mone.trace.etl.metadata.bootstrap.TraceEtlMetadataBootstrap</mainClass>
+                    <mainClass>org.apache.ozhera.trace.etl.metadata.bootstrap.TraceEtlMetadataBootstrap</mainClass>
                 </configuration>
                 <executions>
                     <execution>

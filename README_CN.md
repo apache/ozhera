@@ -39,7 +39,7 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 
 ### 官方网站
 
-欢迎访问OzHera的[官方网站](https://ozhera.m.one.mi.com/)
+欢迎访问OzHera的[官方网站](https://ozhera.apache.org/)
 
 ---
 
@@ -62,10 +62,10 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 欢迎贡献者加入ozhera项目。请查看 [contributing_cn.md](readme%2Fcontributing%2Fcontributing_cn.md) 以了解如何为该项目做出贡献.
 
 我该如何贡献？
-- 请查看带有标签 [good first issue](https://github.com/XiaoMi/ozhera/labels/good%20first%20issue) 或 [contribution welcome](https://github.com/XiaoMi/ozhera/labels/help%20wanted)的问题.
-- 回答 [issues](https://github.com/XiaoMi/ozhera/issues)上的问题.
-- 修复 [issues](https://github.com/XiaoMi/ozhera/issues)上报告的错误,并向我们发送一个拉取请求.
-- 审查现有的 [pull request](https://github.com/XiaoMi/ozhera/pulls).
+- 请查看带有标签 [good first issue](https://github.com/apache/ozhera/labels/good%20first%20issue) 或 [contribution welcome](https://github.com/apache/ozhera/labels/help%20wanted)的问题.
+- 回答 [issues](https://github.com/apache/ozhera/issues)上的问题.
+- 修复 [issues](https://github.com/apache/ozhera/issues)上报告的错误,并向我们发送一个拉取请求.
+- 审查现有的 [pull request](https://github.com/apache/ozhera/pulls).
 
 ---
 
@@ -74,13 +74,13 @@ OzHera是由小米-中国区研发效能团队开源的一款云原生时代的�
 我们非常欢迎您对项目提出宝贵的意见和建议。无论您有技术问题、功能需求还是想要加入我们的开发团队，都可以通过以下方式与我们取得联系：
 
 #### 邮件联系
-- **邮箱地址**: [ozhera101@gmail.com](mailto:ozhera101@gmail.com)
+- **邮箱地址**: [dev@ozhera.apache.org](mailto:dev@ozhera.apache.org)
 - **响应时间**: 我们会在收到邮件后的24小时内回复
 
 #### 社区交流
 - 我们也欢迎您加入我们的社区，参与讨论和交流：
     - 欢迎访问OzHera的[社区网站](https://m.one.mi.com/index)，我们会将OzHera的技术向分享、思考与最新成果发布在上面， 欢迎大家共同交流
-    - [GitHub Discussions](https://github.com/your/project/discussions)
+    - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---
 

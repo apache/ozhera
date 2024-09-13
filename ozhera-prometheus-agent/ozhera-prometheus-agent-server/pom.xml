@@ -121,7 +121,7 @@
                         <version>2.7.5</version>
 
                         <configuration>
-                            <mainClass>com.xiaomi.youpin.prometheus.agent.bootstrap.PrometheusAgentBootstrap</mainClass>
+                            <mainClass>org.apache.ozhera.prometheus.agent.bootstrap.PrometheusAgentBootstrap</mainClass>
                         </configuration>
                         <executions>
                             <execution>

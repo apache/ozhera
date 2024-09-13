@@ -16,7 +16,7 @@
 package com.xiaomi.mone.log.manager.service.consumer;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.app.model.vo.HeraEnvIpVo;
+import org.apache.ozhera.app.model.vo.HeraEnvIpVo;
 import com.xiaomi.mone.log.manager.service.impl.LogTailServiceImpl;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;

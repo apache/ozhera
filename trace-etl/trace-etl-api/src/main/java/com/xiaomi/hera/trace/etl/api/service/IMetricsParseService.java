@@ -15,7 +15,7 @@
  */
 package com.xiaomi.hera.trace.etl.api.service;
 
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 
 /**
  * @author goodjava@qq.com

@@ -16,7 +16,7 @@
 package com.xiaomi.mone.log.manager.service.impl;
 
 import com.google.gson.Gson;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.api.enums.DeployWayEnum;
 import com.xiaomi.mone.log.api.enums.ProjectTypeEnum;
 import com.xiaomi.mone.log.api.model.bo.MiLogMoneTransfer;

@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.log.manager.service.impl;
 
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
 import com.xiaomi.mone.log.api.enums.MiddlewareEnum;
 import com.xiaomi.mone.log.manager.common.Utils;
 import com.xiaomi.mone.log.manager.common.context.MoneUserContext;

@@ -15,8 +15,8 @@
  */
 package com.xiaomi.mone.monitor.controller;
 
-import com.xiaomi.mone.app.api.service.HeraAuthorizationApi;
-import com.xiaomi.mone.app.common.Result;
+import org.apache.ozhera.app.api.service.HeraAuthorizationApi;
+import org.apache.ozhera.app.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.web.bind.annotation.*;

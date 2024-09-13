@@ -16,7 +16,7 @@
 
 package com.xiaomi.mone.monitor.service;
 
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.monitor.dao.model.AppGrafanaMapping;
 import com.xiaomi.mone.monitor.result.Result;
 

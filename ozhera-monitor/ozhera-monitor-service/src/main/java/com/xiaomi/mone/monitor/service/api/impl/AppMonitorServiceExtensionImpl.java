@@ -18,7 +18,7 @@ package com.xiaomi.mone.monitor.service.api.impl;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.xiaomi.mone.app.api.message.HeraAppInfoModifyMessage;
+import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
 import com.xiaomi.mone.monitor.bo.GrafanaInterfaceRes;
 import com.xiaomi.mone.monitor.dao.model.AppMonitor;
 import com.xiaomi.mone.monitor.result.ErrorCode;

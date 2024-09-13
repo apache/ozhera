@@ -18,7 +18,7 @@ package com.xiaomi.mone.monitor.service.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.monitor.bo.AppLanguage;
 import com.xiaomi.mone.monitor.bo.AppType;
 import com.xiaomi.mone.monitor.bo.PlatFormType;

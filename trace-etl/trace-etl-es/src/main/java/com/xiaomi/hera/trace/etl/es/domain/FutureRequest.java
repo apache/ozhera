@@ -16,7 +16,7 @@
 package com.xiaomi.hera.trace.etl.es.domain;
 
 
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 
 /**
  * @Description

@@ -20,7 +20,7 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-prometheus-agent-api</artifactId>
             <version>${project.parent.version}</version>
             <exclusions>
@@ -32,7 +32,7 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-prometheus-agent-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -57,7 +57,7 @@
 
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-prometheus-agent-dao</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

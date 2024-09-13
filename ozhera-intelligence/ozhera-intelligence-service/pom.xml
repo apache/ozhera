@@ -56,8 +56,9 @@
 
         <!-- trace domain -->
         <dependency>
-            <groupId>org.apache.ozhera</groupId>
+            <groupId>run.mone</groupId>
             <artifactId>trace-etl-domain</artifactId>
+            <version>1.0.1-jdk21</version>
         </dependency>
 
         <dependency>

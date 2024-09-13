@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiaomi.mone.log.manager.mapper.MilogLogSearchSaveMapper">
+<mapper namespace="org.apache.ozhera.log.manager.mapper.MilogLogSearchSaveMapper">
     <delete id="removeById">
         DELETE
         FROM
@@ -9,7 +9,7 @@
             id = #{id}
     </delete>
 
-    <select id="selectByStoreId" resultType="com.xiaomi.mone.log.manager.model.pojo.MilogLogSearchSaveDO">
+    <select id="selectByStoreId" resultType="org.apache.ozhera.log.manager.model.pojo.MilogLogSearchSaveDO">
         SELECT
             *
         FROM
@@ -39,7 +39,7 @@
           AND creator = #{creator}
     </select>
 
-    <select id="selectByCreator" resultType="com.xiaomi.mone.log.manager.model.dto.SearchSaveDTO">
+    <select id="selectByCreator" resultType="org.apache.ozhera.log.manager.model.dto.SearchSaveDTO">
         SELECT
             t.*,
             GROUP_CONCAT( DISTINCT CASE WHEN t.tail IS NULL THEN '' ELSE t.tail END ) tailName,
@@ -98,7 +98,7 @@
           AND sort = 2
     </select>
 
-    <select id="getAll" resultType="com.xiaomi.mone.log.manager.model.pojo.MilogLogSearchSaveDO">
+    <select id="getAll" resultType="org.apache.ozhera.log.manager.model.pojo.MilogLogSearchSaveDO">
         SELECT
             *
         FROM

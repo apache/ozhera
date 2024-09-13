@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.monitor.controller;
 
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.monitor.result.ErrorCode;
 import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.AppGrafanaMappingService;

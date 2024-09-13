@@ -17,7 +17,7 @@ package com.xiaomi.mone.monitor.service.rocketmq;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
-import com.xiaomi.mone.app.api.message.HeraAppInfoModifyMessage;
+import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
 import com.xiaomi.mone.monitor.dao.HeraAppRoleDao;
 import com.xiaomi.mone.monitor.service.AppGrafanaMappingService;
 import com.xiaomi.mone.monitor.service.AppMonitorService;

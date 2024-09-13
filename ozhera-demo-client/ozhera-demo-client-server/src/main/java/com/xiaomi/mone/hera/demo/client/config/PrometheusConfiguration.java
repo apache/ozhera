@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.hera.demo.client.config;
 
-import com.xiaomi.mione.prometheus.starter.all.config.PrometheusConfigure;
+import org.apache.ozhera.prometheus.starter.all.config.PrometheusConfigure;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 

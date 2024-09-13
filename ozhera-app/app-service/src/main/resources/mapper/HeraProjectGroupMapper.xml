@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xiaomi.mone.app.dao.mapper.HeraProjectGroupMapper">
-  <resultMap id="BaseResultMap" type="com.xiaomi.mone.app.api.model.project.group.HeraProjectGroupModel">
+<mapper namespace="org.apache.ozhera.app.dao.mapper.HeraProjectGroupMapper">
+  <resultMap id="BaseResultMap" type="org.apache.ozhera.app.api.model.project.group.HeraProjectGroupModel">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="type" jdbcType="INTEGER" property="type" />
     <result column="relation_object_id" jdbcType="INTEGER" property="relationObjectId" />
@@ -76,7 +76,7 @@
     id, type, relation_object_id, name, cn_name, parent_group_id, status, level, create_time, 
     update_time
   </sql>
-  <select id="selectByExample" parameterType="com.xiaomi.mone.app.model.HeraProjectGroupExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="org.apache.ozhera.app.model.HeraProjectGroupExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -103,13 +103,13 @@
     delete from hera_project_group
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.xiaomi.mone.app.model.HeraProjectGroupExample">
+  <delete id="deleteByExample" parameterType="org.apache.ozhera.app.model.HeraProjectGroupExample">
     delete from hera_project_group
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.xiaomi.mone.app.model.HeraProjectGroup">
+  <insert id="insert" parameterType="org.apache.ozhera.app.model.HeraProjectGroup">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -122,7 +122,7 @@
       #{level,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.xiaomi.mone.app.model.HeraProjectGroup">
+  <insert id="insertSelective" parameterType="org.apache.ozhera.app.model.HeraProjectGroup">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -186,7 +186,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.xiaomi.mone.app.model.HeraProjectGroupExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="org.apache.ozhera.app.model.HeraProjectGroupExample" resultType="java.lang.Long">
     select count(*) from hera_project_group
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -246,7 +246,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.xiaomi.mone.app.model.HeraProjectGroup">
+  <update id="updateByPrimaryKeySelective" parameterType="org.apache.ozhera.app.model.HeraProjectGroup">
     update hera_project_group
     <set>
       <if test="type != null">
@@ -279,7 +279,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.xiaomi.mone.app.model.HeraProjectGroup">
+  <update id="updateByPrimaryKey" parameterType="org.apache.ozhera.app.model.HeraProjectGroup">
     update hera_project_group
     set type = #{type,jdbcType=INTEGER},
       relation_object_id = #{relationObjectId,jdbcType=INTEGER},

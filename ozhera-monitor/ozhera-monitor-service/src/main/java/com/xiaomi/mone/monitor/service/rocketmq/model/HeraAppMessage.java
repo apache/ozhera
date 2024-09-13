@@ -16,7 +16,7 @@
 package com.xiaomi.mone.monitor.service.rocketmq.model;
 
 import com.google.gson.JsonObject;
-import com.xiaomi.mone.app.api.model.HeraAppBaseInfoModel;
+import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
 import com.xiaomi.mone.monitor.dao.model.AppMonitor;
 import lombok.Data;
 import lombok.ToString;

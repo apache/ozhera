@@ -23,7 +23,7 @@ import com.xiaomi.hera.trace.etl.es.config.TraceConfig;
 import com.xiaomi.hera.trace.etl.es.domain.FilterResult;
 import com.xiaomi.hera.trace.etl.es.util.bloomfilter.TraceIdRedisBloomUtil;
 import com.xiaomi.hera.trace.etl.util.MessageUtil;
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

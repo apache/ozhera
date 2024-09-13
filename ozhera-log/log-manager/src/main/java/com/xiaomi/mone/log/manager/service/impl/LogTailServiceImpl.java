@@ -17,8 +17,8 @@ package com.xiaomi.mone.log.manager.service.impl;
 
 import cn.hutool.core.lang.Assert;
 import com.google.common.collect.Lists;
-import com.xiaomi.mone.app.api.response.AppBaseInfo;
-import com.xiaomi.mone.app.model.vo.HeraEnvIpVo;
+import org.apache.ozhera.app.api.response.AppBaseInfo;
+import org.apache.ozhera.app.model.vo.HeraEnvIpVo;
 import com.xiaomi.mone.log.api.enums.*;
 import com.xiaomi.mone.log.api.model.meta.FilterDefine;
 import com.xiaomi.mone.log.common.Result;

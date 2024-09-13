@@ -15,7 +15,7 @@
  */
 package com.xiaomi.mone.monitor.service.api;
 
-import com.xiaomi.mone.app.api.message.HeraAppInfoModifyMessage;
+import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
 import com.xiaomi.mone.monitor.dao.model.AppMonitor;
 import com.xiaomi.mone.monitor.result.Result;
 import com.xiaomi.mone.monitor.service.model.ProjectInfo;

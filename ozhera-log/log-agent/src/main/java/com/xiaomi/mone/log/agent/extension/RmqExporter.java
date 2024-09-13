@@ -17,7 +17,7 @@ package com.xiaomi.mone.log.agent.extension;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.xiaomi.hera.tspandata.TSpanData;
+import org.apache.ozhera.tspandata.TSpanData;
 import com.xiaomi.mone.log.agent.common.HashUtil;
 import com.xiaomi.mone.log.agent.common.trace.TraceUtil;
 import com.xiaomi.mone.log.agent.export.MsgExporter;

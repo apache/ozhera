@@ -19,8 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.ozhera.monitor.result.Result;
 import org.apache.ozhera.monitor.service.scrapeJob.ScrapeJob;
-import com.xiaomi.youpin.prometheus.agent.api.service.PrometheusScrapeJobService;
-import com.xiaomi.youpin.prometheus.agent.param.scrapeConfig.ScrapeConfigParam;
+import org.apache.ozhera.prometheus.agent.api.service.PrometheusScrapeJobService;
+import org.apache.ozhera.prometheus.agent.param.scrapeConfig.ScrapeConfigParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +42,7 @@ public class ScrapeJobImpl implements ScrapeJob {
         Result result = null;
         try {
             ScrapeConfigParam scrapeConfigParam = new Gson().fromJson(new Gson().toJson(param), ScrapeConfigParam.class);
-            com.xiaomi.youpin.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.CreateScrapeConfig(scrapeConfigParam);
+            org.apache.ozhera.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.CreateScrapeConfig(scrapeConfigParam);
             log.info("addScrapeJob: {}", scrapeResult);
             result = new Gson().fromJson(new Gson().toJson(scrapeResult), Result.class);
 
@@ -58,7 +58,7 @@ public class ScrapeJobImpl implements ScrapeJob {
         Result result = null;
         try {
             ScrapeConfigParam scrapeConfigParam = new Gson().fromJson(new Gson().toJson(param), ScrapeConfigParam.class);
-            com.xiaomi.youpin.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.UpdateScrapeConfig(String.valueOf(jobId), scrapeConfigParam);
+            org.apache.ozhera.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.UpdateScrapeConfig(String.valueOf(jobId), scrapeConfigParam);
             log.info("editScrapeJob: {}", scrapeResult);
             result = new Gson().fromJson(new Gson().toJson(scrapeResult), Result.class);
             log.info("open scrape job edit, request : {} ,result:{}", new Gson().toJson(scrapeConfigParam), new Gson().toJson(scrapeResult));
@@ -72,7 +72,7 @@ public class ScrapeJobImpl implements ScrapeJob {
     public Result delScrapeJob(Integer jobId, String identifyId, String user) {
         Result result = null;
         try {
-            com.xiaomi.youpin.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.DeleteScrapeConfig(String.valueOf(jobId));
+            org.apache.ozhera.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.DeleteScrapeConfig(String.valueOf(jobId));
             log.info("delScrapeJob: {}", scrapeResult);
             result = new Gson().fromJson(new Gson().toJson(scrapeResult), Result.class);
             log.info("open scrape job delete, request : {} ,result:{}", jobId, new Gson().toJson(scrapeResult));
@@ -86,7 +86,7 @@ public class ScrapeJobImpl implements ScrapeJob {
     public Result queryScrapeJob(Integer jobId, String identifyId, String user) {
         Result result = null;
         try {
-            com.xiaomi.youpin.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.GetScrapeConfig(String.valueOf(jobId));
+            org.apache.ozhera.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.GetScrapeConfig(String.valueOf(jobId));
             log.info("queryScrapeJob: {}", scrapeResult);
             result = new Gson().fromJson(new Gson().toJson(scrapeResult), Result.class);
             log.info("open scrape job query, request : {} ,result:{}", jobId, new Gson().toJson(scrapeResult));
@@ -100,7 +100,7 @@ public class ScrapeJobImpl implements ScrapeJob {
     public Result queryScrapeJobByName(String name, String identifyId, String user) {
         Result result = null;
         try {
-            com.xiaomi.youpin.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.GetScrapeConfigByName(name);
+            org.apache.ozhera.prometheus.agent.result.Result scrapeResult = prometheusScrapeJobService.GetScrapeConfigByName(name);
             log.info("queryScrapeJobByName: {}", scrapeResult);
             result = new Gson().fromJson(new Gson().toJson(scrapeResult), Result.class);
             log.info("open scrape job query, request : {} ,result:{}", name, new Gson().toJson(scrapeResult));

@@ -13,30 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.xiaomi.mone.hera.demo.client.config;
-
-import org.apache.ozhera.prometheus.starter.all.config.PrometheusConfigure;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
+package org.apache.ozhera.prometheus.starter.all.domain;
 
 /**
  * @Description
  * @Author dingtao
- * @Date 2023/3/7 12:14 PM
+ * @Date 2023/3/5 3:35 PM
  */
-@Configuration
-public class PrometheusConfiguration {
+public class Const {
 
-    @Value("${app.nacos}")
-    private String nacosAddr;
+    public static final String MILINE = "miline";
 
-    @Value("${server.type}")
-    private String serverType;
-
-    @PostConstruct
-    public void init(){
-        PrometheusConfigure.init(nacosAddr, serverType);
-    }
+    public static final String MATRIX = "matrix";
 }

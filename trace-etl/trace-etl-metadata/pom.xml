@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>run.mone</groupId>
         <artifactId>trace-etl</artifactId>
-        <version>1.0.1-jdk21</version>
+        <groupId>org.apache.ozhera</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>trace-etl-metadata</artifactId>
@@ -19,13 +19,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>trace-etl-kafka-extension</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>trace-etl-rocketmq-extension</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -47,7 +47,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.15</version>
                 <configuration>
-                    <mainClass>run.mone.trace.etl.metadata.bootstrap.TraceEtlMetadataBootstrap</mainClass>
+                    <mainClass>org.apache.ozhera.trace.etl.metadata.bootstrap.TraceEtlMetadataBootstrap</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -25,7 +25,6 @@
         <dependency>
             <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-operator-service</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- test -->

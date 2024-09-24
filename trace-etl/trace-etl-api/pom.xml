@@ -5,8 +5,8 @@
 
     <parent>
         <artifactId>trace-etl</artifactId>
-        <groupId>run.mone</groupId>
-        <version>1.0.1-jdk21</version>
+        <groupId>org.apache.ozhera</groupId>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>trace-etl-domain</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

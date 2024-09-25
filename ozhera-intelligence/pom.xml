@@ -24,7 +24,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <spring.version>5.3.29</spring.version>
         <trace.etl.domain.version>1.0.1-jdk21</trace.etl.domain.version>
-        <ozhera.intelligence.version>1.0.0</ozhera.intelligence.version>
+        <ozhera.intelligence.version>2.0.0</ozhera.intelligence.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Replace it with the absolute path of your own trace-etl project. issue#19-->
         <maven.jcommonDirectory>~</maven.jcommonDirectory>
@@ -130,24 +130,24 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <executable>gpg</executable>
-                            <keyname>your-gpg-key</keyname>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                <version>1.6</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>sign-artifacts</id>-->
+<!--                        <phase>deploy</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>sign</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <executable>gpg</executable>-->
+<!--                            <keyname>your-gpg-key</keyname>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>

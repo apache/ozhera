@@ -16,7 +16,6 @@
         <dependency>
             <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-operator-common</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

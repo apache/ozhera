@@ -174,16 +174,16 @@
         </dependency>
         <!-- Internal dependencies -->
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>log-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>log-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ozhera</groupId>
-            <artifactId>ozhera-app</artifactId>
+            <artifactId>app-api</artifactId>
         </dependency>
 
         <dependency>
@@ -255,7 +255,7 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>app-api</artifactId>
             <exclusions>
                 <exclusion>

@@ -60,12 +60,12 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>log-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>log-common</artifactId>
         </dependency>
         <!--Microservice traceID generation-->

@@ -10,7 +10,6 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.apache.ozhera</groupId>
     <artifactId>ozhera-operator</artifactId>
     <packaging>pom</packaging>
     <version>2.0.0-SNAPSHOT</version>
@@ -22,6 +21,18 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.ozhera</groupId>
+                <artifactId>ozhera-operator-service</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ozhera</groupId>
+                <artifactId>ozhera-operator-common</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>

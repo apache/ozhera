@@ -25,9 +25,9 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl", "run.mone.trace.etl"})
-@DubboComponentScan(basePackages = "com.xiaomi.hera.trace.etl")
-@MapperScan("com.xiaomi.hera.trace.etl.mapper")
+@ComponentScan(basePackages = {"org.apache.ozhera.trace.etl", "run.mone.trace.etl"})
+@DubboComponentScan(basePackages = "org.apache.ozhera.trace.etl")
+@MapperScan("org.apache.ozhera.trace.etl.mapper")
 public class TraceEtlManagerBootstrap {
 
     public static void main(String... args) {

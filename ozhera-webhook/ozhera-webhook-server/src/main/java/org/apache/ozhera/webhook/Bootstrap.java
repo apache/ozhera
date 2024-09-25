@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"run.mone.hera.webhook"})
+@ComponentScan(basePackages = {"org.apache.ozhera.webhook"})
 @Slf4j
 public class Bootstrap {
 

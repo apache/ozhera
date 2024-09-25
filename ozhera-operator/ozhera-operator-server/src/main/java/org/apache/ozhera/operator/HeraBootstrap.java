@@ -27,7 +27,7 @@ import com.xiaomi.youpin.docean.mvc.DoceanHttpServer;
 public class HeraBootstrap {
 
     public static void main(String[] args) throws InterruptedException {
-        Ioc.ins().init("run.mone.docean.plugin","com.xiaomi.youpin.docean.plugin","run.mone.hera.operator");
+        Ioc.ins().init("run.mone.docean.plugin","com.xiaomi.youpin.docean.plugin","org.apache.ozhera.operator");
         //Mvc.ins();
         Mvc.ins().getMvcConfig().setResponseOriginalValue(true);
 

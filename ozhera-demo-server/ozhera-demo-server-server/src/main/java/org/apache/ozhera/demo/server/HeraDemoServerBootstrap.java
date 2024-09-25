@@ -26,8 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @Slf4j
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.xiaomi.mone.hera.demo.server"})
-@DubboComponentScan(basePackages = {"com.xiaomi.mone.hera.demo.server"})
+@DubboComponentScan(basePackages = {"org.apache.ozhera.demo.server"})
 public class HeraDemoServerBootstrap {
     public static void main(String... args) {
         try {

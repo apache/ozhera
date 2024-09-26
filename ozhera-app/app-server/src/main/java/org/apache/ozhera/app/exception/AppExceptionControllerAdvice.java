@@ -33,7 +33,7 @@ import java.util.Map;
  * @date 2022/10/29 13:27
  */
 @Slf4j
-@RestControllerAdvice(basePackages = "com.xiaomi.mone.app.controller")
+@RestControllerAdvice(basePackages = "org.apache.ozhera.app.controller")
 public class AppExceptionControllerAdvice {
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

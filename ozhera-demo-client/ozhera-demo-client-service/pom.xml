@@ -71,7 +71,7 @@
         </dependency>
 
         <dependency>
-            <groupId>run.mone</groupId>
+            <groupId>org.apache.ozhera</groupId>
             <artifactId>ozhera-demo-server-api</artifactId>
         </dependency>
         <dependency>

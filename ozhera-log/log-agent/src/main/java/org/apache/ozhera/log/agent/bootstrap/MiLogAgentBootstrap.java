@@ -60,7 +60,7 @@ public class MiLogAgentBootstrap {
         client.waitStarted();
         log.info("create rpc client finish");
         Aop.ins().init(Maps.newLinkedHashMap());
-        Ioc.ins().putBean(client).init("com.xiaomi.mone.log.agent", "com.xiaomi.youpin.docean");
+        Ioc.ins().putBean(client).init("org.apache.ozhera.log.agent", "com.xiaomi.youpin.docean");
         //Because the client life cycle is advanced, the processor needs to be re-registered here
         client.registerProcessor();
         System.in.read();

@@ -46,7 +46,7 @@ public class MilogAppMiddlewareRel extends BaseCommon implements Serializable {
 
     @Column(value = "milog_app_id")
     @ColDefine(customType = "bigint")
-    @Comment("milog app talble Primary key Id")
+    @Comment("milog app table Primary key Id")
     private Long milogAppId;
 
     @Column(value = "middleware_id")

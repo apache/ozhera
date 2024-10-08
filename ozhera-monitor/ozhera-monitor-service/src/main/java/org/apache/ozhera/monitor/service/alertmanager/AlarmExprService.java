@@ -31,7 +31,7 @@ public interface AlarmExprService {
 
     public String getContainerCpuResourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData);
 
-    public String getContainerMemReourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData);
+    public String getContainerMemResourceAlarmExpr(Integer projectId, String projectName, String op, double value, boolean isK8s, AlarmRuleData ruleData);
 
     public Map getEnvIpMapping(Integer projectId, String projectName);
 }

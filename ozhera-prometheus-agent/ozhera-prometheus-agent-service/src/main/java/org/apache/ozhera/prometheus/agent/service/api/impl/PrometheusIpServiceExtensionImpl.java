@@ -333,7 +333,7 @@ public class PrometheusIpServiceExtensionImpl implements PrometheusIpServiceExte
             // get Node list
             NodeList nodeList = client.nodes().list();
             for (Node node : nodeList.getItems()) {
-                // fetch Node adress list
+                // fetch Node address list
                 for (NodeAddress address : node.getStatus().getAddresses()) {
                     res.add(address.getAddress());
                 }

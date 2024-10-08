@@ -34,7 +34,7 @@ import java.util.List;
  */
 @Slf4j
 @Service(registry = "registryConfig", interfaceClass = HeraProjectGroupServiceApi.class, group = "${dubbo.group}")
-public class HeraPojectGroupServiceImpl implements HeraProjectGroupServiceApi {
+public class HeraProjectGroupServiceImpl implements HeraProjectGroupServiceApi {
 
     @Autowired
     HeraProjectGroupService projectGroupService;

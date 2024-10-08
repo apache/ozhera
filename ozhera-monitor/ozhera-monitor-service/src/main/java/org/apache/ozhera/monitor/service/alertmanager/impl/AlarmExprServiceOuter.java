@@ -273,9 +273,9 @@ public class AlarmExprServiceOuter implements AlarmExprService {
                 case "container_cpu_resource_use_rate":
                     return getContainerCpuResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
                 case "container_mem_resource_use_rate":
-                    return getContainerMemReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
+                    return getContainerMemResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
                 case "container_disk_use_rate":
-                    return getContainerDiskReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
+                    return getContainerDiskResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
 
                 case "k8s_container_cpu_use_rate":
                     return getContainerCpuAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
@@ -289,7 +289,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
                 case "k8s_cpu_resource_use_rate":
                     return getContainerCpuResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
                 case "k8s_mem_resource_use_rate":
-                    return getContainerMemReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
+                    return getContainerMemResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
 
                 case "k8s_cpu_avg_use_rate":
                     return getK8sCpuAvgUsageAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),ruleData);
@@ -719,7 +719,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         return exprBuilder.toString();
     }
 
-    public String getContainerMemReourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
+    public String getContainerMemResourceAlarmExpr(Integer projectId, String projectName, String op, double value, boolean isK8s, AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
         exprBuilder.append("(sum(avg_over_time(container_memory_rss{");
@@ -764,11 +764,11 @@ public class AlarmExprServiceOuter implements AlarmExprService {
 
         exprBuilder.append("}[1d])) by (container_label_PROJECT_ID,application,ip,job,name,system,instance,id,serverEnv,serverZone)) * 100");
         exprBuilder.append(op).append(value);
-        log.info("getContainerMemReourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        log.info("getContainerMemResourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
         return exprBuilder.toString();
     }
 
-    public String getContainerDiskReourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
+    public String getContainerDiskResourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
         exprBuilder.append("clamp_max(sum(container_fs_usage_bytes{");
@@ -781,7 +781,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("'");
         exprBuilder.append("}) by (application,name,ip,serverEnv)/10737418240 ,1) * 100  ");
         exprBuilder.append(op).append(value);
-        log.info("getContainerDiskReourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        log.info("getContainerDiskResourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
         return exprBuilder.toString();
     }
 

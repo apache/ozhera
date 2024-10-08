@@ -106,7 +106,7 @@ public class TraceUtil {
         span.setKind(toTKind(spanKind));
         span.setEvents(toTEventList(JSONArray.parseArray(decodeLineBreak(array[MessageUtil.EVENTS]))));
         span.setTotalRecordedEvents(span.getEventsSize());
-        span.setResouce(
+        span.setResource(
                 toTResource(JSONObject.parseObject(array[MessageUtil.REOUSCES]), specialAttrMap));
         span.setExtra(toTExtra(specialAttrMap));
         // using links["ref_type=CHILD_OF"] as parent span context and using left as links

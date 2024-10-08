@@ -227,7 +227,7 @@ public class AppGrafanaMappingServiceImpl implements AppGrafanaMappingService {
             grafanaMapping.setMioneEnv(grafanaDirByCode);
             int i = this.saveOrUpdate(grafanaMapping);
             if (i > 0) {
-                log.info("createTmpByAppBaseInfo sucess!grafanaMapping:{}", grafanaMapping.toString());
+                log.info("createTmpByAppBaseInfo success!grafanaMapping:{}", grafanaMapping.toString());
             } else {
                 log.info("createTmpByAppBaseInfo fail!grafanaMapping:{}", grafanaMapping.toString());
             }

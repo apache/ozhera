@@ -20,7 +20,7 @@ import org.apache.ozhera.monitor.service.bo.AlertGroupQryInfo;
 
 import java.util.List;
 
-public interface AlertGorupFacade {
+public interface AlertGroupFacade {
 
     List<AlertGroupQryInfo> query(String account, String likeName);
 

@@ -278,7 +278,7 @@ public class MetricsParseService implements IMetricsParseService {
             }
         }
         // Gets the properties in process
-        TResource resource = tSpanData.getResouce();
+        TResource resource = tSpanData.getResource();
         if (resource != null) {
             TAttributes resourceAttributes = resource.getAttributes();
             List<TAttributeKey> resourceKeys = resourceAttributes.getKeys();

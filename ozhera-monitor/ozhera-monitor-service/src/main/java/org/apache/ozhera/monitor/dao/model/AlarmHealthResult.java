@@ -52,7 +52,7 @@ public class AlarmHealthResult {
     private Integer httpServerAvailability;//httpServer可用性（包括可用性、错误数配置任一） 2分
     private Integer httpServerQps;//httpServer qps 1分
     private Integer httpServerTimeCost;//httpServer 耗时 1分
-    private Integer httpClientAvailability;//httpCleint可用性（包括可用性、错误数配置任一） 1分
+    private Integer httpClientAvailability;//httpClient可用性（包括可用性、错误数配置任一） 1分
     private Integer httpClientQps;//httpClient qps 1分
     private Integer httpClientTimeCost;//httpClient 耗时 1分
     private Integer dubboProviderAvailability;//dubboProvider可用性（包括可用性、错误数配置任一） 2分

@@ -260,7 +260,7 @@ public class ESIndexConst {
             "          \"val\\r\\nue\": {\n" +
             "            \"type\": \"keyword\"\n" +
             "          },\n" +
-            "          \"v\\r\\nalue\": {\n" +
+            "          \"v\\r\\nvalue\": {\n" +
             "            \"type\": \"keyword\"\n" +
             "          },\n" +
             "          \"tagType\": {\n" +

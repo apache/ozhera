@@ -16,7 +16,7 @@
 #
 
 github:
-  description: Apache OzHera is an About Application Observable Platform in the Cloud Native Era.
+  description: Apache OzHera is an About Application Observable Platform in the Cloud Native Era. 
   homepage: https://ozhera.apache.org/
   labels:
     - APM

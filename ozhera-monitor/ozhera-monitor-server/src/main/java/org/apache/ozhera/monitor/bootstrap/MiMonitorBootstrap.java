@@ -25,9 +25,9 @@ import org.springframework.context.annotation.ComponentScan;
 
 @Slf4j
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.xiaomi.mone.monitor"})
-@DubboComponentScan(basePackages = "com.xiaomi.mone.monitor")
-@ServletComponentScan("com.xiaomi.mone.monitor.filter")
+@ComponentScan(basePackages = {"org.apache.ozhera.monitor"})
+@DubboComponentScan(basePackages = "org.apache.ozhera.monitor")
+@ServletComponentScan("org.apache.ozhera.monitor.filter")
 public class MiMonitorBootstrap {
 
     public static void main(String[] args) throws InterruptedException {

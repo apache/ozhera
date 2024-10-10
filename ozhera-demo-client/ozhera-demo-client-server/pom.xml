@@ -146,7 +146,7 @@
                 <version>2.7.15</version>
 
                 <configuration>
-                    <mainClass>com.xiaomi.mone.hera.demo.client.bootstrap.HeraDemoClientBootstrap</mainClass>
+                    <mainClass>org.apache.ozhera.demo.client.bootstrap.HeraDemoClientBootstrap</mainClass>
                 </configuration>
                 <executions>
                     <execution>

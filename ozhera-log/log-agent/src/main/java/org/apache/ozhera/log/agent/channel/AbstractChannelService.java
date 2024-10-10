@@ -15,8 +15,10 @@
  */
 package org.apache.ozhera.log.agent.channel;
 
+import cn.hutool.core.io.FileUtil;
 import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.input.Input;
@@ -24,7 +26,6 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.utils.NetUtil;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.List;
@@ -152,7 +153,7 @@ public abstract class AbstractChannelService implements ChannelService {
     protected static void wildcardGraceShutdown(List<String> directory, String matchExpress) {
         // Add a shutdown hook to gracefully shutdown FileInfoCache
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{}", GSON.toJson(directory), matchExpress);
+            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{},cacheSize:{}", GSON.toJson(directory), matchExpress, FileInfoCache.ins().caches().size());
             FileInfoCache.ins().shutdown();
         }));
     }
@@ -192,7 +193,9 @@ public abstract class AbstractChannelService implements ChannelService {
         if (null != readResult.get().getFileMaxPointer()) {
             fileProgress.setFileMaxPointer(readResult.get().getFileMaxPointer());
         }
-        fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(fileName));
+        if (FileUtil.exist(fileName)) {
+            fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(fileName));
+        }
         fileProgress.setPodType(channelDefine.getPodType());
         fileProgress.setCtTime(ct);
     }

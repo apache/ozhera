@@ -27,8 +27,8 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"com.xiaomi.youpin.prometheus.agent", "com.xiaomi.youpin"})
-@DubboComponentScan(basePackages = "com.xiaomi.youpin.prometheus.agent")
+@ComponentScan(basePackages = {"org.apache.ozhera.prometheus.agent", "com.xiaomi.youpin"})
+@DubboComponentScan(basePackages = "org.apache.ozhera.prometheus.agent")
 @Slf4j
 public class PrometheusAgentBootstrap {
     private static final Logger logger = LoggerFactory.getLogger(PrometheusAgentBootstrap.class);

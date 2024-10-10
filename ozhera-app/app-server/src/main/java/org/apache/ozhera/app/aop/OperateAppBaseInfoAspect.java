@@ -47,7 +47,7 @@ import static org.apache.ozhera.app.common.Constant.GSON;
 @Slf4j
 public class OperateAppBaseInfoAspect {
 
-    private final String appGetResultDataPoint = "execution(* com.xiaomi.mone.app.service.impl.HeraAppBaseInfoServiceImpl.appBaseInfoOperate(..))";
+    private final String appGetResultDataPoint = "execution(* org.apache.ozhera.app.service.impl.HeraAppBaseInfoServiceImpl.appBaseInfoOperate(..))";
 
     @Value("${rocket.mq.hera.app.topic}")
     private String topic;

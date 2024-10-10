@@ -17,7 +17,7 @@
         <dependency>
             <groupId>org.apache.ozhera</groupId>
             <artifactId>prometheus-diy-client</artifactId>
-            <version>0.0.1-opensource-jdk21</version>
+            <version>${prometheus-all.version}</version>
         </dependency>
 
         <dependency>

@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @SpringBootApplication
-@DubboComponentScan(basePackages = "com.xiaomi.mone.app")
-@MapperScan("com.xiaomi.mone.app.dao")
+@DubboComponentScan(basePackages = "org.apache.ozhera.app")
+@MapperScan("org.apache.ozhera.app.dao")
 @EnableScheduling
 public class AppBootstrap {
 

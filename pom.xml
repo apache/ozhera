@@ -8,7 +8,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>31</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.apache.ozhera</groupId>
@@ -1001,7 +1001,9 @@
                             <failOnMissing>false</failOnMissing>
                             <licenseMerges>
                                 <licenseMerge>Apache License, Version 2.0|The Apache Software License, Version
-                                    2.0|ASF 2.0|Apache 2|Apache-2.0|Apache 2.0 License|Apache 2.0|Apache License v2.0|Apache License 2.0|The Apache License, Version 2.0|The Apache Software License, Version 2.0
+                                    2.0|ASF 2.0|Apache 2|Apache-2.0|Apache 2.0 License|Apache 2.0|Apache License
+                                    v2.0|Apache License 2.0|The Apache License, Version 2.0|The Apache Software License,
+                                    Version 2.0
                                 </licenseMerge>
                                 <licenseMerge>The MIT License|MIT License</licenseMerge>
                                 <licenseMerge>The 3-Clause BSD License|New BSD License|3-Clause BSD
@@ -1012,36 +1014,36 @@
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>com.mycila</groupId>-->
-<!--                <artifactId>license-maven-plugin</artifactId>-->
-<!--                <version>3.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal>-->
-<!--                            <goal>remove</goal>-->
-<!--                            <goal>format</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <quiet>true</quiet>-->
-<!--                    <header>${ozhera.project.path}/HEADER</header>-->
-<!--                    <excludes>-->
-<!--                        <exclude>src/main/java/com/mycila</exclude>-->
-<!--                    </excludes>-->
-<!--                    <includes>-->
-<!--                        <include>src/main/java/run/mone/**</include>-->
-<!--                        <include>**/src/test/java/**</include>-->
-<!--                    </includes>-->
-<!--                    <strictCheck>true</strictCheck>-->
-<!--                    <mapping>-->
-<!--                        <java>SLASHSTAR_STYLE</java>-->
-<!--                    </mapping>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>com.mycila</groupId>-->
+            <!--                <artifactId>license-maven-plugin</artifactId>-->
+            <!--                <version>3.0</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>generate-sources</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>check</goal>-->
+            <!--                            <goal>remove</goal>-->
+            <!--                            <goal>format</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <configuration>-->
+            <!--                    <quiet>true</quiet>-->
+            <!--                    <header>${ozhera.project.path}/HEADER</header>-->
+            <!--                    <excludes>-->
+            <!--                        <exclude>src/main/java/com/mycila</exclude>-->
+            <!--                    </excludes>-->
+            <!--                    <includes>-->
+            <!--                        <include>src/main/java/run/mone/**</include>-->
+            <!--                        <include>**/src/test/java/**</include>-->
+            <!--                    </includes>-->
+            <!--                    <strictCheck>true</strictCheck>-->
+            <!--                    <mapping>-->
+            <!--                        <java>SLASHSTAR_STYLE</java>-->
+            <!--                    </mapping>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1058,16 +1060,15 @@
     </build>
 
     <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>maven-release-virtual</name>
-            <url>https://pkgs.d.xiaomi.net/artifactory/maven-release-virtual</url>
-        </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <name>maven-snapshot-virtual</name>
-            <url>https://pkgs.d.xiaomi.net/artifactory/maven-snapshot-virtual</url>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
+
 
 </project>

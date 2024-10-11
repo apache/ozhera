@@ -21,13 +21,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.xiaomi.mone.file.FileUtils;
 import com.xiaomi.mone.file.ReadResult;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.common.AbstractElementAdapter;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.agent.exception.AgentException;
 import org.apache.ozhera.log.agent.input.Input;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -87,7 +87,7 @@ public class AgentMemoryServiceImpl implements AgentMemoryService {
         if (CollectionUtils.isEmpty(channelMemoryList)) {
             return;
         }
-
+        log.info("memory data:{}", gson.toJson(channelMemoryList));
         channelMemoryList.forEach(c -> {
             if (c != null && ChannelMemory.DEFAULT_VERSION.equals(c.getVersion())) {
                 channelMemoryMap.put(c.getChannelId(), c);

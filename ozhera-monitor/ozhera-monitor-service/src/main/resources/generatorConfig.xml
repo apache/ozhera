@@ -39,7 +39,7 @@
         </javaTypeResolver>
 
         <!-- 生成实体类地址 -->
-        <javaModelGenerator targetPackage="com.xiaomi.mone.monitor.dao.model" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="org.apache.ozhera.monitor.dao.model" targetProject="src/main/java">
         <!--<javaModelGenerator targetPackage="com.xiaomi.mone.monitor.dao.model.cat" targetProject="src/main/java">-->
         <!--<javaModelGenerator targetPackage="com.xiaomi.data.push.dao.model" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java">-->
             <!-- 从数据库返回的值被清理前后的空格 -->
@@ -49,14 +49,14 @@
         </javaModelGenerator>
 
         <!-- 生成mapper xml文件 -->
-        <sqlMapGenerator targetPackage="com.xiaomi.mone.monitor.dao.mapper" targetProject="src/main/resources/">
+        <sqlMapGenerator targetPackage="org.apache.ozhera.monitor.mapper" targetProject="src/main/resources/">
        <!-- <sqlMapGenerator targetPackage="com.xiaomi.cat.dao.mapper" targetProject="src/main/resources/">-->
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- 生成mapper xml对应Client-->
-        <javaClientGenerator targetPackage="com.xiaomi.mone.monitor.dao.mapper" targetProject="src/main/java" type="XMLMAPPER">
+        <javaClientGenerator targetPackage="org.apache.ozhera.monitor.mapper" targetProject="src/main/java" type="XMLMAPPER">
         <!--<javaClientGenerator targetPackage="com.xiaomi.mone.monitor.dao.cat" targetProject="src/main/java" type="XMLMAPPER">-->
         <!--<javaClientGenerator targetPackage="com.xiaomi.data.push.dao.mapper" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java" type="XMLMAPPER">-->
             <!-- enableSubPackages:是否让schema作为包的后缀 -->

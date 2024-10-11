@@ -1,14 +1,14 @@
 {
-  "APP_LOG": "com.xiaomi.mone.log.agent.input.AppLogInput",
-  "APP_LOG_MULTI": "com.xiaomi.mone.log.agent.input.AppLogInput",
-  "APP_LOG_SIGNAL": "com.xiaomi.mone.log.agent.input.AppLogInput",
-  "MIS_APP_LOG": "com.xiaomi.mone.log.agent.input.MisAppLogInput",
-  "NGINX": "com.xiaomi.mone.log.agent.input.NginxInput",
-  "OPENTELEMETRY": "com.xiaomi.mone.log.agent.input.OpentelemetryInput",
-  "DOCKER": "com.xiaomi.mone.log.agent.input.AppLogInput",
-  "FREE": "com.xiaomi.mone.log.agent.input.FreeLogInput",
-  "ORIGIN_LOG": "com.xiaomi.mone.log.agent.input.OriginLogInput",
-  "rocketmq": "com.xiaomi.mone.log.agent.extension.RmqOutput",
+  "APP_LOG": "org.apache.ozhera.log.agent.input.AppLogInput",
+  "APP_LOG_MULTI": "org.apache.ozhera.log.agent.input.AppLogInput",
+  "APP_LOG_SIGNAL": "org.apache.ozhera.log.agent.input.AppLogInput",
+  "MIS_APP_LOG": "org.apache.ozhera.log.agent.input.MisAppLogInput",
+  "NGINX": "org.apache.ozhera.log.agent.input.NginxInput",
+  "OPENTELEMETRY": "org.apache.ozhera.log.agent.input.OpentelemetryInput",
+  "DOCKER": "org.apache.ozhera.log.agent.input.AppLogInput",
+  "FREE": "org.apache.ozhera.log.agent.input.FreeLogInput",
+  "ORIGIN_LOG": "org.apache.ozhera.log.agent.input.OriginLogInput",
+  "rocketmq": "org.apache.ozhera.log.agent.extension.RmqOutput",
   "talos": "com.xiaomi.mone.log.agent.output.TalosOutput",
-  "kafka": "com.xiaomi.mone.log.agent.extension.KafkaOutput"
+  "kafka": "org.apache.ozhera.log.agent.extension.KafkaOutput"
 }

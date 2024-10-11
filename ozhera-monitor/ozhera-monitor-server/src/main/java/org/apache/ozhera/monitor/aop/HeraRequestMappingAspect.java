@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class HeraRequestMappingAspect {
 
-    @Pointcut("@annotation(com.xiaomi.mone.monitor.aop.HeraRequestMapping)")
+    @Pointcut("@annotation(org.apache.ozhera.monitor.aop.HeraRequestMapping)")
     public void operationLog(){}
 
     @Autowired

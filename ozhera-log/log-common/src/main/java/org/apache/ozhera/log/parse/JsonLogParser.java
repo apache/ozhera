@@ -20,9 +20,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import com.google.gson.reflect.TypeToken;
-import org.apache.ozhera.log.utils.IndexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
 
 import java.util.*;
 
@@ -90,7 +90,7 @@ public class JsonLogParser extends AbstractLogParser {
         return parsedLogs;
     }
 
-    public Map<String, Object> flattenJson(String logData) {
+    public static Map<String, Object> flattenJson(String logData) {
         Map<String, Object> ret = new HashMap<>();
         if (logData == null || logData.isEmpty()) {
             return ret;
@@ -99,6 +99,7 @@ public class JsonLogParser extends AbstractLogParser {
             TypeToken<Map<String, Object>> token = new TypeToken<>() {
             };
             Map<String, Object> rawLogMap = GSON.fromJson(logData, token);
+            ret.putAll(rawLogMap);
             flattenMap("", rawLogMap, ret);
         } catch (Exception e) {
             ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
@@ -106,7 +107,7 @@ public class JsonLogParser extends AbstractLogParser {
         return ret;
     }
 
-    private void flattenMap(String prefix, Map<String, Object> source, Map<String, Object> target) {
+    private static void flattenMap(String prefix, Map<String, Object> source, Map<String, Object> target) {
         for (Map.Entry<String, Object> entry : source.entrySet()) {
             String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
             Object value = entry.getValue();

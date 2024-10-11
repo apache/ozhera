@@ -16,6 +16,11 @@
 package org.apache.ozhera.log.stream.job;
 
 import com.google.gson.Gson;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.model.LogtailConfig;
 import org.apache.ozhera.log.model.MilogSpaceData;
@@ -25,16 +30,12 @@ import org.apache.ozhera.log.stream.common.SinkJobEnum;
 import org.apache.ozhera.log.stream.job.extension.SinkJob;
 import org.apache.ozhera.log.stream.job.extension.SinkJobProvider;
 import org.apache.ozhera.log.stream.sink.SinkChain;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -97,15 +98,22 @@ public class JobManager {
     }
 
     public void stopJob(LogtailConfig logtailConfig) {
-        stopLock.lock();
+        boolean locked = false;
         try {
-            List<Long> jobKeys = jobs.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-            log.info("【stop job】,all jobs:{}", jobKeys);
-            sinkJobsShutDown(logtailConfig);
+            locked = stopLock.tryLock(10, TimeUnit.SECONDS);
+            if (locked) {
+                List<Long> jobKeys = jobs.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
+                log.info("【stop job】,all jobs:{}", jobKeys);
+                sinkJobsShutDown(logtailConfig);
+            } else {
+                log.warn("【stop job】,other job is running,wait 10s,tailConfig:{}", gson.toJson(logtailConfig));
+            }
         } catch (Exception e) {
             log.error(String.format("[JobManager.stopJob] stopJob err,logtailId:%s", logtailConfig.getLogtailId()), e);
         } finally {
-            stopLock.unlock();
+            if (locked) {
+                stopLock.unlock();
+            }
         }
     }
 
@@ -183,21 +191,28 @@ public class JobManager {
     }
 
     public void startJob(LogtailConfig logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
-        startLock.lock();
+        boolean locked = false;
         try {
-            String ak = logtailConfig.getAk();
-            String sk = logtailConfig.getSk();
-            String clusterInfo = logtailConfig.getClusterInfo();
-            String type = logtailConfig.getType();
-            if (StringUtils.isEmpty(clusterInfo) || StringUtils.isEmpty(logtailConfig.getTopic())) {
-                log.info("start job error,ak or sk or logtailConfig null,ak:{},sk:{},logtailConfig:{}", ak, sk, new Gson().toJson(logtailConfig));
-                return;
+            locked = startLock.tryLock(10, TimeUnit.SECONDS);
+            if (locked) {
+                String ak = logtailConfig.getAk();
+                String sk = logtailConfig.getSk();
+                String clusterInfo = logtailConfig.getClusterInfo();
+                String type = logtailConfig.getType();
+                if (StringUtils.isEmpty(clusterInfo) || StringUtils.isEmpty(logtailConfig.getTopic())) {
+                    log.info("start job error,ak or sk or logtailConfig null,ak:{},sk:{},logtailConfig:{}", ak, sk, new Gson().toJson(logtailConfig));
+                    return;
+                }
+                startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
+            } else {
+                log.warn("start job error,lock timeout,tailConfig:{},sinkConfig:{}", gson.toJson(logtailConfig), gson.toJson(sinkConfig));
             }
-            startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
         } catch (Exception e) {
-            log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, sinkConfig.getEsIndex()), e);
+            log.error(String.format("[JobManager.startJob] start job err,logTailConfig:%s,esIndex:%s", logtailConfig, sinkConfig.getEsIndex()), e);
         } finally {
-            startLock.unlock();
+            if (locked) {
+                startLock.unlock();
+            }
         }
     }
 

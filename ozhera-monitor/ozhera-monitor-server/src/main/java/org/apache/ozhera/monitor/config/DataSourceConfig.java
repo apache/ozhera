@@ -46,8 +46,8 @@ import java.util.Properties;
 @MapperScan(basePackages = DataSourceConfig.PACKAGE, sqlSessionFactoryRef = "masterSqlSessionFactory")
 public class DataSourceConfig {
 
-    static final String PACKAGE = "com.xiaomi.mone.monitor.dao.mapper";
-    static final String MAPPER_LOCATION = "classpath*:com/xiaomi/mone/monitor/dao/**/*.xml";
+    static final String PACKAGE = "org.apache.ozhera.monitor.dao.mapper";
+    static final String MAPPER_LOCATION = "classpath*:org/apache/ozhera/monitor/dao/**/*.xml";
 
     @NacosValue(value = "${spring.datasource.driverClassName}", autoRefreshed = true)
     private String driverClass;

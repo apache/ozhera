@@ -1,1 +1,1 @@
-org.springframework.context.ApplicationListener=listener.org.apache.ozhera.monitor.ApplicationStartedListener
+org.springframework.context.ApplicationListener=org.apache.ozhera.monitor.listener.ApplicationStartedListener

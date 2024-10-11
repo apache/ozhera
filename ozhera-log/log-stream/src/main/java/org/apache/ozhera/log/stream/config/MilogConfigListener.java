@@ -18,13 +18,6 @@ package org.apache.ozhera.log.stream.config;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.common.Constant;
-import org.apache.ozhera.log.model.LogtailConfig;
-import org.apache.ozhera.log.model.MilogSpaceData;
-import org.apache.ozhera.log.model.SinkConfig;
-import org.apache.ozhera.log.stream.job.JobManager;
-import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Component;
 import com.xiaomi.youpin.docean.common.StringUtils;
@@ -32,15 +25,19 @@ import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.common.Constant;
+import org.apache.ozhera.log.model.LogtailConfig;
+import org.apache.ozhera.log.model.MilogSpaceData;
+import org.apache.ozhera.log.model.SinkConfig;
+import org.apache.ozhera.log.stream.job.JobManager;
+import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -89,31 +86,38 @@ public class MilogConfigListener {
         return Ioc.ins().getBean(factualServiceName);
     }
 
-    private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
+    private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) throws Exception {
+        boolean locked = false;
         try {
-            buildDataLock.lock();
-            if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
-                List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
-                stopUnusedOldStoreJobs(sinkConfigs);
-                for (SinkConfig sinkConfig : sinkConfigs) {
-                    stopOldJobsForRemovedTailIds(sinkConfig);
-                    if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
-                        //Whether the submission store information changes, the change stops
-                        if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
-                            restartPerTail(sinkConfig, milogSpaceData);
+            locked = buildDataLock.tryLock(1, TimeUnit.MINUTES);
+            if (locked) {
+                if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
+                    List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
+                    stopUnusedOldStoreJobs(sinkConfigs);
+                    for (SinkConfig sinkConfig : sinkConfigs) {
+                        stopOldJobsForRemovedTailIds(sinkConfig);
+                        if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
+                            //Whether the submission store information changes, the change stops
+                            if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
+                                restartPerTail(sinkConfig, milogSpaceData);
+                            } else {
+                                handlePerTailComparison(sinkConfig, milogSpaceData);
+                            }
                         } else {
-                            handlePerTailComparison(sinkConfig, milogSpaceData);
+                            newStoreStart(sinkConfig, milogSpaceData);
                         }
-                    } else {
-                        newStoreStart(sinkConfig, milogSpaceData);
                     }
+                } else {
+                    // Restart all
+                    initNewJob(newMilogSpaceData);
                 }
             } else {
-                // Restart all
-                initNewJob(newMilogSpaceData);
+                log.warn("handleNacosConfigDataJob lock failed,data:{}", gson.toJson(newMilogSpaceData));
             }
         } finally {
-            buildDataLock.unlock();
+            if (locked) {
+                buildDataLock.unlock();
+            }
         }
     }
 

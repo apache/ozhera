@@ -20,6 +20,14 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.tpc.common.enums.NodeUserRelTypeEnum;
+import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
+import com.xiaomi.mone.tpc.common.vo.NodeVo;
+import com.xiaomi.mone.tpc.common.vo.PageDataVo;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.db.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.enums.LogStructureEnum;
 import org.apache.ozhera.log.api.enums.MachineRegionEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
@@ -41,14 +49,6 @@ import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
 import org.apache.ozhera.log.manager.service.BaseService;
 import org.apache.ozhera.log.manager.service.LogSpaceService;
 import org.apache.ozhera.log.manager.user.MoneUser;
-import com.xiaomi.mone.tpc.common.enums.NodeUserRelTypeEnum;
-import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
-import com.xiaomi.mone.tpc.common.vo.NodeVo;
-import com.xiaomi.mone.tpc.common.vo.PageDataVo;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.db.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -116,6 +116,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         }
         com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
+
+        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId()));
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
             milogSpaceDao.deleteMilogSpace(dbDO.getId());
@@ -275,6 +277,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
         if (milogSpaceDao.update(milogSpace)) {
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
+
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId()));
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Modify the space permission system not associated with it,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.success("To modify the unassociated permission system of space, contact the server-side performance group");
@@ -306,6 +310,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId()));
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);

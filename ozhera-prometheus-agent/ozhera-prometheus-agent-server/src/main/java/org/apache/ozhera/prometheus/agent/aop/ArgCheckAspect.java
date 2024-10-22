@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
 @Configuration
 public class ArgCheckAspect {
 
-    @Pointcut("@annotation(com.xiaomi.youpin.prometheus.agent.aop.ArgCheck)")
+    @Pointcut("@annotation(org.apache.ozhera.prometheus.agent.aop.ArgCheck)")
     public void argCheck() {
     }
 

@@ -21,6 +21,11 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.mone.file.*;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.file.InodeFileComparator;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
@@ -37,11 +42,6 @@ import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.common.PathUtils;
 import org.apache.ozhera.log.utils.NetUtil;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -185,6 +185,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
+            log.info("get channelMemory empty,filePath:{}", logPattern);
             channelMemory = initChannelMemory(channelId, input, patterns, channelDefine);
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
@@ -396,7 +397,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             logFileMap.put(filePath, logFile);
             Future<?> future = ExecutorUtil.submit(() -> {
                 try {
-                    log.info("thread {} {}", Thread.currentThread().isVirtual(), Thread.currentThread());
+                    log.info("filePath:{},is VirtualThread {}, thread:{},id:{}", filePath, Thread.currentThread().isVirtual(), Thread.currentThread(), Thread.currentThread().threadId());
                     logFile.readLine();
                 } catch (Exception e) {
                     logFile.setExceptionFinish();
@@ -469,6 +470,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
         ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
         ILogFile logFile = channelEngine.logFile();
+        log.info("initLogFile filePath:{},pointer:{},lineNumber:{}", filePath, pointer, lineNumber);
         logFile.initLogFile(filePath, listener, pointer, lineNumber);
         return logFile;
     }

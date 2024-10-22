@@ -78,11 +78,11 @@ public class LogTemplateServiceImpl extends ServiceImpl<MilogLogTemplateMapper, 
     @Override
     public Result<LogTemplateDetailDTO> getLogTemplateById(long logTemplateId) {
         MilogLogTemplateDO logTemplate = milogLogTemplateMapper.selectById(logTemplateId);
-        MilogLogTemplateDetailDO tmplateDetail = templateDetailMapper.getByTemplateId(logTemplateId);
-        if (tmplateDetail == null) {
+        MilogLogTemplateDetailDO templateDetail = templateDetailMapper.getByTemplateId(logTemplateId);
+        if (templateDetail == null) {
             return Result.success(null);
         }
-        LogTemplateDetailDTO dto = MilogLongTemplateDetailConvert.INSTANCE.fromDO(logTemplate, tmplateDetail);
+        LogTemplateDetailDTO dto = MilogLongTemplateDetailConvert.INSTANCE.fromDO(logTemplate, templateDetail);
         return Result.success(dto);
     }
 

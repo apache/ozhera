@@ -58,7 +58,7 @@ public class MetricDetailQuery implements Serializable {
     private String errorType;// error/timeout
     private String serverIp;
 
-    //dubbo label （metheodName与http的uri共用，当type为http当时候，methodName代表uri）
+    //dubbo label （methodName与http的uri共用，当type为http当时候，methodName代表uri）
     private String methodName;
     private String serviceName;
 

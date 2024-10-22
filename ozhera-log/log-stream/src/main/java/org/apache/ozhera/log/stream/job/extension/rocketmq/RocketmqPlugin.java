@@ -44,7 +44,7 @@ public class RocketmqPlugin implements MQPlugin {
         config.setNamesrvAddr(StringUtils.isNotEmpty(clusterInfo) ? clusterInfo : ins.get("rocketmq_namesrv_addr", ""));
         config.setAk(StringUtils.isNotEmpty(ak) ? ak : ins.get("rocketmq_ak", ""));
         config.setSk(StringUtils.isNotEmpty(sk) ? sk : ins.get("rocketmq_sk", ""));
-        config.setConsumerFromWhere(ins.get("rockermq_consumer_offset", ""));
+        config.setConsumerFromWhere(ins.get("rocketmq_consumer_offset", ""));
         config.setConsumerGroup(Constant.DEFAULT_CONSUMER_GROUP + tag);
         if (SinkJobEnum.BACKUP_JOB == jobType) {
             config.setConsumerGroup(Constant.DEFAULT_CONSUMER_GROUP + tag + "_" + BACKUP_PREFIX);

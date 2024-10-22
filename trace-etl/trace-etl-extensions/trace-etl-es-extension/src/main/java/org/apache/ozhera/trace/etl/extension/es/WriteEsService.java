@@ -127,7 +127,7 @@ public class WriteEsService {
         // build logs
         jaegerESDomain.setLogs(buildLogs(tSpanData.getEvents()));
         // build process
-        jaegerESDomain.setProcess(buildProcess(tSpanData.getExtra().getServiceName(), tSpanData.getResouce()));
+        jaegerESDomain.setProcess(buildProcess(tSpanData.getExtra().getServiceName(), tSpanData.getResource()));
         return JSONObject.toJSONString(jaegerESDomain, SerializerFeature.WriteMapNullValue);
     }
 

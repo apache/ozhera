@@ -61,7 +61,7 @@ public class AlertServiceAdapt {
         return alertManager.enableRule(alertId,pauseStatus,identifyId,user);
     }
 
-    public Result queryRuels(JsonObject params, String identifyId, String user){
+    public Result queryRules(JsonObject params, String identifyId, String user){
         return alertManager.queryRuels(params,identifyId,user);
     }
 

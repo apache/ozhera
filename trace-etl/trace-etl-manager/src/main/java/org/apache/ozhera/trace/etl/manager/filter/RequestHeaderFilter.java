@@ -58,7 +58,7 @@ public class RequestHeaderFilter implements Filter {
         String uri = request.getRequestURI();
         Enumeration<String> headerNames = request.getHeaderNames();
         if (headerNames == null || !headerNames.hasMoreElements()) {
-            log.info(uri + " : rquest header is null");
+            log.info(uri + " : request header is null");
         } else {
             log.info(uri + " : request header start ===================");
             while (headerNames.hasMoreElements()) {

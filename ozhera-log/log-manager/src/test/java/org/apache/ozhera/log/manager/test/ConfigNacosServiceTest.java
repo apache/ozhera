@@ -85,7 +85,7 @@ public class ConfigNacosServiceTest {
 //        LogTailServiceImpl milogLogtailService = Ioc.ins().getBean(LogTailServiceImpl.class);
 //        MilogLogTailDo mt = new MilogLogTailDo();
 //        mt.setSpaceId(3L);
-//        milogLogtailService.handleNaocsConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), OperateEnum.ADD_OPERATE.getCode(), ProjectTypeEnum.MIONE_TYPE.getCode());
+//        milogLogtailService.handleNacosConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), OperateEnum.ADD_OPERATE.getCode(), ProjectTypeEnum.MIONE_TYPE.getCode());
 //        Assert.assertNotNull(true);
     }
 }

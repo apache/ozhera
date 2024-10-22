@@ -312,7 +312,7 @@ public class ConsumerService {
         String secondKey = snowFlake.recoverLastTimestamp(TeSnowFlake.SECOND_TIMESTAMP_REDIS_PREFIX);
         final String secondLastRocksKey = secondKey == null ?
                 System.currentTimeMillis() + "_" + LocalStorages.secondRocksKeySuffix.get() : secondKey;
-        // The local message thread is read for the sencond time
+        // The local message thread is read for the second time
         ExecutorUtil.submitRocksDBRead(() -> {
             try {
                 secondRocksdbStoreService.delayTake(secondLastRocksKey, secondGap, new Consumer<byte[]>() {

@@ -36,7 +36,7 @@ import java.util.Set;
  */
 @Service
 @Slf4j
-public class RocketMQSerivce {
+public class RocketMQService {
 
     private String brokerAddr = "rocketmq-broker-0-master:10911";
     private int queueSize = 1;

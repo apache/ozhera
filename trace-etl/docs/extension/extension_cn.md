@@ -10,7 +10,7 @@
 
 ## 1、新建module
 
-需要在`trace-etl-extension`下新建modulr，命名格式是以`trace-etl-${自定义}-extension`格式。例如，RocketMQ的扩展，就命名为：`trace-etl-rocketmq-extension`。
+需要在`trace-etl-extension`下新建module，命名格式是以`trace-etl-${自定义}-extension`格式。例如，RocketMQ的扩展，就命名为：`trace-etl-rocketmq-extension`。
 
 ## 2、实现接口
 

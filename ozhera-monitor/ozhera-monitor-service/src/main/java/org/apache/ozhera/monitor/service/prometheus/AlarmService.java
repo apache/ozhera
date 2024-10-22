@@ -642,7 +642,7 @@ public class AlarmService {
             params.addProperty("expr",expr);
         }
 
-        return alertServiceAdapt.queryRuels(params,String.valueOf(iamId),user);
+        return alertServiceAdapt.queryRules(params,String.valueOf(iamId),user);
     }
 
     /**

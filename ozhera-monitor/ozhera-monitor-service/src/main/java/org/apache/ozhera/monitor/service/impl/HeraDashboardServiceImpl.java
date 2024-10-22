@@ -171,7 +171,7 @@ public class HeraDashboardServiceImpl implements HeraDashboardService {
         //grafana template  replace template variable，request grafana generate dashboard and panel.
         createDefaultGrafanaDashboard(datasourceUid, header);
         
-        //Write the url returned by the panel back to mimonitor's nacos configuration
+        //Write the url returned by the panel back to monitor's nacos configuration
         try {
             ConfigService configService = NacosFactory.createConfigService(nacosAddress);
             String nacosResult = configService.getConfig(DashboardConstant.DEFAULT_MIMONITOR_NACOS_CONFIG,

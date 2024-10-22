@@ -85,7 +85,7 @@ public class ComputeTimerServiceImpl implements ComputeTimerService {
     public Result<List<AppAlarmData>> getProjectStatistics(AppMonitorRequest param) {
         final Long endTime = CommonUtil.toSeconds(System.currentTimeMillis());
         final Long startTime = endTime - param.getDuration();
-        final String timeDurarion = param.getDuration() + "s";
+        final String timeDuration = param.getDuration() + "s";
         final Long step = param.getDuration();
         int projectSize = param.getProjectList().size() > 50 ? 50 : param.getProjectList().size();
         List<Callable<AppAlarmData>> callList = new ArrayList<>();
@@ -97,7 +97,7 @@ public class ComputeTimerServiceImpl implements ComputeTimerService {
             callList.add(new Callable() {
                 @Override
                 public AppAlarmData call() throws Exception {
-                    return getAppAlarmData(project, startTime, endTime, timeDurarion, step, param);
+                    return getAppAlarmData(project, startTime, endTime, timeDuration, step, param);
                 }
             });
         }
@@ -124,11 +124,11 @@ public class ComputeTimerServiceImpl implements ComputeTimerService {
      * @param project
      * @param startTime
      * @param endTime
-     * @param timeDurarion
+     * @param timeDuration
      * @param param
      */
     @Override
-    public AppAlarmData getAppAlarmData(ProjectInfo project, Long startTime, Long endTime, String timeDurarion,
+    public AppAlarmData getAppAlarmData(ProjectInfo project, Long startTime, Long endTime, String timeDuration,
             Long step, AppMonitorRequest param) {
         String appName = new StringBuilder().append(project.getId()).append("_")
                 .append(project.getName().replaceAll("-", "_")).toString();
@@ -149,7 +149,7 @@ public class ComputeTimerServiceImpl implements ComputeTimerService {
             return new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    computByMetricType(param, appName, kind, dataBuilder, startTime, endTime, timeDurarion, step);
+                    computByMetricType(param, appName, kind, dataBuilder, startTime, endTime, timeDuration, step);
                     return null;
                 }
             };
@@ -181,10 +181,10 @@ public class ComputeTimerServiceImpl implements ComputeTimerService {
     }
     
     private void computByMetricType(AppMonitorRequest param, String appName, MetricKind metricKind,
-            AppAlarmData.AppAlarmDataBuilder dataBuilder, Long startTime, Long endTime, String timeDurarion,
+            AppAlarmData.AppAlarmDataBuilder dataBuilder, Long startTime, Long endTime, String timeDuration,
             Long step) {
         computeTimerServiceExtension.computByMetricType(param, appName, metricKind, dataBuilder, startTime, endTime,
-                timeDurarion, step);
+                timeDuration, step);
     }
     @Override
     public AppAlarmData countAppMetricData(AppMonitorRequest param) {

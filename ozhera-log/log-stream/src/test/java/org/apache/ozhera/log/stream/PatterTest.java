@@ -63,9 +63,9 @@ public class PatterTest {
     public void test3() {
         String regex = "\\bcat\\b";
         final String input = "cat cat cat cattie cat";
-        //Create a Pettern object
+        //Create a Pattern object
         Pattern p = Pattern.compile(regex);
-        //Create a Pettern object...
+        //Create a Pattern object...
         Matcher m = p.matcher(input);
         int count = 0;
         if (m.find()) {

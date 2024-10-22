@@ -34,7 +34,7 @@ public class ExecutorUtil {
     public static final int ROCKSDB_DEAL_MESSAGE_CORE = 20;
     private final static ThreadPoolExecutor errorESthreadPoolExecutor;
     private final static ThreadPoolExecutor consumerDelayMsgthreadPoolExecutor;
-    private final static ThreadPoolExecutor rocksDBThreaPool;
+    private final static ThreadPoolExecutor rocksDBThreadPool;
 
     static{
 
@@ -44,7 +44,7 @@ public class ExecutorUtil {
         consumerDelayMsgthreadPoolExecutor = new ThreadPoolExecutor(ROCKSDB_DEAL_MESSAGE_CORE, ROCKSDB_DEAL_MESSAGE_CORE,
                 0L, TimeUnit.MILLISECONDS,
                 consumerDelayMsgQueue);
-        rocksDBThreaPool = new ThreadPoolExecutor(2, 2,
+        rocksDBThreadPool = new ThreadPoolExecutor(2, 2,
                 0L, TimeUnit.MILLISECONDS,
                 rocksThreadQueue);
     }
@@ -67,7 +67,7 @@ public class ExecutorUtil {
 
     public static void submitRocksDBRead(Runnable runnable){
         try {
-            rocksDBThreaPool.submit(runnable);
+            rocksDBThreadPool.submit(runnable);
         }catch(Exception e){
             log.error("提交rocksdb读取任务失败：",e);
         }

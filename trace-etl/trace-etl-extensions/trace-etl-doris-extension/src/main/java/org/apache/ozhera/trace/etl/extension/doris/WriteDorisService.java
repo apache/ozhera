@@ -167,7 +167,7 @@ public class WriteDorisService {
         // build logs
         spanData.put(HeraTraceSpanColumn.logs, GSON.toJson(buildLogs(tSpanData.getEvents())));
         // build process
-        spanData.put(HeraTraceSpanColumn.process, GSON.toJson(buildProcess(tSpanData.getExtra().getServiceName(), tSpanData.getResouce())));
+        spanData.put(HeraTraceSpanColumn.process, GSON.toJson(buildProcess(tSpanData.getExtra().getServiceName(), tSpanData.getResource())));
         return spanData;
     }
 

@@ -186,7 +186,7 @@ public class HeraBaseInfoServiceImpl implements HeraBaseInfoService {
         
         Integer integer = this.deleteByIdRemote(id);
         if (integer.intValue() > 0) {
-            log.info("deleAppById sucess!dataId:{}", id);
+            log.info("deleAppById success!dataId:{}", id);
         } else {
             log.info("deleAppById fail!dataId:{}", id);
         }

@@ -35,8 +35,8 @@ public class TopTest {
     }
 
     @Test
-    public void caclulate() throws IOException {
+    public void calculate() throws IOException {
         String storeName = "nr-pay";
-//        dateGroupStrategy.caclulate(storeName);
+//        dateGroupStrategy.calculate(storeName);
     }
 }

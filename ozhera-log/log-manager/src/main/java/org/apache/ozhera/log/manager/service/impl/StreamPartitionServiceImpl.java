@@ -134,7 +134,7 @@ public class StreamPartitionServiceImpl implements StreamPartitionService {
     }
 
     private MiLogStreamConfig buildMiLogStreamConfig(String machineRoom) {
-        logConfigNacosService.chooseCurrentEnvNacosSerevice(machineRoom);
+        logConfigNacosService.chooseCurrentEnvNacosService(machineRoom);
         MiLogStreamConfig config = logConfigNacosService.getStreamConfigNacosProvider(machineRoom).getConfig(null);
         if (config == null) {
             throw new MilogManageException("当前机房nacos配置不存在");

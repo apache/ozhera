@@ -21,5 +21,5 @@ import org.apache.ozhera.monitor.service.model.redis.AppAlarmData;
 
 public interface ComputeTimerServiceExtension {
 
-    void computByMetricType(AppMonitorRequest param, String appName, MetricKind metricKind, AppAlarmData.AppAlarmDataBuilder dataBuilder, Long startTime, Long endTime, String timeDurarion, Long step);
+    void computByMetricType(AppMonitorRequest param, String appName, MetricKind metricKind, AppAlarmData.AppAlarmDataBuilder dataBuilder, Long startTime, Long endTime, String timeDuration, Long step);
 }

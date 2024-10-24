@@ -197,7 +197,7 @@ public class AlertManagerImpl implements AlertManager {
         param.setUserAcc(userVoSearch == null ? null : userVoSearch.getAccount());
 //        param.setType(UserTypeEnum.EMAIL.getCode());
         com.xiaomi.youpin.infra.rpc.Result<PageDataVo<UserVo>> userResult =  userFacade.list(param);
-        log.info("userFacade reqeust param:{},result:{}",gson.toJson(param),gson.toJson(userResult));
+        log.info("userFacade request param:{},result:{}",gson.toJson(param),gson.toJson(userResult));
         if (userResult == null || userResult.getData() == null || CollectionUtils.isEmpty(userResult.getData().getList())) {
             return Result.success(page);
         }

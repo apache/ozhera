@@ -184,7 +184,7 @@ public class Bootstrap {
             }
             return certificate;
         } catch (Throwable t) {
-            throw new RuntimeException("laod yaml error : ", t);
+            throw new RuntimeException("load yaml error : ", t);
         }
     }
 

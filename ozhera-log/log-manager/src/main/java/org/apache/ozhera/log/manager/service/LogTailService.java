@@ -41,7 +41,7 @@ public interface LogTailService {
 
     void sengMessageToStream(MilogLogTailDo mt, Integer type);
 
-    void handleNaocsConfigByMotorRoom(MilogLogTailDo mt, String motorRoomEn, Integer type, Integer projectType);
+    void handleNacosConfigByMotorRoom(MilogLogTailDo mt, String motorRoomEn, Integer type, Integer projectType);
 
     /**
      * Delete a part of a configuration in the configuration center

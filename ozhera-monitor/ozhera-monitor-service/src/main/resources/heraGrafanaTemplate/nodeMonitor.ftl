@@ -776,7 +776,7 @@
 {
 "aliasColors": {
 "localhost:9100_总内存": "dark-red",
-"内存_Avaliable": "#6ED0E0",
+"内存_Available": "#6ED0E0",
 "内存_Cached": "#EF843C",
 "内存_Free": "#629E51",
 "内存_Total": "#6d1f62",

@@ -67,7 +67,7 @@ public enum AlarmPresetMetrics {
     http_client_slow_query("http_client_slow_query","Http调出慢查询", "Http-call-in-slow-query-count",MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.slow_times,BasicUrlType.hera_dash_ip,null),
 
     /**
-     * metric -dobbo
+     * metric -dubbo
      */
 
     dubbo_provider_error_times("dubbo_provider_error_times","Dubbo调入异常数", "Dubbo-call-in-exception-count", MetricsUnit.UNIT_COUNT, SendAlertGroupKey.APP_METHOD, AlarmStrategyType.INTERFACE,InterfaceMetricTypes.error_times,BasicUrlType.hera_dash_ip,null),

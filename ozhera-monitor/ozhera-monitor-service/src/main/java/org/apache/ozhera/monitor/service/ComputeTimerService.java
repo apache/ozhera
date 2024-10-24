@@ -38,10 +38,10 @@ public interface ComputeTimerService {
      * @param project
      * @param startTime
      * @param endTime
-     * @param timeDurarion
+     * @param timeDuration
      * @param param
      */
-    AppAlarmData getAppAlarmData(ProjectInfo project, Long startTime, Long endTime, String timeDurarion, Long step,
+    AppAlarmData getAppAlarmData(ProjectInfo project, Long startTime, Long endTime, String timeDuration, Long step,
             AppMonitorRequest param);
     
     

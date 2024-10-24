@@ -33,7 +33,6 @@ import org.apache.ozhera.log.manager.dao.MilogMiddlewareConfigDao;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
 import org.apache.ozhera.log.manager.model.pojo.*;
-import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.service.MilogConfigNacosService;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessor;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessorFactory;
@@ -52,7 +51,6 @@ import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.ozhera.log.manager.service.nacos.impl.*;
 import org.apache.ozhera.log.model.*;
 
 import javax.annotation.Resource;
@@ -124,7 +122,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private void initializeNacosConfigurations() {
         List<String> regions = commonExtensionService.queryMachineRegions();
         for (String region : regions) {
-            chooseCurrentEnvNacosSerevice(region);
+            chooseCurrentEnvNacosService(region);
         }
     }
 
@@ -252,7 +250,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
      *
      * @param motorRoomEn
      */
-    public void chooseCurrentEnvNacosSerevice(String motorRoomEn) {
+    public void chooseCurrentEnvNacosService(String motorRoomEn) {
         MilogMiddlewareConfig middlewareConfig = milogMiddlewareConfigDao.queryCurrentEnvNacos(motorRoomEn);
         if (null != middlewareConfig) {
             ConfigService configService = MultipleNacosConfig.getConfigService(middlewareConfig.getNameServer());

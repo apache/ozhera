@@ -634,7 +634,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>file</artifactId>
-                <version>1.5.1-jdk21</version>
+                <version>1.6.0-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

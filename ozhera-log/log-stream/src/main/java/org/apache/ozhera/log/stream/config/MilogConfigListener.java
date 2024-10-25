@@ -239,6 +239,7 @@ public class MilogConfigListener {
      * @param newMilogSpaceData
      */
     private void initNewJob(MilogSpaceData newMilogSpaceData) {
+        stopOldJobsIfNeeded();
         log.info("Start all tasks to restart the current space，spaceData:{}", gson.toJson(newMilogSpaceData));
         Map<Long, LogtailConfig> newLogTailConfigMap = new HashMap<>();
         Map<Long, SinkConfig> newSinkConfigMap = new HashMap<>();
@@ -262,9 +263,24 @@ public class MilogConfigListener {
         oldSinkConfigMap = newSinkConfigMap;
     }
 
+    private void stopOldJobsIfNeeded() {
+        if (!oldLogTailConfigMap.isEmpty()) {
+            for (LogtailConfig value : oldLogTailConfigMap.values()) {
+                jobManager.stopJob(value);
+            }
+            oldLogTailConfigMap.clear();
+        }
+        if (!oldSinkConfigMap.isEmpty()) {
+            for (SinkConfig value : oldSinkConfigMap.values()) {
+                stopOldJobsForStore(value.getLogstoreId());
+            }
+            oldSinkConfigMap.clear();
+        }
+    }
+
     private void startTailPer(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId) {
-        if (null == logSpaceId) {
-            log.warn("startTailPer error,logSpaceId is null,LogTailConfig:{}", gson.toJson(logTailConfig));
+        if (null == logSpaceId || null == logTailConfig || null == logTailConfig.getLogtailId()) {
+            log.error("logSpaceId or logTailConfig or logTailId is null,sinkConfig:{},logTailConfig:{},logSpaceId:{}", gson.toJson(sinkConfig), gson.toJson(logTailConfig), spaceId);
             return;
         }
         Boolean isStart = streamCommonExtension.preCheckTaskExecution(sinkConfig, logTailConfig, logSpaceId);

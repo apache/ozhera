@@ -711,7 +711,8 @@ public class AppAlarmServiceImpl implements AppAlarmService {
                     
                     ruleData.setAlertMembers(param.getAlertMembers());
                     ruleData.setAtMembers(param.getAtMembers());
-                    
+                    ruleData.setAlertTeam(param.getAlertTeam());
+
                     Result result = editAlarmRule(ruleData, alarmStrategy, appMonitor, param.getUser());
                     if (!result.isSuccess()) {
                         failResult.orElse(result);

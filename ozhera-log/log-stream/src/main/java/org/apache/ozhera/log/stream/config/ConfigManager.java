@@ -17,12 +17,6 @@ package org.apache.ozhera.log.stream.config;
 
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.model.MiLogStreamConfig;
-import org.apache.ozhera.log.model.MilogSpaceData;
-import org.apache.ozhera.log.stream.common.util.StreamUtils;
-import org.apache.ozhera.log.stream.exception.StreamException;
-import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
@@ -31,6 +25,12 @@ import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.model.MiLogStreamConfig;
+import org.apache.ozhera.log.model.MilogSpaceData;
+import org.apache.ozhera.log.stream.common.util.StreamUtils;
+import org.apache.ozhera.log.stream.exception.StreamException;
+import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -168,12 +168,15 @@ public class ConfigManager {
             return;
         }
         Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
-        try {
-            spaceLock.tryLock();
-            stopUnusefulListenerAndJob(dataIdMap);
-            startNewListenerAndJob(dataIdMap);
-        } finally {
-            spaceLock.unlock();
+        if (spaceLock.tryLock()) {
+            try {
+                stopUnusefulListenerAndJob(dataIdMap);
+                startNewListenerAndJob(dataIdMap);
+            } finally {
+                spaceLock.unlock();
+            }
+        } else {
+            log.warn("Failed to acquire lock, skipping processing for dataIdMap: {}", dataIdMap);
         }
     }
 

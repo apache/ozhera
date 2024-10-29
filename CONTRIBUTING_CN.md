@@ -15,7 +15,7 @@
 
 ## 报告安全问题
 
-安全问题总是优先处理。我们鼓励您不要公开讨论或发布任何关于 Apache OzHera(incubating) 的安全漏洞。如果您发现安全问题，请直接发送电子邮件至 [private@ozhera.apache.org](mailto:private@ozhera.apache.org) 以保密的方式报告。
+安全问题总是优先处理。我们建议您不要公开讨论或发布任何关于 Apache OzHera(incubating) 的安全漏洞。如果您发现安全问题，请直接发送电子邮件至 [private@ozhera.apache.org](mailto:private@ozhera.apache.org) 以保密的方式报告。
 
 ## 报告一般问题
 

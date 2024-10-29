@@ -1,11 +1,11 @@
-# OzHera部署文档
+# Apache OzHera(Incubating)部署文档
 
 ## 1.部署说明
 
-OzHera operator的作⽤是在k8s集群中的指定namespace下⼀键拉起⼀个ozhera平台。该⽂档适⽤于有⼀定k8s基础(PV、PVC、Service、Pod、Deployment、DaemonSet等)的研发/运维同学。
+Apache OzHera(Incubating) operator的作⽤是在k8s集群中的指定namespace下⼀键拉起⼀个OzHera平台。该⽂档适⽤于有⼀定k8s基础(PV、PVC、Service、Pod、Deployment、DaemonSet等)的研发/运维同学。
 
-OzHera是⼀套企业级的可观测性平台，部署时复杂度⾮常⾼，部署前请认真阅读以下部署⽂档及相关的
-[operator介绍视频](https://mp.weixin.qq.com/s?__biz=MzkwMjQzMzMxMg==&mid=2247483720&idx=1&sn=c38fca2d3e82de43ce22acad73a1be21&chksm=c0a4de07f7d35711c5cba634c3833708db19fcc9303a50b77f8c1601831cac8e9520e3f32ff5&token=1000658198&lang=zh_CN#rd)。
+Apache OzHera(Incubating)是⼀套企业级的可观测性平台，部署时复杂度⾮常⾼，部署前请认真阅读以下部署⽂档及相关的
+[Apache OzHera(Incubating)介绍视频](https://mp.weixin.qq.com/s?__biz=MzkwMjQzMzMxMg==&mid=2247483720&idx=1&sn=c38fca2d3e82de43ce22acad73a1be21&chksm=c0a4de07f7d35711c5cba634c3833708db19fcc9303a50b77f8c1601831cac8e9520e3f32ff5&token=1000658198&lang=zh_CN#rd)。
 
 ## 2.部署步骤
 

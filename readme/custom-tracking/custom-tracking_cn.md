@@ -1,4 +1,4 @@
-# OzHera自定义打点监控文档
+# Apache OzHera(Incubating) 自定义打点监控文档
 
 加粗的**重要**内容较为关键，请仔细阅读。
 
@@ -163,7 +163,7 @@ Metrics.getInstance().newHistogram("testHistogram", buckets, "methodName","url")
 
 **（重要！！！！！！忽略可能会在日后将你创建的图表删除）**
 
-1. 在grafana中，OzHera为业务生成了若干内置图表，包括http、dubbo、jvm、db、redis等，业务自定义指标一定要编辑在自定义指标中，因为以后内置图表可能会更新，如果你的图表在其他地方可能会被覆盖掉。
+1. 在grafana中，Apache OzHera(Incubating)为业务生成了若干内置图表，包括http、dubbo、jvm、db、redis等，业务自定义指标一定要编辑在自定义指标中，因为以后内置图表可能会更新，如果你的图表在其他地方可能会被覆盖掉。
 
    自定义打点的PromQl语法，可以参考以下文档。
    

@@ -79,7 +79,7 @@ We warmly welcome your valuable opinions and suggestions about the project. Whet
 
 #### Community Engagement
 - We also welcome you to join our community for discussions and exchanges:
-    - Welcome to visit the [community website](https://m.one.mi.com/index) of Apache OzHera(Incubating), where we will publish Apache OzHera(Incubating)'s technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
+    - Welcome to visit the [community website](https://ozhera.apache.org) of Apache OzHera(Incubating), where we will publish Apache OzHera(Incubating)'s technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
     - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---

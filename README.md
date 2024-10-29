@@ -59,7 +59,7 @@ Welcome to visit the [official website](https://ozhera.apache.org/) of Apache Oz
 ---
 
 ### Contributing
-Contributors are welcomed to join ozhera project. Please check [contributing.md](readme%2Fcontributing%2Fcontributing.md) about how to contribute to this project.
+Contributors are welcomed to join ozhera project. Please check [contributing.md](CONTRIBUTING.md) about how to contribute to this project.
 
 How can I contribute?
 - Take a look at issues with tags marked [good first issue](https://github.com/apache/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/apache/ozhera/labels/help%20wanted).

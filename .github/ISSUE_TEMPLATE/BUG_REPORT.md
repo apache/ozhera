@@ -1,21 +1,20 @@
+---`
+
+name: Bug Report
+
+about: If you would like to report an issue to Apache OzHera(Incubating), please use this template.
+`
 ---
-name: Bug Report    
-
-about: If you would like to report an issue to Seata, please use this template.
-
----
-<!-- Please do not use this issue template to report security vulnerabilities but refer to our [security policy](https://github.com/seata/seata/security/policy). -->
-
 
 ### Ⅰ. Issue Description
 
 
 ### Ⅱ. Describe what happened
 
-  If there is an exception, please attach the exception trace:
+If there is an exception, please attach the exception trace:
 
 ```
-Just paste your stack trace here!
+Just paste your stack trace here
 ```
 
 
@@ -37,8 +36,8 @@ Minimal yet complete reproducer code (or URL to code):
 
 ### Ⅵ. Environment:
 
-- JDK version(e.g. `java -version`):
-- Seata client/server version:  
+- JDK version (e.g. `java -version`):
+- OzHera client/server version:
 - Database version:
-- OS(e.g. `uname -a`):
+- OS (e.g. `uname -a`):
 - Others:

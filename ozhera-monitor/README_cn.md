@@ -1,5 +1,5 @@
 # 概述
-   ozhera-monitor 是ozhera体系主体工程之一，负责管理监控体系的应用中心、指标监控、指标报警配置、
+   ozhera-monitor 是Apache OzHera(incubating)体系主体工程之一，负责管理监控体系的应用中心、指标监控、指标报警配置、
 报警组配置、监控面板展示等多维度的重要功能。
 
 ## 涉及的环境

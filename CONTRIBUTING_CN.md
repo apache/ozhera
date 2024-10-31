@@ -84,7 +84,7 @@ Apache OzHera(incubating) 项目通过 GitHub 进行协作，我们鼓励贡献�
 * 回答他人的问题
 * 帮助审查他人的 PR 设计和代码
 * 讨论项目改进建议
-* 撰写关于 Ozhera 的博客或分享使用经验
+* 撰写关于 Apache OzHera(incubating) 的博客或分享使用经验
 
 ## 代码风格
 

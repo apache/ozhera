@@ -37,7 +37,7 @@ Minimal yet complete reproducer code (or URL to code):
 ### Ⅵ. Environment:
 
 - JDK version (e.g. `java -version`):
-- OzHera client/server version:
-- Database version:
+- Apache OzHera(Incubating) version:
+- Kubernetes version:
 - OS (e.g. `uname -a`):
 - Others:

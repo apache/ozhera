@@ -15,11 +15,11 @@
 
 ## 报告安全问题
 
-安全问题总是优先处理。我们建议您不要公开讨论或发布任何关于 Apache OzHera(incubating) 的安全漏洞。如果您发现安全问题，请直接发送电子邮件至 [private@ozhera.apache.org](mailto:private@ozhera.apache.org) 以保密的方式报告。
+安全问题是我们最关注的事情。我们建议您不要公开讨论或发布任何关于 Apache OzHera(incubating) 的安全漏洞。如果您发现安全问题，请直接发送电子邮件至 [private@ozhera.apache.org](mailto:private@ozhera.apache.org) 以保密的方式报告。
 
 ## 报告一般问题
 
-用户的反馈是项目进步的重要来源。在体验 Apache OzHera(incubating) 后，您可以通过 [NEW ISSUE](https://github.com/apache/ozhera/issues/new/choose) 提交您的问题或建议。为确保沟通效率，我们建议先搜索是否已存在相关问题，然后在已有问题下添加您的详细信息，而不是创建新问题。
+用户的反馈是项目进步的重要来源。在使用 Apache OzHera(incubating) 后，您可以通过 [NEW ISSUE](https://github.com/apache/ozhera/issues/new/choose) 提交您的问题或建议。为确保沟通效率，我们建议先搜索是否已存在相关问题，然后在已有问题下添加您的详细信息，而不是创建新问题。
 
 当您遇到以下情况，可以新建一个问题：
 

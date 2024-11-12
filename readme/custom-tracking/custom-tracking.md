@@ -1,4 +1,4 @@
-# OzHera Custom Monitoring Documentation
+# Apache OzHera(Incubating) Custom Monitoring Documentation
 
 Bold **Important** content is key, please read carefully.
 
@@ -162,7 +162,7 @@ For more on using Grafana monitoring charts, see: https://grafana.com/docs/grafa
 
 **Important!!! Ignoring this may result in your created charts being deleted in the future.**
 
-1. In Grafana, OzHera has generated several built-in charts for the business, including http, dubbo, jvm, db, redis, etc. Custom metrics for businesses must be edited within the custom metrics. This is because built-in charts might be updated in the future, and if your charts are elsewhere, they might get overridden.
+1. In Grafana, Apache OzHera(Incubating) has generated several built-in charts for the business, including http, dubbo, jvm, db, redis, etc. Custom metrics for businesses must be edited within the custom metrics. This is because built-in charts might be updated in the future, and if your charts are elsewhere, they might get overridden.
 
    For the syntax of custom monitoring's PromQL, you can refer to the following documentation:
 

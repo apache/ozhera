@@ -1,4 +1,4 @@
-# OzHera用户手册
+# Apache OzHera(incubating)用户手册
 
 ## 一、应用中心
 

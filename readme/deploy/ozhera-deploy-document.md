@@ -1,10 +1,10 @@
-# OzHera Deployment Documentation
+# Apache OzHera(Incubating) Deployment Documentation
 
 ## 1. Deployment Instructions
 
-The purpose of the OzHera operator is to launch an OzHera platform in a specified namespace in the k8s cluster. This documentation is suitable for R&D/operations staff with basic k8s knowledge (PV, PVC, Service, Pod, Deployment, DaemonSet, etc.).
+The purpose of the Apache OzHera(Incubating) operator is to launch an OzHera platform in a specified namespace in the k8s cluster. This documentation is suitable for R&D/operations staff with basic k8s knowledge (PV, PVC, Service, Pod, Deployment, DaemonSet, etc.).
 
-OzHera is an enterprise-level observability platform with a very high complexity during deployment. Please read the following deployment documentation and related [operator introduction video](https://mp.weixin.qq.com/s?__biz=MzkwMjQzMzMxMg==&mid=2247483720&idx=1&sn=c38fca2d3e82de43ce22acad73a1be21&chksm=c0a4de07f7d35711c5cba634c3833708db19fcc9303a50b77f8c1601831cac8e9520e3f32ff5&token=1000658198&lang=zh_CN#rd) carefully before deployment.
+Apache OzHera(Incubating) is an enterprise-level observability platform with a very high complexity during deployment. Please read the following deployment documentation and related [operator introduction video](https://mp.weixin.qq.com/s?__biz=MzkwMjQzMzMxMg==&mid=2247483720&idx=1&sn=c38fca2d3e82de43ce22acad73a1be21&chksm=c0a4de07f7d35711c5cba634c3833708db19fcc9303a50b77f8c1601831cac8e9520e3f32ff5&token=1000658198&lang=zh_CN#rd) carefully before deployment.
 
 ## 2. Deployment Steps
 

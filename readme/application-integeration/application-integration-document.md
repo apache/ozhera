@@ -1,8 +1,8 @@
-# OzHera Integration Documentation
+# Apache OzHera(Incubating) Integration Documentation
 
 ## I. Dependencies for Application Deployment
 
-Applications integrating with OzHera require probes, JVM parameters, environment variables, and the log-agent service.
+Applications integrating with Apache OzHera(incubating) require probes, JVM parameters, environment variables, and the log-agent service.
 
 ### 1. Probes
 

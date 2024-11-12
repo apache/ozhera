@@ -1,4 +1,4 @@
-# OzHera User Manual
+# Apache OzHera(incubating) User Manual
 
 ## I. Application Center
 

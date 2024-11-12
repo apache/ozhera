@@ -1,5 +1,5 @@
 # OzHeraOperator概述
-OzHeraOperator用于一键部署整个OzHera系统。
+OzHeraOperator用于一键部署整个Apache OzHera(incubating)系统。
 
 # 环境要求
 + k8s集群

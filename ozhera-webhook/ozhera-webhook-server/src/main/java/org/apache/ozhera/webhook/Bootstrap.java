@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"run.mone.hera.webhook"})
+@ComponentScan(basePackages = {"org.apache.ozhera.webhook"})
 @Slf4j
 public class Bootstrap {
 
@@ -184,7 +184,7 @@ public class Bootstrap {
             }
             return certificate;
         } catch (Throwable t) {
-            throw new RuntimeException("laod yaml error : ", t);
+            throw new RuntimeException("load yaml error : ", t);
         }
     }
 

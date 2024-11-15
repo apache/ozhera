@@ -32,7 +32,7 @@ public class AlertTeamData implements Serializable {
     String manager;//duty manager
     String[] members;
     String chat_id;//feishu group ID
-    String cretaed_by;
+    String created_by;
     Long created_time;
     Integer goc_oncall_id;//migoc oncall id
 

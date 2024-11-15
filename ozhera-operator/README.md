@@ -1,5 +1,5 @@
 # OzHeraOperator Overview
-OzHeraOperator is used to deploy the entire OzHera system with one click.
+OzHeraOperator is used to deploy the entire Apache OzHera(incubating) system with one click.
 
 # Environment Requirements
 + k8s cluster

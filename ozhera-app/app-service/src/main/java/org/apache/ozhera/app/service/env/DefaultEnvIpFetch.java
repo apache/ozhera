@@ -54,7 +54,7 @@ public class DefaultEnvIpFetch {
     private DefaultNacosEnvIpFetch defaultNacosEnvIpFetch;
 
     @Value("${app.ip.fetch.type}")
-    private String envApppType;
+    private String envAppType;
 
     @NacosValue(value = "${hera.tpc.url}", autoRefreshed = true)
     private String heraTpcUrl;
@@ -70,7 +70,7 @@ public class DefaultEnvIpFetch {
 
 
     public EnvIpFetch getEnvIpFetch() {
-        if (Objects.equals(EnvIpTypeEnum.HTTP.name().toLowerCase(), envApppType)) {
+        if (Objects.equals(EnvIpTypeEnum.HTTP.name().toLowerCase(), envAppType)) {
             return defaultHttpEnvIpFetch;
         }
         return defaultNacosEnvIpFetch;

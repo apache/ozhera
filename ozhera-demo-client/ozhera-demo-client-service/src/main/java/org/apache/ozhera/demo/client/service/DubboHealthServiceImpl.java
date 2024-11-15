@@ -27,7 +27,7 @@ import run.mone.common.Result;
 public class DubboHealthServiceImpl implements DubboHealthService {
 
     @Reference(group = "${dubbo.group}",version = "1.0",timeout = 3000,retries = 0,check = false)
-    private com.xiaomi.mone.hera.demo.server.service.DubboHealthService  dubboHealthService;
+    private org.apache.ozhera.demo.server.service.DubboHealthService  dubboHealthService;
 
     @Override
     public int remoteHealth(int size) {

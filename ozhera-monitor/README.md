@@ -1,5 +1,5 @@
 # Overview
-ozhera-monitor is one of the core projects within the ozhera system. It is responsible for managing various crucial functions related to the monitoring system, including the application center, metric monitoring, metric alert configuration, alert group configuration, monitoring dashboard display, and more.
+ozhera-monitor is one of the core projects within the Apache OzHera(incubating) system. It is responsible for managing various crucial functions related to the monitoring system, including the application center, metric monitoring, metric alert configuration, alert group configuration, monitoring dashboard display, and more.
 
 # Supported Environments
 JDK: Java 8

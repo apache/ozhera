@@ -60,8 +60,8 @@ public class TeSnowFlake extends SnowFlake implements InitializingBean {
         // Get machine number from environment variables.
         String podName = System.getenv("MONE_CONTAINER_S_POD_NAME");
         if (StringUtils.isEmpty(podName)) {
-            log.error("this pod con't get podName!");
-            throw new RuntimeException("this pod con't get podName!");
+            log.error("this pod can't get podName!");
+            throw new RuntimeException("this pod can't get podName!");
         }
         mId = podName.substring(podName.lastIndexOf("-") + 1);
     }

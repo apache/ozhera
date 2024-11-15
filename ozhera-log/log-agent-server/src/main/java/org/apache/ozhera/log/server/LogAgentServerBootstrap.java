@@ -19,13 +19,13 @@ import com.google.common.collect.Lists;
 import com.xiaomi.data.push.rpc.RpcCmd;
 import com.xiaomi.data.push.rpc.RpcServer;
 import com.xiaomi.data.push.rpc.common.Pair;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.server.porcessor.AgentCollectProgressProcessor;
 import org.apache.ozhera.log.server.porcessor.AgentConfigProcessor;
 import org.apache.ozhera.log.server.porcessor.PingProcessor;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
@@ -56,7 +56,7 @@ public class LogAgentServerBootstrap {
         rpcServer.start();
 
         Ioc.ins().putBean(rpcServer);
-        Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin");
+        Ioc.ins().init("com.xiaomi.mone", "com.xiaomi.youpin", "org.apache.ozhera.log.server");
         log.info("log server start finish");
     }
 }

@@ -38,7 +38,7 @@ import org.apache.ozhera.operator.common.HoConstant;
 import org.apache.ozhera.operator.common.K8sUtilBean;
 import org.apache.ozhera.operator.common.ResourceTypeEnum;
 import org.apache.ozhera.operator.service.ESService;
-import org.apache.ozhera.operator.service.RocketMQSerivce;
+import org.apache.ozhera.operator.service.RocketMQService;
 
 import org.mariadb.jdbc.Driver;
 
@@ -80,7 +80,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
     private ESService esService;
 
     @javax.annotation.Resource
-    private RocketMQSerivce rocketMQSerivce;
+    private RocketMQService rocketMQSerivce;
 
     @javax.annotation.Resource
     private K8sUtilBean k8sUtilBean;
@@ -275,12 +275,12 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                     String dataId = key.substring(0, key.indexOf("_#_"));
                     String group = key.substring(key.indexOf("_#_") + 3);
                     String body = String.format("type=%s&dataId=%s&group=%s&content=%s", "properties", dataId, group, eContent);
-                    log.info("create nacos conig file:{}", body);
+                    log.info("create nacos config file:{}", body);
                     String result = HttpClientV6.post(nacosCfApi, body, headers, 3000);
                     if (!"true".equals(result)) {
-                        log.error("create nacos conig file failed:{}", result);
+                        log.error("create nacos config file failed:{}", result);
                     } else {
-                        log.info("create nacos conig file success");
+                        log.info("create nacos config file success");
                     }
 
                     break;
@@ -304,7 +304,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                 "/ozhera_init/mysql/sql/hera.sql"};
         log.warn("sql scripts:{}", scripts);
         executeSqlScript(scripts, url, userName, pwd);
-        log.warn("sql scripts execte success");
+        log.warn("sql scripts execute success");
     }
 
     /**

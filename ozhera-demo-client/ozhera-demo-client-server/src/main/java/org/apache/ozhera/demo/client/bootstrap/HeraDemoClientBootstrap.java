@@ -26,8 +26,8 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration(exclude= {DataSourceAutoConfiguration.class})
-@ComponentScan(basePackages = {"com.xiaomi.mone.hera.demo.client"})
-@DubboComponentScan(basePackages = "com.xiaomi.mone.hera.demo.client")
+@ComponentScan(basePackages = {"org.apache.ozhera.demo.client"})
+@DubboComponentScan(basePackages = "org.apache.ozhera.demo.client")
 @Slf4j
 public class HeraDemoClientBootstrap {
 

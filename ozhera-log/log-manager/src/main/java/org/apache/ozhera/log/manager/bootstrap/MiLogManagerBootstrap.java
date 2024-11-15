@@ -15,8 +15,6 @@
  */
 package org.apache.ozhera.log.manager.bootstrap;
 
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.manager.controller.interceptor.HttpRequestInterceptor;
 import com.xiaomi.youpin.docean.Aop;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.RequestMapping;
@@ -25,6 +23,8 @@ import com.xiaomi.youpin.docean.common.Cons;
 import com.xiaomi.youpin.docean.config.HttpServerConfig;
 import com.xiaomi.youpin.docean.mvc.DoceanHttpServer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.manager.controller.interceptor.HttpRequestInterceptor;
 
 import java.util.LinkedHashMap;
 
@@ -45,7 +45,7 @@ public class MiLogManagerBootstrap {
         Aop.ins().init(m);
 
         Ioc.ins().putBean(Cons.AUTO_FIND_IMPL, "true")
-                .init("com.xiaomi.mone", "com.xiaomi.youpin");
+                .init("com.xiaomi.mone", "com.xiaomi.youpin", "org.apache.ozhera.log.manager");
         Config ins = Config.ins();
 
         int port = Integer.parseInt(ins.get("serverPort", ""));

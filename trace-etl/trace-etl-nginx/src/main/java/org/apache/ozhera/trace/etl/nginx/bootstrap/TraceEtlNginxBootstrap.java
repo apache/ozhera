@@ -26,7 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-@ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl.nginx"})
+@ComponentScan(basePackages = {"org.apache.ozhera.trace.etl.nginx"})
 @SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})
 @Slf4j
 public class TraceEtlNginxBootstrap {

@@ -72,12 +72,12 @@ public class DataSourceConfig {
         dataSource.setMaxPoolSize(defaultMaxPoolSize);
         dataSource.setMinPoolSize(defaultMinPoolSize);
 
-        setDatasouce(dataSource);
+        setDatasource(dataSource);
 
         return dataSource;
     }
 
-    private void setDatasouce(ComboPooledDataSource dataSource) {
+    private void setDatasource(ComboPooledDataSource dataSource) {
         dataSource.setTestConnectionOnCheckin(true);
         dataSource.setTestConnectionOnCheckout(false);
         dataSource.setPreferredTestQuery("select 1");

@@ -1,8 +1,8 @@
-# OzHera接入文档
+# Apache OzHera(Incubating)接入文档
 
 ## 一、应用部署的依赖
 
-接入OzHera的应用，需要依赖探针、jvm参数、环境变量以及log-agent服务
+接入Apache OzHera(Incubating)的应用，需要依赖探针、jvm参数、环境变量以及log-agent服务
 
 ### 1、探针
 

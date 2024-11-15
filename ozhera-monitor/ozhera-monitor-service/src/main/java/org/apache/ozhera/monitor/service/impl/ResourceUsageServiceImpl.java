@@ -81,7 +81,7 @@ public class ResourceUsageServiceImpl implements ResourceUsageService {
     
     @Override
     public List<ResourceUsageMessage> getMemUsageData() {
-        String mimonitor = alarmExprService.getContainerMemReourceAlarmExpr(null, "mimonitor", "<",
+        String mimonitor = alarmExprService.getContainerMemResourceAlarmExpr(null, "mimonitor", "<",
                 Integer.valueOf(resourceAlarm), false, null);
         Result<PageData> pageDataResult = prometheusService.queryByMetric(mimonitor);
         PageData data = pageDataResult.getData();

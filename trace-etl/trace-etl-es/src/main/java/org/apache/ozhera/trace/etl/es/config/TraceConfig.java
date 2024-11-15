@@ -54,7 +54,7 @@ public class TraceConfig {
             try {
                 List<HeraTraceEtlConfig> all = managerService.getAll(new HeraTraceConfigVo());
                 for (HeraTraceEtlConfig config : all) {
-                    heraTraceConfig.put(getServiceName(config), defalueConfig(config));
+                    heraTraceConfig.put(getServiceName(config), defaultConfig(config));
                 }
             }catch(Throwable t){
                 log.error("schedule trace config error : ",t);
@@ -68,12 +68,12 @@ public class TraceConfig {
 
     public void insert(HeraTraceEtlConfig config) {
         log.info("trace insert config : "+config);
-        heraTraceConfig.putIfAbsent(getServiceName(config), defalueConfig(config));
+        heraTraceConfig.putIfAbsent(getServiceName(config), defaultConfig(config));
     }
 
     public void update(HeraTraceEtlConfig config) {
         log.info("trace update config : "+config);
-        heraTraceConfig.put(getServiceName(config), defalueConfig(config));
+        heraTraceConfig.put(getServiceName(config), defaultConfig(config));
     }
 
     public void delete(HeraTraceEtlConfig config) {
@@ -87,7 +87,7 @@ public class TraceConfig {
         return sb.toString();
     }
 
-    private HeraTraceEtlConfig defalueConfig(HeraTraceEtlConfig config){
+    private HeraTraceEtlConfig defaultConfig(HeraTraceEtlConfig config){
         if(config == null){
             return null;
         }

@@ -15,6 +15,7 @@
  */
 package org.apache.ozhera.log.agent.channel;
 
+import cn.hutool.system.SystemUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.xiaomi.data.push.common.SafeRun;
@@ -25,6 +26,9 @@ import com.xiaomi.mone.file.common.FileInfo;
 import com.xiaomi.mone.file.common.FileInfoCache;
 import com.xiaomi.mone.file.listener.DefaultMonitorListener;
 import com.xiaomi.mone.file.ozhera.HeraFileMonitor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
@@ -37,9 +41,6 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.common.PathUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,6 +103,8 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private DefaultMonitorListener defaultMonitorListener;
 
+    private HeraFileMonitor fileMonitor;
+
 
     public WildcardChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
                                       ChannelDefine channelDefine, FilterChain chain, String memoryBasePath) {
@@ -143,7 +146,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             String restartFile = buildRestartFilePath();
             FileInfoCache.ins().load(restartFile);
 
-            HeraFileMonitor monitor = createFileMonitor(input.getPatternCode(), ip);
+            fileMonitor = createFileMonitor(input.getPatternCode(), ip);
 
             String fileExpression = buildFileExpression(input.getLogPattern());
 
@@ -157,7 +160,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             // Compile the file expression pattern
             Pattern pattern = Pattern.compile(fileExpression);
             for (String monitorPath : monitorPaths) {
-                fileCollFutures.add(ExecutorUtil.submit(() -> monitorFileChanges(monitor, monitorPath, pattern)));
+                fileCollFutures.add(ExecutorUtil.submit(() -> monitorFileChanges(fileMonitor, monitorPath, pattern)));
             }
         } catch (Exception e) {
             log.error("startCollectFile error, channelId: {}, input: {}, ip: {}", channelId, GSON.toJson(input), ip, e);
@@ -223,6 +226,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         try {
             log.info("monitorFileChanges,directory:{}", monitorPath);
             monitor.reg(monitorPath, filePath -> {
+                if (SystemUtil.getOsInfo().isWindows()) {
+                    return true;
+                }
                 boolean matches = pattern.matcher(filePath).matches();
                 log.debug("file: {}, matches: {}", filePath, matches);
                 return matches;
@@ -441,6 +447,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public void close() {
+        fileMonitor.stop();
         log.info("Delete the current collection task,channelId:{}", channelDefine.getChannelId());
         //2. stop exporting
         this.msgExporter.close();

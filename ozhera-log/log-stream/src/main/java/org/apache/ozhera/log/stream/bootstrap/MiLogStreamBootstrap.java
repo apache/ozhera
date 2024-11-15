@@ -49,7 +49,7 @@ public class MiLogStreamBootstrap {
     private static void initializeApplication() {
         OkHttpClient okHttpClient = getOkHttpClient();
         Ioc.ins().putBean(okHttpClient)
-                .init("com.xiaomi.mone.log.stream", "com.xiaomi.youpin.docean");
+                .init("org.apache.ozhera.log.stream", "com.xiaomi.youpin.docean");
     }
 
     private static void startHealthCheckTask() {

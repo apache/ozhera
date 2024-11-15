@@ -84,7 +84,7 @@ public class LogTypeProcessorFactory {
 
     @NotNull
     private static List<Class<?>> getClasses(Class<LogTypeProcessor> LogTypeProcessorClass) {
-        Set<Class<?>> classSet = ClassUtil.scanPackage("com.xiaomi.mone.log.manager");
+        Set<Class<?>> classSet = ClassUtil.scanPackage("org.apache.ozhera.log.manager");
         List<Class<?>> classes = classSet.parallelStream()
                 .filter(LogTypeProcessorClass::isAssignableFrom)
                 .filter(clazz -> !Objects.equals(clazz, LogTypeProcessorClass))

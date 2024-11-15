@@ -217,13 +217,13 @@ public class Tpc {
         return tpcService.add(nodeAddParam);
     }
 
-    public Result updateSpaceTpc(MilogSpaceParam param, String accout) {
+    public Result updateSpaceTpc(MilogSpaceParam param, String account) {
         NodeEditParam edit = new NodeEditParam();
         edit.setNodeName(param.getSpaceName());
         edit.setDesc(param.getDescription());
         edit.setOutId(param.getId());
         edit.setOutIdType(OutIdTypeEnum.SPACE.getCode());
-        edit.setAccount(accout);
+        edit.setAccount(account);
         edit.setUserType(UserTypeEnum.CAS_TYPE.getCode());
         return tpcService.edit(edit);
     }

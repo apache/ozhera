@@ -158,7 +158,7 @@
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-spring-context</artifactId>
-                <version>2.1.0-RC</version>
+                <version>0.3.3</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>

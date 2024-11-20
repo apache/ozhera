@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM miserver
-MAINTAINER youpin-biz-arch@xiaomi.com
-RUN mkdir -p /home/work/zxw_test2/
-RUN mkdir -p /home/work/log/zxw_test2/
-COPY zxw_test2-server-null-SNAPSHOT.jar /home/work/zxw_test2/
-ENTRYPOINT ["java","-jar","-Xms512M","-Xmx512M","-XX:+UseG1GC","-XX:+PrintReferenceGC","-XX:+PrintGCDetails","-XX:+PrintGCDateStamps","-XX:+PrintHeapAtGC","-Xloggc:/home/work/log/zxw_test2/gc.log","/home/work/zxw_test2/zxw_test2-server-null-SNAPSHOT.jar"]
+FROM openjdk:21-jdk-bookworm
+
+COPY ./target/trace-etl-es-1.0.1-jdk21.jar /home/work/trace-etl-es/trace-etl-es-1.0.0-SNAPSHOT.jar
+
+ENTRYPOINT ["sh","-c","java -XX:+UseZGC --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/sun.reflect=ALL-UNNAMED --add-opens java.base/java.xml=ALL-UNNAMED --add-exports java.base/sun.reflect.annotation=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED -Duser.timezone=Asia/Shanghai -jar /home/work/trace-etl-es/trace-etl-es-1.0.0-SNAPSHOT.jar"]

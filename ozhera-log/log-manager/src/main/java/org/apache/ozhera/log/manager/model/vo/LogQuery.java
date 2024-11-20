@@ -37,6 +37,7 @@ public class LogQuery implements Serializable {
     private String sortKey = "timestamp";
     private Boolean asc = false;
     private Long[] appIds;
+    private String statField;
 
     public LogQuery() {
     }

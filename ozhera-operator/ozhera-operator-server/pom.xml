@@ -60,6 +60,16 @@ http://www.apache.org/licenses/LICENSE-2.0
         </dependency>
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.33</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 
     <build>
         <plugins>

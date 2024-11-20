@@ -251,8 +251,9 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
         }
     }
 
-    private void initNacos(String action, String nacosAddress, String pwd, List<PropConf> propConfList) {
+    private void initNacos(String action, String nacosAddress, String pwd, List<PropConf> propConfList) throws InterruptedException {
         log.warn("initNacos begin nacosAddress:{}", nacosAddress);
+        Thread.sleep(1000 * 30);
         String url = String.format("http://%s/nacos/v1/ns/cluster/enable?level=4&pwd=%s", nacosAddress, pwd);
         String nacosEnable = HttpClientV6.get(url, new HashMap<>(), 2000);
         if (!"ok".equals(nacosEnable)) {

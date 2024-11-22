@@ -1,18 +1,22 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.apache.ozhera.trace.etl.util;
 
 
@@ -34,7 +38,7 @@ public class ExecutorUtil {
     public static final int ROCKSDB_DEAL_MESSAGE_CORE = 20;
     private final static ThreadPoolExecutor errorESthreadPoolExecutor;
     private final static ThreadPoolExecutor consumerDelayMsgthreadPoolExecutor;
-    private final static ThreadPoolExecutor rocksDBThreaPool;
+    private final static ThreadPoolExecutor rocksDBThreadPool;
 
     static{
 
@@ -44,7 +48,7 @@ public class ExecutorUtil {
         consumerDelayMsgthreadPoolExecutor = new ThreadPoolExecutor(ROCKSDB_DEAL_MESSAGE_CORE, ROCKSDB_DEAL_MESSAGE_CORE,
                 0L, TimeUnit.MILLISECONDS,
                 consumerDelayMsgQueue);
-        rocksDBThreaPool = new ThreadPoolExecutor(2, 2,
+        rocksDBThreadPool = new ThreadPoolExecutor(2, 2,
                 0L, TimeUnit.MILLISECONDS,
                 rocksThreadQueue);
     }
@@ -67,7 +71,7 @@ public class ExecutorUtil {
 
     public static void submitRocksDBRead(Runnable runnable){
         try {
-            rocksDBThreaPool.submit(runnable);
+            rocksDBThreadPool.submit(runnable);
         }catch(Exception e){
             log.error("提交rocksdb读取任务失败：",e);
         }

@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
@@ -33,7 +36,6 @@ import org.apache.ozhera.log.manager.dao.MilogMiddlewareConfigDao;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
 import org.apache.ozhera.log.manager.model.pojo.*;
-import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.service.MilogConfigNacosService;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessor;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessorFactory;
@@ -52,7 +54,6 @@ import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.ozhera.log.manager.service.nacos.impl.*;
 import org.apache.ozhera.log.model.*;
 
 import javax.annotation.Resource;
@@ -124,7 +125,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private void initializeNacosConfigurations() {
         List<String> regions = commonExtensionService.queryMachineRegions();
         for (String region : regions) {
-            chooseCurrentEnvNacosSerevice(region);
+            chooseCurrentEnvNacosService(region);
         }
     }
 
@@ -252,7 +253,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
      *
      * @param motorRoomEn
      */
-    public void chooseCurrentEnvNacosSerevice(String motorRoomEn) {
+    public void chooseCurrentEnvNacosService(String motorRoomEn) {
         MilogMiddlewareConfig middlewareConfig = milogMiddlewareConfigDao.queryCurrentEnvNacos(motorRoomEn);
         if (null != middlewareConfig) {
             ConfigService configService = MultipleNacosConfig.getConfigService(middlewareConfig.getNameServer());

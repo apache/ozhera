@@ -1,18 +1,22 @@
 /*
- *  Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.apache.ozhera.monitor.service.alertmanager.impl;
 
 import com.alibaba.nacos.api.config.annotation.NacosValue;
@@ -273,9 +277,9 @@ public class AlarmExprServiceOuter implements AlarmExprService {
                 case "container_cpu_resource_use_rate":
                     return getContainerCpuResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
                 case "container_mem_resource_use_rate":
-                    return getContainerMemReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
+                    return getContainerMemResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
                 case "container_disk_use_rate":
-                    return getContainerDiskReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
+                    return getContainerDiskResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),false,ruleData);
 
                 case "k8s_container_cpu_use_rate":
                     return getContainerCpuAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
@@ -289,7 +293,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
                 case "k8s_cpu_resource_use_rate":
                     return getContainerCpuResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
                 case "k8s_mem_resource_use_rate":
-                    return getContainerMemReourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
+                    return getContainerMemResourceAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),true,ruleData);
 
                 case "k8s_cpu_avg_use_rate":
                     return getK8sCpuAvgUsageAlarmExpr(rule.getProjectId(),app.getProjectName(),rule.getOp(),rule.getValue(),ruleData);
@@ -719,7 +723,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         return exprBuilder.toString();
     }
 
-    public String getContainerMemReourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
+    public String getContainerMemResourceAlarmExpr(Integer projectId, String projectName, String op, double value, boolean isK8s, AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
         exprBuilder.append("(sum(avg_over_time(container_memory_rss{");
@@ -764,11 +768,11 @@ public class AlarmExprServiceOuter implements AlarmExprService {
 
         exprBuilder.append("}[1d])) by (container_label_PROJECT_ID,application,ip,job,name,system,instance,id,serverEnv,serverZone)) * 100");
         exprBuilder.append(op).append(value);
-        log.info("getContainerMemReourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        log.info("getContainerMemResourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
         return exprBuilder.toString();
     }
 
-    public String getContainerDiskReourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
+    public String getContainerDiskResourceAlarmExpr(Integer projectId,String projectName,String op,double value,boolean isK8s,AlarmRuleData ruleData){
 
         StringBuilder exprBuilder = new StringBuilder();
         exprBuilder.append("clamp_max(sum(container_fs_usage_bytes{");
@@ -781,7 +785,7 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         exprBuilder.append("application='").append(projectId).append("_").append(projectName.replaceAll("-","_")).append("'");
         exprBuilder.append("}) by (application,name,ip,serverEnv)/10737418240 ,1) * 100  ");
         exprBuilder.append(op).append(value);
-        log.info("getContainerDiskReourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
+        log.info("getContainerDiskResourceAlarmExpr param: projectId:{}, projectName:{}, op:{},value:{}, return:{}",projectId, projectName, op,value, exprBuilder.toString());
         return exprBuilder.toString();
     }
 

@@ -1,18 +1,22 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.apache.ozhera.trace.etl.nginx.parser;
 
 import com.alibaba.fastjson.JSONObject;
@@ -101,15 +105,15 @@ public abstract class NginxLogToTraceBase {
 
     private List<Map<String, Object>> completeTags(NginxJaegerDomain parse) {
         List<Map<String, Object>> result = new ArrayList<>();
-        result.add(genarateTags("http.remote.address", parse.getRemoteAddr(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.request", parse.getRequest(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.status_code", parse.getStatus() + "", JaegerAttrType.LONG));
-        result.add(genarateTags("error", 400 <= parse.getStatus() && parse.getStatus() < 600 ? "true" : "false", JaegerAttrType.BOOLEAN));
-        result.add(genarateTags("http.referer", parse.getRefer(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.user_agent", parse.getUa(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.x-forwarded-for", parse.getxForwardedFor(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.upstream.address", parse.getUpstreamAddr(), JaegerAttrType.STRING));
-        result.add(genarateTags("http.upstream.status", parse.getUpstreamStatus(), JaegerAttrType.STRING));
+        result.add(generateTags("http.remote.address", parse.getRemoteAddr(), JaegerAttrType.STRING));
+        result.add(generateTags("http.request", parse.getRequest(), JaegerAttrType.STRING));
+        result.add(generateTags("http.status_code", parse.getStatus() + "", JaegerAttrType.LONG));
+        result.add(generateTags("error", 400 <= parse.getStatus() && parse.getStatus() < 600 ? "true" : "false", JaegerAttrType.BOOLEAN));
+        result.add(generateTags("http.referer", parse.getRefer(), JaegerAttrType.STRING));
+        result.add(generateTags("http.user_agent", parse.getUa(), JaegerAttrType.STRING));
+        result.add(generateTags("http.x-forwarded-for", parse.getxForwardedFor(), JaegerAttrType.STRING));
+        result.add(generateTags("http.upstream.address", parse.getUpstreamAddr(), JaegerAttrType.STRING));
+        result.add(generateTags("http.upstream.status", parse.getUpstreamStatus(), JaegerAttrType.STRING));
         return result;
     }
 
@@ -189,16 +193,16 @@ public abstract class NginxLogToTraceBase {
         result.put("serviceName", "nginx-" + parse.getHost());
         List<Map<String, Object>> processTags = new ArrayList<>();
         if(StringUtils.isNotEmpty(parse.getNginxHostName())) {
-            processTags.add(genarateTags("host", parse.getNginxHostName(), JaegerAttrType.STRING));
+            processTags.add(generateTags("host", parse.getNginxHostName(), JaegerAttrType.STRING));
         }
         if(StringUtils.isNotEmpty(parse.getNginxIp())) {
-            processTags.add(genarateTags("ip", parse.getNginxIp(), JaegerAttrType.STRING));
+            processTags.add(generateTags("ip", parse.getNginxIp(), JaegerAttrType.STRING));
         }
         result.put("tags", processTags);
         return result;
     }
 
-    private Map<String, Object> genarateTags(String key, Object value, String type) {
+    private Map<String, Object> generateTags(String key, Object value, String type) {
         if(value != null) {
             Map<String, Object> remoteAddr = new HashMap<>();
             remoteAddr.put("key", key);

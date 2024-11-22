@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.stream.job.extension.rocketmq;
 
@@ -44,7 +47,7 @@ public class RocketmqPlugin implements MQPlugin {
         config.setNamesrvAddr(StringUtils.isNotEmpty(clusterInfo) ? clusterInfo : ins.get("rocketmq_namesrv_addr", ""));
         config.setAk(StringUtils.isNotEmpty(ak) ? ak : ins.get("rocketmq_ak", ""));
         config.setSk(StringUtils.isNotEmpty(sk) ? sk : ins.get("rocketmq_sk", ""));
-        config.setConsumerFromWhere(ins.get("rockermq_consumer_offset", ""));
+        config.setConsumerFromWhere(ins.get("rocketmq_consumer_offset", ""));
         config.setConsumerGroup(Constant.DEFAULT_CONSUMER_GROUP + tag);
         if (SinkJobEnum.BACKUP_JOB == jobType) {
             config.setConsumerGroup(Constant.DEFAULT_CONSUMER_GROUP + tag + "_" + BACKUP_PREFIX);

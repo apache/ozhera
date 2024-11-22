@@ -1,3 +1,24 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
 # Apache OzHera(Incubating)
 
 <p align="center">
@@ -11,7 +32,7 @@
 
 
 ## Apache OzHera(Incubating)是什么？
-Apache OzHera(Incubating)是由小米-中国区研发效能团队开源的一款云原生时代的应用观测平台(APM)。以应用为核心，集指标监控、链路追踪、日志、报警于一身，并实现了metrics->tracing->logging的串联和联动，Apache OzHera(Incubating)还提供应用健康状态列表、应用指标看板、接口大盘、应用大盘、网关大盘等内容丰富的监测看板，以及简洁明了的可视化明文报警，让用户准确、高效定位故障。
+Apache OzHera(Incubating)是一款云原生时代的应用观测平台(APM)。以应用为核心，集指标监控、链路追踪、日志、报警于一身，并实现了metrics->tracing->logging的串联和联动，Apache OzHera(Incubating)还提供应用健康状态列表、应用指标看板、接口大盘、应用大盘、网关大盘等内容丰富的监测看板，以及简洁明了的可视化明文报警，让用户准确、高效定位故障。
 
 ---
 
@@ -44,7 +65,7 @@ Apache OzHera(Incubating)是由小米-中国区研发效能团队开源的一款
 ---
 
 ### 部署
-[operator使用文档.md](readme%2Fdeploy%2Fozhera-deploy-document_cn.md)
+[operator使用文档.md](readme/deploy/ozhera-deploy-document_cn.md)
 
 ---
 
@@ -59,7 +80,7 @@ Apache OzHera(Incubating)是由小米-中国区研发效能团队开源的一款
 ---
 
 ### 贡献
-欢迎贡献者加入ozhera项目。请查看 [contributing_cn.md](readme%2Fcontributing%2Fcontributing_cn.md) 以了解如何为该项目做出贡献.
+欢迎贡献者加入ozhera项目。请查看 [contributing_cn.md](CONTRIBUTING_CN.md) 以了解如何为该项目做出贡献.
 
 我该如何贡献？
 - 请查看带有标签 [good first issue](https://github.com/apache/ozhera/labels/good%20first%20issue) 或 [contribution welcome](https://github.com/apache/ozhera/labels/help%20wanted)的问题.

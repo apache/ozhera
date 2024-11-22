@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.stream.config;
 
@@ -239,6 +242,7 @@ public class MilogConfigListener {
      * @param newMilogSpaceData
      */
     private void initNewJob(MilogSpaceData newMilogSpaceData) {
+        stopOldJobsIfNeeded();
         log.info("Start all tasks to restart the current space，spaceData:{}", gson.toJson(newMilogSpaceData));
         Map<Long, LogtailConfig> newLogTailConfigMap = new HashMap<>();
         Map<Long, SinkConfig> newSinkConfigMap = new HashMap<>();
@@ -262,9 +266,24 @@ public class MilogConfigListener {
         oldSinkConfigMap = newSinkConfigMap;
     }
 
+    private void stopOldJobsIfNeeded() {
+        if (!oldLogTailConfigMap.isEmpty()) {
+            for (LogtailConfig value : oldLogTailConfigMap.values()) {
+                jobManager.stopJob(value);
+            }
+            oldLogTailConfigMap.clear();
+        }
+        if (!oldSinkConfigMap.isEmpty()) {
+            for (SinkConfig value : oldSinkConfigMap.values()) {
+                stopOldJobsForStore(value.getLogstoreId());
+            }
+            oldSinkConfigMap.clear();
+        }
+    }
+
     private void startTailPer(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId) {
-        if (null == logSpaceId) {
-            log.warn("startTailPer error,logSpaceId is null,LogTailConfig:{}", gson.toJson(logTailConfig));
+        if (null == logSpaceId || null == logTailConfig || null == logTailConfig.getLogtailId()) {
+            log.error("logSpaceId or logTailConfig or logTailId is null,sinkConfig:{},logTailConfig:{},logSpaceId:{}", gson.toJson(sinkConfig), gson.toJson(logTailConfig), spaceId);
             return;
         }
         Boolean isStart = streamCommonExtension.preCheckTaskExecution(sinkConfig, logTailConfig, logSpaceId);

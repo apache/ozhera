@@ -27,11 +27,11 @@ http://www.apache.org/licenses/LICENSE-2.0
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-parent</artifactId>
-        <version>2.2.2</version>
+        <version>2.2.2-incubating</version>
     </parent>
 
     <artifactId>ozhera-log</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.2-incubating</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -56,22 +56,22 @@ http://www.apache.org/licenses/LICENSE-2.0
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>log-api</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.2-incubating</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>log-common</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.2-incubating</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>app-api</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.2-incubating</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>ozhera-tspandata</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.2-incubating</version>
             </dependency>
 
             <dependency>
@@ -94,7 +94,7 @@ http://www.apache.org/licenses/LICENSE-2.0
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>app-api</artifactId>
-                <version>2.2.2</version>
+                <version>2.2.2-incubating</version>
             </dependency>
 
         </dependencies>
@@ -190,23 +190,23 @@ http://www.apache.org/licenses/LICENSE-2.0
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-gpg-plugin</artifactId>-->
-<!--                <version>1.6</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>sign-artifacts</id>-->
-<!--                        <phase>deploy</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>sign</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <keyname>your key name</keyname>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <keyname>4291C3C0</keyname>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>

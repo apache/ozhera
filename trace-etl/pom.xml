@@ -56,7 +56,7 @@
         <lombok.version>1.18.30</lombok.version>
         <!--java20 is comparing the reasonable versions of Spring Boot and Spring. issue#19-->
         <springboot.version>2.7.15</springboot.version>
-        <spring.version>5.3.29</spring.version>
+        <spring.version>6.1.14</spring.version>
         <!-- Replace it with the absolute path of your own trace-etl project. issue#19-->
         <maven.jcommonDirectory>~</maven.jcommonDirectory>
     </properties>

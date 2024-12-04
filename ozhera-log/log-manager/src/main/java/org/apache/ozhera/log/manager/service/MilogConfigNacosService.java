@@ -32,7 +32,7 @@ public interface MilogConfigNacosService {
 
     void publishStreamConfig(Long spaceId, Integer type, Integer projectType, String motorRoomEn);
 
-    void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType);
+    void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, String deploySpace,Integer type, String changeType);
 
     void removeStreamConfig(String motorRoomEn, Long id);
 }

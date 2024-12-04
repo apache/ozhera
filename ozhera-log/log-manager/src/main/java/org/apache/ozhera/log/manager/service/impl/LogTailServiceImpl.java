@@ -297,7 +297,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         if (OperateEnum.ADD_OPERATE.getCode().equals(type) || OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
             milogConfigNacosServiceImpl.publishStreamConfig(mt.getSpaceId(), type, projectType, motorRoomEn);
         }
-        milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, mt.getSpaceId(), mt.getStoreId(), mt.getId(), type, "");
+        milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, mt.getSpaceId(), mt.getStoreId(), mt.getId(), mt.getDeploySpace(), type, "");
     }
 
     @Override
@@ -310,11 +310,11 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             return true;
         }
         if (LogStructureEnum.STORE == logStructureEnum) {
-            milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, spaceId, id, null, OperateEnum.DELETE_OPERATE.getCode(), logStructureEnum.getCode());
+            milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, spaceId, id, null, null, OperateEnum.DELETE_OPERATE.getCode(), logStructureEnum.getCode());
             return true;
         }
         MilogLogTailDo tailDo = milogLogtailDao.queryById(id);
-        milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, spaceId, tailDo.getStoreId(), id, OperateEnum.DELETE_OPERATE.getCode(), logStructureEnum.getCode());
+        milogConfigNacosServiceImpl.publishNameSpaceConfig(motorRoomEn, spaceId, tailDo.getStoreId(), id, null, OperateEnum.DELETE_OPERATE.getCode(), logStructureEnum.getCode());
         return true;
     }
 

@@ -27,12 +27,12 @@
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-demo-client</artifactId>
-        <version>2.2.2-incubating</version>
+        <version>2.2.2-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ozhera-demo-client-api</artifactId>
-    <version>2.2.2-incubating</version>
+    <version>2.2.2-incubating-SNAPSHOT</version>
 
 
     <dependencies>

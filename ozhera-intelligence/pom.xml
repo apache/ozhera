@@ -43,7 +43,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <spring.version>5.3.29</spring.version>
-        <trace.etl.domain.version>1.0.1-jdk21</trace.etl.domain.version>
+        <trace.etl.domain.version>2.2.2-incubating-SNAPSHOT</trace.etl.domain.version>
         <ozhera.intelligence.version>2.2.2-incubating-SNAPSHOT</ozhera.intelligence.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Replace it with the absolute path of your own trace-etl project. issue#19-->

@@ -240,7 +240,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     }
 
     @Override
-    public void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType) {
+    public void publishNameSpaceConfig(String motorRoomEn, Long spaceId, Long storeId, Long tailId, String deploySpace, Integer type, String changeType) {
         Assert.notNull(spaceId, "logSpaceId not empty");
         Assert.notNull(storeId, "storeId not empty");
         //send msg
@@ -436,6 +436,11 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         return new StorageInfo(clusterDO.getId(), clusterDO.getAddr(), clusterDO.getToken(), clusterDO.getDtCatalog(), clusterDO.getDtDatabase());
     }
 
+    public static void main(String[] args) {
+        LogtailConfig logtailConfig = new LogtailConfig();
+        logtailConfig.setDeploySpace("123");
+        System.out.println(logtailConfig.getDeploySpace());
+    }
 
     public LogtailConfig assembleLogTailConfigs(Long tailId) {
         LogtailConfig logtailConfig = new LogtailConfig();
@@ -447,6 +452,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             logtailConfig.setParseScript(milogLogTail.getParseScript());
             logtailConfig.setValueList(milogLogTail.getValueList());
             logtailConfig.setAppType(milogLogTail.getAppType());
+            logtailConfig.setDeploySpace(milogLogTail.getDeploySpace());
             // Query MQ information
             handleTailConfig(tailId, milogLogTail.getStoreId(), milogLogTail.getSpaceId(),
                     milogLogTail.getMilogAppId(), logtailConfig, milogLogTail.getAppType());

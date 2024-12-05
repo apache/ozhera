@@ -39,10 +39,6 @@
         <module>app-common</module>
     </modules>
 
-    <properties>
-        <hera-app.release.version>2.2.2-incubating-SNAPSHOT</hera-app.release.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

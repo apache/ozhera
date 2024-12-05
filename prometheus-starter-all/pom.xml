@@ -39,10 +39,6 @@
         <module>prometheus-diy-starter</module>
     </modules>
 
-    <properties>
-        <prometheus-all.version>2.2.2-incubating-SNAPSHOT</prometheus-all.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

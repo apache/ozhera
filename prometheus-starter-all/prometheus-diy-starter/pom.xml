@@ -24,19 +24,19 @@
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>prometheus-starter-all</artifactId>
-        <version>2.2.3-incubating-SNAPSHOT</version>
+        <version>2.2.3-incubating</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>prometheus-diy-starter</artifactId>
-    <version>2.2.3-incubating-SNAPSHOT</version>
+    <version>2.2.3-incubating</version>
 
     <dependencies>
 
         <dependency>
             <groupId>org.apache.ozhera</groupId>
             <artifactId>prometheus-diy-client</artifactId>
-            <version>2.2.3-incubating-SNAPSHOT</version>
+            <version>2.2.3-incubating</version>
         </dependency>
 
         <dependency>

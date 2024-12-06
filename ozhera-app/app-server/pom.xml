@@ -90,9 +90,9 @@
 
     <profiles>
         <profile>
-            <id>open</id>
+            <id>apache-release</id>
             <properties>
-                <profileActive>open</profileActive>
+                <profileActive>apache-release</profileActive>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -108,10 +108,10 @@
                         <filtering>true</filtering>
                     </resource>
                     <resource>
-                        <directory>src/main/resources/META-INF</directory>
+                        <directory>${project.basedir}/../../</directory>
                         <filtering>true</filtering>
                         <includes>
-                            <include>app.properties</include>
+                            <include>DISCLAIMER</include>
                         </includes>
                         <targetPath>META-INF/</targetPath>
                     </resource>
@@ -139,9 +139,9 @@
 
         <profile>
             <id>opensource-deploy</id>
-            <activation>
+           <!-- <activation>
                 <activeByDefault>true</activeByDefault>
-            </activation>
+            </activation>-->
             <properties>
                 <profileActive>opensource-deploy</profileActive>
             </properties>
@@ -160,8 +160,6 @@
                 </resources>
             </build>
         </profile>
-
-
 
     </profiles>
 

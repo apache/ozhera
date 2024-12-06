@@ -108,5 +108,18 @@ http://www.apache.org/licenses/LICENSE-2.0
         </dependency>
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../../</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>DISCLAIMER</include>
+                </includes>
+                <targetPath>META-INF/</targetPath>
+            </resource>
+        </resources>
+    </build>
+
 
 </project>

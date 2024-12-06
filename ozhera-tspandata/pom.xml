@@ -34,6 +34,18 @@
     <version>2.2.3-incubating-SNAPSHOT</version>
 
     <build>
+
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>DISCLAIMER</include>
+                </includes>
+                <targetPath>META-INF/</targetPath>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

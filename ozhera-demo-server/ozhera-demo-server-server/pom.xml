@@ -129,9 +129,9 @@
     <profiles>
 
         <profile>
-            <id>open-source</id>
+            <id>apache-release</id>
             <properties>
-                <profiles.active>open-source</profiles.active>
+                <profiles.active>apache-release</profiles.active>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -157,6 +157,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../../</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>DISCLAIMER</include>
+                </includes>
+                <targetPath>META-INF/</targetPath>
             </resource>
         </resources>
         <plugins>

@@ -146,5 +146,18 @@
 
     </dependencies>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../../</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>DISCLAIMER</include>
+                </includes>
+                <targetPath>META-INF/</targetPath>
+            </resource>
+        </resources>
+    </build>
+
 
 </project>

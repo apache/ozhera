@@ -55,12 +55,12 @@
 
     <profiles>
         <profile>
-            <id>opensource-outer</id>
+            <id>apache-release</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <profileActive>opensource-outer</profileActive>
+                <profileActive>apache-release</profileActive>
             </properties>
             <build>
                 <filters>
@@ -85,10 +85,10 @@
                         </includes>
                     </resource>
                     <resource>
-                        <directory>src/main/resources/META-INF</directory>
+                        <directory>${project.basedir}/../../</directory>
                         <filtering>true</filtering>
                         <includes>
-                            <include>app.properties</include>
+                            <include>DISCLAIMER</include>
                         </includes>
                         <targetPath>META-INF/</targetPath>
                     </resource>
@@ -116,9 +116,6 @@
 
         <profile>
             <id>opensource-deploy</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <profileActive>opensource-deploy</profileActive>
             </properties>
@@ -143,14 +140,6 @@
                             <include>zookeeper.properties</include>
                             <include>logback.xml</include>
                         </includes>
-                    </resource>
-                    <resource>
-                        <directory>src/main/resources/META-INF</directory>
-                        <filtering>true</filtering>
-                        <includes>
-                            <include>app.properties</include>
-                        </includes>
-                        <targetPath>META-INF/</targetPath>
                     </resource>
                 </resources>
 

@@ -70,6 +70,18 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 
     <build>
+
+        <resources>
+            <resource>
+                <directory>${project.basedir}/../../</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>DISCLAIMER</include>
+                </includes>
+                <targetPath>META-INF/</targetPath>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

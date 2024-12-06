@@ -299,10 +299,10 @@ http://www.apache.org/licenses/LICENSE-2.0
                 <filtering>true</filtering>
             </resource>
             <resource>
-                <directory>src/main/resources/META-INF</directory>
+                <directory>${project.basedir}/../../</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>app.properties</include>
+                    <include>DISCLAIMER</include>
                 </includes>
                 <targetPath>META-INF/</targetPath>
             </resource>
@@ -354,9 +354,9 @@ http://www.apache.org/licenses/LICENSE-2.0
 
     <profiles>
         <profile>
-            <id>open</id>
+            <id>apache-release</id>
             <properties>
-                <profiles.active>open</profiles.active>
+                <profiles.active>apache-release</profiles.active>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>

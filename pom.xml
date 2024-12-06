@@ -1113,8 +1113,8 @@
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>apache.releases.http</id>
-            <url>https://repository.apache.org/content/repositories/staging</url>
+            <id>apache.releases.https</id>
+            <url>https://repository.apache.org/content/repositories/releases</url>
         </repository>
     </distributionManagement>
 

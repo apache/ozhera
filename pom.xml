@@ -1114,11 +1114,13 @@
         </snapshotRepository>
         <repository>
             <id>apache.releases.https</id>
-            <url>https://repository.apache.org/content/repositories/releases</url>
+            <url>https://repository.apache.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
     <scm>
+        <url>https://github.com/apache/ozhera</url>
+        <connection>scm:git:https://github.com/apache/ozhera.git</connection>
         <developerConnection>scm:git:https://github.com/apache/ozhera.git</developerConnection>
       <tag>HEAD</tag>
   </scm>

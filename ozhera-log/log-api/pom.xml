@@ -23,7 +23,7 @@ http://www.apache.org/licenses/LICENSE-2.0
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-log</artifactId>
-        <version>2.2.5-incubating-SNAPSHOT</version>
+        <version>2.2.4-incubating-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

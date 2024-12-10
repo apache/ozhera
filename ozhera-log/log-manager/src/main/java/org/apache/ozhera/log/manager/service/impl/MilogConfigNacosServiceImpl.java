@@ -447,6 +447,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             logtailConfig.setParseScript(milogLogTail.getParseScript());
             logtailConfig.setValueList(milogLogTail.getValueList());
             logtailConfig.setAppType(milogLogTail.getAppType());
+            logtailConfig.setDeploySpace(milogLogTail.getDeploySpace());
             // Query MQ information
             handleTailConfig(tailId, milogLogTail.getStoreId(), milogLogTail.getSpaceId(),
                     milogLogTail.getMilogAppId(), logtailConfig, milogLogTail.getAppType());

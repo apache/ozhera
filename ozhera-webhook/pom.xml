@@ -24,13 +24,13 @@
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-parent</artifactId>
-        <version>2.2.4-incubating</version>
+        <version>2.2.5-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ozhera-webhook</artifactId>
     <packaging>pom</packaging>
-    <version>2.2.4-incubating</version>
+    <version>2.2.5-incubating-SNAPSHOT</version>
 
     <modules>
         <module>ozhera-webhook-server</module>

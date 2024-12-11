@@ -164,6 +164,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                 .envName(logTailDo.getEnvName())
                 .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
                 .deploySpace(logTailDo.getDeploySpace())
+                .logPath(logTailDo.getLogPath())
                 .collectionReady(logTailDo.getCollectionReady())
                 .build();
     }

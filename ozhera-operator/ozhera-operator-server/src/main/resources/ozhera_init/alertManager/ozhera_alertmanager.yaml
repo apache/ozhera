@@ -96,7 +96,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /home/work/alertmanager_hera_namespace_pv
+    path: /home/work/alertmanager_ozhera_namespace_pv
   nodeAffinity:
     required:
       nodeSelectorTerms:

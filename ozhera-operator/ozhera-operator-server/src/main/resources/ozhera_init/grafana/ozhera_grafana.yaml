@@ -1656,7 +1656,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /home/work/grafana_hera_namespace_pv
+    path: /home/work/grafana_ozhera_namespace_pv
   nodeAffinity:
     required:
       nodeSelectorTerms:

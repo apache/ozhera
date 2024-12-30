@@ -80,7 +80,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: /home/work/prometheus_hera_namespace_pv
+    path: /home/work/prometheus_ozhera_namespace_pv
   nodeAffinity:
     required:
       nodeSelectorTerms:

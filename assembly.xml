@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.1 https://maven.apache.org/xsd/assembly-2.1.1.xsd">
+
+    <id>dist</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory></directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>DISCLAIMER</include>
+                <include>NOTICE</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>readme</directory>
+            <outputDirectory>/readme</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>dist</directory>
+            <outputDirectory>/dist</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-app -->
+        <fileSet>
+            <directory>
+                ozhera-app/app-server/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-app
+            </outputDirectory>
+            <includes>
+                <include>app-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-app/app-server/
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-app
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-demo-client -->
+        <fileSet>
+            <directory>
+                ozhera-demo-client/ozhera-demo-client-server/target/
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-demo-client
+            </outputDirectory>
+            <includes>
+                <include>ozhera-demo-client-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-demo-client/ozhera-demo-client-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-demo-client
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-demo-server -->
+        <fileSet>
+            <directory>
+                ozhera-demo-server/ozhera-demo-server-server/target/
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-demo-server
+            </outputDirectory>
+            <includes>
+                <include>ozhera-demo-server-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-demo-server/ozhera-demo-server-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-demo-server
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- log-agent -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent/target
+            </directory>
+            <outputDirectory>
+                /dist/log-agent
+            </outputDirectory>
+            <includes>
+                <include>log-agent-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent
+            </directory>
+            <outputDirectory>
+                /dist/log-agent
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-agent-server -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent-server/target
+            </directory>
+            <outputDirectory>
+                /dist/log-agent-server
+            </outputDirectory>
+            <includes>
+                <include>log-agent-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent-server
+            </directory>
+            <outputDirectory>
+                /dist/log-agent-server
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-manager -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-manager/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-manager
+            </outputDirectory>
+            <includes>
+                <include>log-manager-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-log/log-manager
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-manager
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-stream -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-stream/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-stream
+            </outputDirectory>
+            <includes>
+                <include>log-stream-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-log/log-stream
+            </directory>
+            <outputDirectory>
+                /dist/log-stream
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-monitor -->
+        <fileSet>
+            <directory>
+                ozhera-monitor/ozhera-monitor-server/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-monitor
+            </outputDirectory>
+            <includes>
+                <include>ozhera-monitor-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-monitor/ozhera-monitor-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-monitor
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- ozhera-operator -->
+        <fileSet>
+            <directory>
+                ozhera-operator/ozhera-operator-server/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-operator
+            </outputDirectory>
+            <includes>
+                <include>ozhera-operator-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-operator/ozhera-operator-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-operator
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-prometheus-agent -->
+        <fileSet>
+            <directory>
+                ozhera-prometheus-agent/ozhera-prometheus-agent-server/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-prometheus-agent
+            </outputDirectory>
+            <includes>
+                <include>ozhera-prometheus-agent-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-prometheus-agent/ozhera-prometheus-agent-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-prometheus-agent
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-webhook -->
+         <fileSet>
+            <directory>
+                ozhera-webhook/ozhera-webhook-server/target
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-webhook-server
+            </outputDirectory>
+            <includes>
+                <include>ozhera-webhook-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-webhook/ozhera-webhook-server
+            </directory>
+            <outputDirectory>
+                /dist/ozhera-webhook-server
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- trace-etl-es -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-es/target
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-es
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-es-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-es/
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-es
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- trace-etl-manager -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-manager/target
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-manager
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-manager-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-manager/
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-manager
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+        <!-- trace-etl-server -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-server/target
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-server
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-server
+            </directory>
+            <outputDirectory>
+                /dist/trace-etl-server
+            </outputDirectory>
+            <includes>
+                <include>Dockerfile</include>
+            </includes>
+        </fileSet>
+
+    </fileSets>
+
+</assembly>

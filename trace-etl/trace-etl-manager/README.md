@@ -49,6 +49,8 @@ CREATE TABLE `hera_trace_etl_config` (
 `update_time` datetime DEFAULT NULL,
 `create_user` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'creator',
 `update_user` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'modifier',
+`bind_id` varchar(50) DEFAULT NULL COMMENT 'project id',
+`app_name` varchar(255) DEFAULT NULL COMMENT 'project name',
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 ```

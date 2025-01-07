@@ -20,7 +20,9 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-COPY target/log-agent-server-*.jar ${APP_HOME}/log-agent-server.jar
+ARG SRC_PATH
+ARG APP_VERSION
+COPY ${SRC_PATH}/log-agent-server-${APP_VERSION}.jar ${APP_HOME}/log-agent-server.jar
 
 WORKDIR ${APP_HOME}
 

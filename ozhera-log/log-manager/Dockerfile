@@ -20,9 +20,11 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-COPY mix.4096.client.truststore.jks ${APP_HOME}/mix.4096.client.truststore.jks
+#COPY mix.4096.client.truststore.jks ${APP_HOME}/mix.4096.client.truststore.jks
 
-COPY target/log-manager-*.jar ${APP_HOME}/log-manager.jar
+ARG SRC_PATH
+ARG APP_VERSION
+COPY ${SRC_PATH}/log-manager-${APP_VERSION}.jar ${APP_HOME}/log-manager.jar
 
 WORKDIR ${APP_HOME}
 

@@ -1044,7 +1044,7 @@
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
-                            <finalName>apache-ozhera-2.2.5-incubating-bin-2</finalName>
+                            <finalName>apache-ozhera-2.2.5-incubating-bin</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <skipAssembly>true</skipAssembly>

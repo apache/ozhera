@@ -102,6 +102,8 @@
             </outputDirectory>
             <includes>
                 <include>Dockerfile</include>
+                <include>download-opentelemetry-javaagent.sh</include>
+                <include>README.md</include>
             </includes>
         </fileSet>
 
@@ -126,6 +128,8 @@
             </outputDirectory>
             <includes>
                 <include>Dockerfile</include>
+                <include>download-opentelemetry-javaagent.sh</include>
+                <include>README.md</include>
             </includes>
         </fileSet>
 

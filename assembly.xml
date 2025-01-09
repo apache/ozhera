@@ -188,7 +188,7 @@
                 ozhera-log/log-manager/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-manager
+                /dist/log-manager
             </outputDirectory>
             <includes>
                 <include>log-manager-${project.version}.jar</include>
@@ -199,7 +199,7 @@
                 ozhera-log/log-manager
             </directory>
             <outputDirectory>
-                /dist/ozhera-manager
+                /dist/log-manager
             </outputDirectory>
             <includes>
                 <include>Dockerfile</include>
@@ -212,7 +212,7 @@
                 ozhera-log/log-stream/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-stream
+                /dist/log-stream
             </outputDirectory>
             <includes>
                 <include>log-stream-${project.version}.jar</include>

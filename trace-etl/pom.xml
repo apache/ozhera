@@ -36,15 +36,15 @@
     <modules>
         <module>trace-etl-api</module>
         <module>trace-etl-common</module>
+        <module>trace-etl-dao</module>
+        <module>trace-etl-domain</module>
+        <module>trace-etl-extensions</module>
+        <module>trace-etl-manager</module>
         <module>trace-etl-service</module>
         <module>trace-etl-server</module>
-        <module>trace-etl-domain</module>
+        <module>trace-etl-metadata</module>
         <module>trace-etl-es</module>
         <module>trace-etl-nginx</module>
-        <module>trace-etl-manager</module>
-        <module>trace-etl-dao</module>
-        <module>trace-etl-extensions</module>
-        <module>trace-etl-metadata</module>
     </modules>
 
     <properties>

@@ -1058,6 +1058,8 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <configuration>
                     <excludes>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/*.PNG</exclude>
                         <exclude>**/*.png</exclude>
                         <exclude>**/*.jpg</exclude>
                         <exclude>**/*.jpeg</exclude>

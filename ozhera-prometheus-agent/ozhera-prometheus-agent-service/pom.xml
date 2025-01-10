@@ -160,6 +160,8 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>DISCLAIMER</include>
+                    <include>NOTICE</include>
+                    <include>LICENSE</include>
                 </includes>
                 <targetPath>META-INF/</targetPath>
             </resource>

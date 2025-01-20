@@ -72,10 +72,16 @@
             <artifactId>spring-test</artifactId>
         </dependency>
 
-        <!-- trace domain -->
+        <!-- trace api -->
         <dependency>
             <groupId>org.apache.ozhera</groupId>
             <artifactId>trace-etl-api</artifactId>
+        </dependency>
+
+        <!-- log api -->
+        <dependency>
+            <groupId>org.apache.ozhera</groupId>
+            <artifactId>log-api</artifactId>
         </dependency>
 
         <dependency>

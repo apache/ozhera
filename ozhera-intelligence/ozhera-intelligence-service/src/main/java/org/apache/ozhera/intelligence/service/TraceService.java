@@ -43,6 +43,9 @@ import java.util.Map;
 @Service
 public class TraceService {
 
+    /**
+     * call trace-etl-manager TraceQueryService, The group and version in Dubbo should be consistent with the group and version in TraceQueryServiceImpl in trace-etl-manager.
+     */
     @DubboReference(interfaceClass = TraceQueryService.class, group = "${trace.query.group}", version = "${trace.query.version}")
     private TraceQueryService traceQueryService;
 

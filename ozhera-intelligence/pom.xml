@@ -73,6 +73,11 @@
                 <artifactId>trace-etl-api</artifactId>
                 <version>2.2.5-incubating</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.ozhera</groupId>
+                <artifactId>log-api</artifactId>
+                <version>2.2.5-incubating</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

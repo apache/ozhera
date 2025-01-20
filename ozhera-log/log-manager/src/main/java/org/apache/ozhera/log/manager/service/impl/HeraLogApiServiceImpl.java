@@ -18,19 +18,23 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
+import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import com.xiaomi.youpin.docean.plugin.es.EsService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.model.dto.LogFilterOptions;
 import org.apache.ozhera.log.api.model.dto.LogUrlParam;
 import org.apache.ozhera.log.api.service.HeraLogApiService;
+import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.model.Pair;
+import org.apache.ozhera.log.manager.model.pojo.MilogEsClusterDO;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
 import org.elasticsearch.action.search.SearchRequest;
@@ -43,7 +47,12 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +70,13 @@ import static org.apache.ozhera.log.manager.user.MoneUserDetailService.GSON;
 @Slf4j
 @Service(interfaceClass = HeraLogApiService.class, group = "$dubbo.group", timeout = 10000)
 public class HeraLogApiServiceImpl implements HeraLogApiService {
+
+    private static final int QUERY_LIMIT = 20;
+    private static final String TIMESTAMP_FIELD = "timestamp";
+    private static final String LOG_TIME_FIELD = "log_time";
+    private static final String STORE_ID_FIELD = "storeId";
+    private static final String LEVEL_FIELD = "level";
+    private static final String TRACE_ID_FIELD = "traceId";
 
     @Resource
     private MilogLogTailDao milogLogTailDao;
@@ -114,29 +130,100 @@ public class HeraLogApiServiceImpl implements HeraLogApiService {
         try {
             List<MilogLogTailDo> milogLogTailDos = milogLogTailDao.queryByAppAndEnv(filterOptions.getProjectId(), filterOptions.getEnvId());
             if (CollectionUtils.isEmpty(milogLogTailDos)) {
+                log.warn("No log tails found for projectId={}, envId={}", filterOptions.getProjectId(), filterOptions.getEnvId());
                 return Collections.emptyList();
             }
+
             MilogLogTailDo milogLogTailDo = milogLogTailDos.get(milogLogTailDos.size() - 1);
             MilogLogStoreDO logStoreDO = milogLogstoreDao.queryById(milogLogTailDo.getStoreId());
+            MilogEsClusterDO cluster = esCluster.getById(logStoreDO.getEsClusterId());
 
-            //query the data in the index
-            EsService esService = esCluster.getEsService(logStoreDO.getEsClusterId());
-
-            // build query criteria
-            SearchSourceBuilder builder = buildSearchSourceBuilder(filterOptions, logStoreDO);
-
-            // build a query request
-            SearchRequest searchRequest = new SearchRequest(logStoreDO.getEsIndex()).source(builder);
-
-            // execute the query
-            SearchResponse searchResponse = esService.search(searchRequest);
-
-            // process query results
-            return extractLogDataFromResponse(searchResponse);
-        } catch (IOException e) {
-            log.error("Failed to query log data from Elasticsearch", e);
+            LogStorageTypeEnum storageType = LogStorageTypeEnum.queryByName(cluster.getLogStorageType());
+            if (storageType == LogStorageTypeEnum.ELASTICSEARCH) {
+                return queryFromElasticsearch(filterOptions, logStoreDO);
+            } else if (storageType == LogStorageTypeEnum.DORIS) {
+                return queryFromDoris(filterOptions, logStoreDO);
+            } else {
+                log.error("unsupported log storage type: {}", storageType);
+                return Collections.emptyList();
+            }
+        } catch (Exception e) {
+            log.error("failed to query log data", e);
             return Collections.emptyList();
         }
+    }
+
+    private List<Map<String, Object>> queryFromElasticsearch(LogFilterOptions filterOptions, MilogLogStoreDO logStoreDO) throws IOException {
+        EsService esService = esCluster.getEsService(logStoreDO.getEsClusterId());
+        SearchSourceBuilder builder = buildSearchSourceBuilder(filterOptions, logStoreDO);
+        SearchRequest searchRequest = new SearchRequest(logStoreDO.getEsIndex()).source(builder);
+        SearchResponse searchResponse = esService.search(searchRequest);
+        return extractLogDataFromResponse(searchResponse);
+    }
+
+    private List<Map<String, Object>> queryFromDoris(LogFilterOptions filterOptions, MilogLogStoreDO logStoreDO) {
+        DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + logStoreDO.getEsClusterId());
+        if (dataSource == null) {
+            log.error("DataSource not found for clusterId={}", logStoreDO.getEsClusterId());
+            return Collections.emptyList();
+        }
+
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM " + logStoreDO.getEsIndex() + " WHERE ")
+                .append("project_id = ? AND ")
+                .append("env_id = ? AND ")
+                .append(LOG_TIME_FIELD + " >= ? AND ")
+                .append(LOG_TIME_FIELD + " <= ?");
+
+        if (StringUtils.isNotBlank(filterOptions.getTraceId())) {
+            sqlBuilder.append(" AND " + TRACE_ID_FIELD + " = ?");
+        }
+        if (StringUtils.isNotBlank(filterOptions.getLevel())) {
+            sqlBuilder.append(" AND " + LEVEL_FIELD + " = ?");
+        }
+
+        sqlBuilder.append(" ORDER BY " + LOG_TIME_FIELD + " DESC LIMIT " + QUERY_LIMIT);
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlBuilder.toString())) {
+
+            setPreparedStatementParameters(preparedStatement, filterOptions);
+            return executeDorisQuery(preparedStatement);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to execute Doris query", e);
+        }
+    }
+
+    private void setPreparedStatementParameters(PreparedStatement preparedStatement, LogFilterOptions filterOptions) throws SQLException {
+        preparedStatement.setLong(1, filterOptions.getProjectId());
+        preparedStatement.setLong(2, filterOptions.getEnvId());
+        preparedStatement.setString(3, filterOptions.getStartTime());
+        preparedStatement.setString(4, filterOptions.getEndTime());
+
+        int paramIndex = 5;
+        if (StringUtils.isNotBlank(filterOptions.getTraceId())) {
+            preparedStatement.setString(paramIndex++, filterOptions.getTraceId());
+        }
+        if (StringUtils.isNotBlank(filterOptions.getLevel())) {
+            preparedStatement.setString(paramIndex, filterOptions.getLevel());
+        }
+    }
+
+    private List<Map<String, Object>> executeDorisQuery(PreparedStatement preparedStatement) throws SQLException {
+        List<Map<String, Object>> logs = new ArrayList<>();
+        try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            java.sql.ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            while (resultSet.next()) {
+                Map<String, Object> logEntry = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = metaData.getColumnName(i);
+                    Object columnValue = resultSet.getObject(i);
+                    logEntry.put(columnName, columnValue);
+                }
+                logs.add(logEntry);
+            }
+        }
+        return logs;
     }
 
     private SearchSourceBuilder buildSearchSourceBuilder(LogFilterOptions filterOptions, MilogLogStoreDO logStoreDO) {

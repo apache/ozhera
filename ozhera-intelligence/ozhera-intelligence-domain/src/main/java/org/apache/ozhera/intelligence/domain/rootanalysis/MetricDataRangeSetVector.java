@@ -18,28 +18,16 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.io.Serializable;
+import java.util.List;
+
 @Data
-@Builder
 @ToString
-public class MetricsQueryParam {
-
-    private String env;
-
-    private String application;
-
-    private String ip;
-
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+public class MetricDataRangeSetVector implements Serializable {
+    private Metric metric;
+    private List<List<String>> values;
 }
+

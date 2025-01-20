@@ -119,19 +119,19 @@ public class HeraLogApiServiceImpl implements HeraLogApiService {
             MilogLogTailDo milogLogTailDo = milogLogTailDos.get(milogLogTailDos.size() - 1);
             MilogLogStoreDO logStoreDO = milogLogstoreDao.queryById(milogLogTailDo.getStoreId());
 
-            //查询对应索引中的数据
+            //query the data in the index
             EsService esService = esCluster.getEsService(logStoreDO.getEsClusterId());
 
-            // 构建查询条件
+            // build query criteria
             SearchSourceBuilder builder = buildSearchSourceBuilder(filterOptions, logStoreDO);
 
-            // 构建查询请求
+            // build a query request
             SearchRequest searchRequest = new SearchRequest(logStoreDO.getEsIndex()).source(builder);
 
-            // 执行查询
+            // execute the query
             SearchResponse searchResponse = esService.search(searchRequest);
 
-            // 处理查询结果
+            // process query results
             return extractLogDataFromResponse(searchResponse);
         } catch (IOException e) {
             log.error("Failed to query log data from Elasticsearch", e);

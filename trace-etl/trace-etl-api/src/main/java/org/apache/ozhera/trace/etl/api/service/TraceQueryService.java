@@ -16,17 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.domain.rootanalysis;
+package org.apache.ozhera.trace.etl.api.service;
 
-import lombok.Builder;
-import lombok.Data;
+import org.apache.ozhera.trace.etl.domain.tracequery.Trace;
+import org.apache.ozhera.trace.etl.domain.tracequery.TraceIdQueryVo;
+import org.apache.ozhera.trace.etl.domain.tracequery.TraceListQueryVo;
 
 import java.util.List;
 
-@Data
-@Builder
-public class TraceQueryParam {
-    private String traceId;
-    private String env;
-    private long timeStamp;
+/**
+ * @author dingtao
+ * @date 2025/1/20 11:26
+ */
+public interface TraceQueryService {
+
+    List<Trace> getList(TraceListQueryVo vo);
+
+    Trace getByTraceId(TraceIdQueryVo vo);
 }

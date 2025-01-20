@@ -18,15 +18,28 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
-import lombok.Builder;
 import lombok.Data;
+import org.apache.ozhera.trace.etl.domain.tracequery.Span;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
-public class TraceQueryParam {
-    private String traceId;
-    private String env;
-    private long timeStamp;
+public class TraceTreeNode {
+
+    private Span span;
+    private List<TraceTreeNode> children;
+
+    public TraceTreeNode(Span span){
+        this.span = span;
+        this.children = new ArrayList<>();
+    }
+
+    public TraceTreeNode(){
+
+    }
+
+    public void addChild(TraceTreeNode child) {
+        children.add(child);
+    }
 }

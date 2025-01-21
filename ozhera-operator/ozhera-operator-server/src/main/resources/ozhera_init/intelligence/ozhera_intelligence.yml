@@ -12,21 +12,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-#server
-app.name=ozhera-intelligence
-server.type=staging
-server.port=8080
-
-log.path=/tmp/work/log
-
-dubbo.group=staging
-dubbo.protocol.id=dubbo
-dubbo.protocol.name=dubbo
-dubbo.protocol.port=-1
-trace.query.group=staging
-trace.query.version=1.0
-log.query.group=
-log.query.version=1.0
-
-nacos.address=nacos:80
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ozhera-intelligence
+  namespace: ozhera-namespace
+  labels:
+    app: ozhera-intelligence
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ozhera-intelligence
+  template:
+    metadata:
+      labels:
+        app: ozhera-intelligence
+    spec:
+      containers:
+      - name: ozhera-intelligence-container
+        image: herahub/opensource-pub:ozhera-intelligence-2.2.5-incubating-beta-v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4446
+        resources:
+          limits:
+            cpu: '500m'
+            memory: 1Gi

@@ -30,4 +30,16 @@
 ## ozhera-intelligence-server
 
 + Service to initiate intelligent functionalities.
++ Access to the ozhera-intelligence-server requires the x-token to be included in the header for authorized access to ozhera's data.
 
+## ozhera-intelligence-service
+
++ LogService: Retrieves log data
++ MetricsService: Retrieves monitoring metric data
++ TraceService: Retrieves trace data
+
+# Important Dependencies
+It relies on a Xiaomi open-source [Agent builder platform--m78](https://github.com/XiaoMi/mone/tree/master/m78-all)
+
+# Intelligent Workflow (Sequence Diagram)
+![ozhera-intelligence](../readme/images/ozhera-intelligence.png)

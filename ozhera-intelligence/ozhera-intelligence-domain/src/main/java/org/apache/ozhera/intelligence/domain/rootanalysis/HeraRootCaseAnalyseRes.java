@@ -18,28 +18,20 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+/**
+ * @author dingtao
+ * @date 2025/1/20 11:26
+ */
 @Data
-@Builder
 @ToString
-public class MetricsQueryParam {
-
-    private String env;
-
-    private String application;
-
-    private String ip;
-
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+public class HeraRootCaseAnalyseRes {
+    private Double maxCpuUsage;
+    private Double maxLoad;
+    private Double maxJvmHeapUsage;
+    private Double maxSTWCost;
+    private Double STWCountOf1m;
+    private Double cpuCount;
 }

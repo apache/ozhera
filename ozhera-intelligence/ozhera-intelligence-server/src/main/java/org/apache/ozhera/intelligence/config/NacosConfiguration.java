@@ -16,30 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.domain.rootanalysis;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+package org.apache.ozhera.intelligence.config;
 
-@Data
-@Builder
-@ToString
-public class MetricsQueryParam {
+import com.alibaba.nacos.api.annotation.NacosProperties;
+import com.alibaba.nacos.spring.context.annotation.config.EnableNacosConfig;
+import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
+import org.springframework.context.annotation.Configuration;
 
-    private String env;
-
-    private String application;
-
-    private String ip;
-
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+@Configuration
+@EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.address}"))
+@NacosPropertySource(dataId = "hera_intelligence_config", autoRefreshed = true)
+public class NacosConfiguration {
 }

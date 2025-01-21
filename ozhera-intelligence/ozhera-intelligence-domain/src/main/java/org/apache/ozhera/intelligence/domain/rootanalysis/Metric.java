@@ -65,7 +65,7 @@ public class Metric implements Serializable {
 
     private String traceId;
 
-    private String service; //应用的服务维度（云平台）
+    private String service;
 
     private String apiid;
 
@@ -85,7 +85,7 @@ public class Metric implements Serializable {
 
     private String __priority__;
 
-    //下游服务信息
+    // downstream service information
     private String clientProjectId;
     private String clientProjectName;
     private String clientEnv;

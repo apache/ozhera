@@ -49,8 +49,10 @@ import static org.apache.ozhera.intelligence.util.CommitPoolUtil.HERA_SOLUTION_M
 @Service
 @Slf4j
 public class MetricsService {
+
     @NacosValue("${prometheus.api.url}")
     private String prometheusUrl;
+
     private static final String URI_QUERY_RANGE = "/api/v1/query_range";
     private static final String P_QUERY = "query";
     private static final String P_STEP = "step";

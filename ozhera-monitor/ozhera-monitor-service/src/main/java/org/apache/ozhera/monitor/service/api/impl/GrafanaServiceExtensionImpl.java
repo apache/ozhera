@@ -215,14 +215,14 @@ public class GrafanaServiceExtensionImpl implements GrafanaServiceExtension {
                 finalGrafanaStr = innerRequestGrafana(finalData, grafanaUrl + getGrafanaCreateDashboardUrl, grafanaApiKey, "POST");
             } else {
                 //The chart has not been generated before, and the default template is directly generated
-                InputStream is = conn.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 String finalStr = "";
-                String str = "";
-                while ((str = br.readLine()) != null) {
-                    finalStr = new String(str.getBytes(), "UTF-8");
+                try (InputStream is = conn.getInputStream()) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    String str = "";
+                    while ((str = br.readLine()) != null) {
+                        finalStr = str;
+                    }
                 }
-                is.close();
                 conn.disconnect();
                 finalGrafanaStr = finalStr;
             }
@@ -353,14 +353,14 @@ public class GrafanaServiceExtensionImpl implements GrafanaServiceExtension {
                 out1.flush();
                 out1.close();
             }
-            InputStream is = conn.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String finalStr = "";
-            String str = "";
-            while ((str = br.readLine()) != null) {
-                finalStr = new String(str.getBytes(), "UTF-8");
+            try (InputStream is = conn.getInputStream()) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String str = "";
+                while ((str = br.readLine()) != null) {
+                    finalStr = str;
+                }
             }
-            is.close();
             conn.disconnect();
             log.info("innerRequestGrafana param url:{},apiKey:{},method:{}", url, apiKey, method);
             return finalStr;

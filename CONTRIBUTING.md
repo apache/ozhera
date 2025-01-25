@@ -90,6 +90,8 @@ We emphasize high-quality commits, which includes:
 * Commit Messages: Use clear and specific commit messages, such as `docs: Update installation guide`
 * Commit Content: Ensure each commit is complete and reviewable, and that it is linked to your GitHub ID
 
+**Please ensure your PR titles and commit messages adhere to the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.**
+
 ### PR Descriptions
 
 PRs are the main way to make changes to Apache OzHera(incubating). We recommend using the [PR template](./.github/PULL_REQUEST_TEMPLATE.md) to describe your changes.

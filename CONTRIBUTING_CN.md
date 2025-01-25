@@ -90,6 +90,8 @@ Apache OzHera(incubating) 项目使用以下几种分支类型：
 * 提交消息：请确保使用明确的提交信息，例如 `docs: update installation guide`
 * 提交内容：提交应包含完整且可审查的内容，并与 GitHub ID 相关联
 
+**我们希望你能按照[这个网站](https://www.conventionalcommits.org/zh-hans/v1.0.0/)上的约定式提交规范，设置PR标题和提交日志**
+
 ### PR说明
 
 PR 是更改 Apache OzHera(incubating) 项目文件的主要方式。我们建议使用 [PR 模板](./.github/PULL_REQUEST_TEMPLATE.md) 来描述更改内容。

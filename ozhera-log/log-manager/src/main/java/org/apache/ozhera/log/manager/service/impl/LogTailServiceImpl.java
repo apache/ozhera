@@ -61,6 +61,7 @@ import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.nutz.lang.Strings;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -393,6 +394,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         MilogLogTailDo ret = milogLogtailDao.queryById(param.getId());
         if (ret == null) {
             return new Result<>(CommonError.ParamsError.getCode(), "tail does not exist");
+        }
+        if ((null != param.getOriginSystem()) && !Strings.equals(ret.getOriginSystem(), param.getOriginSystem())) {
+            return new Result<>(CommonError.ParamsError.getCode(), "origin_system is forbidden to update");
         }
         // Parameter validation
         String errorMsg = heraConfigValid.verifyLogTailParam(param);

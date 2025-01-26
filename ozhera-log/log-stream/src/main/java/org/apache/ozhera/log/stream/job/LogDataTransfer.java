@@ -143,6 +143,7 @@ public class LogDataTransfer {
         dataMap.putIfAbsent(LOG_STREAM_SPACE_ID, sinkJobConfig.getLogSpaceId());
         dataMap.putIfAbsent(LOG_STREAM_STORE_ID, sinkJobConfig.getLogStoreId());
         dataMap.putIfAbsent(LOG_STREAM_TAIL_ID, sinkJobConfig.getLogTailId());
+        dataMap.putIfAbsent(DEPLOY_SPACE, sinkJobConfig.getDeploySpace());
     }
 
     private void sendMessage(Map<String, Object> dataMap) throws Exception {

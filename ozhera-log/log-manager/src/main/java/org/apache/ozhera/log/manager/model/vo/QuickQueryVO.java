@@ -46,6 +46,8 @@ public class QuickQueryVO implements Serializable {
     private String envName;
     private Integer isFavourite;
     private String deploySpace;
+    private String logPath;
+    private String originSystem;
 
     private Boolean collectionReady;
 }

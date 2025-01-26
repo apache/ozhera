@@ -164,7 +164,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                 .envName(logTailDo.getEnvName())
                 .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
                 .deploySpace(logTailDo.getDeploySpace())
+                .logPath(logTailDo.getLogPath())
                 .collectionReady(logTailDo.getCollectionReady())
+                .originSystem(logTailDo.getOriginSystem())
                 .build();
     }
 
@@ -664,6 +666,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));
         milogLogtailDo.setCollectionReady(logTailParam.getCollectionReady());
+        milogLogtailDo.setOriginSystem(logTailParam.getOriginSystem());
         return milogLogtailDo;
     }
 
@@ -703,6 +706,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         logTailDTO.setDeploySpace(milogLogtailDo.getDeploySpace());
         logTailDTO.setFirstLineReg(milogLogtailDo.getFirstLineReg());
         logTailDTO.setCollectionReady(milogLogtailDo.getCollectionReady());
+        logTailDTO.setOriginSystem(milogLogtailDo.getOriginSystem());
         return logTailDTO;
     }
 

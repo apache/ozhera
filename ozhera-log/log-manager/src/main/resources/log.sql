@@ -470,7 +470,9 @@ CREATE TABLE `milog_logstail`  (
   `filter` json NULL COMMENT 'filter config',
   `en_es_index` json NULL COMMENT 'the index configuration',
   `deploy_way` int(0) NULL DEFAULT NULL COMMENT 'deployment type：1-mione; 2-miline; 3-k8s',
-  `first_line_reg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Custom line regex'
+  `first_line_reg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Custom line regex',
+  `collection_ready` int(0) NULL DEFAULT NULL COMMENT 'start to collect log：any non-zero value means true',
+  `origin_system` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT 'hera' COMMENT 'Indicates the system that originated the record; 'hera' for internal, and others for external sources.'
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 90115 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 

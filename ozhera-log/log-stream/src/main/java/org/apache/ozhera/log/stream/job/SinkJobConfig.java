@@ -61,4 +61,5 @@ public class SinkJobConfig extends LogConfig {
      */
     private String jobType;
     private String consumerGroup;
+    private String deploySpace;
 }

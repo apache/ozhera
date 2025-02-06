@@ -38,6 +38,8 @@ public class LogtailConfig {
     private String type;
     private Integer appType;
 
+    private String deploySpace;
+
     private Integer parseType;
     private String tail;
     /**

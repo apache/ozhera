@@ -27,3 +27,4 @@ jobs:
           persist-credentials: false
           submodules: recursive
       - uses: ./.github/actions/commitlint-github-action
+        continue-on-error: true

@@ -23,11 +23,11 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Component;
-import com.xiaomi.youpin.docean.common.StringUtils;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.model.LogtailConfig;
@@ -40,8 +40,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
@@ -68,9 +70,9 @@ public class MilogConfigListener {
     private Map<Long, LogtailConfig> oldLogTailConfigMap = new ConcurrentHashMap<>();
     private Map<Long, SinkConfig> oldSinkConfigMap = new ConcurrentHashMap<>();
 
-    private ReentrantLock buildDataLock = new ReentrantLock();
-
     private StreamCommonExtension streamCommonExtension;
+
+    private volatile String originConfig;
 
     public MilogConfigListener(Long spaceId, String dataId, String group, MilogSpaceData milogSpaceData, NacosConfig nacosConfig) {
         this.spaceId = spaceId;
@@ -89,38 +91,26 @@ public class MilogConfigListener {
         return Ioc.ins().getBean(factualServiceName);
     }
 
-    private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) throws Exception {
-        boolean locked = false;
-        try {
-            locked = buildDataLock.tryLock(1, TimeUnit.MINUTES);
-            if (locked) {
-                if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
-                    List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
-                    stopUnusedOldStoreJobs(sinkConfigs);
-                    for (SinkConfig sinkConfig : sinkConfigs) {
-                        stopOldJobsForRemovedTailIds(sinkConfig);
-                        if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
-                            //Whether the submission store information changes, the change stops
-                            if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
-                                restartPerTail(sinkConfig, milogSpaceData);
-                            } else {
-                                handlePerTailComparison(sinkConfig, milogSpaceData);
-                            }
-                        } else {
-                            newStoreStart(sinkConfig, milogSpaceData);
-                        }
+    private void handleNacosConfigDataJob(MilogSpaceData newMilogSpaceData) {
+        if (!oldLogTailConfigMap.isEmpty() && !oldSinkConfigMap.isEmpty()) {
+            List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
+            stopUnusedOldStoreJobs(sinkConfigs);
+            for (SinkConfig sinkConfig : sinkConfigs) {
+                stopOldJobsForRemovedTailIds(sinkConfig);
+                if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
+                    //Whether the submission store information changes, the change stops
+                    if (!isStoreSame(sinkConfig, oldSinkConfigMap.get(sinkConfig.getLogstoreId()))) {
+                        restartPerTail(sinkConfig, milogSpaceData);
+                    } else {
+                        handlePerTailComparison(sinkConfig, milogSpaceData);
                     }
                 } else {
-                    // Restart all
-                    initNewJob(newMilogSpaceData);
+                    newStoreStart(sinkConfig, milogSpaceData);
                 }
-            } else {
-                log.warn("handleNacosConfigDataJob lock failed,data:{}", gson.toJson(newMilogSpaceData));
             }
-        } finally {
-            if (locked) {
-                buildDataLock.unlock();
-            }
+        } else {
+            // Restart all
+            initNewJob(newMilogSpaceData);
         }
     }
 
@@ -283,7 +273,7 @@ public class MilogConfigListener {
 
     private void startTailPer(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId) {
         if (null == logSpaceId || null == logTailConfig || null == logTailConfig.getLogtailId()) {
-            log.error("logSpaceId or logTailConfig or logTailId is null,sinkConfig:{},logTailConfig:{},logSpaceId:{}", gson.toJson(sinkConfig), gson.toJson(logTailConfig), spaceId);
+            log.error("logSpaceId or logTailConfig or logTailId is null,storeId:{},tailId:{},logSpaceId:{}", sinkConfig.getLogstoreId(), logTailConfig.getLogtailId(), spaceId);
             return;
         }
         Boolean isStart = streamCommonExtension.preCheckTaskExecution(sinkConfig, logTailConfig, logSpaceId);
@@ -291,7 +281,7 @@ public class MilogConfigListener {
             log.warn("preCheckTaskExecution error,preCheckTaskExecution is false,LogTailConfig:{}", gson.toJson(logTailConfig));
             return;
         }
-        log.info("【Listen tail】Initialize the new task, tail configuration:{},index:{},cluster information：{},spaceId:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex(), gson.toJson(sinkConfig.getEsInfo()), logSpaceId);
+        log.info("Initialize the new task, tail configuration:{},index:{},cluster information：{},spaceId:{}", gson.toJson(logTailConfig), sinkConfig.getEsIndex(), gson.toJson(sinkConfig.getEsInfo()), logSpaceId);
         jobManager.startJob(logTailConfig, sinkConfig, logSpaceId);
         oldLogTailConfigMap.put(logTailConfig.getLogtailId(), logTailConfig);
     }
@@ -309,7 +299,11 @@ public class MilogConfigListener {
             @Override
             public void receiveConfigInfo(String dataValue) {
                 try {
-                    log.info("listen tail received a configuration request:{},a configuration that already exists:storeMap:{},tailMap:{}", dataValue, gson.toJson(oldSinkConfigMap), gson.toJson(oldLogTailConfigMap));
+                    if (StringUtils.equals(originConfig, dataValue)) {
+                        return;
+                    }
+                    originConfig = dataValue;
+                    log.info("listen tail received a configuration request:{},origin config:{}", dataValue, originConfig);
                     if (StringUtils.isNotEmpty(dataValue) && !Constant.NULLVALUE.equals(dataValue)) {
                         dataValue = streamCommonExtension.dataPreProcess(dataValue);
                         MilogSpaceData newMilogSpaceData = GSON.fromJson(dataValue, MilogSpaceData.class);

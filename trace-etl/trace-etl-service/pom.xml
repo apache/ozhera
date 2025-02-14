@@ -80,6 +80,12 @@
             <groupId>org.apache.ozhera</groupId>
             <artifactId>trace-etl-common</artifactId>
             <version>${project.parent.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-reload4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -184,6 +190,12 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>org.json</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

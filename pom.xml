@@ -853,9 +853,14 @@
                 <version>5.3.1</version>
             </dependency>
             <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>3.1.4</version>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.30</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.5.5</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -948,6 +953,7 @@
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-third-party</goal>
+<!--                            <goal>download-licenses</goal>-->
                         </goals>
                         <configuration>
                             <includeOptional>false</includeOptional>
@@ -1048,6 +1054,25 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <skipAssembly>true</skipAssembly>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

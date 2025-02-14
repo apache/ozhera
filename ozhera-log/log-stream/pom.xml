@@ -39,11 +39,6 @@ http://www.apache.org/licenses/LICENSE-2.0
     <dependencies>
 
         <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>run.mone</groupId>
             <artifactId>storage-doris</artifactId>
         </dependency>
@@ -191,36 +186,6 @@ http://www.apache.org/licenses/LICENSE-2.0
         </resources>
 
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <attach>false</attach>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                        <manifest>
-                            <mainClass>org.apache.ozhera.log.stream.bootstrap.MiLogStreamBootstrap</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-
         </plugins>
 
     </build>

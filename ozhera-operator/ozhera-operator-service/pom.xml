@@ -55,12 +55,6 @@ http://www.apache.org/licenses/LICENSE-2.0
             <artifactId>docean-plugin-k8s</artifactId>
         </dependency>
 
-
-
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>

@@ -969,6 +969,7 @@
                                     License|BSD|3-Clause BSD License|The New BSD License
                                 </licenseMerge>
                             </licenseMerges>
+                            <excludedScopes>provided</excludedScopes>
                         </configuration>
                     </execution>
                 </executions>

@@ -953,7 +953,6 @@
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-third-party</goal>
-<!--                            <goal>download-licenses</goal>-->
                         </goals>
                         <configuration>
                             <includeOptional>false</includeOptional>
@@ -973,6 +972,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/DEPENDENCIES</exclude>
+                        <exclude>**/THIRD-PARTY.txt</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <!--            <plugin>-->
             <!--                <groupId>com.mycila</groupId>-->

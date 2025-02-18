@@ -33,6 +33,9 @@ import lombok.*;
 @Builder
 public class LogParserData {
     private String keyList;
+    //用这个字段更容易解析内容
+    private String keyOrderList;
+
     private String valueList;
     private String parseScript;
     private String topicName;

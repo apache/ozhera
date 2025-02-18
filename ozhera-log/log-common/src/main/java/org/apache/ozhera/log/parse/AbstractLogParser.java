@@ -143,6 +143,11 @@ public abstract class AbstractLogParser implements LogParser {
         }
     }
 
+    protected String[] splitList(String keyList) {
+        return StringUtils.split(keyList, ",");
+    }
+
+
     public abstract Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
 
     public abstract Map<String, Object> doParseSimple(String logData, Long collectStamp);

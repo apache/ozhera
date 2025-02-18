@@ -18,14 +18,15 @@
  */
 package org.apache.ozhera.log.stream.job.extension.impl;
 
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.model.LogtailConfig;
 import org.apache.ozhera.log.model.SinkConfig;
 import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
 import static org.apache.ozhera.log.stream.common.LogStreamConstants.DEFAULT_COMMON_STREAM_EXTENSION;
 
 /**
@@ -42,8 +43,14 @@ public class DefaultStreamCommonExtension implements StreamCommonExtension {
         return data;
     }
 
-    public Boolean checkUniqueMarkExists(String uniqueMark, Map<String, Map<Long, String>> config) {
-        return config.containsKey(uniqueMark);
+    public Boolean checkUniqueMarkExists(String uniqueMarks, Map<String, Map<Long, String>> config) {
+        String[] split = uniqueMarks.split(SYMBOL_COMMA);
+        for (String s : split) {
+            if (config.containsKey(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Map<Long, String> getConfigMapByUniqueMark(Map<String, Map<Long, String>> config, String uniqueMark) {

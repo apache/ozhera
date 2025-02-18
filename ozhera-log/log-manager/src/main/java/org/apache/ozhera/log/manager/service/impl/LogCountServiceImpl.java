@@ -18,6 +18,13 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
+import cn.hutool.core.collection.ListUtil;
+import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.domain.Tpc;
@@ -30,13 +37,8 @@ import org.apache.ozhera.log.manager.model.dto.SpaceCollectTrendDTO;
 import org.apache.ozhera.log.manager.model.pojo.LogCountDO;
 import org.apache.ozhera.log.manager.service.LogCountService;
 import org.apache.ozhera.log.utils.DateUtils;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.client.core.CountRequest;
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.client.indices.IndexTemplatesExistRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -147,11 +149,25 @@ public class LogCountServiceImpl implements LogCountService {
         }
         Long thisDayFirstMillisecond = DateUtils.getThisDayFirstMillisecond(thisDay);
         List<LogCountDO> logCountDOList = new ArrayList();
-        LogCountDO logCountDO;
+        List<Map<String, Object>> tailList = logtailMapper.getAllTailForCount();
+        Map<Long, List<String>> existIndexMap = new HashMap<>();
+        long res = 0;
+        if (tailList.size() > 2000) {
+            List<List<Map<String, Object>>> partitionList = ListUtil.partition(tailList, 1000);
+            for (List<Map<String, Object>> mapList : partitionList) {
+                res += calculateAndInsertLogCounts(thisDay, mapList, existIndexMap, thisDayFirstMillisecond, logCountDOList);
+            }
+        } else {
+            res = calculateAndInsertLogCounts(thisDay, tailList, existIndexMap, thisDayFirstMillisecond, logCountDOList);
+        }
+        log.info("End of statistics log,Should be counted{}，Total statistics{}", tailList.size(), res);
+    }
+
+    private long calculateAndInsertLogCounts(String thisDay, List<Map<String, Object>> tailList, Map<Long, List<String>> existIndexMap, Long thisDayFirstMillisecond, List<LogCountDO> logCountDOList) {
+        String esIndex;
         EsService esService;
         Long total;
-        String esIndex;
-        List<Map<String, Object>> tailList = logtailMapper.getAllTailForCount();
+        LogCountDO logCountDO;
         for (Map<String, Object> tail : tailList) {
             try {
                 esIndex = String.valueOf(tail.get("es_index"));
@@ -159,21 +175,24 @@ public class LogCountServiceImpl implements LogCountService {
                     total = 0l;
                     esIndex = "";
                 } else {
-                    esService = esCluster.getEsService(Long.parseLong(String.valueOf(tail.get("es_cluster_id"))));
+                    long clusterId = Long.parseLong(String.valueOf(tail.get("es_cluster_id")));
+                    esService = esCluster.getEsService(clusterId);
                     if (esService == null) {
                         log.warn("Statistics logs warn,tail:{} the logs are not counted and the ES client is not generated", tail);
                         continue;
                     }
-                    SearchSourceBuilder builder = new SearchSourceBuilder();
-                    BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-                    boolQueryBuilder.filter(QueryBuilders.termQuery("tail", tail.get("tail")));
-                    boolQueryBuilder.filter(QueryBuilders.rangeQuery("timestamp").from(thisDayFirstMillisecond).to(thisDayFirstMillisecond + DateUtils.dayms - 1));
-                    builder.query(boolQueryBuilder);
-                    // statistics
-                    CountRequest countRequest = new CountRequest();
-                    countRequest.indices(esIndex);
-                    countRequest.source(builder);
-                    total = esService.count(countRequest);
+
+                    existIndexMap.computeIfAbsent(clusterId, k -> new ArrayList<>());
+                    List<String> clusterIndexes = existIndexMap.get(clusterId);
+
+                    if (!clusterIndexes.contains(esIndex)) {
+                        if (existsTemplate(esService, esIndex)) {
+                            clusterIndexes.add(esIndex);
+                        } else {
+                            continue;
+                        }
+                    }
+                    total = countLogs(esService, esIndex, tail, thisDayFirstMillisecond);
                 }
                 logCountDO = new LogCountDO();
                 logCountDO.setTailId(Long.parseLong(String.valueOf(tail.get("id"))));
@@ -189,7 +208,30 @@ public class LogCountServiceImpl implements LogCountService {
         if (CollectionUtils.isNotEmpty(logCountDOList)) {
             res = logCountMapper.batchInsert(logCountDOList);
         }
-        log.info("End of statistics log,Should be counted{}，Total statistics{}", tailList.size(), res);
+        return res;
+    }
+
+    private Long countLogs(EsService esService, String esIndex, Map<String, Object> tail, Long startTime) {
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termQuery("tailId", tail.get("id")))
+                .filter(QueryBuilders.rangeQuery("timestamp").from(startTime).to(startTime + DateUtils.dayms - 1))
+        );
+
+        CountRequest countRequest = new CountRequest(esIndex);
+        countRequest.source(builder);
+
+        try {
+            return esService.count(countRequest);
+        } catch (Exception e) {
+            log.error("Failed to count logs for index [{}] and tail [{}]", esIndex, tail, e);
+            return 0L;
+        }
+    }
+
+    public boolean existsTemplate(EsService esService, String templateName) throws IOException {
+        IndexTemplatesExistRequest request = new IndexTemplatesExistRequest(templateName);
+        return esService.existsTemplate(request);
     }
 
     @Override
@@ -202,8 +244,8 @@ public class LogCountServiceImpl implements LogCountService {
     public void deleteHistoryLogCount() {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, -70);
-        String deleteBeforedDay = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-        logCountMapper.deleteBeforeDay(deleteBeforedDay);
+        String deleteBeforeDay = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+        logCountMapper.deleteBeforeDay(deleteBeforeDay);
     }
 
     @Override

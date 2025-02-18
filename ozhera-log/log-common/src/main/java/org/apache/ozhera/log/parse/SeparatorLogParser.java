@@ -20,13 +20,12 @@ package org.apache.ozhera.log.parse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author wtt
@@ -38,10 +37,29 @@ public class SeparatorLogParser extends AbstractLogParser {
     private String[] keysAndTypes;
     private String[] values;
 
+    private Map<String, Integer> valueMap;
+
     public SeparatorLogParser(LogParserData parserData) {
         super(parserData);
-        keysAndTypes = StringUtils.split(parserData.getKeyList(), ",");
-        values = StringUtils.split(parserData.getValueList(), ",");
+
+        keysAndTypes = splitList(parserData.getKeyList());
+        values = splitList(parserData.getValueList());
+
+        this.valueMap = createValueMap(parseKeyValueList(parserData));
+    }
+
+    private List<String> parseKeyValueList(LogParserData parserData) {
+        if (StringUtils.isNotBlank(parserData.getKeyOrderList())) {
+            String keyValueList = IndexUtils.getKeyValueList(parserData.getKeyOrderList(), parserData.getValueList());
+            return Arrays.asList(splitList(keyValueList));
+        }
+        return Collections.emptyList();
+    }
+
+    private Map<String, Integer> createValueMap(List<String> valueList) {
+        return IntStream.range(0, valueList.size())
+                .boxed()
+                .collect(Collectors.toMap(valueList::get, Function.identity()));
     }
 
     @Override
@@ -60,7 +78,7 @@ public class SeparatorLogParser extends AbstractLogParser {
         }
         try {
 
-            int maxLength = (int) Arrays.stream(values).filter(s -> !s.equals("-1")).count();
+            int maxLength = (int) Arrays.stream(values).filter(s -> !"-1".equals(s)).count();
 
             List<String> logArray = parseLogData(logData, maxLength);
             if (0 == maxLength) {
@@ -81,7 +99,7 @@ public class SeparatorLogParser extends AbstractLogParser {
              */
             for (int i = 0; i < keysAndTypes.length; i++) {
                 String[] kTsplit = keysAndTypes[i].split(":");
-                if (kTsplit.length != 2 || i >= values.length) {
+                if (kTsplit.length != 2 || i >= values.length && (null == valueMap || valueMap.isEmpty())) {
                     continue;
                 }
                 if (kTsplit[0].equals(esKeyMap_topic)) {
@@ -104,27 +122,35 @@ public class SeparatorLogParser extends AbstractLogParser {
                     count++;
                     continue;
                 }
-                String value = null;
-                int num = -1;
-                try {
-                    num = Integer.parseInt(values[i]);
-                    if (num == -1) {
-                        valueCount++;
+                if (null != valueMap && !valueMap.isEmpty()) {
+                    String key = kTsplit[0].trim();
+                    if (valueMap.containsKey(key)) {
+                        String value = logArray.get(valueMap.get(key));
+                        ret.put(key, value);
+                    }
+                } else {
+                    String value = null;
+                    int num = -1;
+                    try {
+                        num = Integer.parseInt(values[i]);
+                        if (num == -1) {
+                            valueCount++;
+                            continue;
+                        }
+                    } catch (Exception e) {
                         continue;
                     }
-                } catch (Exception e) {
-                    continue;
-                }
-                if (num < logArray.size() && num > -1) {
-                    value = logArray.get(num);
-                } else {
-                    value = "";
-                }
-                if (kTsplit[0].equals(esKeyMap_timestamp) || kTsplit[1].equalsIgnoreCase(esKeyMap_Date)) {
-                    Long time = getTimestampFromString(value, collectStamp);
-                    ret.put(esKeyMap_timestamp, time);
-                } else {
-                    ret.put(kTsplit[0], StringUtils.isNotEmpty(value) ? value.trim() : value);
+                    if (num < logArray.size() && num > -1) {
+                        value = logArray.get(num);
+                    } else {
+                        value = "";
+                    }
+                    if (kTsplit[0].equals(esKeyMap_timestamp) || kTsplit[1].equalsIgnoreCase(esKeyMap_Date)) {
+                        Long time = getTimestampFromString(value, collectStamp);
+                        ret.put(esKeyMap_timestamp, time);
+                    } else {
+                        ret.put(kTsplit[0], StringUtils.isNotEmpty(value) ? value.trim() : value);
+                    }
                 }
             }
 

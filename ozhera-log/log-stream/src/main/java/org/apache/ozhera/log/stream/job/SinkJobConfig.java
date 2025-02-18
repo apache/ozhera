@@ -18,13 +18,13 @@
  */
 package org.apache.ozhera.log.stream.job;
 
-import org.apache.ozhera.log.model.StorageInfo;
-import org.apache.ozhera.log.stream.common.SinkJobEnum;
-import org.apache.ozhera.log.stream.sink.SinkChain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ozhera.log.model.StorageInfo;
+import org.apache.ozhera.log.stream.common.SinkJobEnum;
+import org.apache.ozhera.log.stream.sink.SinkChain;
 
 import java.util.List;
 
@@ -47,6 +47,9 @@ public class SinkJobConfig extends LogConfig {
     private String tag;
     private String index;
     private String keyList;
+
+    private String keyOrderList;
+
     private String valueList;
     private String parseScript;
     private String logStoreName;

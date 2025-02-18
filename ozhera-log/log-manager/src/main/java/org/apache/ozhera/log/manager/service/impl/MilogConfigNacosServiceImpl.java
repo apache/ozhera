@@ -25,6 +25,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.nacos.NacosNaming;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.enums.MQSourceEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
@@ -49,11 +54,6 @@ import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
 import org.apache.ozhera.log.manager.service.nacos.FetchStreamMachineService;
 import org.apache.ozhera.log.manager.service.nacos.MultipleNacosConfig;
 import org.apache.ozhera.log.manager.service.nacos.impl.*;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.ozhera.log.model.*;
 
 import javax.annotation.Resource;
@@ -411,6 +411,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
             sinkConfig.setLogstoreName(logStoreDO.getLogstoreName());
             sinkConfig.setKeyList(Utils.parse2KeyAndTypeList(logStoreDO.getKeyList(), logStoreDO.getColumnTypeList()));
+            sinkConfig.setKeyOrderList(logStoreDO.getKeyList());
             MilogEsClusterDO esInfo = esCluster.getById(logStoreDO.getEsClusterId());
             if (null != esInfo) {
                 sinkConfig.setEsIndex(logStoreDO.getEsIndex());

@@ -160,6 +160,7 @@ public class JobManager {
                 .tag(logtailConfig.getTag())
                 .index(sinkConfig.getEsIndex())
                 .keyList(sinkConfig.getKeyList())
+                .keyOrderList(sinkConfig.getKeyOrderList())
                 .valueList(logtailConfig.getValueList())
                 .parseScript(logtailConfig.getParseScript())
                 .logStoreName(sinkConfig.getLogstoreName())

@@ -33,7 +33,8 @@ import lombok.*;
 @Builder
 public class LogParserData {
     private String keyList;
-    //用这个字段更容易解析内容
+
+    //Use this field to parse content more easily
     private String keyOrderList;
 
     private String valueList;

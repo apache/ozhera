@@ -18,13 +18,14 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
-import com.google.gson.Gson;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.model.meta.LogCollectMeta;
 import org.apache.ozhera.log.api.service.AgentConfigService;
 import org.apache.ozhera.log.manager.service.extension.agent.MilogAgentService;
 import org.apache.ozhera.log.manager.service.extension.agent.MilogAgentServiceFactory;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.ozhera.log.common.Constant.GSON;
 
 /**
  * @author wtt
@@ -59,7 +60,7 @@ public class AgentConfigServiceImpl implements AgentConfigService {
                 init();
             }
             LogCollectMeta logCollectMeta = milogAgentService.getLogCollectMetaFromManager(ip);
-            log.info("getLogCollectMetaFromManager end:{} {} {}", ip, new Gson().toJson(logCollectMeta), (System.currentTimeMillis() - begin));
+            log.info("getLogCollectMetaFromManager end:{} {} {}", ip, GSON.toJson(logCollectMeta), (System.currentTimeMillis() - begin));
             return logCollectMeta;
         } catch (Exception e) {
             log.error("getLogCollectMetaFromManager error,ip:{}", ip, e);

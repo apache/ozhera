@@ -165,7 +165,6 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.8.12</version>
             <scope>compile</scope>
         </dependency>
 

@@ -541,7 +541,6 @@ The following components are provided under the BSD License.
 See licenses/ for text of these licenses.
      (BSD License 3) Hamcrest (org.hamcrest:hamcrest:2.2 - http://hamcrest.org/JavaHamcrest/)
      (BSD License) curvesapi (com.github.virtuald:curvesapi:1.03 - https://github.com/virtuald/curvesapi)
-     (BSD-style license) FreeMarker (org.freemarker:freemarker:2.3.9 - http://www.freemarker.org)
      (BSD-2-Clause) PostgreSQL JDBC Driver (org.postgresql:postgresql:42.5.5 - https://jdbc.postgresql.org)
      (BSD 2-Clause License) zstd-jni (com.github.luben:zstd-jni:1.5.2-2 - https://github.com/luben/zstd-jni)
      (BSD 3-clause New License) dom4j (org.dom4j:dom4j:2.1.3 - http://dom4j.github.io/)
@@ -592,7 +591,6 @@ See licenses/ for text of these licenses.
      (EPL 2.0) (GPL2 w/ CPE) Jakarta Annotations API (jakarta.annotation:jakarta.annotation-api:1.3.5 - https://projects.eclipse.org/projects/ee4j.ca)
      (Eclipse Public License - v 1.0) (GNU Lesser General Public License) Logback Classic Module (ch.qos.logback:logback-classic:1.2.13 - http://logback.qos.ch/logback-classic)
      (Eclipse Public License - v 1.0) (GNU Lesser General Public License) Logback Core Module (ch.qos.logback:logback-core:1.2.13 - http://logback.qos.ch/logback-core)
-     (Eclipse Public License - v 1.0) AspectJ weaver (org.aspectj:aspectjweaver:1.8.12 - http://www.aspectj.org)
      (Eclipse Public License - v 2.0) AspectJ Weaver (org.aspectj:aspectjweaver:1.9.20 - https://www.eclipse.org/aspectj/)
      (Eclipse Public License 1.0) JUnit (junit:junit:4.13.2 - http://junit.org)
      (Eclipse Public License v1.0) JaCoCo :: Agent (org.jacoco:org.jacoco.agent:0.8.4 - http://org.jacoco.agent)

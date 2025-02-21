@@ -38,6 +38,12 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>docean-plugin-k8s</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>snakeyaml</artifactId>
+                    <groupId>org.yaml</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -58,7 +64,7 @@ http://www.apache.org/licenses/LICENSE-2.0
         </dependency>
     </dependencies>
 
-    <dependencyManagement>
+    <!--<dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.yaml</groupId>
@@ -66,7 +72,7 @@ http://www.apache.org/licenses/LICENSE-2.0
                 <version>1.33</version>
             </dependency>
         </dependencies>
-    </dependencyManagement>
+    </dependencyManagement>-->
 
 
     <build>

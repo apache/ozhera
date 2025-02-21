@@ -1660,3 +1660,204 @@ Copyright 2015-2018 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+-------------------------- junit-jupiter NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+-------------------------- junit-jupiter-api NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+-------------------------- junit-jupiter-engine NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+-------------------------- junit-jupiter-params NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+-------------------------- junit-platform-commons NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+
+-------------------------- junit-platform-engine NOTICE --------------------------
+Open Source Licenses
+====================
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the LICENSE-<subcomponent>.md
+files.
+
+
+-------------------------- mybatis-generator-core NOTICE --------------------------
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes the EqualsUtil and HashCodeUtil classes
+from http://www.javapractices.com.
+
+
+MyBatis Spring
+Copyright 2010-2013
+
+This product includes software developed by
+The MyBatis Team (http://www.mybatis.org/).
+
+
+-------------------------- mybatis-generator-core NOTICE --------------------------
+iBATIS
+   This product includes software developed by
+   The Apache Software Foundation (http://www.apache.org/).
+
+   Copyright 2010 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+Spring Framework
+    All Spring projects are licensed under the terms of the Apache License, Version 2.0
+
+   Copyright 2002-2010 the original author or authors
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-------------------------- objenesis NOTICE --------------------------
+   // ------------------------------------------------------------------
+   // NOTICE file corresponding to the section 4d of The Apache License,
+   // Version 2.0, in this case for Objenesis
+   // ------------------------------------------------------------------
+
+   Objenesis
+   Copyright 2006-2021 Joe Walnes, Henri Tremblay, Leonardo Mesquita
+
+-------------------------- Spring-Framework NOTICE --------------------------
+Spring Framework 5.3.29
+Copyright (c) 2002-2023 Pivotal, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License"). You may not use this product except in compliance with
+the License.
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the license.txt file.
+
+-------------------------- spring-boot NOTICE --------------------------
+Spring Boot 2.7.15
+Copyright (c) 2012-2023 VMware, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License"). You may not use this product except in compliance with
+the License.
+
+-------------------------- spring-data-commons NOTICE --------------------------
+Spring Data Commons 2.7.15 (2021.2.15)
+Copyright (c) [2010-2021] Pivotal Software, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0 (the "License").
+You may not use this product except in compliance with the License.
+
+This product may include a number of subcomponents with
+separate copyright notices and license terms. Your use of the source
+code for the these subcomponents is subject to the terms and
+conditions of the subcomponent's license, as noted in the LICENSE file.
+
+
+-------------------------- spring-data-keyvalue NOTICE --------------------------
+Spring Data KeyValue 2.7.15 (2021.2.15)
+Copyright (c) 2015-2019 Pivotal Software, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License"). You may not use this product except in compliance with
+the License.
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the license.txt file.
+
+-------------------------- spring-data-redis NOTICE --------------------------
+Spring Data Redis 2.7.15 (2021.2.15)
+Copyright (c) [2010-2019] Pivotal Software, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0 (the "License").
+You may not use this product except in compliance with the License.
+
+This product may include a number of subcomponents with
+separate copyright notices and license terms. Your use of the source
+code for the these subcomponents is subject to the terms and
+conditions of the subcomponent's license, as noted in the LICENSE file.
+
+
+-------------------------- snappy-java NOTICE --------------------------
+This product includes software developed by Google
+ Snappy: http://code.google.com/p/snappy/ (New BSD License)
+
+This product includes software developed by Apache
+ PureJavaCrc32C from apache-hadoop-common http://hadoop.apache.org/
+ (Apache 2.0 license)
+
+This library containd statically linked libstdc++. This inclusion is allowed by
+"GCC RUntime Library Exception"
+http://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
+
+== Contributors ==
+  * Tatu Saloranta
+    * Providing benchmark suite
+  * Alec Wysoker
+    * Performance and memory usage improvement
+

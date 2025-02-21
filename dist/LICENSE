@@ -356,7 +356,6 @@ See licenses/ for text of these licenses.
      (Apache License, Version 2.0) Netty/Transport/RXTX (io.netty:netty-transport-rxtx:4.1.97.Final - https://netty.io/netty-transport-rxtx/)
      (Apache License, Version 2.0) Netty/Transport/SCTP (io.netty:netty-transport-sctp:4.1.97.Final - https://netty.io/netty-transport-sctp/)
      (Apache License, Version 2.0) Netty/Transport/UDT (io.netty:netty-transport-udt:4.1.97.Final - https://netty.io/netty-transport-udt/)
-     (Apache License, Version 2.0) Nutz (org.nutz:nutz:1.r.68.v20191031 - http://nutzam.com)
      (Apache License, Version 2.0) Nutz (run.mone:nutz:1.r.68-open - http://nutzam.com)
      (Apache License, Version 2.0) Objenesis (org.objenesis:objenesis:3.2 - http://objenesis.org/objenesis)
      (Apache License, Version 2.0) OkHttp Logging Interceptor (com.squareup.okhttp3:logging-interceptor:3.12.12 - https://github.com/square/okhttp/logging-interceptor)
@@ -553,8 +552,6 @@ See licenses/ for text of these licenses.
      (The 3-Clause BSD License) Chinese to Pinyin (com.belerweb:pinyin4j:2.5.1 - https://github.com/belerweb/pinyin4j)
      (The 3-Clause BSD License) Hamcrest Core (org.hamcrest:hamcrest-core:1.3 - https://github.com/hamcrest/JavaHamcrest/hamcrest-core)
      (The 3-Clause BSD License) commons-compiler (org.codehaus.janino:commons-compiler:3.0.8 - http://janino-compiler.github.io/commons-compiler/)
-     (The 3-Clause BSD License) hyperscan-java (com.gliwka.hyperscan:hyperscan:5.4.0-2.0.0 - https://github.com/gliwka/hyperscan-java)
-     (The 3-Clause BSD License) hyperscan-java-native (com.gliwka.hyperscan:native:5.4.0-1.0.0 - https://github.com/gliwka/hyperscan-java-native)
      (The 3-Clause BSD License) janino (org.codehaus.janino:janino:3.0.8 - http://janino-compiler.github.io/janino/)
 
 =========================================================================================

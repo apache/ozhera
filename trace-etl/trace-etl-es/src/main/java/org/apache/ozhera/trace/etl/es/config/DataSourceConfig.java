@@ -36,7 +36,7 @@ import java.beans.PropertyVetoException;
 @Configuration
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.driverClassName}")
+    @NacosValue("${spring.datasource.driverClassName}")
     private String driverClass;
 
     @Value("${spring.datasource.default.initialPoolSize}")

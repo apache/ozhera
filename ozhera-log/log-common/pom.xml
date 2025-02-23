@@ -56,11 +56,11 @@ http://www.apache.org/licenses/LICENSE-2.0
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
+<!--        <dependency>
             <groupId>com.gliwka.hyperscan</groupId>
             <artifactId>hyperscan</artifactId>
             <version>5.4.0-2.0.0</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.google.code.gson</groupId>

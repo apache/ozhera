@@ -51,17 +51,6 @@
                 <version>${spring.boot.version}</version>
             </dependency>
 
-           <!-- <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>nacos</artifactId>
-            </dependency>-->
-
-            <dependency>
-                <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-spring-context</artifactId>
-                <version>0.3.3</version>
-            </dependency>
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>nacos-api</artifactId>

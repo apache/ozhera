@@ -21,8 +21,9 @@ RUN mkdir -p /home/work/app-server/
 RUN mkdir -p /home/work/log/app-server/
 
 ARG SRC_PATH
+ARG LIB_PATH
 ARG APP_VERSION
 COPY ${SRC_PATH}/app-server-${APP_VERSION}.jar /home/work/app-server/app-server.jar
-COPY ${SRC_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/lib /home/work/lib/
 
 ENTRYPOINT ["java", "--enable-preview", "--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/java.time=ALL-UNNAMED", "-cp", "/home/work/app-server/app-server.jar:/home/work/lib/*", "org.apache.ozhera.app.AppBootstrap"]

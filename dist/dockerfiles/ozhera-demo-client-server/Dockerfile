@@ -17,10 +17,11 @@ FROM openjdk:21-jdk-bookworm
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 ARG SRC_PATH
+ARG LIB_PATH
 ARG APP_VERSION
 COPY ${SRC_PATH}/ozhera-demo-client-server-${APP_VERSION}.jar /home/work/ozhera-demo-client-server.jar
 COPY ./opentelemetry-javaagent.jar /opt/soft/opentelemetry-javaagent.jar
 
-COPY ${SRC_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/lib /home/work/lib/
 
 ENTRYPOINT ["java", "-javaagent:/opt/soft/opentelemetry-javaagent.jar", "-Dotel.exporter.prometheus.nacos.addr=nacos:80", "-Dotel.exporter.log.pathprefix=/home/work/log/", "-XX:+UseZGC", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/sun.reflect=ALL-UNNAMED", "--add-opens=java.base/java.xml=ALL-UNNAMED", "--add-exports=java.base/sun.reflect.annotation=ALL-UNNAMED", "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED", "--add-exports=java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED", "-Duser.timezone=Asia/Shanghai", "-cp", "/home/work/ozhera-demo-client-server.jar:/home/work/lib/*", "org.apache.ozhera.demo.client.bootstrap.HeraDemoClientBootstrap"]

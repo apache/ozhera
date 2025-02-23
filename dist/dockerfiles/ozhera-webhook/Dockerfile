@@ -15,9 +15,10 @@
 
 FROM openjdk:21-jdk-bookworm
 ARG SRC_PATH
+ARG LIB_PATH
 ARG APP_VERSION
 COPY ${SRC_PATH}/ozhera-webhook-server-${APP_VERSION}.jar /home/work/hera-webhook-server.jar
 
-COPY ${SRC_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/lib /home/work/lib/
 
 ENTRYPOINT ["java","-Duser.timezone=Asia/Shanghai","-cp","/home/work/hera-webhook-server.jar:/home/work/lib/*","org.apache.ozhera.webhook.Bootstrap","&&","tail","-f","/dev/null"]

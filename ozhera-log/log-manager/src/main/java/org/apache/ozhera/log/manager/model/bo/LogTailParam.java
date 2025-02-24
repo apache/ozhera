@@ -18,6 +18,8 @@
  */
 package org.apache.ozhera.log.manager.model.bo;
 
+import org.apache.ozhera.log.api.enums.ComparisonTypeEnum;
+import org.apache.ozhera.log.api.enums.LogLevelEnum;
 import org.apache.ozhera.log.manager.model.dto.MotorRoomDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -82,4 +84,9 @@ public class LogTailParam {
     private Boolean collectionReady = true;
 
     private String originSystem;
+
+    private ComparisonTypeEnum comparisonType;
+
+    private LogLevelEnum logLevel;
+
 }

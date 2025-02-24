@@ -45,6 +45,11 @@ public class LogPattern implements Serializable {
     private List<String> ips;
 
     /**
+     * Level of logs to be collected
+     */
+    private List<String> collectedLogLevelList;
+
+    /**
      * IP and directory correspondence
      */
     private List<IPRel> ipDirectoryRel;

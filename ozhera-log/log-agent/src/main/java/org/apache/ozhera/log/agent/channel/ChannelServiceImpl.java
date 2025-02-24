@@ -311,7 +311,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            readResult.get().getLines().stream().forEach(l -> {
+            readResult.get().getLines().stream()
+                    .filter(l -> shouldCollectLogs(channelDefine.getCollectedLogLevelList(), l, 60))//确定是不是需要收集
+                    .forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
                 // Multi-line application log type and opentelemetry type are used to determine the exception stack
@@ -612,6 +614,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         return monitorFileList;
     }
 
+    @Override
     public ChannelDefine getChannelDefine() {
         return channelDefine;
     }

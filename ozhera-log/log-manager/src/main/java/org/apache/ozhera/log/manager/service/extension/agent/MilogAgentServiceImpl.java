@@ -391,6 +391,9 @@ public class MilogAgentServiceImpl implements MilogAgentService {
                 logPattern.setLogPattern(milogLogtailDo.getLogPath());
             }
         }
+        if (null != milogLogtailDo.getCollectedLogLevelList() && !milogLogtailDo.getCollectedLogLevelList().isEmpty()) {
+            logPattern.setCollectedLogLevelList(milogLogtailDo.getCollectedLogLevelList());
+        }
         String tag = Utils.createTag(milogLogtailDo.getSpaceId(), milogLogtailDo.getStoreId(), milogLogtailDo.getId());
         logPattern.setPatternCode(tag);
         return logPattern;

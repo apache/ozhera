@@ -33,5 +33,7 @@ http://www.apache.org/licenses/LICENSE-2.0
             milog_logstore store
         WHERE
             tail.store_id = store.id
+          AND store.es_cluster_id IS NOT NULL
+          AND store.es_index IS NOT NULL
     </select>
 </mapper>

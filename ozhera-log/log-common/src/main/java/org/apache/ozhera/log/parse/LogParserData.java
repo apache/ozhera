@@ -33,6 +33,10 @@ import lombok.*;
 @Builder
 public class LogParserData {
     private String keyList;
+
+    //Use this field to parse content more easily
+    private String keyOrderList;
+
     private String valueList;
     private String parseScript;
     private String topicName;

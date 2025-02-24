@@ -19,11 +19,11 @@
 package org.apache.ozhera.log.stream;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.parse.LogParser;
 import org.apache.ozhera.log.parse.LogParserFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -92,7 +92,7 @@ public class TestSomething {
         //RmqSinkJob rmqSinkJob = new RmqSinkJob();
         Integer parserType = LogParserFactory.LogParserEnum.CUSTOM_PARSE.getCode();
 
-        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName);
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, "");
 
 //        rmqSinkJob.setLogParser(customParse);
 
@@ -105,6 +105,6 @@ public class TestSomething {
         Map<String, Map<String, String>> testMap = new HashMap<>();
         Map<String, String> test = testMap.computeIfAbsent("test", k -> new HashMap<>());
         test.put("sfsdf", "ersrser");
-        log.info("result:{}",GSON.toJson(testMap));
+        log.info("result:{}", GSON.toJson(testMap));
     }
 }

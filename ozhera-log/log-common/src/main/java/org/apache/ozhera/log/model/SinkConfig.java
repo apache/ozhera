@@ -35,6 +35,9 @@ public class SinkConfig {
      * timestamp is required
      */
     private String keyList;
+
+    private String keyOrderList;
+
     /**
      * key:logtailId
      */
@@ -56,6 +59,7 @@ public class SinkConfig {
         this.logstoreId = sinkConfig.getLogstoreId();
         this.logstoreName = sinkConfig.getLogstoreName();
         this.keyList = sinkConfig.getKeyList();
+        this.keyOrderList = sinkConfig.getKeyOrderList();
         this.esIndex = sinkConfig.getEsIndex();
         this.esInfo = sinkConfig.getEsInfo();
     }

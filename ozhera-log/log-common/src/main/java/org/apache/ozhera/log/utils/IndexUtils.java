@@ -43,7 +43,7 @@ public class IndexUtils {
         Map<Integer, String> map = new HashMap<>();
         for (int i = 0; i < valueS.length; i++) {
             int orderValue = Integer.parseInt(valueS[i]);
-            if (orderValue >= 0) {
+            if (orderValue >= 0 && i < keyListSlice.size()) {
                 map.put(orderValue, keyListSlice.get(i));
             }
         }

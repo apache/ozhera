@@ -52,7 +52,7 @@ public class LogParserFactoryTest {
         String mqTag = "fsfsd";
         String logStoreName = "testet";
         String message = "";
-        LogParser logParser = LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, topicName, tailName, mqTag, logStoreName);
+        LogParser logParser = LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, topicName, tailName, mqTag, logStoreName,"");
 
         LineMessage lineMessage = Constant.GSON.fromJson(message, LineMessage.class);
         if(lineMessage != null) {

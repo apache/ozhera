@@ -19,11 +19,11 @@
 package org.apache.ozhera.log.manager.job;
 
 import cn.hutool.core.thread.ThreadUtil;
-import org.apache.ozhera.log.manager.service.impl.LogCountServiceImpl;
-import org.apache.ozhera.log.utils.DateUtils;
 import com.xiaomi.youpin.docean.anno.Component;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.manager.service.impl.LogCountServiceImpl;
+import org.apache.ozhera.log.utils.DateUtils;
 
 import javax.annotation.Resource;
 import java.util.concurrent.Executors;
@@ -46,11 +46,9 @@ public class TailLogCountJob {
         ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
                 ThreadUtil.newNamedThreadFactory("log-tailLogCountJob", false)
         );
-        long initDelay = 0;
-        long intervalTime = 1;
-        scheduledExecutor.scheduleAtFixedRate(() -> {
-            statisticsAll();
-        }, initDelay, intervalTime, TimeUnit.HOURS);
+        long initDelay = 2;
+        long intervalTime = 2 * 60;
+        scheduledExecutor.scheduleAtFixedRate(this::statisticsAll, initDelay, intervalTime, TimeUnit.MINUTES);
     }
 
     public void statisticsAll() {

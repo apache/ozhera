@@ -289,7 +289,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         ReadResult result = readResult.get();
 
         LogTypeEnum logTypeEnum = getLogTypeEnum();
-        result.getLines().forEach(line -> {
+        result.getLines().stream().filter(line -> shouldCollectLogs(channelDefine.getCollectedLogLevelList(), line,60)).forEach(line -> {
             if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
                 line = mLog.append2(line);
             }

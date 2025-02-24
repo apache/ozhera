@@ -673,6 +673,11 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));
         milogLogtailDo.setCollectionReady(logTailParam.getCollectionReady());
         milogLogtailDo.setOriginSystem(logTailParam.getOriginSystem());
+
+        if (logTailParam.getComparisonType() != null && logTailParam.getLogLevel() != null){
+            List<String> levelListToCollection = LogLevelEnum.getLevelListToCollection(logTailParam.getComparisonType(), logTailParam.getLogLevel());
+            milogLogtailDo.setCollectedLogLevelList(levelListToCollection);
+        }
         return milogLogtailDo;
     }
 

@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.input.Input;
+import org.apache.ozhera.log.api.enums.LogLevelEnum;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
@@ -202,4 +203,24 @@ public abstract class AbstractChannelService implements ChannelService {
         fileProgress.setPodType(channelDefine.getPodType());
         fileProgress.setCtTime(ct);
     }
+
+    public Boolean shouldCollectLogs(List<String> logLevelList, String line, Integer prefixLength){
+        if (logLevelList == null || logLevelList.isEmpty() || logLevelList.size() == LogLevelEnum.values().length) {
+            return true;
+        }
+        if (line == null || line.isEmpty()) {
+            return false;
+        }
+        if (line.length() > prefixLength){
+            line = line.substring(0, prefixLength);
+        }
+        for (String level : logLevelList) {
+            if (line.contains(level)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

@@ -390,8 +390,8 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     @Override
     public Result<Void> updateMilogLogTail(LogTailParam param) {
-        if (null == param.getId()) {
-            return Result.failParam("id can not be null");
+        if (null == param || null == param.getId()) {
+            return Result.failParam("parameter error,param:" + param);
         }
         MilogLogTailDo ret = milogLogtailDao.queryById(param.getId());
         if (ret == null) {

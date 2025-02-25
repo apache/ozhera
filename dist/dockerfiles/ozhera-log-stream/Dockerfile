@@ -28,5 +28,6 @@ COPY ${SRC_PATH}/log-stream-${APP_VERSION}.jar ${APP_HOME}/log-stream.jar
 WORKDIR ${APP_HOME}
 
 COPY ${LIB_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/ext-lib /home/work/lib/
 
 CMD ["java", "--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "-cp", "/opt/app/log-stream.jar:/home/work/lib/*", "org.apache.ozhera.log.stream.bootstrap.MiLogStreamBootstrap"]

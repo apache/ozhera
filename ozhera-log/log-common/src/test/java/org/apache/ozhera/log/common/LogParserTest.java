@@ -66,16 +66,38 @@ public class LogParserTest {
     @Test
     public void test2() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        String keyList = "timestamp:date,level:keyword,traceId:keyword,threadName:text,className:text,line:keyword,methodName:keyword,message:text,podName:keyword,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
-        String valueList = "0,1,2,3,4,5,-1,6,-1";
-        String parseScript = "|";
-        String logData = "2025-02-13 16:52:09,325|INFO";
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,time:keyword,log_level:keyword,thread_name:keyword,log_name:keyword,trace_id:keyword,user_login_name:keyword,marker:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "-1,7,0,1,2,3,4,5,6";
+        String parseScript = "(?s)(?s)(?s)(?s)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s\\+\\d{4})\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s([\\s\\S]*)";
+        String logData = "";
         String ip = "127.0.0.1";
         Long currentStamp = Instant.now().toEpochMilli();
-        Integer parserType = LogParserFactory.LogParserEnum.SEPARATOR_PARSE.getCode();
-        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, "");
+        Integer parserType = LogParserFactory.LogParserEnum.REGEX_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
         Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
         System.out.println(parse);
+        stopwatch.stop();
+        log.info("cost time:{}", stopwatch.elapsed().toMillis());
+    }
+
+    @Test
+    public void test3() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        //String keyList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,time:keyword,log_level:keyword,thread_name:keyword,log_name:keyword,trace_id:keyword,user_login_name:keyword,marker:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "-1,7,0,1,2,3,4,5,6";
+        String parseScript = "(?s)(?s)(?s)(?s)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s\\+\\d{4})\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s([\\s\\S]*)";
+        String logData = "";
+        String ip = "127.0.0.1";
+        Long currentStamp = Instant.now().toEpochMilli();
+        Integer parserType = LogParserFactory.LogParserEnum.REGEX_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
+        Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
+        System.out.println(parse);
+
+        System.out.println(customParse.getTimestampFromString("2023-08-25 10:46:09.239", currentStamp));
         stopwatch.stop();
         log.info("cost time:{}", stopwatch.elapsed().toMillis());
     }

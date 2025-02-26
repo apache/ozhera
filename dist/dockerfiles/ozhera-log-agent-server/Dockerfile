@@ -28,5 +28,6 @@ COPY ${SRC_PATH}/log-agent-server-${APP_VERSION}.jar ${APP_HOME}/log-agent-serve
 WORKDIR ${APP_HOME}
 
 COPY ${LIB_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/ext-lib /home/work/lib/
 
 ENTRYPOINT ["java", "--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/java.time=ALL-UNNAMED", "-cp", "/opt/app/log-agent-server.jar:/home/work/lib/*", "org.apache.ozhera.log.server.LogAgentServerBootstrap"]

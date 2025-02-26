@@ -100,16 +100,9 @@ Apache OzHera(Incubating)是一款云原生时代的应用观测平台(APM)。�
 
 #### 社区交流
 - 我们也欢迎您加入我们的社区，参与讨论和交流：
-    - 欢迎访问Apache OzHera(Incubating)的[社区网站](https://m.one.mi.com/index)，我们会将Apache OzHera(Incubating)的技术向分享、思考与最新成果发布在上面， 欢迎大家共同交流
+    - 欢迎访问Apache OzHera(Incubating)的[社区网站](https://ozhera.apache.org/ )， 我们会将Apache OzHera(Incubating)的技术向分享、思考与最新成果发布在上面， 欢迎大家共同交流
     - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---
-
-## 用户列表
-
-如果您正在使用 Apache OzHera(Incubating) 并认为它对您有所帮助，或者想要为我们贡献代码，请将您的公司添加到用户列表中，以便让我们了解您的需求
-
-|![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
-| :---: | :---: | :---: | :---: |
 
 

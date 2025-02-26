@@ -30,5 +30,6 @@ COPY ${SRC_PATH}/log-manager-${APP_VERSION}.jar ${APP_HOME}/log-manager.jar
 WORKDIR ${APP_HOME}
 
 COPY ${LIB_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/ext-lib /home/work/lib/
 
 ENTRYPOINT ["java", "--enable-preview","--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/java.time=ALL-UNNAMED", "-cp", "/opt/app/log-manager.jar:/home/work/lib/*", "org.apache.ozhera.log.manager.bootstrap.MiLogManagerBootstrap"]

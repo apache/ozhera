@@ -20,5 +20,6 @@ ARG APP_VERSION
 COPY ${SRC_PATH}/ozhera-webhook-server-${APP_VERSION}.jar /home/work/hera-webhook-server.jar
 
 COPY ${LIB_PATH}/lib /home/work/lib/
+COPY ${LIB_PATH}/ext-lib /home/work/lib/
 
 ENTRYPOINT ["java","-Duser.timezone=Asia/Shanghai","-cp","/home/work/hera-webhook-server.jar:/home/work/lib/*","org.apache.ozhera.webhook.Bootstrap","&&","tail","-f","/dev/null"]

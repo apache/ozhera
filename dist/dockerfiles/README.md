@@ -21,14 +21,14 @@
 
 ## 1. Build the image
 The dockerfiles corresponding to each server service are provided in the dockerfiles directory. When building the image, you need to specify the parameters
-SRC_PATH server jar package path
-LIB_PATH used dependency package path
+SRC_PATH server jar package path, specify the path to the jar package of a service in the servers folder
+LIB_PATH dependency package path used, specify the path to the lib folder (also the path to the ext-lib folder)
 APP_VERSION version number of this release
 
 Under the servers package in the root directory, the jar packages corresponding to each server are provided according to the directory name
 
-Example:
-docker build . --build-arg SRC_PATH=servers/ozhera-app/ --build-arg LIB_PATH=lib/ --build-arg APP_VERSION=2.2.5-incubating -t herahub/opensource-pub:app-server-2.2.5-incubating-beta-v1
+Example: For example, we build the ozhera-app image in the root directory
+docker build . --build-arg SRC_PATH=servers/ozhera-app/ --build-arg LIB_PATH=. --build-arg APP_VERSION=2.2.5-incubating -t herahub/opensource-pub:app-server-2.2.5-incubating-beta-v1
 
 ## 2. How to deploy the project
 

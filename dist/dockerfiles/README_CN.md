@@ -21,14 +21,14 @@
 
 ## 1、构建镜像
 dockerfiles目录下提供了各个server服务对应的dockerfile，构建镜像的时候您需要指定参数
-SRC_PATH    server的jar包路径
-LIB_PATH    使用到的依赖包路径
+SRC_PATH    server的jar包路径，指定到servers文件夹下的某个服务的jar包所在路径
+LIB_PATH    使用到的依赖包路径,指定lib文件夹所在的路径（也是ext-lib文件夹的路径）
 APP_VERSION 本次发布的版本号
 
 根目录的servers包下，按目录名称提供了各个server对应的jar包
 
-例子：
-docker build  . --build-arg SRC_PATH=/servers/ozhera-app/ --build-arg LIB_PATH=lib/  --build-arg APP_VERSION=2.2.5-incubating -t  herahub/opensource-pub:app-server-2.2.5-incubating-beta-v1
+例子：比如我们在根目录构建ozhera-app的镜像
+docker build  . --build-arg SRC_PATH=servers/ozhera-app/ --build-arg LIB_PATH=.  --build-arg APP_VERSION=2.2.5-incubating -t  herahub/opensource-pub:app-server-2.2.5-incubating-beta-v1
 
 ## 2、如何部署项目
 

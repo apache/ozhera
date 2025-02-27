@@ -1100,6 +1100,7 @@
                         <exclude>**/*.png</exclude>
                         <exclude>**/*.jpg</exclude>
                         <exclude>**/*.jpeg</exclude>
+                        <exclude>dist/licenses/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>

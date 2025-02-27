@@ -216,8 +216,6 @@ Third party Apache 2.0 licenses
 
 The following components are provided under the Apache 2.0 License.
 See licenses/ for text of these licenses.
-     (Apache License, Version 2.0) (GNU General Public License (GPL) version 2, or any later version) (GPLv2 with Classpath exception) JavaCPP (org.bytedeco:javacpp:1.5.4 - http://bytedeco.org/javacpp/)
-     (Apache License, Version 2.0) (GNU General Public License (GPL) version 2, or any later version) (GPLv2 with Classpath exception) JavaCPP Platform (org.bytedeco:javacpp-platform:1.5.4 - http://bytedeco.org/javacpp/)
      (Apache License, Version 2.0) (GNU General Public License, version 2) RocksDB JNI (org.rocksdb:rocksdbjni:7.0.3 - https://rocksdb.org)
      (Apache License, Version 2.0) (GNU Library or Lesser General Public License (LGPL) V2.1) JSQLParser library (com.github.jsqlparser:jsqlparser:4.2 - https://github.com/JSQLParser/JSqlParser)
      (Apache License, Version 2.0) (LGPL 2.1) (MPL 1.1) Javassist (org.javassist:javassist:3.23.1-GA - http://www.javassist.org/)
@@ -371,7 +369,6 @@ See licenses/ for text of these licenses.
      (Apache License, Version 2.0) Spring Beans (org.springframework:spring-beans:5.3.29 - https://github.com/spring-projects/spring-framework)
      (Apache License, Version 2.0) Spring Commons Logging Bridge (org.springframework:spring-jcl:5.3.29 - https://github.com/spring-projects/spring-framework)
      (Apache License, Version 2.0) Spring Context (org.springframework:spring-context:5.3.29 - https://github.com/spring-projects/spring-framework)
-     (Apache License, Version 2.0) Spring Context Support (org.springframework:spring-context-support:5.3.29 - https://github.com/spring-projects/spring-framework)
      (Apache License, Version 2.0) Spring Core (org.springframework:spring-core:5.3.29 - https://github.com/spring-projects/spring-framework)
      (Apache License, Version 2.0) Spring Data Core (org.springframework.data:spring-data-commons:2.7.15 - https://www.spring.io/spring-data/spring-data-commons)
      (Apache License, Version 2.0) Spring Data KeyValue (org.springframework.data:spring-data-keyvalue:2.7.15 - https://www.spring.io/spring-data/spring-data-keyvalue)

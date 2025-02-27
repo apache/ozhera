@@ -69,6 +69,10 @@
                     <groupId>io.lettuce</groupId>
                     <artifactId>lettuce-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>spring-context-support</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 

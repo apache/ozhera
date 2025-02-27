@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.input.Input;
-import org.apache.ozhera.log.api.enums.LogLevelEnum;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
@@ -205,7 +204,7 @@ public abstract class AbstractChannelService implements ChannelService {
     }
 
     public Boolean shouldCollectLogs(List<String> logLevelList, String line, Integer prefixLength){
-        if (logLevelList == null || logLevelList.isEmpty() || logLevelList.size() == LogLevelEnum.values().length) {
+        if (logLevelList == null || logLevelList.isEmpty()) {
             return true;
         }
         if (line == null || line.isEmpty()) {
@@ -214,8 +213,9 @@ public abstract class AbstractChannelService implements ChannelService {
         if (line.length() > prefixLength){
             line = line.substring(0, prefixLength);
         }
+        String lineLowerCase = line.toLowerCase();
         for (String level : logLevelList) {
-            if (line.contains(level)) {
+            if (lineLowerCase.contains(level.toLowerCase())) {
                 return true;
             }
         }

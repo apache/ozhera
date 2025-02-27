@@ -20,7 +20,6 @@ package org.apache.ozhera.log.agent.channel;
 
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.file.LogFile;
-import org.apache.ozhera.log.api.enums.LogLevelEnum;
 import org.apache.ozhera.log.utils.SimilarUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -121,9 +120,8 @@ public class ChannelServiceTest {
     }
 
 
-
     @Test
-    public void testShouldCollectLogs(){
+    public void testShouldCollectLogs() {
         String line = "2025-02-12 19:24:27,076|WARN ||ExecutorUtil-STP-Virtual-Thread1|o.a.ozhera.log.agent.common.ExecutorUtil|65|Executor statistic STP_EXECUTOR:java.util.concurrent.ScheduledThreadPoolExecutor@792b749c[Running, pool size = 6, active threads = 1, queued tasks = 0, completed tasks = 5]";
         List list = new ArrayList();
         list.add("INFO");
@@ -133,7 +131,7 @@ public class ChannelServiceTest {
     }
 
     @Test
-    public void test(){
+    public void test() {
         String logContent =
                 "19:52:35,792 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - debug attribute not set\n" +
                         "19:52:35,794 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]\n" +
@@ -231,24 +229,24 @@ public class ChannelServiceTest {
         list.add("ERROR");
         System.out.println("++++++++++++");
         for (String line : lines) {
-            if (shouldCollectLogs(list, line, 40)){
+            if (shouldCollectLogs(list, line, 40)) {
                 System.out.println(line);
             }
         }
         long e = System.currentTimeMillis();
-        System.out.println(e-s);
+        System.out.println(e - s);
 
     }
 
 
-    public Boolean shouldCollectLogs(List<String> logLevelList, String line, Integer prefixLength){
-        if (logLevelList == null || logLevelList.isEmpty() || logLevelList.size() == LogLevelEnum.values().length) {
+    public Boolean shouldCollectLogs(List<String> logLevelList, String line, Integer prefixLength) {
+        if (logLevelList == null || logLevelList.isEmpty()) {
             return true;
         }
         if (line == null || line.isEmpty()) {
             return false;
         }
-        if (line.length() > prefixLength){
+        if (line.length() > prefixLength) {
             line = line.substring(0, prefixLength);
         }
         for (String level : logLevelList) {

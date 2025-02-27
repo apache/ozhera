@@ -14,6 +14,7 @@ import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessor;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessorFactory;
 import org.apache.ozhera.log.manager.service.extension.tail.TailExtensionService;
+import org.apache.ozhera.log.manager.service.extension.tail.TailExtensionServiceFactory;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -69,10 +70,11 @@ public class ManagerLevelFilterConfigListener {
     public void init() {
         logTypeProcessorFactory.setMilogLogTemplateMapper(milogLogTemplateMapper);
         logTypeProcessor = logTypeProcessorFactory.getLogTypeProcessor();
+        tailExtensionService = TailExtensionServiceFactory.getTailExtensionService();
         ScheduledExecutorService scheduledExecutor = Executors
                 .newSingleThreadScheduledExecutor(ThreadUtil.newNamedThreadFactory("log-level-filter-manager", false));
         scheduledExecutor.scheduleAtFixedRate(() ->
-                SafeRun.run(() -> configChangeOperator()), 0, 1, TimeUnit.MINUTES);
+                SafeRun.run(() -> configChangeOperator()), 1, 1, TimeUnit.MINUTES);
 
     }
 
@@ -84,25 +86,27 @@ public class ManagerLevelFilterConfigListener {
 
         //之前没有设置全局配置，更新后也没设置
         if ((config == null || !config.getEnableGlobalFilter()) && (newConfig == null || !newConfig.getEnableGlobalFilter())) {
-            List<Long> needDeleteIdList = config.getTailIdList().stream().filter(id -> !newConfig.getTailIdList().contains(id)).collect(Collectors.toList());
-            List<MilogLogTailDo> needDeleteIdMilogLogtailList = logtailDao.getMilogLogtail(needDeleteIdList);
-            needDeleteIdMilogLogtailList.forEach(tail -> {
-                tail.setCollectedLogLevelList(new ArrayList<>());
-                logtailDao.update(tail);
-            });
-            List<MilogLogTailDo> updateMilogLogtailList = logtailDao.getMilogLogtail(newConfig.getTailIdList());
-            updateMilogLogtailList.forEach(tail -> {
-                tail.setCollectedLogLevelList(newConfig.getLogLevelList());
-                logtailDao.update(tail);
-            });
-            boolean isSucceed = updateMilogLogtailList.addAll(needDeleteIdMilogLogtailList);
-
+            List<MilogLogTailDo> updateMilogLogtailList = new ArrayList<>();
+            List<MilogLogTailDo> oldLogtailList = new ArrayList<>();
+            if (config != null) {
+                oldLogtailList = logtailDao.getMilogLogtail(config.getTailIdList());
+            }
+            if (newConfig != null) {
+                List<MilogLogTailDo> newLogtailList = logtailDao.getMilogLogtail(newConfig.getTailIdList());
+                newLogtailList.forEach(tail -> tail.setCollectedLogLevelList(newConfig.getLogLevelList()));
+                oldLogtailList = oldLogtailList.stream().filter(tail -> !newLogtailList.contains(tail)).toList();
+                updateMilogLogtailList.addAll(newLogtailList);
+            }
+            oldLogtailList.forEach(tail -> tail.setCollectedLogLevelList(new ArrayList<>()));
+            updateMilogLogtailList.addAll(oldLogtailList);
             //下发
-            if (isSucceed) {
-                updateMilogLogtailList.forEach(this::updateSingleTail);
+            for (MilogLogTailDo tailDo : updateMilogLogtailList) {
+                boolean isSuccess = logtailDao.update(tailDo);
+                if (isSuccess){
+                    updateSingleTail(tailDo);
+                }
             }
         }
-
         //如果开启了全局配置
         if (newConfig.getEnableGlobalFilter() || config.getEnableGlobalFilter()) {
             //如果前后都开启了全局配置，但是可能id的列表有变化，这应该是无效的
@@ -201,8 +205,8 @@ public class ManagerLevelFilterConfigListener {
     }
 
     @PreDestroy
-    public void destroy(){
-        try{
+    public void destroy() {
+        try {
             log.info("Shutting down global log config update executor");
             logUpdateExecutor.shutdown();
             if (!logUpdateExecutor.awaitTermination(60, TimeUnit.SECONDS)) {

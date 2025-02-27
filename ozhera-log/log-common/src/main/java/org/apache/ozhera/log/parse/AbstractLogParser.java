@@ -23,12 +23,12 @@ import cn.hutool.core.util.ReflectUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author wtt
@@ -43,9 +43,26 @@ public abstract class AbstractLogParser implements LogParser {
 
     private List<FieldInterceptor> fieldInterceptors = Lists.newArrayList();
 
+    protected Map<String, Integer> valueMap;
+
     public AbstractLogParser(LogParserData parserData) {
         this.parserData = parserData;
         createFieldInterceptors();
+        this.valueMap = createValueMap(parseKeyValueList(parserData));
+    }
+
+    private List<String> parseKeyValueList(LogParserData parserData) {
+        if (StringUtils.isNotBlank(parserData.getKeyOrderList())) {
+            String keyValueList = IndexUtils.getKeyValueList(parserData.getKeyOrderList(), parserData.getValueList());
+            return Arrays.asList(splitList(keyValueList));
+        }
+        return Collections.emptyList();
+    }
+
+    private Map<String, Integer> createValueMap(List<String> valueList) {
+        return IntStream.range(0, valueList.size())
+                .boxed()
+                .collect(Collectors.toMap(valueList::get, Function.identity()));
     }
 
     private void createFieldInterceptors() {

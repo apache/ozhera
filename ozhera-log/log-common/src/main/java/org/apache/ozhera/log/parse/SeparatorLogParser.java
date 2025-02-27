@@ -37,29 +37,11 @@ public class SeparatorLogParser extends AbstractLogParser {
     private String[] keysAndTypes;
     private String[] values;
 
-    private Map<String, Integer> valueMap;
-
     public SeparatorLogParser(LogParserData parserData) {
         super(parserData);
 
         keysAndTypes = splitList(parserData.getKeyList());
         values = splitList(parserData.getValueList());
-
-        this.valueMap = createValueMap(parseKeyValueList(parserData));
-    }
-
-    private List<String> parseKeyValueList(LogParserData parserData) {
-        if (StringUtils.isNotBlank(parserData.getKeyOrderList())) {
-            String keyValueList = IndexUtils.getKeyValueList(parserData.getKeyOrderList(), parserData.getValueList());
-            return Arrays.asList(splitList(keyValueList));
-        }
-        return Collections.emptyList();
-    }
-
-    private Map<String, Integer> createValueMap(List<String> valueList) {
-        return IntStream.range(0, valueList.size())
-                .boxed()
-                .collect(Collectors.toMap(valueList::get, Function.identity()));
     }
 
     @Override

@@ -69,7 +69,7 @@
             </resource>
         </resources>
 
-        <plugins>
+        <!--<plugins>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -87,7 +87,7 @@
                 </executions>
             </plugin>
 
-        </plugins>
+        </plugins>-->
 
     </build>
 

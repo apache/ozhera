@@ -152,7 +152,7 @@
 
 
         <!-- ozhera-demo-client -->
-        <fileSet>
+        <!--<fileSet>
             <directory>
                 ozhera-demo-client/ozhera-demo-client-server/target/
             </directory>
@@ -174,10 +174,10 @@
                 <include>download-opentelemetry-javaagent.sh</include>
                 <include>README.md</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
 
         <!-- ozhera-demo-server -->
-        <fileSet>
+        <!--<fileSet>
             <directory>
                 ozhera-demo-server/ozhera-demo-server-server/target/
             </directory>
@@ -199,7 +199,7 @@
                 <include>download-opentelemetry-javaagent.sh</include>
                 <include>README.md</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
 
 
         <!-- log-agent -->

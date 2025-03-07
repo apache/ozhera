@@ -312,9 +312,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            Integer prefixLength = Integer.parseInt(Config.ins().get("filter_log_level_prefix_length", ""));
             readResult.get().getLines().stream()
-                    .filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l, prefixLength))
+                    .filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l))
                     .forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);

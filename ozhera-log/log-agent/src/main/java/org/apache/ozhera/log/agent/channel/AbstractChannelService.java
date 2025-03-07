@@ -28,6 +28,7 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.utils.NetUtil;
 
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
+import static org.apache.ozhera.log.utils.ConfigUtils.getConfigValue;
 
 /**
  * @author wtt
@@ -49,6 +51,8 @@ import static org.apache.ozhera.log.common.Constant.GSON;
 public abstract class AbstractChannelService implements ChannelService {
 
     public String instanceId = UUID.randomUUID().toString();
+
+    private final int FILTER_LOG_PREFIX_LENGTH = Integer.parseInt(getConfigValue("filter_log_level_prefix_length"));
 
     @Override
     public String instanceId() {
@@ -203,12 +207,12 @@ public abstract class AbstractChannelService implements ChannelService {
         fileProgress.setCtTime(ct);
     }
 
-    public Boolean shouldFilterLogs(List<String> logLevelList, String line, Integer prefixLength){
+    public Boolean shouldFilterLogs(List<String> logLevelList, String line){
         if (logLevelList == null || logLevelList.isEmpty()) {
             return false;
         }
-        if (line.length() > prefixLength){
-            line = line.substring(0, prefixLength);
+        if (line.length() > FILTER_LOG_PREFIX_LENGTH){
+            line = line.substring(0, FILTER_LOG_PREFIX_LENGTH);
         }
         String lineLowerCase = line.toLowerCase();
         for (String level : logLevelList) {
@@ -218,6 +222,5 @@ public abstract class AbstractChannelService implements ChannelService {
         }
         return false;
     }
-
 
 }

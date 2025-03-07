@@ -75,7 +75,7 @@ public class ManagerLevelFilterConfigListener {
 
     private static final int BATCH_SIZE = 1000;
 
-    // 在类中直接创建线程池
+
     private final ExecutorService logUpdateExecutor = new ThreadPoolExecutor(
             Runtime.getRuntime().availableProcessors(),
             Runtime.getRuntime().availableProcessors() * 2,
@@ -99,10 +99,10 @@ public class ManagerLevelFilterConfigListener {
     public void configChangeOperator() {
         String filterConfig = nacosConfig.getConfigStr(logLevelFilterKey, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
         ManagerLogFilterConfig newConfig = GSON.fromJson(filterConfig, ManagerLogFilterConfig.class);
-        //两者都为空，或者两者都不为空但是属性的值都相等
+
         if (Objects.equals(config, newConfig)) return;
 
-        //之前没有设置全局配置，更新后也没设置
+
         if ((config == null || !config.getEnableGlobalFilter()) && (newConfig == null || !newConfig.getEnableGlobalFilter())) {
             List<MilogLogTailDo> updateMilogLogtailList = new ArrayList<>();
             List<MilogLogTailDo> oldLogtailList = new ArrayList<>();
@@ -117,7 +117,7 @@ public class ManagerLevelFilterConfigListener {
             }
             oldLogtailList.forEach(tail -> tail.setCollectedLogLevelList(new ArrayList<>()));
             updateMilogLogtailList.addAll(oldLogtailList);
-            //下发
+
             for (MilogLogTailDo tailDo : updateMilogLogtailList) {
                 boolean isSuccess = logtailDao.update(tailDo);
                 if (isSuccess){
@@ -125,9 +125,9 @@ public class ManagerLevelFilterConfigListener {
                 }
             }
         }
-        //如果开启了全局配置
+
         if (newConfig.getEnableGlobalFilter() || config.getEnableGlobalFilter()) {
-            //如果前后都开启了全局配置，但是可能id的列表有变化，这应该是无效的
+
             if (newConfig.getEnableGlobalFilter() && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
                 return;
             }
@@ -157,9 +157,9 @@ public class ManagerLevelFilterConfigListener {
                 futureList.add(future);
                 lastId.set(logTailByLastIdList.get(logTailByLastIdList.size() - 1).getId());
             }
-            // 等待所有异步任务完成
+
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
-            // 处理失败列表
+
             if (!failedTailList.isEmpty()) {
                 handleFailedTails(failedTailList);
             }
@@ -169,7 +169,7 @@ public class ManagerLevelFilterConfigListener {
     }
 
     private void handleFailedTails(Queue<MilogLogTailDo> failedTailList) {
-        //失败的重试
+
         failedTailList.forEach(tail -> {
             for (int retryCount = 1; retryCount <= 3; retryCount++) {
                 try {

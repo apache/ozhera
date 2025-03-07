@@ -71,6 +71,6 @@ public class ChannelDefine implements Serializable {
      */
     private String delDirectory;
 
-    private List<String> collectedLogLevelList;
+    private List<String> filterLogLevelList;
 
 }

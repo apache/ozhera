@@ -207,9 +207,6 @@ public abstract class AbstractChannelService implements ChannelService {
         if (logLevelList == null || logLevelList.isEmpty()) {
             return false;
         }
-        if (line == null || line.isEmpty()) {
-            return false;
-        }
         if (line.length() > prefixLength){
             line = line.substring(0, prefixLength);
         }

@@ -162,11 +162,11 @@ public class MilogLogTailDo extends BaseCommon {
     @Comment("Indicates the system that originated the record; 'hera' for internal, and others for external sources.")
     private String originSystem;
 
-    @Column(value = "collected_log_levels")
+    @Column(value = "filter_log_levels")
     @ColDefine(type = ColType.MYSQL_JSON)
     @Comment("Level list of logs to be collected.")
     @JSONField
-    private List<String> CollectedLogLevelList;
+    private List<String> filterLogLevelList;
 
 
     public MilogLogTailDo() {

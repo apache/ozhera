@@ -42,6 +42,7 @@ import org.apache.ozhera.log.api.enums.K8sPodTypeEnum;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.common.PathUtils;
 import org.apache.ozhera.log.utils.NetUtil;
@@ -311,8 +312,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
+            Integer prefixLength = Integer.parseInt(Config.ins().get("filter_log_level_prefix_length", ""));
             readResult.get().getLines().stream()
-                    .filter(l -> !shouldFilterLogs(channelDefine.getCollectedLogLevelList(), l, 60))
+                    .filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l, prefixLength))
                     .forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);

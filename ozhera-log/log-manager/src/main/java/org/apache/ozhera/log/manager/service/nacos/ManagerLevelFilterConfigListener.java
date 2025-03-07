@@ -111,11 +111,11 @@ public class ManagerLevelFilterConfigListener {
             }
             if (newConfig != null) {
                 List<MilogLogTailDo> newLogtailList = logtailDao.getMilogLogtail(newConfig.getTailIdList());
-                newLogtailList.forEach(tail -> tail.setCollectedLogLevelList(newConfig.getLogLevelList()));
+                newLogtailList.forEach(tail -> tail.setFilterLogLevelList(newConfig.getLogLevelList()));
                 oldLogtailList = oldLogtailList.stream().filter(tail -> !newLogtailList.contains(tail)).toList();
                 updateMilogLogtailList.addAll(newLogtailList);
             }
-            oldLogtailList.forEach(tail -> tail.setCollectedLogLevelList(new ArrayList<>()));
+            oldLogtailList.forEach(tail -> tail.setFilterLogLevelList(new ArrayList<>()));
             updateMilogLogtailList.addAll(oldLogtailList);
 
             for (MilogLogTailDo tailDo : updateMilogLogtailList) {

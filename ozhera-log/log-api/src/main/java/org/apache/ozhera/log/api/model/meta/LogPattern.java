@@ -47,7 +47,7 @@ public class LogPattern implements Serializable {
     /**
      * Level of logs to be collected
      */
-    private List<String> collectedLogLevelList;
+    private List<String> filterLogLevelList;
 
     /**
      * IP and directory correspondence

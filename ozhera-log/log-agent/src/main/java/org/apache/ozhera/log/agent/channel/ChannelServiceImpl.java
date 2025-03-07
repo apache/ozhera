@@ -312,7 +312,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             }
             long ct = System.currentTimeMillis();
             readResult.get().getLines().stream()
-                    .filter(l -> shouldCollectLogs(channelDefine.getCollectedLogLevelList(), l, 60))//确定是不是需要收集
+                    .filter(l -> !shouldFilterLogs(channelDefine.getCollectedLogLevelList(), l, 60))
                     .forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);

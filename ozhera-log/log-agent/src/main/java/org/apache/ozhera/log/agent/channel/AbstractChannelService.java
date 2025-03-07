@@ -203,9 +203,9 @@ public abstract class AbstractChannelService implements ChannelService {
         fileProgress.setCtTime(ct);
     }
 
-    public Boolean shouldCollectLogs(List<String> logLevelList, String line, Integer prefixLength){
+    public Boolean shouldFilterLogs(List<String> logLevelList, String line, Integer prefixLength){
         if (logLevelList == null || logLevelList.isEmpty()) {
-            return true;
+            return false;
         }
         if (line == null || line.isEmpty()) {
             return false;

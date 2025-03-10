@@ -105,13 +105,6 @@ We warmly welcome your valuable opinions and suggestions about the project. Whet
 
 ---
 
-## User List
-
-If you are using Apache OzHera(Incubating) and think that it helps you or want to contribute code for Apache OzHera(Incubating), please add your company to the user list to let us know your needs.
-
-|![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
-| :---: | :---: | :---: | :---: |
-
 
 
 

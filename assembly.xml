@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.1 https://maven.apache.org/xsd/assembly-2.1.1.xsd">
+
+    <id>dist</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory></directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>DISCLAIMER</include>
+                <include>README*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>readme</directory>
+            <outputDirectory>/readme</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>dist/dockerfiles</directory>
+            <outputDirectory>/dockerfiles</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/ext-lib</directory>
+            <outputDirectory>/ext-lib</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>dist/sql</directory>
+            <outputDirectory>/sql</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>NOTICE</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+
+        <!-- licens -->
+        <fileSet>
+            <directory>dist/licenses/apache</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/bsd</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/cc0</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/cddl</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/eclipse</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/mit</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/mulan</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-app -->
+        <fileSet>
+            <directory>
+                ozhera-app/app-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-app
+            </outputDirectory>
+            <includes>
+                <include>app-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- ozhera-demo-client -->
+        <!--<fileSet>
+            <directory>
+                ozhera-demo-client/ozhera-demo-client-server/target/
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-demo-client
+            </outputDirectory>
+            <includes>
+                <include>ozhera-demo-client-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-demo-client/ozhera-demo-client-server
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-demo-client
+            </outputDirectory>
+            <includes>
+                <include>download-opentelemetry-javaagent.sh</include>
+                <include>README.md</include>
+            </includes>
+        </fileSet>-->
+
+        <!-- ozhera-demo-server -->
+        <!--<fileSet>
+            <directory>
+                ozhera-demo-server/ozhera-demo-server-server/target/
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-demo-server
+            </outputDirectory>
+            <includes>
+                <include>ozhera-demo-server-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>
+                ozhera-demo-server/ozhera-demo-server-server
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-demo-server
+            </outputDirectory>
+            <includes>
+                <include>download-opentelemetry-javaagent.sh</include>
+                <include>README.md</include>
+            </includes>
+        </fileSet>-->
+
+
+        <!-- log-agent -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-log-agent
+            </outputDirectory>
+            <includes>
+                <include>log-agent-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-agent-server -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-agent-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-log-agent-server
+            </outputDirectory>
+            <includes>
+                <include>log-agent-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-manager -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-manager/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-log-manager
+            </outputDirectory>
+            <includes>
+                <include>log-manager-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- log-stream -->
+        <fileSet>
+            <directory>
+                ozhera-log/log-stream/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-log-stream
+            </outputDirectory>
+            <includes>
+                <include>log-stream-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-monitor -->
+        <fileSet>
+            <directory>
+                ozhera-monitor/ozhera-monitor-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-monitor
+            </outputDirectory>
+            <includes>
+                <include>ozhera-monitor-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- ozhera-operator -->
+        <fileSet>
+            <directory>
+                ozhera-operator/ozhera-operator-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-operator
+            </outputDirectory>
+            <includes>
+                <include>ozhera-operator-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-prometheus-agent -->
+        <fileSet>
+            <directory>
+                ozhera-prometheus-agent/ozhera-prometheus-agent-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-prometheus-agent-server
+            </outputDirectory>
+            <includes>
+                <include>ozhera-prometheus-agent-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- ozhera-webhook -->
+         <fileSet>
+            <directory>
+                ozhera-webhook/ozhera-webhook-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-webhook
+            </outputDirectory>
+            <includes>
+                <include>ozhera-webhook-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+
+        <!-- trace-etl-es -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-es/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-trace-etl-es
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-es-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- trace-etl-manager -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-manager/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-trace-etl-manager
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-manager-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- trace-etl-server -->
+        <fileSet>
+            <directory>
+                trace-etl/trace-etl-server/target
+            </directory>
+            <outputDirectory>
+                /servers/ozhera-trace-etl-server
+            </outputDirectory>
+            <includes>
+                <include>trace-etl-server-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+
+    </fileSets>
+
+</assembly>

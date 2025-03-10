@@ -157,6 +157,11 @@ public class MilogLogTailDo extends BaseCommon {
     @Comment("start to ready coll")
     private Boolean collectionReady;
 
+    @Column(value = "origin_system")
+    @ColDefine(type = ColType.VARCHAR, width = 1024)
+    @Comment("Indicates the system that originated the record; 'hera' for internal, and others for external sources.")
+    private String originSystem;
+
     public MilogLogTailDo() {
     }
 

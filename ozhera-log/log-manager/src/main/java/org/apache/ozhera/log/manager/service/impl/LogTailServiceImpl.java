@@ -20,6 +20,11 @@ package org.apache.ozhera.log.manager.service.impl;
 
 import cn.hutool.core.lang.Assert;
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.app.api.response.AppBaseInfo;
 import org.apache.ozhera.app.model.vo.HeraEnvIpVo;
 import org.apache.ozhera.log.api.enums.*;
@@ -56,11 +61,7 @@ import org.apache.ozhera.log.manager.service.nacos.impl.StreamConfigNacosProvide
 import org.apache.ozhera.log.parse.LogParser;
 import org.apache.ozhera.log.parse.LogParserFactory;
 import org.apache.ozhera.log.utils.IndexUtils;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.nutz.lang.Strings;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -69,7 +70,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.*;
-import static org.apache.ozhera.log.manager.common.Utils.getKeyValueList;
 
 @Slf4j
 @Service
@@ -164,7 +164,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                 .envName(logTailDo.getEnvName())
                 .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
                 .deploySpace(logTailDo.getDeploySpace())
+                .logPath(logTailDo.getLogPath())
                 .collectionReady(logTailDo.getCollectionReady())
+                .originSystem(logTailDo.getOriginSystem())
                 .build();
     }
 
@@ -326,7 +328,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             MilogLogStoreDO logStore = logStoreDao.queryById(tail.getStoreId());
             if (null != logStore && StringUtils.isNotEmpty(logStore.getKeyList())) {
                 String keyList = logStore.getKeyList();
-                String valueList = getKeyValueList(keyList, tail.getValueList());
+                String valueList = IndexUtils.getKeyValueList(keyList, tail.getValueList());
                 tail.setValueList(valueList);
             }
             // Handle filterconf to rateLimit
@@ -388,9 +390,15 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     @Override
     public Result<Void> updateMilogLogTail(LogTailParam param) {
+        if (null == param || null == param.getId()) {
+            return Result.failParam("parameter error,param:" + param);
+        }
         MilogLogTailDo ret = milogLogtailDao.queryById(param.getId());
         if (ret == null) {
             return new Result<>(CommonError.ParamsError.getCode(), "tail does not exist");
+        }
+        if ((null != param.getOriginSystem()) && !Strings.equals(ret.getOriginSystem(), param.getOriginSystem())) {
+            return new Result<>(CommonError.ParamsError.getCode(), "origin_system is forbidden to update");
         }
         // Parameter validation
         String errorMsg = heraConfigValid.verifyLogTailParam(param);
@@ -664,6 +672,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));
         milogLogtailDo.setCollectionReady(logTailParam.getCollectionReady());
+        milogLogtailDo.setOriginSystem(logTailParam.getOriginSystem());
         return milogLogtailDo;
     }
 
@@ -703,6 +712,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         logTailDTO.setDeploySpace(milogLogtailDo.getDeploySpace());
         logTailDTO.setFirstLineReg(milogLogtailDo.getFirstLineReg());
         logTailDTO.setCollectionReady(milogLogtailDo.getCollectionReady());
+        logTailDTO.setOriginSystem(milogLogtailDo.getOriginSystem());
         return logTailDTO;
     }
 
@@ -796,7 +806,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         String valueList = IndexUtils.getNumberValueList(logstoreDO.getKeyList(), mlogParseParam.getValueList());
         Long currentStamp = Instant.now().toEpochMilli();
         try {
-            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), keyList, valueList, mlogParseParam.getParseScript());
+            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), keyList, valueList, mlogParseParam.getParseScript(), logstoreDO.getKeyList());
             Map<String, Object> parseMsg = logParser.parseSimple(mlogParseParam.getMsg(), currentStamp);
             return Result.success(parseMsg);
         } catch (Exception e) {
@@ -811,7 +821,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             return Result.failParam(checkMsg);
         }
         try {
-            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), "", "", mlogParseParam.getParseScript());
+            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), "", "", mlogParseParam.getParseScript(), "");
             List<String> parsedLog = logParser.parseLogData(mlogParseParam.getMsg());
             return Result.success(parsedLog);
         } catch (Exception e) {

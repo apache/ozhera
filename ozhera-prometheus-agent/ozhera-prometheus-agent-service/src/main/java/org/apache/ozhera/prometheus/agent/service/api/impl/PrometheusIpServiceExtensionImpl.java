@@ -389,14 +389,14 @@ public class PrometheusIpServiceExtensionImpl implements PrometheusIpServiceExte
                 out1.flush();
                 out1.close();
             }
-            InputStream is = conn.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String finalStr = "";
-            String str = "";
-            while ((str = br.readLine()) != null) {
-                finalStr = new String(str.getBytes(), "UTF-8");
+            try (InputStream is = conn.getInputStream()) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String str = "";
+                while ((str = br.readLine()) != null) {
+                    finalStr = str;
+                }
             }
-            is.close();
             conn.disconnect();
             log.info("innerRequest param url:{},apiKey:{},method:{}", url, apiKey, method);
             return finalStr;

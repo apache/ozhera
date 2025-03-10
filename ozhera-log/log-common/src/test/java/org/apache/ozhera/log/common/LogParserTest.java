@@ -19,11 +19,12 @@
 package org.apache.ozhera.log.common;
 
 import com.google.common.base.Stopwatch;
-import org.apache.ozhera.log.parse.LogParser;
-import org.apache.ozhera.log.parse.LogParserFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateParser;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.ozhera.log.parse.LogParser;
+import org.apache.ozhera.log.parse.LogParserFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -53,7 +54,7 @@ public class LogParserTest {
         String ip = "127.0.0.1";
         Long currentStamp = Instant.now().toEpochMilli();
         Integer parserType = LogParserFactory.LogParserEnum.SEPARATOR_PARSE.getCode();
-        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName);
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, "");
         Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
         System.out.println(parse);
 
@@ -65,18 +66,54 @@ public class LogParserTest {
     @Test
     public void test2() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        String keyList = "message:text,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
-        String valueList = "0";
-        String parseScript = "|";
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,time:keyword,log_level:keyword,thread_name:keyword,log_name:keyword,trace_id:keyword,user_login_name:keyword,marker:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "-1,7,0,1,2,3,4,5,6";
+        String parseScript = "(?s)(?s)(?s)(?s)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s\\+\\d{4})\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s([\\s\\S]*)";
         String logData = "";
         String ip = "127.0.0.1";
         Long currentStamp = Instant.now().toEpochMilli();
-        Integer parserType = LogParserFactory.LogParserEnum.CUSTOM_PARSE.getCode();
-        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName);
+        Integer parserType = LogParserFactory.LogParserEnum.REGEX_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
         Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
         System.out.println(parse);
         stopwatch.stop();
         log.info("cost time:{}", stopwatch.elapsed().toMillis());
+    }
+
+    @Test
+    public void test3() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        //String keyList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,time:keyword,log_level:keyword,thread_name:keyword,log_name:keyword,trace_id:keyword,user_login_name:keyword,marker:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "-1,7,0,1,2,3,4,5,6";
+        String parseScript = "(?s)(?s)(?s)(?s)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s\\+\\d{4})\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s([\\s\\S]*)";
+        String logData = "";
+        String ip = "127.0.0.1";
+        Long currentStamp = Instant.now().toEpochMilli();
+        Integer parserType = LogParserFactory.LogParserEnum.REGEX_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
+        Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
+        System.out.println(parse);
+
+        System.out.println(customParse.getTimestampFromString("2023-08-25 10:46:09.239", currentStamp));
+        stopwatch.stop();
+        log.info("cost time:{}", stopwatch.elapsed().toMillis());
+    }
+
+    @Test
+    public void parseSimpleTest() {
+        Integer parserType = LogParserFactory.LogParserEnum.SEPARATOR_PARSE.getCode();
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,datetime:date,project_name:keyword,client_ip:keyword,level:keyword,log_id:keyword,url:keyword,up_ip:keyword,logger_line:keyword,thread:keyword,biz_id:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String leyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,datetime:1,project_name:1,client_ip:1,level:1,log_id:1,url:1,up_ip:1,logger_line:1,thread:1,biz_id:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "-1,10,0,1,2,3,4,5,6,7,8,9";
+        String parseScript = "]|[";
+        String message = "2025-02-12T20:11:02.501+0800]";
+        Long collectStamp = Instant.now().toEpochMilli();
+        LogParser logParser = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, leyOrderList);
+        Map<String, Object> parseMsg = logParser.parseSimple(message, collectStamp);
+        Assert.assertNotNull(parseMsg);
     }
 
     @Test

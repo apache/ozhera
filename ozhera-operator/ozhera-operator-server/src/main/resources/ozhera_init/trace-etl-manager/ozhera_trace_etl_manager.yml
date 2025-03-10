@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: trace-etl-manager-container
-        image: herahub/opensource-pub:trace-etl-manager-v1-release
+        image: herahub/opensource-pub:trace-etl-manager-2.2.5-incubating-beta-v1
         resources:
           limits:
             cpu: '500m'

@@ -170,35 +170,6 @@ CREATE TABLE `hera_app_excess_info`  (
   UNIQUE INDEX `app_base_id_index`(`app_base_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for hera_trace_etl_config
--- ----------------------------
-DROP TABLE IF EXISTS `hera_trace_etl_config`;
-CREATE TABLE `hera_trace_etl_config`  (
-  `id` int(0) NOT NULL AUTO_INCREMENT,
-  `base_info_id` int(0) NULL DEFAULT NULL COMMENT 'hera_base_info primary key id',
-  `exclude_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Apply action filtering',
-  `exclude_httpserver_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Application operations for HTTP server-side filtering',
-  `exclude_thread` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Thread name filtering',
-  `exclude_sql` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'SQL filtering',
-  `exclude_http_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'URL filtering',
-  `exclude_ua` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'user-agent filering',
-  `http_slow_threshold` int(0) NULL DEFAULT NULL COMMENT 'HTTP slow query threshold',
-  `dubbo_slow_threshold` int(0) NULL DEFAULT NULL COMMENT 'dubbo slow query threshold',
-  `mysql_slow_threshold` int(0) NULL DEFAULT NULL COMMENT 'MySQL slow query threshold',
-  `trace_filter` int(0) NULL DEFAULT NULL COMMENT 'The percentage of the trace that needs to be deposited into the ES',
-  `trace_duration_threshold` int(0) NULL DEFAULT NULL COMMENT 'The threshold at which trace is deposited into ES',
-  `trace_debug_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'trace is stored in ES''s debug identifier, corresponding to the HERA Context key',
-  `http_status_error` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Which HTTP status codes are not displayed in the exception list',
-  `exception_error` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Which exceptions are not exception requests',
-  `grpc_code_error` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Which GRPC codes do not count as exception requests',
-  `status` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '1' COMMENT 'Valid 0 Invalid 1 Valid',
-  `create_time` datetime(0) NULL DEFAULT NULL,
-  `update_time` datetime(0) NULL DEFAULT NULL,
-  `create_user` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'creator',
-  `update_user` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'updater',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for milog_analyse_dashboard

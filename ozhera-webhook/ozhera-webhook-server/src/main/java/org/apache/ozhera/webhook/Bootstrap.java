@@ -59,7 +59,7 @@ public class Bootstrap {
 
     public static void main(String[] args) {
         try {
-            Ioc.ins().init("run.mone.docean.plugin", "com.xiaomi.youpin.docean.plugin", "run.mone.hera.webhook");
+            Ioc.ins().init("run.mone.docean.plugin", "com.xiaomi.youpin.docean.plugin", "org.apache.ozhera.webhook");
             k8sUtilBean = Ioc.ins().getBean(K8sUtilBean.class);
             kubernetesClient = Ioc.ins().getBean(KubernetesClient.class);
             createHeraEnvWebhook();

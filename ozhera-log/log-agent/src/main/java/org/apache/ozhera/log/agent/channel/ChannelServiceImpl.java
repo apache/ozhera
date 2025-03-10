@@ -42,6 +42,7 @@ import org.apache.ozhera.log.api.enums.K8sPodTypeEnum;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.common.PathUtils;
 import org.apache.ozhera.log.utils.NetUtil;
@@ -311,7 +312,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            readResult.get().getLines().stream().forEach(l -> {
+            readResult.get().getLines().stream()
+                    .filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l))
+                    .forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
                 // Multi-line application log type and opentelemetry type are used to determine the exception stack
@@ -612,6 +615,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         return monitorFileList;
     }
 
+    @Override
     public ChannelDefine getChannelDefine() {
         return channelDefine;
     }

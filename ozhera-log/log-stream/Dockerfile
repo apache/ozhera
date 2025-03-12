@@ -20,12 +20,16 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-COPY mix.4096.client.truststore.jks ${APP_HOME}/mix.4096.client.truststore.jks
-
-COPY target/log-stream-*.jar ${APP_HOME}/log-stream.jar
+ARG SRC_PATH
+ARG APP_VERSION
+COPY ${SRC_PATH}/log-stream-${APP_VERSION}.jar ${APP_HOME}/log-stream.jar
 
 WORKDIR ${APP_HOME}
 
-ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED"
+#ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-stream.jar"]
+#ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-stream.jar"]
+
+COPY ${SRC_PATH}/lib /home/work/lib/
+
+ENTRYPOINT["java", "--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "-cp", "/opt/app/log-stream.jar:/home/work/lib/*", "org.apache.ozhera.log.stream.bootstrap.MiLogStreamBootstrap"]

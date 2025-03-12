@@ -43,6 +43,7 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.PathUtils;
 
 import java.io.File;
@@ -289,7 +290,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         ReadResult result = readResult.get();
 
         LogTypeEnum logTypeEnum = getLogTypeEnum();
-        result.getLines().forEach(line -> {
+        result.getLines().stream().filter(line -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), line)).forEach(line -> {
             if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
                 line = mLog.append2(line);
             }

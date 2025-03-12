@@ -122,6 +122,7 @@ public class ChannelDefineRpcLocator implements ChannelDefineLocator {
                 ChannelDefine cloneChannelDefine = ObjectUtil.clone(channelDefine);
                 cloneChannelDefine.setChannelId(logPattern.getLogtailId());
                 cloneChannelDefine.setTailName(logPattern.getTailName());
+                cloneChannelDefine.setFilterLogLevelList(logPattern.getFilterLogLevelList());
                 //input
                 AppLogInput input = new AppLogInput();
                 input.setType(logPattern.getLogType() != null ? LogTypeEnum.getLogTypeName(logPattern.getLogType()) : "");

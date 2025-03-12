@@ -82,4 +82,7 @@ public class LogTailParam {
     private Boolean collectionReady = true;
 
     private String originSystem;
+
+    private List<String> logLevelList;
+
 }

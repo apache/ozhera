@@ -20,6 +20,7 @@ package org.apache.ozhera.operator.handler;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import com.mysql.cj.jdbc.Driver;
 import com.xiaomi.data.push.client.HttpClientV6;
 import com.xiaomi.youpin.docean.anno.Component;
 import io.fabric8.kubernetes.api.model.*;
@@ -42,8 +43,6 @@ import org.apache.ozhera.operator.common.K8sUtilBean;
 import org.apache.ozhera.operator.common.ResourceTypeEnum;
 import org.apache.ozhera.operator.service.ESService;
 import org.apache.ozhera.operator.service.RocketMQService;
-
-import org.mariadb.jdbc.Driver;
 
 
 import java.io.*;
@@ -331,7 +330,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
         while (retryTimes-- > 0) {
             try {
                 //Getting the connection
-                String mariadbUrl = String.format("jdbc:mariadb://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
+                String mariadbUrl = String.format("jdbc:mysql://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
                 con = DriverManager.getConnection(mariadbUrl, userName, pwd);
                 log.warn("Connection established :{}", mariadbUrl);
 

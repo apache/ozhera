@@ -61,25 +61,31 @@ public class JsonLogParser extends AbstractLogParser {
         try {
 //            Map<String, Object> rawLogMap = GSON.fromJson(logData, token.getType());
             Map<String, Object> rawLogMap = flattenJson(logData);
-            // The complete set of index column names
-            List<String> keyNameList = IndexUtils.getKeyListSlice(parserData.getKeyList());
-            // An index subset that marks whether the index column name at the corresponding location is referenced in the current tail
-            int[] valueIndexList = Arrays.stream(parserData.getValueList().split(",")).mapToInt(Integer::parseInt).toArray();
-            for (int i = 0; i < keyNameList.size(); i++) {
-                // Skip unreferenced keys
-                if (i >= valueIndexList.length || valueIndexList[i] == -1) {
-                    continue;
+            if (null != valueMap && !valueMap.isEmpty()) {
+                for (String key : valueMap.keySet()) {
+                    ret.put(key, rawLogMap.getOrDefault(key, ""));
                 }
-                String currentKey = keyNameList.get(i);
-                String value = rawLogMap.getOrDefault(currentKey, "").toString();
-                ret.put(currentKey, StringUtils.isNotEmpty(value) ? value.trim() : value);
+            } else {
+                // The complete set of index column names
+                List<String> keyNameList = IndexUtils.getKeyListSlice(parserData.getKeyList());
+                // An index subset that marks whether the index column name at the corresponding location is referenced in the current tail
+                int[] valueIndexList = Arrays.stream(parserData.getValueList().split(",")).mapToInt(Integer::parseInt).toArray();
+                for (int i = 0; i < keyNameList.size(); i++) {
+                    // Skip unreferenced keys
+                    if (i >= valueIndexList.length || valueIndexList[i] == -1) {
+                        continue;
+                    }
+                    String currentKey = keyNameList.get(i);
+                    String value = rawLogMap.getOrDefault(currentKey, "").toString();
+                    ret.put(currentKey, StringUtils.isNotEmpty(value) ? value.trim() : value);
+                }
             }
-            //timestamp
-            validTimestamp(ret, collectStamp);
         } catch (Exception e) {
             // If an exception occurs, the original log is kept to the logsource field
             ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
+        //timestamp
+        validTimestamp(ret, collectStamp);
         return ret;
     }
 

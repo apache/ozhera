@@ -20,12 +20,9 @@ package org.apache.ozhera.log.parse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ozhera.log.utils.IndexUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @author wtt
@@ -128,8 +125,7 @@ public class SeparatorLogParser extends AbstractLogParser {
                         value = "";
                     }
                     if (kTsplit[0].equals(esKeyMap_timestamp) || kTsplit[1].equalsIgnoreCase(esKeyMap_Date)) {
-                        Long time = getTimestampFromString(value, collectStamp);
-                        ret.put(esKeyMap_timestamp, time);
+                        ret.put(esKeyMap_timestamp, value);
                     } else {
                         ret.put(kTsplit[0], StringUtils.isNotEmpty(value) ? value.trim() : value);
                     }
@@ -146,6 +142,7 @@ public class SeparatorLogParser extends AbstractLogParser {
         } catch (Exception e) {
             ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
+        validTimestamp(ret, collectStamp);
         return ret;
     }
 

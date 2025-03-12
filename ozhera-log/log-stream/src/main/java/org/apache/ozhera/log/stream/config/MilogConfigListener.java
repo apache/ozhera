@@ -155,12 +155,16 @@ public class MilogConfigListener {
     }
 
     private void stopOldJobsForRemovedTailIds(SinkConfig sinkConfig) {
-        List<Long> newIds = sinkConfig.getLogtailConfigs().stream().map(LogtailConfig::getLogtailId).collect(Collectors.toList());
+        List<Long> newIds = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(sinkConfig.getLogtailConfigs())) {
+            newIds = sinkConfig.getLogtailConfigs().stream().map(LogtailConfig::getLogtailId).collect(Collectors.toList());
+        }
         List<Long> oldIds = Lists.newArrayList();
         if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
             oldIds = oldSinkConfigMap.get(sinkConfig.getLogstoreId()).getLogtailConfigs().stream().map(LogtailConfig::getLogtailId).collect(Collectors.toList());
         }
-        List<Long> collect = oldIds.stream().filter(tailId -> !newIds.contains(tailId)).collect(Collectors.toList());
+        List<Long> finalNewIds = newIds;
+        List<Long> collect = oldIds.stream().filter(tailId -> !finalNewIds.contains(tailId)).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(collect)) {
             log.info("newIds:{},oldIds:{},collect:{}", gson.toJson(newIds), gson.toJson(oldIds), gson.toJson(collect));
             for (Long tailId : collect) {
@@ -211,6 +215,9 @@ public class MilogConfigListener {
         if (null != sinkConfig) {
             log.info("[listen tail] The task to stop:{}", gson.toJson(sinkConfig.getLogtailConfigs()));
             List<LogtailConfig> logTailConfigs = sinkConfig.getLogtailConfigs();
+            if (CollectionUtils.isEmpty(logTailConfigs)) {
+                return;
+            }
             for (LogtailConfig logTailConfig : logTailConfigs) {
                 stopOldJobForTail(logTailConfig, sinkConfig);
             }

@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.common;
 
+import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateParser;
@@ -47,7 +48,7 @@ public class LogParserTest {
     @Test
     public void test1() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        String keyList = "timestamp:date,podName:keyword,level:keyword,threadName:text,className:text,line:keyword,methodName:keyword,traceId:keyword,message:text,ip:ip,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
+        String keyList = "timestamp:date,level:keyword,traceId:keyword,threadName:text,className:text,line:keyword,methodName:keyword,message:keyword,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
         String valueList = "0,-1,16,-1,-1,-1,-1,-1,-1,1,2,3,4,5,6,7,8,9,10,11,13,12,17,14,15";
         String parseScript = "|";
         String logData = "";
@@ -66,14 +67,14 @@ public class LogParserTest {
     @Test
     public void test2() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,time:keyword,log_level:keyword,thread_name:keyword,log_name:keyword,trace_id:keyword,user_login_name:keyword,marker:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
-        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,time:1,log_level:1,thread_name:1,log_name:1,trace_id:1,user_login_name:1,marker:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
-        String valueList = "-1,7,0,1,2,3,4,5,6";
-        String parseScript = "(?s)(?s)(?s)(?s)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\s\\+\\d{4})\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s\\[(.*?)\\]\\s([\\s\\S]*)";
-        String logData = "";
+        String keyList = "timestamp:date,level:keyword,traceId:keyword,threadName:text,className:text,line:keyword,methodName:keyword,message:keyword,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
+        String keyOrderList = "timestamp:1,level:1,traceId:1,threadName:1,className:1,line:1,methodName:1,message:1,logstore:3,logsource:3,mqtopic:3,mqtag:3,logip:3,tail:3,linenumber:3";
+        String valueList = "0,1,2,3,4,5,6,7";
+        String parseScript = "|";
+        String logData = "{\"lineNumber\":142713,\"fileName\":\"/home/work/log/nr-trade-pay-992063-585c564f9b-2b8jq/pay/server.log\",\"pointer\":46974955,\"msgBody\":\"2025-03-04 15:32:12,412|DEBUG|ee839f4c4c5a9a8788fa54929f6ef20f|DubboServerHandler-10.159.32.249:20880-thread-797|c.x.n.p.i.r.d.m.L.selectLoanCreditList|143|==> Parameters: 5255102265996170(String)\",\"extMap\":{\"ct\":\"1741073532486\",\"ip\":\"10.159.32.249\",\"tag\":\"tags_60006_48_96833\",\"type\":\"1\"}}";
         String ip = "127.0.0.1";
         Long currentStamp = Instant.now().toEpochMilli();
-        Integer parserType = LogParserFactory.LogParserEnum.REGEX_PARSE.getCode();
+        Integer parserType = LogParserFactory.LogParserEnum.SEPARATOR_PARSE.getCode();
         LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
         Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
         System.out.println(parse);
@@ -97,23 +98,31 @@ public class LogParserTest {
         Map<String, Object> parse = customParse.parse(logData, ip, 1l, currentStamp, "");
         System.out.println(parse);
 
-        System.out.println(customParse.getTimestampFromString("2023-08-25 10:46:09.239", currentStamp));
+        System.out.println(customParse.getTimestampFromString("2025-02-26 19:25:00,35", currentStamp));
         stopwatch.stop();
         log.info("cost time:{}", stopwatch.elapsed().toMillis());
     }
 
     @Test
     public void parseSimpleTest() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         Integer parserType = LogParserFactory.LogParserEnum.SEPARATOR_PARSE.getCode();
-        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,datetime:date,project_name:keyword,client_ip:keyword,level:keyword,log_id:keyword,url:keyword,up_ip:keyword,logger_line:keyword,thread:keyword,biz_id:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
-        String leyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,datetime:1,project_name:1,client_ip:1,level:1,log_id:1,url:1,up_ip:1,logger_line:1,thread:1,biz_id:1,tailId:3,spaceId:3,storeId:3,deploySpace:3";
-        String valueList = "-1,10,0,1,2,3,4,5,6,7,8,9";
-        String parseScript = "]|[";
-        String message = "2025-02-12T20:11:02.501+0800]";
+        String keyList = "timestamp:date,level:keyword,threadName:text,traceId:keyword,className:text,line:keyword,message:keyword,methodName:keyword,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long";
+        String leyOrderList = "timestamp:1,level:1,threadName:1,traceId:1,className:1,line:1,message:1,methodName:1,logstore:3,logsource:3,mqtopic:3,mqtag:3,logip:3,tail:3,linenumber:3";
+        String valueList = "0,1,2,3,4,5,6,-1";
+        String parseScript = "|";
+        String message = "2025-03-03 10:03:34,128|INFO |DubboServerHandler-10.157.62.39:20880-thread-203|afb5a702e39130c59f89198d83026ace|c.x.n.p.a.pool.CarActivitySearcher|?|car activity search result:[]";
         Long collectStamp = Instant.now().toEpochMilli();
         LogParser logParser = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, leyOrderList);
-        Map<String, Object> parseMsg = logParser.parseSimple(message, collectStamp);
-        Assert.assertNotNull(parseMsg);
+        for (int i = 0; i < 10000; i++) {
+            Map<String, Object> parseMsg = logParser.parse(message, "", 1l, collectStamp, "");
+
+//            System.out.println(logParser.getTimestampFromString("2025-02-26 19:25:00,35", System.currentTimeMillis()));
+            System.out.println(DateUtil.parse("2025-02-26 19:25:00,35").getTime());
+            Assert.assertNotNull(parseMsg);
+        }
+        stopwatch.stop();
+        log.info("cost time:{}", stopwatch.elapsed().toMillis());
     }
 
     @Test

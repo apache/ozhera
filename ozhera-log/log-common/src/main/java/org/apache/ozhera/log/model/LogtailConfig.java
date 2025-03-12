@@ -32,6 +32,7 @@ public class LogtailConfig {
     private String ak;
     private String sk;
     private String clusterInfo;
+    @EqualsAndHashCode.Exclude
     private String consumerGroup;
     private String topic;
     private String tag;
@@ -41,6 +42,8 @@ public class LogtailConfig {
     private String deploySpace;
 
     private Integer parseType;
+
+    @EqualsAndHashCode.Exclude
     private String tail;
     /**
      * Log delimiter

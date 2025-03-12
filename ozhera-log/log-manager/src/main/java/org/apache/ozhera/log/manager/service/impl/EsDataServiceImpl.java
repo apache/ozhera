@@ -282,7 +282,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
      * @return Return true if the timestamp field is included; otherwise return false
      */
     public static boolean containsTimestampField(BoolQueryBuilder boolQuery) {
-        // 检查 must 条件
+        // check must conditions
         for (QueryBuilder query : boolQuery.must()) {
             if (isTimestampFieldInQuery(query)) {
                 return true;

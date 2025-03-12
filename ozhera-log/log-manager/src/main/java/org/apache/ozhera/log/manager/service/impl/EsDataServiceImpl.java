@@ -266,7 +266,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             return true;
         }
 
-        // 检查查询条件中是否包含 timestamp 字段
+        // Check whether the query condition contains the timestamp field
         if (sourceBuilder.query() instanceof BoolQueryBuilder) {
             BoolQueryBuilder boolQuery = (BoolQueryBuilder) sourceBuilder.query();
             return !containsTimestampField(boolQuery);
@@ -276,10 +276,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
     /**
-     * 检查 BoolQueryBuilder 中是否包含 timestamp 字段
+     * Check if the timestamp field is included in the BoolQueryBuilder
      *
-     * @param boolQuery 需要检查的 BoolQueryBuilder
-     * @return 如果包含 timestamp 字段，则返回 true；否则返回 false
+     * @param boolQuery BoolQueryBuilder to be checked
+     * @return Return true if the timestamp field is included; otherwise return false
      */
     public static boolean containsTimestampField(BoolQueryBuilder boolQuery) {
         // 检查 must 条件
@@ -289,21 +289,21 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             }
         }
 
-        // 检查 filter 条件
+        // check filter conditions
         for (QueryBuilder query : boolQuery.filter()) {
             if (isTimestampFieldInQuery(query)) {
                 return true;
             }
         }
 
-        // 检查 should 条件
+        // check the should conditions
         for (QueryBuilder query : boolQuery.should()) {
             if (isTimestampFieldInQuery(query)) {
                 return true;
             }
         }
 
-        // 检查 must_not 条件
+        // check the must_not condition
         for (QueryBuilder query : boolQuery.mustNot()) {
             if (isTimestampFieldInQuery(query)) {
                 return true;
@@ -314,10 +314,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
     /**
-     * 检查单个 QueryBuilder 是否包含 timestamp 字段
+     * Check whether a single QueryBuilder contains timestamp fields
      *
-     * @param query 需要检查的 QueryBuilder
-     * @return 如果包含 timestamp 字段，则返回 true；否则返回 false
+     * @param query QueryBuilder to be checked
+     * @return Return true if the timestamp field is included; otherwise return false
      */
     private static boolean isTimestampFieldInQuery(QueryBuilder query) {
         if (query instanceof RangeQueryBuilder) {

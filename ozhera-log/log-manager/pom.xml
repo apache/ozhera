@@ -30,7 +30,7 @@ http://www.apache.org/licenses/LICENSE-2.0
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>log-manager</artifactId>
-    <version>1.3.4-SNAPSHOT</version>
+    <version>1.3.6-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

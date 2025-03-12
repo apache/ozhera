@@ -22,8 +22,15 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import org.apache.ozhera.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.es.EsClient;
+import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.app.api.model.HeraAppEnvData;
 import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.model.dto.TraceLogDTO;
 import org.apache.ozhera.log.api.model.vo.TraceLogQuery;
@@ -58,20 +65,15 @@ import org.apache.ozhera.log.manager.service.HeraAppEnvService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -188,7 +190,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
                 return dorisDataQuery(logQuery, milogLogstoreDO, dto);
             } else {
-                return elasticDataQuery(milogLogstoreDO, logQuery, dto, keyList, stopWatch);
+                return elasticDataQuery(milogLogstoreDO, logQuery, dto, keyList, stopWatch, operator);
             }
         } catch (Throwable e) {
             log.error("Log query error, log search error,logQuery:[{}],user:[{}]", logQuery, MoneUserContext.getCurrentUser(), e);
@@ -215,7 +217,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
     private Result<LogDTO> elasticDataQuery(MilogLogStoreDO milogLogstoreDO, LogQuery logQuery,
-                                            LogDTO dto, List<String> keyList, StopWatch stopWatch) throws IOException {
+                                            LogDTO dto, List<String> keyList, StopWatch stopWatch, String operator) throws IOException {
         EsService esService = esCluster.getEsService(milogLogstoreDO.getEsClusterId());
 
         String esIndexName = commonExtensionService.getSearchIndex(logQuery.getStoreId(), milogLogstoreDO.getEsIndex());
@@ -228,6 +230,12 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, boolQueryBuilder);
 
         SearchRequest searchRequest = new SearchRequest(new String[]{esIndexName}, builder);
+
+        boolean isTimestampMissing = isTimestampMissingInQuery(searchRequest);
+        if (isTimestampMissing) {
+            log.warn("searchRequest is missing timestamp field, add timestamp field,logQuery:{}, operator:{}", GSON.toJson(logQuery), operator);
+        }
+
         // query
         stopWatch.start("search-query");
         SearchResponse searchResponse = esService.search(searchRequest);
@@ -235,7 +243,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
         dto.setSourceBuilder(builder);
         if (stopWatch.getLastTaskTimeMillis() > 7 * 1000) {
-            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis(), GSON.toJson(logQuery));
         }
         //Result transformation
         stopWatch.start("data-assemble");
@@ -243,9 +251,80 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         stopWatch.stop();
 
         if (stopWatch.getTotalTimeMillis() > 15 * 1000) {
-            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis());
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis(), GSON.toJson(logQuery));
         }
         return Result.success(dto);
+    }
+
+    public static boolean isTimestampMissingInQuery(SearchRequest searchRequest) {
+        if (searchRequest == null) {
+            return true;
+        }
+
+        SearchSourceBuilder sourceBuilder = searchRequest.source();
+        if (sourceBuilder == null || sourceBuilder.query() == null) {
+            return true;
+        }
+
+        // 检查查询条件中是否包含 timestamp 字段
+        if (sourceBuilder.query() instanceof BoolQueryBuilder) {
+            BoolQueryBuilder boolQuery = (BoolQueryBuilder) sourceBuilder.query();
+            return !containsTimestampField(boolQuery);
+        }
+
+        return true;
+    }
+
+    /**
+     * 检查 BoolQueryBuilder 中是否包含 timestamp 字段
+     *
+     * @param boolQuery 需要检查的 BoolQueryBuilder
+     * @return 如果包含 timestamp 字段，则返回 true；否则返回 false
+     */
+    public static boolean containsTimestampField(BoolQueryBuilder boolQuery) {
+        // 检查 must 条件
+        for (QueryBuilder query : boolQuery.must()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // 检查 filter 条件
+        for (QueryBuilder query : boolQuery.filter()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // 检查 should 条件
+        for (QueryBuilder query : boolQuery.should()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // 检查 must_not 条件
+        for (QueryBuilder query : boolQuery.mustNot()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 检查单个 QueryBuilder 是否包含 timestamp 字段
+     *
+     * @param query 需要检查的 QueryBuilder
+     * @return 如果包含 timestamp 字段，则返回 true；否则返回 false
+     */
+    private static boolean isTimestampFieldInQuery(QueryBuilder query) {
+        if (query instanceof RangeQueryBuilder) {
+            RangeQueryBuilder rangeQuery = (RangeQueryBuilder) query;
+            return "timestamp".equals(rangeQuery.fieldName());
+        }
+        return false;
     }
 
     private void dorisDataToLog(List<Map<String, Object>> tableColumnDTOS, LogDTO logDTO) {
@@ -471,6 +550,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         if (!StringUtils.isEmpty(interval)) {
             BoolQueryBuilder queryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(logStore.getKeyList()));
             String histogramField = commonExtensionService.queryDateHistogramField(logQuery.getStoreId());
+            boolean isTimestampMissing = containsTimestampField(queryBuilder);
+            if (!isTimestampMissing) {
+                log.warn("searchRequest is missing timestamp field, add timestamp field,logQuery:{}", GSON.toJson(logQuery));
+            }
             EsClient.EsRet esRet = esService.dateHistogram(esIndex, histogramField, interval, logQuery.getStartTime(), logQuery.getEndTime(), queryBuilder);
             result.setCounts(esRet.getCounts());
             result.setTimestamps(esRet.getTimestamps());

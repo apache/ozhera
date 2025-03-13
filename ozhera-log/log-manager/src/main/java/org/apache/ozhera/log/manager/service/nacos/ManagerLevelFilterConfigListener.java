@@ -126,9 +126,8 @@ public class ManagerLevelFilterConfigListener {
             }
         }
 
-        if (newConfig.getEnableGlobalFilter() || config.getEnableGlobalFilter()) {
-
-            if (newConfig.getEnableGlobalFilter() && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
+        if (newConfig.getEnableGlobalFilter()) {
+            if (config != null && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
                 return;
             }
             globalUpdateSendMsg();

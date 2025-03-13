@@ -44,7 +44,7 @@ public class ChannelServiceFactory {
     private final AgentMemoryService agentMemoryService;
     private final String memoryBasePath;
 
-    private final Pattern regexCharsPattern = Pattern.compile("[.*+?^${}()|\\[\\]\\\\]");
+    private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()|\\[\\]\\\\]");
 
     public ChannelServiceFactory(AgentMemoryService agentMemoryService, String memoryBasePath) {
         this.agentMemoryService = agentMemoryService;
@@ -61,7 +61,7 @@ public class ChannelServiceFactory {
         String logType = input.getType();
         String logPattern = input.getLogPattern();
 
-        if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType)) {
+        if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType) || FileUtil.exist(logPattern)) {
             return createStandardChannelService(exporter, channelDefine, filterChain);
         }
 
@@ -77,8 +77,7 @@ public class ChannelServiceFactory {
             return false;
         }
         return isRegexPattern(logPattern) ||
-                containsWildcard(logPattern) ||
-                !FileUtil.exist(logPattern);
+                containsWildcard(logPattern);
     }
 
     private boolean containsWildcard(String logPattern) {

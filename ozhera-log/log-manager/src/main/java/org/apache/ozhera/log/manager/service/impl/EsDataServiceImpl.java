@@ -70,10 +70,7 @@ import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -227,12 +224,16 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         }
         // Build query parameters
         BoolQueryBuilder boolQueryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(milogLogstoreDO.getKeyList()));
-        SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, boolQueryBuilder);
+        // use constant_score to wrap boolquerybuilder
+        ConstantScoreQueryBuilder constantScoreQueryBuilder = QueryBuilders.constantScoreQuery(boolQueryBuilder);
+        SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, constantScoreQueryBuilder);
+        // disable score calculation
+        builder.trackScores(false);
 
         SearchRequest searchRequest = new SearchRequest(new String[]{esIndexName}, builder);
 
-        boolean isTimestampMissing = isTimestampMissingInQuery(searchRequest);
-        if (isTimestampMissing) {
+        boolean isTimestampMissing = containsTimestampField(boolQueryBuilder);
+        if (!isTimestampMissing) {
             log.warn("searchRequest is missing timestamp field, add timestamp field,logQuery:{}, operator:{}", GSON.toJson(logQuery), operator);
         }
 
@@ -254,25 +255,6 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis(), GSON.toJson(logQuery));
         }
         return Result.success(dto);
-    }
-
-    public static boolean isTimestampMissingInQuery(SearchRequest searchRequest) {
-        if (searchRequest == null) {
-            return true;
-        }
-
-        SearchSourceBuilder sourceBuilder = searchRequest.source();
-        if (sourceBuilder == null || sourceBuilder.query() == null) {
-            return true;
-        }
-
-        // Check whether the query condition contains the timestamp field
-        if (sourceBuilder.query() instanceof BoolQueryBuilder) {
-            BoolQueryBuilder boolQuery = (BoolQueryBuilder) sourceBuilder.query();
-            return !containsTimestampField(boolQuery);
-        }
-
-        return true;
     }
 
     /**
@@ -412,7 +394,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
 
-    private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, BoolQueryBuilder boolQueryBuilder) {
+    private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, ConstantScoreQueryBuilder boolQueryBuilder) {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(boolQueryBuilder);
 
@@ -753,8 +735,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
 
     public void logExport(LogQuery logQuery) throws Exception {
+        log.info("Log query, logExport, logQuery:{}", GSON.toJson(logQuery));
         // Generate Excel
-        int maxLogNum = 10000;
+        int maxLogNum = 5000;
         logQuery.setPageSize(maxLogNum);
         Result<LogDTO> logDTOResult = this.logQuery(logQuery);
         List<Map<String, Object>> exportData = logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty() ? null : logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());

@@ -308,26 +308,27 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            readResult.get().getLines().stream().forEach(l -> {
-                String logType = channelDefine.getInput().getType();
-                LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
-                // Multi-line application log type and opentelemetry type are used to determine the exception stack
-                if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
-                    l = mLog.append2(l);
-                } else {
-                    // tail single line mode
-                }
-                if (null != l) {
-                    try {
-                        fileColLock.lock();
-                        wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
-                    } finally {
-                        fileColLock.unlock();
-                    }
-                } else {
-                    log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
-                }
-            });
+            readResult.get().getLines()
+                    .stream().filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l)).forEach(l -> {
+                        String logType = channelDefine.getInput().getType();
+                        LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
+                        // Multi-line application log type and opentelemetry type are used to determine the exception stack
+                        if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
+                            l = mLog.append2(l);
+                        } else {
+                            // tail single line mode
+                        }
+                        if (null != l) {
+                            try {
+                                fileColLock.lock();
+                                wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
+                            } finally {
+                                fileColLock.unlock();
+                            }
+                        } else {
+                            log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
+                        }
+                    });
 
         });
         resultMap.put(pattern, Pair.of(mLog, readResult));

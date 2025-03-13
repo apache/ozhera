@@ -96,9 +96,11 @@ public class JobManager {
 
     public void stopJob(LogtailConfig logtailConfig) {
         try {
-            List<Long> jobKeys = jobs.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(jobKeys)){
-                log.info("【stop job】,all jobs:{}", jobKeys);
+            List<Long> jobKeys = jobs.keySet().stream()
+                    .filter(key -> key.equals(logtailConfig.getLogtailId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(jobKeys)) {
+                log.info("stop job,the jobs:{}", jobKeys);
                 sinkJobsShutDown(logtailConfig);
             }
         } catch (Exception e) {

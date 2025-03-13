@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.utils.IndexUtils;
+import org.apache.ozhera.log.utils.NetUtil;
 
 import java.util.*;
 import java.util.function.Function;
@@ -42,6 +43,8 @@ public abstract class AbstractLogParser implements LogParser {
     protected LogParserData parserData;
 
     private List<FieldInterceptor> fieldInterceptors = Lists.newArrayList();
+
+    private String localIp = NetUtil.getLocalIp();
 
     protected Map<String, Integer> valueMap;
 
@@ -88,13 +91,20 @@ public abstract class AbstractLogParser implements LogParser {
         validRet(parseData, logData);
 
         fieldInterceptors.forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        addCommonData(parseData);
+
         return parseData;
+    }
+
+    private void addCommonData(Map<String, Object> data) {
+        data.putIfAbsent(parse_time, System.currentTimeMillis());
+        data.putIfAbsent(parse_ip, localIp);
     }
 
     @Override
     public Map<String, Object> parseSimple(String logData, Long collectStamp) {
         Map<String, Object> parseData = doParseSimple(logData, collectStamp);
-        fieldInterceptors.stream().forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        fieldInterceptors.forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
         return parseData;
     }
 
@@ -133,7 +143,7 @@ public abstract class AbstractLogParser implements LogParser {
 
     void wrapMap(Map<String, Object> ret, LogParserData parserData, String ip,
                  Long lineNum, String fileName, Long collectStamp) {
-        ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? getTimestampFromString("", collectStamp) : collectStamp);
+        ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? System.currentTimeMillis() : collectStamp);
         ret.put(esKeyMap_topic, parserData.getTopicName());
         ret.put(esKeyMap_tag, parserData.getMqTag());
         ret.put(esKeyMap_logstoreName, parserData.getLogStoreName());

@@ -30,6 +30,7 @@ import java.util.List;
 @EqualsAndHashCode
 public class SinkConfig {
     private Long logstoreId;
+    @EqualsAndHashCode.Exclude
     private String logstoreName;
     /**
      * timestamp is required

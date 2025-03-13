@@ -222,7 +222,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                 .distinct()
                 .toList();
         return expressions.size() == 1 ?
-                expressions.get(0) :
+                expressions.getFirst() :
                 expressions.stream().collect(Collectors.joining("|", MULTI_FILE_PREFIX, MULTI_FILE_SUFFIX));
     }
 

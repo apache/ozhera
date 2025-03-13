@@ -63,7 +63,7 @@ public class EsPlugin {
 
     private static int DEFAULT_PROCESSOR_COUNT = 1;
 
-    private static ReentrantLock esLock = new ReentrantLock();
+    private static final ReentrantLock esLock = new ReentrantLock();
 
     private static Gson gson = new Gson();
 

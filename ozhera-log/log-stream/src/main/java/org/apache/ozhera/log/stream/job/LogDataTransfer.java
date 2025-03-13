@@ -21,6 +21,11 @@ package org.apache.ozhera.log.stream.job;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.RateLimiter;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.parse.LogParser;
@@ -31,10 +36,6 @@ import org.apache.ozhera.log.stream.job.extension.MessageLifecycleManager;
 import org.apache.ozhera.log.stream.job.extension.MessageSender;
 import org.apache.ozhera.log.stream.job.extension.MqMessagePostProcessing;
 import org.apache.ozhera.log.stream.sink.SinkChain;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 import java.util.Map;
@@ -143,7 +144,9 @@ public class LogDataTransfer {
         dataMap.putIfAbsent(LOG_STREAM_SPACE_ID, sinkJobConfig.getLogSpaceId());
         dataMap.putIfAbsent(LOG_STREAM_STORE_ID, sinkJobConfig.getLogStoreId());
         dataMap.putIfAbsent(LOG_STREAM_TAIL_ID, sinkJobConfig.getLogTailId());
-        dataMap.putIfAbsent(DEPLOY_SPACE, sinkJobConfig.getDeploySpace());
+        if (StringUtils.isNotBlank(sinkJobConfig.getDeploySpace())) {
+            dataMap.putIfAbsent(DEPLOY_SPACE, sinkJobConfig.getDeploySpace());
+        }
     }
 
     private void sendMessage(Map<String, Object> dataMap) throws Exception {

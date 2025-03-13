@@ -42,7 +42,6 @@ import org.apache.ozhera.log.api.enums.K8sPodTypeEnum;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
-import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.common.PathUtils;
 import org.apache.ozhera.log.utils.NetUtil;
@@ -66,10 +65,11 @@ import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
 @Slf4j
 public class ChannelServiceImpl extends AbstractChannelService {
 
-    private AgentMemoryService memoryService;
+    private final AgentMemoryService memoryService;
 
     private MsgExporter msgExporter;
 
+    @Getter
     private ChannelDefine channelDefine;
 
     private ChannelMemory channelMemory;
@@ -80,7 +80,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     @Getter
     private final ConcurrentHashMap<String, Future> futureMap = new ConcurrentHashMap<>();
 
-    private Set<String> delFileCollList = new CopyOnWriteArraySet<>();
+    private final Set<String> delFileCollList = new CopyOnWriteArraySet<>();
 
     private final Map<String, Long> reOpenMap = new HashMap<>();
     private final Map<String, Long> fileReadMap = new ConcurrentHashMap<>();
@@ -89,13 +89,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private ScheduledFuture<?> lastFileLineScheduledFuture;
 
-    private Gson gson = Constant.GSON;
+    private final Gson gson = Constant.GSON;
 
-    private List<LineMessage> lineMessageList = new ArrayList<>();
+    private final List<LineMessage> lineMessageList = new ArrayList<>();
 
-    private ReentrantLock fileColLock = new ReentrantLock();
+    private final ReentrantLock fileColLock = new ReentrantLock();
 
-    private ReentrantLock fileReopenLock = new ReentrantLock();
+    private final ReentrantLock fileReopenLock = new ReentrantLock();
 
     private volatile long lastSendTime = System.currentTimeMillis();
 
@@ -108,18 +108,14 @@ public class ChannelServiceImpl extends AbstractChannelService {
      */
     private boolean collectOnce;
 
-    private FilterChain chain;
+    private final FilterChain chain;
 
     /**
      * The file path to monitor
      */
-    private List<MonitorFile> monitorFileList;
+    private final List<MonitorFile> monitorFileList;
 
     private LogTypeEnum logTypeEnum;
-
-    private String logPattern;
-
-    private String logSplitExpress;
 
     private String linePrefix;
 
@@ -171,8 +167,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
         Long channelId = channelDefine.getChannelId();
         Input input = channelDefine.getInput();
 
-        this.logPattern = input.getLogPattern();
-        this.logSplitExpress = input.getLogSplitExpress();
+        String logPattern = input.getLogPattern();
+        String logSplitExpress = input.getLogSplitExpress();
         this.linePrefix = input.getLinePrefix();
 
         String logType = channelDefine.getInput().getType();
@@ -312,9 +308,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            readResult.get().getLines().stream()
-                    .filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l))
-                    .forEach(l -> {
+            readResult.get().getLines().stream().forEach(l -> {
                 String logType = channelDefine.getInput().getType();
                 LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
                 // Multi-line application log type and opentelemetry type are used to determine the exception stack
@@ -354,7 +348,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                         try {
                             String remainMsg = mLog.takeRemainMsg2();
                             if (null != remainMsg) {
-                                log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
+                                log.info("start send last line,pattern:{},patternCode:{},ip:{},data:{}", pattern, patternCode, getTailPodIp(pattern), remainMsg);
                                 wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
                             }
                         } finally {
@@ -441,7 +435,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
 
         if (!collectOnce && !snapshot.isEmpty()) {
-            String jsonMap = gson.toJson(snapshot);
+            String jsonMap = gson.toJson(snapshot.keySet());
             log.info("fileProgressMap: {}", jsonMap);
         }
     }
@@ -505,7 +499,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public void close() {
-        log.info("Delete the current collection task,channelId:{}", getChannelId());
+        log.info("Delete the current collection task,channelId:{},logPattern:{}", getChannelId(), getChannelDefine().getInput().getLogPattern());
         //1.Stop log capture
         for (Map.Entry<String, ILogFile> fileEntry : logFileMap.entrySet()) {
             fileEntry.getValue().setStop(true);
@@ -525,7 +519,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         for (Future future : futureMap.values()) {
             future.cancel(false);
         }
-        log.info("stop file monitor,fileName:", logFileMap.keySet().stream().collect(Collectors.joining(SYMBOL_COMMA)));
+        log.info("stop file monitor,fileName:{}", String.join(SYMBOL_COMMA, logFileMap.keySet()));
         lineMessageList.clear();
         reOpenMap.clear();
         fileReadMap.clear();
@@ -613,11 +607,6 @@ public class ChannelServiceImpl extends AbstractChannelService {
     @Override
     public List<MonitorFile> getMonitorPathList() {
         return monitorFileList;
-    }
-
-    @Override
-    public ChannelDefine getChannelDefine() {
-        return channelDefine;
     }
 
     public ChannelMemory getChannelMemory() {

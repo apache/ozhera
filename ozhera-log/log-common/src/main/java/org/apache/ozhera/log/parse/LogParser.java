@@ -21,10 +21,12 @@ package org.apache.ozhera.log.parse;
 import cn.hutool.core.date.DateUtil;
 import org.apache.commons.lang3.time.DateParser;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.ozhera.log.utils.DateUtils;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: wtt
@@ -49,6 +51,8 @@ public interface LogParser {
     String specialTimePrefix = "20";
 
     String esKeyMap_timestamp = "timestamp";
+    String parse_time = "parse_time";
+    String parse_ip = "parse_ip";
     String esKeyMap_Date = "Date";
     String esKeyMap_topic = "mqtopic";
     String esKeyMap_tag = "mqtag";
@@ -79,11 +83,11 @@ public interface LogParser {
     default Long getTimestampFromString(String logTime, Long collectStamp) {
         Long timeStamp;
         try {
-            timeStamp = DateUtil.parse(logTime).getTime();
+            timeStamp = Objects.requireNonNull(DateUtils.parse(logTime)).getTime();
         } catch (Exception e) {
             try {
                 logTime = String.format("%s%s", String.valueOf(DateUtil.thisYear()).substring(0, 2), logTime);
-                timeStamp = DateUtil.parse(logTime).getTime();
+                timeStamp = DateUtils.parse(logTime).getTime();
             } catch (Exception ex) {
                 timeStamp = collectStamp;
             }

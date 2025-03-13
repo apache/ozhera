@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.agent.channel;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -26,6 +27,14 @@ import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.data.push.rpc.RpcClient;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.mone.file.ILogFile;
+import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.anno.Lookup;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.plugin.config.Config;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.comparator.*;
 import org.apache.ozhera.log.agent.channel.listener.DefaultFileMonitorListener;
 import org.apache.ozhera.log.agent.channel.listener.FileMonitorListener;
@@ -45,14 +54,6 @@ import org.apache.ozhera.log.api.enums.OperateEnum;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.utils.NetUtil;
-import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.anno.Lookup;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.plugin.config.Config;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -63,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
+import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
 import static org.apache.ozhera.log.common.PathUtils.PATH_WILDCARD;
 import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
 
@@ -214,7 +216,7 @@ public class ChannelEngine {
             log.info("realChannelService,id:{}", channelId);
             try {
                 channelService.start();
-                fileMonitorListener.addChannelService(channelService);
+                fileMonitorListener.addChannelService(abstractChannelService);
                 successChannelIds.add(channelId);
             } catch (RejectedExecutionException e) {
                 log.error("The thread pool is full.id:{}", channelId, e);
@@ -266,19 +268,30 @@ public class ChannelEngine {
             if (null == agentMemoryService) {
                 agentMemoryService = new AgentMemoryServiceImpl(org.apache.ozhera.log.common.Config.ins().get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH));
             }
-            ChannelService channelService;
-            Input input = channelDefine.getInput();
-            boolean matchWildcard = Arrays.stream(input.getLogPattern().split(",")).anyMatch(data -> StringUtils.substringAfterLast(data, SEPARATOR).contains(PATH_WILDCARD));
-            if (matchWildcard) {
-                channelService = new WildcardChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain, memoryBasePath);
-            } else {
-                channelService = new ChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain);
-            }
-            return channelService;
+            return createChannelService(channelDefine, exporter, filterChain);
         } catch (Throwable e) {
-            log.error("channelServiceTrans exception, channelDefine:{}, exception:{}", gson.toJson(channelDefine), e);
+            log.error("channelServiceTrans exception, channelDefine:{}", gson.toJson(channelDefine), e);
         }
         return null;
+    }
+
+    private ChannelService createChannelService(ChannelDefine channelDefine, MsgExporter exporter, FilterChain filterChain) {
+        Input input = channelDefine.getInput();
+        String logType = channelDefine.getInput().getType();
+        boolean containsWildcard = isWildcardAllowedForLogType(input.getLogPattern(), logType);
+        if (containsWildcard || FileUtil.exist(input.getLogPattern())) {
+            return new ChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain);
+        } else {
+            return new WildcardChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain, memoryBasePath);
+        }
+    }
+
+    private boolean isWildcardAllowedForLogType(String logPattern, String logType) {
+        if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType)) {
+            return true;
+        }
+        return Arrays.stream(logPattern.split(SYMBOL_COMMA))
+                .noneMatch(data -> StringUtils.substringAfterLast(data, SEPARATOR).contains(PATH_WILDCARD));
     }
 
     private void preCheckChannelDefine(ChannelDefine channelDefine) {
@@ -434,14 +447,15 @@ public class ChannelEngine {
         try {
             if (directDel || CollectionUtils.isNotEmpty(channelDels)) {
                 log.info("[delete config]data:{}", gson.toJson(channelDels));
-                List<Long> channelIdDels = channelDels.stream().map(ChannelDefine::getChannelId).collect(Collectors.toList());
+                List<Long> channelIdDels = channelDels.stream().map(ChannelDefine::getChannelId).toList();
                 List<ChannelService> tempChannelServiceList = Lists.newArrayList();
                 channelServiceList.forEach(channelService -> {
-                    Long channelId = ((AbstractChannelService) channelService).getChannelDefine().getChannelId();
+                    AbstractChannelService abstractChannelService = (AbstractChannelService) channelService;
+                    Long channelId = abstractChannelService.getChannelDefine().getChannelId();
                     if (channelIdDels.contains(channelId)) {
                         log.info("[delete config]channelService:{}", channelId);
                         channelService.close();
-                        fileMonitorListener.removeChannelService(channelService);
+                        fileMonitorListener.removeChannelService(abstractChannelService);
                         tempChannelServiceList.add(channelService);
                         this.channelDefineList.removeIf(channelDefine -> {
                             if (channelDefine.getChannelId().equals(channelId)) {

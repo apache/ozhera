@@ -213,6 +213,7 @@ public abstract class AbstractChannelService implements ChannelService {
         if (line.length() > FILTER_LOG_PREFIX_LENGTH) {
             line = line.substring(0, FILTER_LOG_PREFIX_LENGTH);
         }
+        log.info("The current log information to be filtered is {}, the log level to be filtered is {}", line, logLevelList);
         String lineLowerCase = line.toLowerCase();
         for (String level : logLevelList) {
             if (lineLowerCase.contains(level.toLowerCase())) {

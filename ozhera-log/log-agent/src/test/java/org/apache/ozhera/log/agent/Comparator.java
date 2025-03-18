@@ -25,12 +25,15 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.Gson;
+import org.apache.ozhera.log.agent.channel.comparator.LogLevelSimilarComparator;
 import org.apache.ozhera.log.agent.channel.comparator.OutputSimilarComparator;
 import org.apache.ozhera.log.agent.extension.RmqOutput;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -128,4 +131,19 @@ public class Comparator {
         long end = System.currentTimeMillis();
         log.info("10 jobs gets done by 5 threads concurrently in " + (end - start) + " milliseconds");
     }
+
+    @Test
+    public void testSimilar() {
+        List<String> oldList = new ArrayList<>();
+        oldList.add("INFO");
+        oldList.add("warn");
+        oldList.add("inFo");
+        List<String> newList = new ArrayList<>();
+        newList.add("warn");
+        newList.add("info");
+        LogLevelSimilarComparator logLevelSimilarComparator = new LogLevelSimilarComparator(null);
+        System.out.println(logLevelSimilarComparator.compare(newList));
+    }
+
+
 }

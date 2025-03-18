@@ -392,7 +392,8 @@ public class ChannelEngine {
                     SimilarComparator inputSimilarComparator = new InputSimilarComparator(oldChannelDefine.getInput());
                     SimilarComparator outputSimilarComparator = new OutputSimilarComparator(oldChannelDefine.getOutput());
                     FilterSimilarComparator filterSimilarComparator = new FilterSimilarComparator(oldChannelDefine.getFilters());
-                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput())) {
+                    SimilarComparator logLevelSimilarComparator = new LogLevelSimilarComparator(oldChannelDefine.getFilterLogLevelList());
+                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput()) && logLevelSimilarComparator.compare(newChannelDefine.getFilterLogLevelList()) ) {
                         if (!filterSimilarComparator.compare(newChannelDefine.getFilters())) {
                             channelServiceList.stream().filter(channelService -> ((AbstractChannelService) channelService).getChannelDefine().getChannelId().equals(channelId)).findFirst().ifPresent(channelService -> channelService.filterRefresh(newChannelDefine.getFilters()));
                         }

@@ -19,7 +19,7 @@
 
 package org.apache.ozhera.monitor.service.http;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,14 +88,14 @@ public class RestTemplateService {
         return result;
     }
 
-    public String getHttpMPost(String url, com.alibaba.fastjson.JSONObject param, MediaType mediaType){
+    public String getHttpMPost(String url, com.alibaba.fastjson2.JSONObject param, MediaType mediaType){
 
         log.info("RestTemplateService.getHttpMPost url:{},param:{},mediaType:{}",url,param,mediaType);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(mediaType);
 
-        HttpEntity<com.alibaba.fastjson.JSONObject> request = new HttpEntity<>(param, headers);
+        HttpEntity<com.alibaba.fastjson2.JSONObject> request = new HttpEntity<>(param, headers);
         // 发送post请求，并打印结果，以String类型接收响应结果JSON字符串
         String result = null;
         try {

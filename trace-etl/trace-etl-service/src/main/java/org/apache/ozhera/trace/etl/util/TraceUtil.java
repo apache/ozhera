@@ -19,9 +19,17 @@
 
 package org.apache.ozhera.trace.etl.util;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.tspandata.TAttributeKey;
 import org.apache.ozhera.tspandata.TAttributeType;
 import org.apache.ozhera.tspandata.TAttributes;
@@ -35,18 +43,9 @@ import org.apache.ozhera.tspandata.TSpanContext;
 import org.apache.ozhera.tspandata.TSpanData;
 import org.apache.ozhera.tspandata.TStatus;
 import org.apache.ozhera.tspandata.TValue;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class TraceUtil {
@@ -58,12 +57,12 @@ public class TraceUtil {
     private static final String TAG_KEY_IP = "ip";
     private static final String TAG_KEY_HOST = "host.name";
     private static final Set<String> SPECIAL_TAG_KEYS = Sets.newHashSet(TAG_KEY_SPAN_KIND,
-            TAG_KEY_SERVICE_NAME, TAG_KEY_IP, TAG_KEY_HOST);
+        TAG_KEY_SERVICE_NAME, TAG_KEY_IP, TAG_KEY_HOST);
 
     public static byte[] toBytes(String spanStr) {
         try {
             TSpanData tSpanData = toTSpanData(spanStr);
-            if(tSpanData == null){
+            if (tSpanData == null) {
                 return null;
             }
             TSerializer serializer = new TSerializer(PROTOCOL_FACTORY);
@@ -103,7 +102,7 @@ public class TraceUtil {
         span.setEndEpochNanos(span.getStartEpochNanos() + Long.parseLong(array[MessageUtil.DURATION]));
         Map<String, TValue> specialAttrMap = new HashMap<>();
         span.setAttributes(toTAttributes(JSONArray.parseArray(decodeLineBreak(array[MessageUtil.TAGS])),
-                specialAttrMap));
+            specialAttrMap));
         span.setTotalAttributeCount(span.getAttributes().getKeysSize());
         // using tags["span.kind"] as span kind
         String spanKind = specialAttrMap.get(TAG_KEY_SPAN_KIND) == null ? SPAN_KIND_INTERNAL : specialAttrMap.get(TAG_KEY_SPAN_KIND).getStringValue();
@@ -111,12 +110,12 @@ public class TraceUtil {
         span.setEvents(toTEventList(JSONArray.parseArray(decodeLineBreak(array[MessageUtil.EVENTS]))));
         span.setTotalRecordedEvents(span.getEventsSize());
         span.setResouce(
-                toTResource(JSONObject.parseObject(array[MessageUtil.REOUSCES]), specialAttrMap));
+            toTResource(JSONObject.parseObject(array[MessageUtil.REOUSCES]), specialAttrMap));
         span.setExtra(toTExtra(specialAttrMap));
         // using links["ref_type=CHILD_OF"] as parent span context and using left as links
         AtomicReference<TSpanContext> parentSpanContextRef = new AtomicReference<>();
         span.setLinks(
-                toTLinkList(JSONArray.parseArray(array[MessageUtil.REFERERNCES]), parentSpanContextRef));
+            toTLinkList(JSONArray.parseArray(array[MessageUtil.REFERERNCES]), parentSpanContextRef));
         span.setParentSpanContext(parentSpanContextRef.get());
         span.setTotalRecordedLinks(span.getLinksSize());
         return span;
@@ -124,9 +123,9 @@ public class TraceUtil {
 
     private static String decodeLineBreak(String value) {
         if (StringUtils.isNotEmpty(value)) {
-            return value.replaceAll("\\\\","\\\\\\\\").replaceAll("##r'", "\\\\\"")
-                    .replaceAll("##n", "\\\\n").replaceAll("##r", "\\\\r").replaceAll("##t", "\\\\t")
-                    .replaceAll("##tat", "\\\\tat").replaceAll("##'", "\\\\\"");
+            return value.replaceAll("\\\\", "\\\\\\\\").replaceAll("##r'", "\\\\\"")
+                .replaceAll("##n", "\\\\n").replaceAll("##r", "\\\\r").replaceAll("##t", "\\\\t")
+                .replaceAll("##tat", "\\\\tat").replaceAll("##'", "\\\\\"");
         }
         return value;
     }
@@ -135,7 +134,7 @@ public class TraceUtil {
      * convert links.
      */
     private static List<TLink> toTLinkList(JSONArray links,
-                                           AtomicReference<TSpanContext> spanContextAtomicReference) {
+        AtomicReference<TSpanContext> spanContextAtomicReference) {
         if (links == null) {
             return null;
         }
@@ -183,7 +182,7 @@ public class TraceUtil {
      * convert instrumentation lib info.
      */
     private static TInstrumentationLibraryInfo toTInstrumentationLibraryInfo(String name,
-                                                                             String version) {
+        String version) {
         if (name == null && version == null) {
             return null;
         }
@@ -216,7 +215,7 @@ public class TraceUtil {
      * convert attributes.
      */
     private static TAttributes toTAttributes(JSONArray attributes,
-                                             Map<String, TValue> specialAttrMap) {
+        Map<String, TValue> specialAttrMap) {
         if (attributes == null) {
             return null;
         }
@@ -229,43 +228,42 @@ public class TraceUtil {
             TAttributeKey attributeKey = toTAttributeKey(attrJson);
             Object value = attrJson.get("value");
 //            try {
-                TValue attributeValue = new TValue();
-                switch (attributeKey.getType()) {
-                    case LONG:
-                        if(value instanceof String){
-                            attributeValue.setLongValue(Long.valueOf((String) value));
-                        } else {
-                            attributeValue.setLongValue((Long) value);
-                        }
-                        break;
-                    case DOUBLE:
-                        if(value instanceof String){
-                            attributeValue.setDoubleValue(Double.valueOf((String) value));
-                        } else {
-                            attributeValue.setDoubleValue((Double) value);
-                        }
-                        break;
-                    case STRING:
-                            attributeValue.setStringValue(String.valueOf(value));
-                        break;
-                    case BOOLEAN:
-                        if(value instanceof String){
-                            attributeValue.setBoolValue(Boolean.valueOf((String) value));
-                        } else {
-                            attributeValue.setBoolValue((Boolean) value);
-                        }
-                        break;
-                    default:
-                }
-                if (specialAttrMap != null && SPECIAL_TAG_KEYS.contains(attributeKey.getValue())) {
-                    specialAttrMap.put(attributeKey.getValue(), attributeValue);
-                }
-                ret.getKeys().add(attributeKey);
-                ret.getValues().add(attributeValue);
+            TValue attributeValue = new TValue();
+            switch (attributeKey.getType()) {
+                case LONG:
+                    if (value instanceof String) {
+                        attributeValue.setLongValue(Long.valueOf((String) value));
+                    } else {
+                        attributeValue.setLongValue((Long) value);
+                    }
+                    break;
+                case DOUBLE:
+                    if (value instanceof String) {
+                        attributeValue.setDoubleValue(Double.valueOf((String) value));
+                    } else {
+                        attributeValue.setDoubleValue((Double) value);
+                    }
+                    break;
+                case STRING:
+                    attributeValue.setStringValue(String.valueOf(value));
+                    break;
+                case BOOLEAN:
+                    if (value instanceof String) {
+                        attributeValue.setBoolValue(Boolean.valueOf((String) value));
+                    } else {
+                        attributeValue.setBoolValue((Boolean) value);
+                    }
+                    break;
+                default:
+            }
+            if (specialAttrMap != null && SPECIAL_TAG_KEYS.contains(attributeKey.getValue())) {
+                specialAttrMap.put(attributeKey.getValue(), attributeValue);
+            }
+            ret.getKeys().add(attributeKey);
+            ret.getValues().add(attributeValue);
         });
         return ret;
     }
-
 
     /**
      * convert attribute key.

@@ -18,7 +18,7 @@
  */
 package org.apache.ozhera.log.manager.model.pojo;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONField;
 import org.apache.ozhera.log.api.model.meta.FilterDefine;
 import org.apache.ozhera.log.manager.model.BaseCommon;
 import org.apache.ozhera.log.manager.model.dto.MotorRoomDTO;

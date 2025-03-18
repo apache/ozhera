@@ -20,7 +20,7 @@ package org.apache.ozhera.log.manager.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import com.xiaomi.mone.es.EsClient;
 import com.xiaomi.youpin.docean.Ioc;

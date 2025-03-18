@@ -19,7 +19,7 @@
 
 package org.apache.ozhera.trace.etl.es.queue.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.xiaomi.data.push.common.SnowFlake;
 import org.apache.ozhera.trace.etl.es.util.redis.RedisClientUtil;
 import lombok.extern.slf4j.Slf4j;

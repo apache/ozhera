@@ -19,7 +19,7 @@
 
 package org.apache.ozhera.trace.etl.extension.es;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.xiaomi.mone.es.EsProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -19,7 +19,7 @@
 
 package org.apache.ozhera.trace.etl.nginx.parser;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.ozhera.trace.etl.domain.NginxJaegerDomain;
 import org.apache.ozhera.trace.etl.domain.jaegeres.JaegerAttrType;
 import org.apache.ozhera.trace.etl.util.ThriftUtil;

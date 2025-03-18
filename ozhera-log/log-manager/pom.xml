@@ -55,6 +55,12 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>nacos</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -66,6 +72,10 @@ http://www.apache.org/licenses/LICENSE-2.0
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>run.mone</groupId>
@@ -74,6 +84,10 @@ http://www.apache.org/licenses/LICENSE-2.0
                 <exclusion>
                     <groupId>com.alibaba.spring</groupId>
                     <artifactId>spring-context-support</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>fastjson</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -241,10 +255,6 @@ http://www.apache.org/licenses/LICENSE-2.0
                 <exclusion>
                     <artifactId>httpclient</artifactId>
                     <groupId>org.apache.httpcomponents</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -19,11 +19,15 @@
 
 package org.apache.ozhera.monitor.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.monitor.bo.AlertGroupInfo;
 import org.apache.ozhera.monitor.bo.AlertGroupParam;
 import org.apache.ozhera.monitor.bo.UserInfo;
@@ -38,15 +42,11 @@ import org.apache.ozhera.monitor.service.alertmanager.AlertServiceAdapt;
 import org.apache.ozhera.monitor.service.helper.AlertHelper;
 import org.apache.ozhera.monitor.service.model.PageData;
 import org.apache.ozhera.monitor.service.user.UserConfigService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static com.alibaba.fastjson2.JSON.parseArray;
 
 /**
  * 报警组service
@@ -54,19 +54,19 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AlertGroupServiceImpl implements AlertGroupService {
-    
+
     @Autowired
     private AlertServiceAdapt alertServiceAdapt;
-    
+
     @Autowired
     private AlertHelper alertHelper;
-    
+
     @Autowired
     private AlertGroupDao alertGroupDao;
-    
+
     @Autowired
     UserConfigService userConfigService;
-    
+
     /**
      * 数据清洗专用
      *
@@ -89,7 +89,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         });
         return Result.success(null);
     }
-    
+
     /**
      * 用户搜索
      *
@@ -101,7 +101,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
     public Result<PageData<List<UserInfo>>> userSearch(String user, AlertGroupParam param) {
         return alertServiceAdapt.searchUser(user, param.getName(), param.getPage(), param.getPageSize());
     }
-    
+
     /**
      * 告警组搜索
      *
@@ -117,14 +117,14 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         pageData.setTotal(0L);
         boolean admin = userConfigService.isAdmin(user);
         PageData<List<AlertGroup>> pageAgList = alertGroupDao.searchByCond(admin, user, param.getName(),
-                param.getType(), param.getPage(), param.getPageSize());
+            param.getType(), param.getPage(), param.getPageSize());
         if (pageAgList != null && pageAgList.getList() != null) {
             pageData.setTotal(pageAgList.getTotal());
             pageData.setList(alertHelper.buildAlertGroupInfoList(admin, user, pageAgList.getList()));
         }
         return Result.success(pageData);
     }
-    
+
     /**
      * 告警组查询通过id列表
      *
@@ -138,7 +138,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         boolean admin = userConfigService.isAdmin(user);
         return Result.success(alertHelper.buildAlertGroupInfoList(admin, user, agList));
     }
-    
+
     /**
      * 告警组同步
      *
@@ -172,7 +172,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         relIdMap.values().forEach(g -> alertGroupDao.insert(g));
         return Result.success(null);
     }
-    
+
     /**
      * 告警组搜索
      *
@@ -196,7 +196,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         }
         return Result.success(mapData);
     }
-    
+
     /**
      * 告警组详情
      *
@@ -210,7 +210,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         boolean isAdmin = userConfigService.isAdmin(user);
         return Result.success(alertHelper.buildAlertGroupInfo(isAdmin, user, ag));
     }
-    
+
     /**
      * 告警组创建
      *
@@ -221,7 +221,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
     @Override
     public Result<AlertGroupInfo> alertGroupCreate(String user, AlertGroupParam param) {
         Result<JsonObject> result = alertServiceAdapt.createAlertGroup(user, param.getName(), param.getNote(),
-                param.getChatId(), param.getMemberIds(), param.getDutyInfo());
+            param.getChatId(), param.getMemberIds(), param.getDutyInfo());
         if (result == null) {
             return Result.fail(ErrorCode.unknownError);
         }
@@ -241,7 +241,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         boolean isAdmin = userConfigService.isAdmin(user);
         return Result.success(alertHelper.buildAlertGroupInfo(isAdmin, user, ag));
     }
-    
+
     /**
      * 告警组编辑
      *
@@ -256,7 +256,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
             return Result.fail(ErrorCode.NoOperPermission);
         }
         Result result = alertServiceAdapt.editAlertGroup(user, ag.getRelId(), param.getName(), param.getNote(),
-                param.getChatId(), param.getMemberIds(), param.getDutyInfo());
+            param.getChatId(), param.getMemberIds(), param.getDutyInfo());
         if (result == null) {
             return Result.fail(ErrorCode.unknownError);
         }
@@ -276,7 +276,7 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         }
         return Result.success(null);
     }
-    
+
     /**
      * 告警组删除
      *
@@ -307,18 +307,18 @@ public class AlertGroupServiceImpl implements AlertGroupService {
         alertGroupDao.delete(ag);
         return Result.success(null);
     }
-    
+
     @Override
     public Result dutyInfoList(String user, AlertGroupParam param) {
         Result<JsonElement> result = alertServiceAdapt.dutyInfoList(user, param.getId(), param.getStart(),
-                param.getEnd());
+            param.getEnd());
         if (result.isSuccess() && result.getData() != null) {
             JsonArray asJsonArray = result.getData().getAsJsonArray();
-            List<Map> list = JSONObject.parseArray(new Gson().toJson(asJsonArray), Map.class);
+            List<Map> list = parseArray(new Gson().toJson(asJsonArray), Map.class);
             return Result.success(list);
         }
         log.info("dutyInfoList param:{}, result:{}", param.toString(), new Gson().toJson(result));
         return result;
     }
-    
+
 }

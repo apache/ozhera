@@ -19,10 +19,21 @@
 
 package org.apache.ozhera.trace.etl.extension.es;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONWriter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.trace.etl.domain.DriverDomain;
 import org.apache.ozhera.trace.etl.domain.ErrorTraceMessage;
 import org.apache.ozhera.trace.etl.domain.jaegeres.JaegerAttrType;
@@ -42,20 +53,8 @@ import org.apache.ozhera.tspandata.TResource;
 import org.apache.ozhera.tspandata.TSpanContext;
 import org.apache.ozhera.tspandata.TSpanData;
 import org.apache.ozhera.tspandata.TValue;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class WriteEsService {
@@ -73,10 +72,10 @@ public class WriteEsService {
     private EsTraceUtil esTraceUtil;
 
     private Cache<String, String> localCache =
-            CacheBuilder.newBuilder().
-                    maximumSize(50000).
-                    expireAfterWrite(MessageUtil.TRACE_SERVICE_REDIS_KEY_EXPIRE, TimeUnit.SECONDS).
-                    build();
+        CacheBuilder.newBuilder().
+            maximumSize(50000).
+            expireAfterWrite(MessageUtil.TRACE_SERVICE_REDIS_KEY_EXPIRE, TimeUnit.SECONDS).
+            build();
 
     public void insertJaegerService(String date, String serviceName, String oprationName) {
         // Determine whether there is
@@ -132,7 +131,7 @@ public class WriteEsService {
         jaegerESDomain.setLogs(buildLogs(tSpanData.getEvents()));
         // build process
         jaegerESDomain.setProcess(buildProcess(tSpanData.getExtra().getServiceName(), tSpanData.getResouce()));
-        return JSONObject.toJSONString(jaegerESDomain, SerializerFeature.WriteMapNullValue);
+        return JSONObject.toJSONString(jaegerESDomain, JSONWriter.Feature.WriteNulls);
     }
 
     private List<JaegerReferences> buildReferences(TSpanContext parentSpanContext, List<TLink> links) {
@@ -194,10 +193,10 @@ public class WriteEsService {
         return list;
     }
 
-    private JaegerProcess buildProcess(String serviceName, TResource resource){
+    private JaegerProcess buildProcess(String serviceName, TResource resource) {
         JaegerProcess jaegerProcess = new JaegerProcess();
         jaegerProcess.setServiceName(serviceName);
-        if(resource != null) {
+        if (resource != null) {
             jaegerProcess.setTags(buildAttributes(resource.getAttributes()));
         }
         return jaegerProcess;
@@ -215,7 +214,7 @@ public class WriteEsService {
         String replace = format.replace("-", ".");
         String index = driverIndexPrefix + replace;
         try {
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(driverDomain);
+            JSONObject jsonObject = JSONObject.from(driverDomain);
             esTraceUtil.insertBulk(index, jsonObject);
         } catch (Exception e) {
             log.error("db/redis es data exception:", e);

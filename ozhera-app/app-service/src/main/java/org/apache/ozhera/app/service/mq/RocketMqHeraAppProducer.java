@@ -18,10 +18,10 @@
  */
 package org.apache.ozhera.app.service.mq;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.config.annotation.NacosValue;
-import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.app.api.message.HeraAppInfoModifyMessage;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,8 +18,8 @@
  */
 package org.apache.ozhera.log.agent.common.trace;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Sets;
 import org.apache.ozhera.tspandata.TAttributeKey;
 import org.apache.ozhera.tspandata.TAttributeType;

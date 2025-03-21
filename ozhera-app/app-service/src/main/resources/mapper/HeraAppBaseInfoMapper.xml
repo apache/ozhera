@@ -658,6 +658,22 @@
         </where>
     </select>
 
+    <select id="queryLatestAppInfo" resultMap="queryAppResultMap">
+        SELECT hb.id            AS id,
+               hb.bind_id       AS bindId,
+               hb.app_name      AS appName,
+               hb.app_cname     AS appCname,
+               hb.app_type      AS appType,
+               hb.platform_type AS platformType,
+               he.tree_ids      AS treeIds,
+               he.node_ips      AS nodeIPs
+        FROM hera_app_base_info hb
+                 LEFT JOIN hera_extension he ON hb.id = he.app_id
+        ORDER BY
+            hb.update_time DESC
+        LIMIT #{limit}
+    </select>
+
     <select id="countNormalData" resultType="java.lang.Long">
         SELECT
             count(*)

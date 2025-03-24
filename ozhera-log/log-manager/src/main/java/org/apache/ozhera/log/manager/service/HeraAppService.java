@@ -60,4 +60,6 @@ public interface HeraAppService {
     int delById(Integer id);
 
     Long getAppCount();
+
+    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit);
 }

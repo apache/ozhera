@@ -668,7 +668,7 @@
                he.tree_ids      AS treeIds,
                he.node_ips      AS nodeIPs
         FROM hera_app_base_info hb
-                 LEFT JOIN hera_extension he ON hb.id = he.app_id
+                 LEFT JOIN hera_app_excess_info he ON hb.id = he.app_base_id
         ORDER BY
             hb.update_time DESC
         LIMIT #{limit}

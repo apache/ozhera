@@ -64,7 +64,7 @@ spec:
       - name: mione-opensource-credential
       containers:
         - name: hera-operator
-          image: herahub/opensource-pub:ozhera-operator-server-2.2.5-incubating-beta-v1
+          image: herahub/opensource-pub:ozhera-operator-server-2.2.6-SNAPSHOT-beta-v1
           ports:
             - containerPort: 8998
               name: hera-8998

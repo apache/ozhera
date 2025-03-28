@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: hera-app-container
-        image: herahub/opensource-pub:ozhera-app-2.2.5-incubating-beta-v1
+        image: herahub/opensource-pub:ozhera-app-2.2.6-SNAPSHOT-beta-v1
         resources:
           limits:
             cpu: '300m'

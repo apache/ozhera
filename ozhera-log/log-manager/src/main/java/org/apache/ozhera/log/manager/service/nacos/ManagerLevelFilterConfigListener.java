@@ -112,7 +112,8 @@ public class ManagerLevelFilterConfigListener {
             if (newConfig != null) {
                 List<MilogLogTailDo> newLogtailList = logtailDao.getMilogLogtail(newConfig.getTailIdList());
                 newLogtailList.forEach(tail -> tail.setFilterLogLevelList(newConfig.getLogLevelList()));
-                oldLogtailList = oldLogtailList.stream().filter(tail -> !newLogtailList.contains(tail)).toList();
+                List<Long> newIdList = newLogtailList.stream().map(MilogLogTailDo::getId).toList();
+                oldLogtailList = oldLogtailList.stream().filter(tail -> !newIdList.contains(tail.getId())).toList();
                 updateMilogLogtailList.addAll(newLogtailList);
             }
             oldLogtailList.forEach(tail -> tail.setFilterLogLevelList(new ArrayList<>()));
@@ -121,14 +122,14 @@ public class ManagerLevelFilterConfigListener {
             for (MilogLogTailDo tailDo : updateMilogLogtailList) {
                 boolean isSuccess = logtailDao.update(tailDo);
                 if (isSuccess){
+                    log.info("update tail and send to agent, the message of tail is: {}", tailDo);
                     updateSingleTail(tailDo);
                 }
             }
         }
 
-        if (newConfig.getEnableGlobalFilter() || config.getEnableGlobalFilter()) {
-
-            if (newConfig.getEnableGlobalFilter() && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
+        if (newConfig!= null && newConfig.getEnableGlobalFilter()) {
+            if (config != null && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
                 return;
             }
             globalUpdateSendMsg();

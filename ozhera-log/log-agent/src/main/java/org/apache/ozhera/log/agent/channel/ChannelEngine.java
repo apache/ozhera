@@ -18,7 +18,6 @@
  */
 package org.apache.ozhera.log.agent.channel;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -64,9 +63,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
-import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
-import static org.apache.ozhera.log.common.PathUtils.PATH_WILDCARD;
-import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
 
 /**
  * @author shanwb
@@ -88,6 +84,8 @@ public class ChannelEngine {
      * File listener
      */
     private FileMonitorListener fileMonitorListener;
+
+    private ChannelServiceFactory channelServiceFactory;
 
     private String memoryBasePath;
 
@@ -113,6 +111,8 @@ public class ChannelEngine {
             log.info("current agent all config meta:{}", gson.toJson(channelDefineList));
             agentMemoryService = new AgentMemoryServiceImpl(memoryBasePath);
             fileMonitorListener = new DefaultFileMonitorListener();
+
+            channelServiceFactory = new ChannelServiceFactory(agentMemoryService, memoryBasePath);
 
             log.info("query channelDefineList:{}", gson.toJson(channelDefineList));
             channelServiceList = channelDefineList.stream()
@@ -268,30 +268,11 @@ public class ChannelEngine {
             if (null == agentMemoryService) {
                 agentMemoryService = new AgentMemoryServiceImpl(org.apache.ozhera.log.common.Config.ins().get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH));
             }
-            return createChannelService(channelDefine, exporter, filterChain);
+            return channelServiceFactory.createChannelService(channelDefine, exporter, filterChain);
         } catch (Throwable e) {
             log.error("channelServiceTrans exception, channelDefine:{}", gson.toJson(channelDefine), e);
         }
         return null;
-    }
-
-    private ChannelService createChannelService(ChannelDefine channelDefine, MsgExporter exporter, FilterChain filterChain) {
-        Input input = channelDefine.getInput();
-        String logType = channelDefine.getInput().getType();
-        boolean containsWildcard = isWildcardAllowedForLogType(input.getLogPattern(), logType);
-        if (containsWildcard || FileUtil.exist(input.getLogPattern())) {
-            return new ChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain);
-        } else {
-            return new WildcardChannelServiceImpl(exporter, agentMemoryService, channelDefine, filterChain, memoryBasePath);
-        }
-    }
-
-    private boolean isWildcardAllowedForLogType(String logPattern, String logType) {
-        if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType)) {
-            return true;
-        }
-        return Arrays.stream(logPattern.split(SYMBOL_COMMA))
-                .noneMatch(data -> StringUtils.substringAfterLast(data, SEPARATOR).contains(PATH_WILDCARD));
     }
 
     private void preCheckChannelDefine(ChannelDefine channelDefine) {
@@ -411,7 +392,8 @@ public class ChannelEngine {
                     SimilarComparator inputSimilarComparator = new InputSimilarComparator(oldChannelDefine.getInput());
                     SimilarComparator outputSimilarComparator = new OutputSimilarComparator(oldChannelDefine.getOutput());
                     FilterSimilarComparator filterSimilarComparator = new FilterSimilarComparator(oldChannelDefine.getFilters());
-                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput())) {
+                    SimilarComparator logLevelSimilarComparator = new LogLevelSimilarComparator(oldChannelDefine.getFilterLogLevelList());
+                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput()) && logLevelSimilarComparator.compare(newChannelDefine.getFilterLogLevelList()) ) {
                         if (!filterSimilarComparator.compare(newChannelDefine.getFilters())) {
                             channelServiceList.stream().filter(channelService -> ((AbstractChannelService) channelService).getChannelDefine().getChannelId().equals(channelId)).findFirst().ifPresent(channelService -> channelService.filterRefresh(newChannelDefine.getFilters()));
                         }

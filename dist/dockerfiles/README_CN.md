@@ -28,7 +28,7 @@ APP_VERSION 本次发布的版本号
 根目录的servers包下，按目录名称提供了各个server对应的jar包
 
 例子：比如我们在根目录构建ozhera-app的镜像
-docker build  . --build-arg SRC_PATH=servers/ozhera-app/ --build-arg LIB_PATH=.  --build-arg APP_VERSION=2.2.5-incubating -t  herahub/opensource-pub:app-server-2.2.5-incubating-beta-v1
+docker build  . --build-arg SRC_PATH=servers/ozhera-app/ --build-arg LIB_PATH=.  --build-arg APP_VERSION=2.2.6-SNAPSHOT -t  herahub/opensource-pub:app-server-2.2.6-SNAPSHOT-beta-v1
 
 ## 2、如何部署项目
 

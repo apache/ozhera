@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: mimonitor-container
-        image: herahub/opensource-pub:ozhera-monitor-server-2.2.5-incubating-beta-v1
+        image: herahub/opensource-pub:ozhera-monitor-server-2.2.6-SNAPSHOT-beta-v1
         resources:
           limits:
             cpu: '500m'

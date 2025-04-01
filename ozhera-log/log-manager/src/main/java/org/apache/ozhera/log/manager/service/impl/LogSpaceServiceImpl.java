@@ -191,18 +191,16 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     }
 
     @Override
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId) {
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName) {
         int pageNum = 1;
         int defaultPageSize = 300;
         String defaultSpaceKey = buildCacheKey(tenantId);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
-
         // return cached result if available
-        if (CollectionUtils.isNotEmpty(cachedResult)) {
+        if (spaceName.isEmpty() && CollectionUtils.isNotEmpty(cachedResult)) {
             return Result.success(cachedResult);
         }
-
-        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize);
+        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize, spaceName);
 
         // transform nodeVos to MapDTO list
         List<MapDTO<String, Long>> result = nodeVos.parallelStream()
@@ -210,8 +208,12 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
                 .collect(Collectors.toList());
 
         // cache the result
-        SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+        if (spaceName.isEmpty()){
+            SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+        }
         return Result.success(result);
+
+
     }
 
     private static String buildCacheKey(Long tenantId) {
@@ -219,11 +221,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         return String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
     }
 
-    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize) {
+    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize, String spaceName) {
         List<NodeVo> nodeVos = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace("", pageNum, pageSize);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace(spaceName, pageNum, pageSize);
 
             if (response.getCode() != 0) {
                 throw new MilogManageException("query space from tpc error");

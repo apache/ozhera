@@ -32,7 +32,7 @@ import java.util.List;
 @Data
 public class MiddlewareAddParam implements Serializable {
     /**
-     * com.xiaomi.mone.log.api.enums.MiddlewareEnum.code
+     * org.apache.ozhera.log.api.enums.MiddlewareEnum.code
      */
     private Integer type;
 

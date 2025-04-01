@@ -22,8 +22,8 @@ package org.apache.ozhera.demo.client.grpc;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import com.xiaomi.mone.hera.demo.grpc.MyServiceGrpc;
-import com.xiaomi.mone.hera.demo.grpc.HelloRequest;
+import org.apache.ozhera.demo.grpc.MyServiceGrpc;
+import org.apache.ozhera.demo.grpc.HelloRequest;
 
 @Service
 public class GrpcClientService {

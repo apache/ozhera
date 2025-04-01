@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.xiaomi.youpin.trace.etl.test;
+package org.apache.ozhera.trace.etl.test;
 
 import com.google.common.base.Strings;
 import lombok.SneakyThrows;

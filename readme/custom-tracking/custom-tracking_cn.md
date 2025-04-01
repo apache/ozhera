@@ -27,7 +27,7 @@
 
 下载开源代码：
 
-https://github.com/XiaoMi/ozhera/tree/master/prometheus-starter-all
+https://github.com/apache/ozhera/tree/master/prometheus-starter-all
 
 编译成功之后，将pom推送到公司Maven仓库，或引用本地Maven仓库进行调试。
 

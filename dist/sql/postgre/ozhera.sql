@@ -358,7 +358,7 @@ CREATE TABLE "app_monitor"
 );
 COMMENT ON COLUMN "app_monitor"."project_id" IS 'project_id';
 COMMENT ON COLUMN "app_monitor"."iam_tree_id" IS 'iamTreeId';
-COMMENT ON COLUMN "app_monitor"."iam_tree_type" IS 'iam type，0:TPC、1:XiaoMI IAM';
+COMMENT ON COLUMN "app_monitor"."iam_tree_type" IS 'iam type，0:TPC、1:IAM';
 COMMENT ON COLUMN "app_monitor"."project_name" IS 'project_name';
 COMMENT ON COLUMN "app_monitor"."app_source" IS 'app_source 0-opensource';
 COMMENT ON COLUMN "app_monitor"."owner" IS 'owner';
@@ -551,7 +551,7 @@ COMMENT ON COLUMN "hera_app_base_info"."app_language" IS 'language type';
 COMMENT ON COLUMN "hera_app_base_info"."platform_type" IS 'platform type';
 COMMENT ON COLUMN "hera_app_base_info"."app_sign_id" IS 'app sign id';
 COMMENT ON COLUMN "hera_app_base_info"."iam_tree_id" IS 'iam_tree_id(The alarm interface is necessary.)';
-COMMENT ON COLUMN "hera_app_base_info"."iam_tree_type" IS 'iam type，0:TPC、1:XIAOMI IAM';
+COMMENT ON COLUMN "hera_app_base_info"."iam_tree_type" IS 'iam type，0:TPC、1:IAM';
 COMMENT ON COLUMN "hera_app_base_info"."envs_map" IS 'envs list';
 COMMENT ON COLUMN "hera_app_base_info"."auto_capacity" IS 'auto capacity 1 yes，0 no';
 COMMENT ON COLUMN "hera_app_base_info"."status" IS 'status';

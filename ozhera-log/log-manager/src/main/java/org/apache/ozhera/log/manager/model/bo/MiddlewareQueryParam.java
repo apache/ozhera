@@ -32,7 +32,7 @@ import java.util.List;
 @Data
 public class MiddlewareQueryParam extends MilogPageParam implements Serializable {
     /**
-     * com.xiaomi.mone.log.api.enums.MiddlewareEnum
+     * org.apache.ozhera.log.api.enums.MiddlewareEnum
      */
     private List<?> types;
 

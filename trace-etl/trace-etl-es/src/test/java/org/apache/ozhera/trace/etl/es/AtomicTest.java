@@ -17,12 +17,24 @@
  * under the License.
  */
 
-package com.xiaomi.youpin.trace.etl.test;
+package org.apache.ozhera.trace.etl.es;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @Description
- * @Author dingtao
- * @Date 2022/10/24 3:35 下午
+ * @author goodjava@qq.com
+ * @date 2023/9/7 14:05
  */
-public class TestConsumer {
+public class AtomicTest {
+
+
+    @Test
+    public void testGetAndUpdate() {
+        AtomicInteger ai = new AtomicInteger(1);
+        Assert.assertEquals(1,ai.getAndUpdate(v->12));
+    }
+
 }

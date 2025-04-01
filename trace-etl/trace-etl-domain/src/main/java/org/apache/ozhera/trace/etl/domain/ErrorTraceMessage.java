@@ -41,7 +41,7 @@ public class ErrorTraceMessage {
 
     /**
      * HTTP Request: The URI of the request, e.g., /ok.
-     * Dubbo Request: The service/method of the request, e.g., com.xiaomi.member.provider.MemberService/getMemberById.
+     * Dubbo Request: The service/method of the request, e.g., org.apache.ozhera.member.provider.MemberService/getMemberById.
      * Redis Request: The Redis command key, truncated to the first two hundred characters, e.g., MGET key1 key2 key3....
      * MySQL Request: The SQL query truncated to the first two hundred characters, e.g., select id, name, gender from user where ....
      */

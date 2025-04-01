@@ -14,7 +14,6 @@
 # limitations under the License.
 
 FROM openjdk:21-jdk-bookworm
-MAINTAINER youpin-biz-arch@xiaomi.com
 RUN mkdir -p /home/work/prometheus-agent/
 RUN mkdir -p /home/work/log/prometheus-agent/
 ARG SRC_PATH

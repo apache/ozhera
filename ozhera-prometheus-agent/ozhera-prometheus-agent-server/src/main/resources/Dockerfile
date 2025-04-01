@@ -14,7 +14,6 @@
 # limitations under the License.
 
 FROM openjdk:8-jre
-MAINTAINER youpin-biz-arch@xiaomi.com
 RUN mkdir -p /home/work/prometheus-agent/
 RUN mkdir -p /home/work/log/prometheus-agent/
 COPY prometheus-agent-server-1.0.0-SNAPSHOT.jar /home/work/prometheus-agent/

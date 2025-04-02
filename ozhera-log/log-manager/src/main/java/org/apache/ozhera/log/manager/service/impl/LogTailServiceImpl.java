@@ -432,7 +432,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             defines.add(filterDefine);
         }
 
-        MilogLogTailDo milogLogtailDo = logTailParam2Do(param, logStoreDO, appBaseInfo);
+        MilogLogTailDo milogLogtailDo = convertLogTailParamToDo(ret, param, logStoreDO, appBaseInfo);
         wrapBaseCommon(milogLogtailDo, OperateEnum.UPDATE_OPERATE);
         boolean isSucceed = milogLogtailDao.update(milogLogtailDo);
 
@@ -640,6 +640,10 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     private MilogLogTailDo logTailParam2Do(LogTailParam logTailParam, MilogLogStoreDO logStoreDO, AppBaseInfo appBaseInfo) {
         MilogLogTailDo milogLogtailDo = new MilogLogTailDo();
+        return convertLogTailParamToDo(milogLogtailDo, logTailParam, logStoreDO, appBaseInfo);
+    }
+
+    private MilogLogTailDo convertLogTailParamToDo(MilogLogTailDo milogLogtailDo, LogTailParam logTailParam, MilogLogStoreDO logStoreDO, AppBaseInfo appBaseInfo) {
         milogLogtailDo.setId(logTailParam.getId());
         milogLogtailDo.setTail(logTailParam.getTail());
         milogLogtailDo.setSpaceId(logTailParam.getSpaceId());
@@ -664,7 +668,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         milogLogtailDo.setValueList(logTailParam.getValueList());
         FilterDefine filterDefine = FilterDefine.consRateLimitFilterDefine(logTailParam.getTailRate());
         if (filterDefine != null) {
-            milogLogtailDo.setFilter(Arrays.asList(filterDefine));
+            milogLogtailDo.setFilter(List.of(filterDefine));
         }
         tailExtensionService.logTailDoExtraFiled(milogLogtailDo, logStoreDO, logTailParam);
         milogLogtailDo.setDeployWay(logTailParam.getDeployWay());

@@ -196,8 +196,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         int defaultPageSize = 300;
         String defaultSpaceKey = buildCacheKey(tenantId);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
+        if (spaceName != null && !spaceName.isEmpty() && CollectionUtils.isNotEmpty(cachedResult)) {
+            cachedResult = cachedResult.stream().filter(m -> m.getLabel().contains(spaceName)).toList();
+        }
         // return cached result if available
-        if (spaceName.isEmpty() && CollectionUtils.isNotEmpty(cachedResult)) {
+        if (CollectionUtils.isNotEmpty(cachedResult)) {
             return Result.success(cachedResult);
         }
         List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize, spaceName);
@@ -208,9 +211,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
                 .collect(Collectors.toList());
 
         // cache the result
-        if (spaceName.isEmpty()){
-            SPACE_ALL_CACHE.put(defaultSpaceKey, result);
-        }
+        SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+
         return Result.success(result);
 
 

@@ -20,10 +20,16 @@ RUN mkdir -p ${APP_HOME}
 
 RUN echo 'Asia/Shanghai' >/etc/timezone
 
-COPY target/log-agent-server-*.jar ${APP_HOME}/log-agent-server.jar
+ARG SRC_PATH
+ARG APP_VERSION
+COPY ${SRC_PATH}/log-agent-server-${APP_VERSION}.jar ${APP_HOME}/log-agent-server.jar
 
 WORKDIR ${APP_HOME}
 
-ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED --add-opens=java.base/java.math=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED"
+#ENV JAVA_OPTS="--add-opens=java.base/java.util.regex=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED  --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/sun.nio.fs=ALL-UNNAMED --add-opens=java.base/java.math=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED"
+#
+#ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-agent-server.jar"]
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar log-agent-server.jar"]
+COPY ${SRC_PATH}/lib /home/work/lib/
+
+ENTRYPOINT ["java", "--add-opens=java.base/java.util.regex=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",  "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/java.time=ALL-UNNAMED", "-cp", "/opt/app/log-agent-server.jar:/home/work/lib/*", "org.apache.ozhera.log.server.LogAgentServerBootstrap"]

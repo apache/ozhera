@@ -34,7 +34,7 @@ import org.apache.ozhera.trace.etl.extension.doris.WriteDorisService;
 @ConditionalOnProperty(value="storage.type", havingValue = "doris")
 public class DorisConfig {
 
-    @Value("${doris.driver}")
+    @NacosValue("${doris.driver}")
     private String driver;
     @NacosValue("${doris.url}")
     private String url;

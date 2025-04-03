@@ -22,23 +22,22 @@ import cn.hutool.core.io.FileUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.agent.channel.AbstractChannelService;
 import org.apache.ozhera.log.agent.channel.ChannelService;
+import org.apache.ozhera.log.agent.channel.WildcardChannelServiceImpl;
 import org.apache.ozhera.log.agent.channel.file.FileMonitor;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.common.PathUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -65,9 +64,9 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
      */
     List<String> pathList = new CopyOnWriteArrayList<>();
     /**
-     * Actual listener list
+     * Actual listener map
      */
-    private List<FileAlterationMonitor> monitorList = new CopyOnWriteArrayList();
+    private final Map<Long, List<FileAlterationMonitor>> monitorMap = new HashMap<>();
     /**
      * Each listening thread
      */
@@ -75,11 +74,13 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     /**
      * Each ChannelService corresponds to the monitored file
      */
-    Map<List<MonitorFile>, ChannelService> pathChannelServiceMap = new ConcurrentHashMap<>();
+    private Map<List<MonitorFile>, ChannelService> pathChannelServiceMap = new ConcurrentHashMap<>();
 
     private final List<String> specialFileNameSuffixList = Lists.newArrayList("wf");
 
-    private static final int DEFAULT_FILE_SIZE = 100000;
+    private static final int DEFAULT_FILE_SIZE = 9000;
+
+    private static final long DEFAULT_CHANNEL_ID = 0L;
 
     public DefaultFileMonitorListener() {
         //Check if there are too many files, if there are more than 50,000 files,
@@ -87,7 +88,8 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
         long size = getDefaultFileSize();
         log.info("defaultMonitorPath:{} file size:{}", defaultMonitorPath, size);
         if (size < DEFAULT_FILE_SIZE) {
-            this.startFileMonitor(defaultMonitorPath);
+            monitorMap.putIfAbsent(DEFAULT_CHANNEL_ID, new ArrayList<>());
+            this.startFileMonitor(DEFAULT_CHANNEL_ID, defaultMonitorPath);
             pathList.add(defaultMonitorPath);
         }
     }
@@ -110,15 +112,17 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     }
 
     @Override
-    public void addChannelService(ChannelService channelService) {
+    public void addChannelService(AbstractChannelService channelService) {
         List<MonitorFile> monitorPathList = channelService.getMonitorPathList();
         if (CollectionUtils.isEmpty(monitorPathList)) {
             return;
         }
+        Long channelId = channelService.getChannelDefine().getChannelId();
+        monitorMap.putIfAbsent(channelId, new ArrayList<>());
         List<String> newMonitorDirectories = newMonitorDirectories(monitorPathList);
         for (String watchDirectory : newMonitorDirectories) {
             if (isValidWatch(watchDirectory)) {
-                startFileMonitor(watchDirectory);
+                startFileMonitor(channelId, watchDirectory);
                 pathList.add(watchDirectory);
             }
         }
@@ -171,20 +175,30 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
             }
         }
         newMonitorDirectories = newMonitorDirectories.stream().distinct().collect(Collectors.toList());
-        log.info("end newMonitorDirectories:", gson.toJson(newMonitorDirectories));
+        log.info("end newMonitorDirectories:{}", gson.toJson(newMonitorDirectories));
         return newMonitorDirectories;
     }
 
     @Override
-    public void removeChannelService(ChannelService channelService) {
+    public void removeChannelService(AbstractChannelService channelService) {
         try {
+            if (channelService instanceof WildcardChannelServiceImpl) {
+                return;
+            }
             pathChannelServiceMap.remove(channelService.getMonitorPathList());
             List<MonitorFile> monitorPathList = channelService.getMonitorPathList();
             List<String> newMonitorDirectories = newMonitorDirectories(monitorPathList);
             for (String watchDirectory : newMonitorDirectories) {
+                log.info("remove watchDirectory:{}", watchDirectory);
                 pathList.remove(watchDirectory);
                 if (scheduledFutureMap.containsKey(watchDirectory)) {
                     scheduledFutureMap.get(watchDirectory).cancel(true);
+                }
+            }
+            List<FileAlterationMonitor> fileAlterationMonitors = monitorMap.get(channelService.getChannelDefine().getChannelId());
+            if (CollectionUtils.isNotEmpty(fileAlterationMonitors)) {
+                for (FileAlterationMonitor fileAlterationMonitor : fileAlterationMonitors) {
+                    fileAlterationMonitor.stop();
                 }
             }
         } catch (Exception e) {
@@ -192,14 +206,15 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
         }
     }
 
-    public void startFileMonitor(String monitorFilePath) {
+    public void startFileMonitor(Long channelId, String monitorFilePath) {
         log.debug("startFileMonitor,monitorFilePath:{}", monitorFilePath);
         if (pathList.stream().anyMatch(monitorFilePath::startsWith)) {
             log.info("current path has started,monitorFilePath:{},pathList:{}", monitorFilePath, String.join(SYMBOL_COMMA, pathList));
             return;
         }
+        List<FileAlterationMonitor> fileAlterationMonitors = monitorMap.get(channelId);
         Future<?> fileMonitorFuture = ExecutorUtil.submit(() -> {
-            new FileMonitor().watch(monitorFilePath, monitorList, changedFilePath -> {
+            new FileMonitor().watch(monitorFilePath, fileAlterationMonitors, changedFilePath -> {
                 try {
                     if (FileUtil.isDirectory(changedFilePath)) {
                         return;
@@ -215,14 +230,13 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                     log.error("FileMonitor error,monitorFilePath:{},changedFilePath:{}", monitorFilePath, changedFilePath, e);
                 }
             });
+            monitorMap.put(channelId, fileAlterationMonitors);
         });
         scheduledFutureMap.put(monitorFilePath, fileMonitorFuture);
     }
 
     /**
      * Normal file change event handling
-     *
-     * @param changedFilePath
      */
     private void ordinaryFileChanged(String changedFilePath) {
         for (Map.Entry<List<MonitorFile>, ChannelService> channelServiceEntry : pathChannelServiceMap.entrySet()) {

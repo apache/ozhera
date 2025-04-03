@@ -54,6 +54,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +120,7 @@ public class HTTPServer {
 
         private final Map<String, CollectorRegistry> registryMap;
 
-        private final byte[] HEALTHY_RESPONSE = "ok".getBytes();
+        private final byte[] HEALTHY_RESPONSE = "ok".getBytes(StandardCharsets.UTF_8);
 
         HTTPMetricHandler(Map<String, CollectorRegistry> registryMap) {
             this.registryMap = registryMap;

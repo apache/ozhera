@@ -78,8 +78,9 @@ public class MilogConfigController {
     }
 
     @RequestMapping(path = "/milog/space/getall", method = "get")
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(@RequestParam("tenantId") Long tenantId) {
-        return logSpaceService.getMilogSpaces(tenantId);
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(@RequestParam("tenantId") Long tenantId,
+                                                             @RequestParam("spaceName") String spaceName) {
+        return logSpaceService.getMilogSpaces(tenantId, spaceName);
     }
 
     @RequestMapping(path = "/milog/space/getbypage", method = "get")

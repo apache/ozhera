@@ -23,12 +23,13 @@ import cn.hutool.core.util.ReflectUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
+import org.apache.ozhera.log.utils.NetUtil;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author wtt
@@ -43,9 +44,28 @@ public abstract class AbstractLogParser implements LogParser {
 
     private List<FieldInterceptor> fieldInterceptors = Lists.newArrayList();
 
+    private String localIp = NetUtil.getLocalIp();
+
+    protected Map<String, Integer> valueMap;
+
     public AbstractLogParser(LogParserData parserData) {
         this.parserData = parserData;
         createFieldInterceptors();
+        this.valueMap = createValueMap(parseKeyValueList(parserData));
+    }
+
+    private List<String> parseKeyValueList(LogParserData parserData) {
+        if (StringUtils.isNotBlank(parserData.getKeyOrderList())) {
+            String keyValueList = IndexUtils.getKeyValueList(parserData.getKeyOrderList(), parserData.getValueList());
+            return Arrays.asList(splitList(keyValueList));
+        }
+        return Collections.emptyList();
+    }
+
+    private Map<String, Integer> createValueMap(List<String> valueList) {
+        return IntStream.range(0, valueList.size())
+                .boxed()
+                .collect(Collectors.toMap(valueList::get, Function.identity()));
     }
 
     private void createFieldInterceptors() {
@@ -71,13 +91,20 @@ public abstract class AbstractLogParser implements LogParser {
         validRet(parseData, logData);
 
         fieldInterceptors.forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        addCommonData(parseData);
+
         return parseData;
+    }
+
+    private void addCommonData(Map<String, Object> data) {
+        data.putIfAbsent(parse_time, System.currentTimeMillis());
+        data.putIfAbsent(parse_ip, localIp);
     }
 
     @Override
     public Map<String, Object> parseSimple(String logData, Long collectStamp) {
         Map<String, Object> parseData = doParseSimple(logData, collectStamp);
-        fieldInterceptors.stream().forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
+        fieldInterceptors.forEach(fieldInterceptor -> fieldInterceptor.postProcess(parseData));
         return parseData;
     }
 
@@ -116,7 +143,7 @@ public abstract class AbstractLogParser implements LogParser {
 
     void wrapMap(Map<String, Object> ret, LogParserData parserData, String ip,
                  Long lineNum, String fileName, Long collectStamp) {
-        ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? getTimestampFromString("", collectStamp) : collectStamp);
+        ret.putIfAbsent(esKeyMap_timestamp, null == collectStamp ? System.currentTimeMillis() : collectStamp);
         ret.put(esKeyMap_topic, parserData.getTopicName());
         ret.put(esKeyMap_tag, parserData.getMqTag());
         ret.put(esKeyMap_logstoreName, parserData.getLogStoreName());
@@ -142,6 +169,11 @@ public abstract class AbstractLogParser implements LogParser {
             ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
     }
+
+    protected String[] splitList(String keyList) {
+        return StringUtils.split(keyList, ",");
+    }
+
 
     public abstract Map<String, Object> doParse(String logData, String ip, Long lineNum, Long collectStamp, String fileName);
 

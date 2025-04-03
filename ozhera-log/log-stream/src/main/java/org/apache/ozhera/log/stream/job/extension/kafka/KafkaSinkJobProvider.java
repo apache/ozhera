@@ -18,6 +18,8 @@
  */
 package org.apache.ozhera.log.stream.job.extension.kafka;
 
+import com.xiaomi.youpin.docean.anno.Service;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.ozhera.log.parse.LogParser;
 import org.apache.ozhera.log.parse.LogParserFactory;
 import org.apache.ozhera.log.stream.common.LogStreamConstants;
@@ -29,8 +31,6 @@ import org.apache.ozhera.log.stream.job.extension.MessageSenderFactory;
 import org.apache.ozhera.log.stream.job.extension.SinkJob;
 import org.apache.ozhera.log.stream.job.extension.SinkJobProvider;
 import org.apache.ozhera.log.stream.sink.SinkChain;
-import com.xiaomi.youpin.docean.anno.Service;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 /**
  * @author wtt
@@ -51,7 +51,7 @@ public class KafkaSinkJobProvider implements SinkJobProvider {
         LogParser logParser = LogParserFactory.getLogParser(
                 sinkJobConfig.getParseType(), sinkJobConfig.getKeyList(), sinkJobConfig.getValueList(),
                 sinkJobConfig.getParseScript(), sinkJobConfig.getTopic(), sinkJobConfig.getTail(),
-                sinkJobConfig.getTag(), sinkJobConfig.getLogStoreName());
+                sinkJobConfig.getTag(), sinkJobConfig.getLogStoreName(), sinkJobConfig.getKeyOrderList());
 
         LogDataTransfer dataTransfer = new LogDataTransfer(sinkChain, logParser, messageSender, sinkJobConfig);
         dataTransfer.setJobType(jobType);

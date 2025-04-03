@@ -95,27 +95,30 @@ public class ConfigManager {
                 log.warn("[ConfigManager.initConfigManager] Nacos configuration [dataID:{},group:{}]not found,exit initConfigManager", spaceDataId, DEFAULT_GROUP_ID);
                 return;
             }
-            String uniqueMark = StreamUtils.getCurrentMachineMark();
+            String uniqueMarks = StreamUtils.getCurrentMachineMark();
             Map<String, Map<Long, String>> config = milogStreamConfig.getConfig();
-            if (config.containsKey(uniqueMark)) {
-                Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
-                log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, gson.toJson(milogStreamDataMap));
-                for (Long spaceId : milogStreamDataMap.keySet()) {
-                    final String dataId = milogStreamDataMap.get(spaceId);
-                    // init spaceData config
-                    String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
-                    if (StringUtils.isNotEmpty(logSpaceDataStr)) {
-                        MilogSpaceData milogSpaceData = GSON.fromJson(logSpaceDataStr, MilogSpaceData.class);
-                        if (null != milogSpaceData && !milogSpaceDataMap.containsKey(spaceId)) {
-                            MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
-                            addListener(spaceId, configListener);
-                            milogSpaceDataMap.put(spaceId, milogSpaceData);
-                            log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
+            String[] split = uniqueMarks.split(SYMBOL_COMMA);
+            for (String uniqueMark : split) {
+                if (config.containsKey(uniqueMark)) {
+                    Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
+                    log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, gson.toJson(milogStreamDataMap));
+                    for (Long spaceId : milogStreamDataMap.keySet()) {
+                        final String dataId = milogStreamDataMap.get(spaceId);
+                        // init spaceData config
+                        String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+                        if (StringUtils.isNotEmpty(logSpaceDataStr)) {
+                            MilogSpaceData milogSpaceData = GSON.fromJson(logSpaceDataStr, MilogSpaceData.class);
+                            if (null != milogSpaceData && !milogSpaceDataMap.containsKey(spaceId)) {
+                                MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
+                                addListener(spaceId, configListener);
+                                milogSpaceDataMap.put(spaceId, milogSpaceData);
+                                log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
+                            }
                         }
                     }
+                } else {
+                    log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);
                 }
-            } else {
-                log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);
             }
         } catch (Exception e) {
             log.error("[ConfigManager.initStream] initStream exec err", e);
@@ -167,7 +170,7 @@ public class ConfigManager {
     private void processConfigForUniqueMark(String uniqueMark, Map<String, Map<Long, String>> config) {
         StreamCommonExtension extensionInstance = getStreamCommonExtensionInstance();
         if (!extensionInstance.checkUniqueMarkExists(uniqueMark, config)) {
-            log.warn("listen dataID:{},groupId:{},but receive config is empty", spaceDataId, DEFAULT_GROUP_ID);
+            log.warn("listen dataID:{},groupId:{},but receive config is empty,uniqueMarks:{}", spaceDataId, DEFAULT_GROUP_ID, uniqueMark);
             return;
         }
         Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);

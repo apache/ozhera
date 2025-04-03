@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: hera-demo-client-container
-        image: herahub/opensource-pub:hera-demo-client-v1-release
+        image: herahub/opensource-pub:ozhera-demo-client-server-2.2.6-SNAPSHOT-beta-v1
         env:
           - name: MIONE_PROJECT_ENV_NAME
             value: dev
@@ -48,7 +48,7 @@ spec:
             memory: 2Gi
 
       - name: log-agent
-        image: herahub/opensource-pub:log-agent-v1-release
+        image: herahub/opensource-pub:log-agent-server-2.2.6-SNAPSHOT-beta-v1
         volumeMounts:
         - mountPath: "/home/work/log"
           name: log-path

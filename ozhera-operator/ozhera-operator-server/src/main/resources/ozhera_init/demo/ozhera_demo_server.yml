@@ -33,7 +33,7 @@ spec:
       imagePullSecrets:
       - name: mione-opensource-credential
       containers:
-      - image: herahub/opensource-pub:hera-demo-server-v1-release
+      - image: herahub/opensource-pub:ozhera-demo-server-server-2.2.6-SNAPSHOT-beta-v1
         name: hera-demo-server
         env:
           - name: MIONE_PROJECT_NAME
@@ -57,7 +57,7 @@ spec:
             memory: 2500Mi
 
       - name: log-agent
-        image: herahub/opensource-pub:log-agent-v1
+        image: herahub/opensource-pub:log-agent-server-2.2.6-SNAPSHOT-beta-v1
         env:
           - name: nacosAddr
             value: nacos.hera-namespace:80

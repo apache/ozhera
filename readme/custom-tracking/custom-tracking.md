@@ -27,7 +27,7 @@ Bold **Important** content is key, please read carefully.
 
 Download the open-source code:
 
-https://github.com/XiaoMi/ozhera/tree/master/prometheus-starter-all
+https://github.com/apache/ozhera/tree/master/prometheus-starter-all
 
 After a successful compilation, push the pom to the company's Maven repository, or refer to the local Maven repository for debugging.
 

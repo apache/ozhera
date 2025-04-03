@@ -36,7 +36,7 @@ spec:
       containers:
         - name: prometheus-agent-independent
           imagePullPolicy: Always
-          image: herahub/opensource-pub:hera-prometheus-agent-vm-0.5
+          image: herahub/opensource-pub:ozhera-prometheus-agent-server-2.2.6-SNAPSHOT-beta-v1
           ports:
             - containerPort: 8080
               protocol: TCP

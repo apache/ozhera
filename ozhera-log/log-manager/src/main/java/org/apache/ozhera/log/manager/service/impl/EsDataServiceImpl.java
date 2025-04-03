@@ -22,8 +22,15 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Pair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import org.apache.ozhera.app.api.model.HeraAppEnvData;
 import com.xiaomi.mone.es.EsClient;
+import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.app.api.model.HeraAppEnvData;
 import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.model.dto.TraceLogDTO;
 import org.apache.ozhera.log.api.model.vo.TraceLogQuery;
@@ -58,20 +65,12 @@ import org.apache.ozhera.log.manager.service.HeraAppEnvService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -188,7 +187,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             if (LogStorageTypeEnum.DORIS == storageTypeEnum) {
                 return dorisDataQuery(logQuery, milogLogstoreDO, dto);
             } else {
-                return elasticDataQuery(milogLogstoreDO, logQuery, dto, keyList, stopWatch);
+                return elasticDataQuery(milogLogstoreDO, logQuery, dto, keyList, stopWatch, operator);
             }
         } catch (Throwable e) {
             log.error("Log query error, log search error,logQuery:[{}],user:[{}]", logQuery, MoneUserContext.getCurrentUser(), e);
@@ -215,7 +214,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
     private Result<LogDTO> elasticDataQuery(MilogLogStoreDO milogLogstoreDO, LogQuery logQuery,
-                                            LogDTO dto, List<String> keyList, StopWatch stopWatch) throws IOException {
+                                            LogDTO dto, List<String> keyList, StopWatch stopWatch, String operator) throws IOException {
         EsService esService = esCluster.getEsService(milogLogstoreDO.getEsClusterId());
 
         String esIndexName = commonExtensionService.getSearchIndex(logQuery.getStoreId(), milogLogstoreDO.getEsIndex());
@@ -225,9 +224,19 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         }
         // Build query parameters
         BoolQueryBuilder boolQueryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(milogLogstoreDO.getKeyList()));
-        SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, boolQueryBuilder);
+        // use constant_score to wrap boolquerybuilder
+        ConstantScoreQueryBuilder constantScoreQueryBuilder = QueryBuilders.constantScoreQuery(boolQueryBuilder);
+        SearchSourceBuilder builder = assembleSearchSourceBuilder(logQuery, keyList, constantScoreQueryBuilder);
+        // disable score calculation
+        builder.trackScores(false);
 
         SearchRequest searchRequest = new SearchRequest(new String[]{esIndexName}, builder);
+
+        boolean isTimestampMissing = containsTimestampField(boolQueryBuilder);
+        if (!isTimestampMissing) {
+            log.warn("searchRequest is missing timestamp field, add timestamp field,logQuery:{}, operator:{}", GSON.toJson(logQuery), operator);
+        }
+
         // query
         stopWatch.start("search-query");
         SearchResponse searchResponse = esService.search(searchRequest);
@@ -235,7 +244,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
         dto.setSourceBuilder(builder);
         if (stopWatch.getLastTaskTimeMillis() > 7 * 1000) {
-            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis(), GSON.toJson(logQuery));
         }
         //Result transformation
         stopWatch.start("data-assemble");
@@ -243,9 +252,61 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         stopWatch.stop();
 
         if (stopWatch.getTotalTimeMillis() > 15 * 1000) {
-            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis());
+            log.warn("##LONG-COST-QUERY##{} cost:{} ms, msg:{}", "gt15s", stopWatch.getTotalTimeMillis(), GSON.toJson(logQuery));
         }
         return Result.success(dto);
+    }
+
+    /**
+     * Check if the timestamp field is included in the BoolQueryBuilder
+     *
+     * @param boolQuery BoolQueryBuilder to be checked
+     * @return Return true if the timestamp field is included; otherwise return false
+     */
+    public static boolean containsTimestampField(BoolQueryBuilder boolQuery) {
+        // check must conditions
+        for (QueryBuilder query : boolQuery.must()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // check filter conditions
+        for (QueryBuilder query : boolQuery.filter()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // check the should conditions
+        for (QueryBuilder query : boolQuery.should()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        // check the must_not condition
+        for (QueryBuilder query : boolQuery.mustNot()) {
+            if (isTimestampFieldInQuery(query)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether a single QueryBuilder contains timestamp fields
+     *
+     * @param query QueryBuilder to be checked
+     * @return Return true if the timestamp field is included; otherwise return false
+     */
+    private static boolean isTimestampFieldInQuery(QueryBuilder query) {
+        if (query instanceof RangeQueryBuilder) {
+            RangeQueryBuilder rangeQuery = (RangeQueryBuilder) query;
+            return "timestamp".equals(rangeQuery.fieldName());
+        }
+        return false;
     }
 
     private void dorisDataToLog(List<Map<String, Object>> tableColumnDTOS, LogDTO logDTO) {
@@ -333,7 +394,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     }
 
 
-    private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, BoolQueryBuilder boolQueryBuilder) {
+    private SearchSourceBuilder assembleSearchSourceBuilder(LogQuery logQuery, List<String> keyList, ConstantScoreQueryBuilder boolQueryBuilder) {
         SearchSourceBuilder builder = new SearchSourceBuilder();
         builder.query(boolQueryBuilder);
 
@@ -471,6 +532,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         if (!StringUtils.isEmpty(interval)) {
             BoolQueryBuilder queryBuilder = searchLog.getQueryBuilder(logQuery, getKeyColonPrefix(logStore.getKeyList()));
             String histogramField = commonExtensionService.queryDateHistogramField(logQuery.getStoreId());
+            boolean isTimestampMissing = containsTimestampField(queryBuilder);
+            if (!isTimestampMissing) {
+                log.warn("searchRequest is missing timestamp field, add timestamp field,logQuery:{}", GSON.toJson(logQuery));
+            }
             EsClient.EsRet esRet = esService.dateHistogram(esIndex, histogramField, interval, logQuery.getStartTime(), logQuery.getEndTime(), queryBuilder);
             result.setCounts(esRet.getCounts());
             result.setTimestamps(esRet.getTimestamps());
@@ -670,8 +735,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
 
     public void logExport(LogQuery logQuery) throws Exception {
+        log.info("Log query, logExport, logQuery:{}", GSON.toJson(logQuery));
         // Generate Excel
-        int maxLogNum = 10000;
+        int maxLogNum = 5000;
         logQuery.setPageSize(maxLogNum);
         Result<LogDTO> logDTOResult = this.logQuery(logQuery);
         List<Map<String, Object>> exportData = logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty() ? null : logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());

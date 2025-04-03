@@ -20,10 +20,11 @@ package org.apache.ozhera.log.agent;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.agent.channel.file.FileListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.ozhera.log.agent.channel.file.FileListener;
+import org.apache.ozhera.log.agent.channel.file.LogFileAlterationObserver;
 import org.junit.Test;
 
 import java.io.File;
@@ -74,16 +75,17 @@ public class FilterMonitorTest {
 //                continue;
 //            }
 
-            FileAlterationObserver observer = new FileAlterationObserver(new File(watch));
+//            FileAlterationObserver observer = new FileAlterationObserver(new File(watch));
+            FileAlterationObserver observer = new LogFileAlterationObserver(new File(watch), file -> file.exists() && file.isFile());
             observer.addListener(new FileListener(consumer));
 
-            log.info("## agent monitor file:{}, filePattern:{}", watch);
+            log.info("## agent monitor file:{}", watch);
             monitor.addObserver(observer);
         }
 
         try {
             monitor.start();
-            log.info("## agent monitor filePattern:{} started");
+            log.info("## agent monitor started");
         } catch (Exception e) {
             log.error(String.format("agent file monitor start err,monitor filePattern:%s"), e);
         }

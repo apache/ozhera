@@ -23,9 +23,6 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.mone.es.EsProcessor;
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.model.StorageInfo;
-import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.es.EsProcessorConf;
 import com.xiaomi.youpin.docean.plugin.es.EsService;
@@ -34,6 +31,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.model.StorageInfo;
+import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -63,7 +63,7 @@ public class EsPlugin {
 
     private static int DEFAULT_PROCESSOR_COUNT = 1;
 
-    private static ReentrantLock esLock = new ReentrantLock();
+    private static final ReentrantLock esLock = new ReentrantLock();
 
     private static Gson gson = new Gson();
 
@@ -201,7 +201,7 @@ public class EsPlugin {
                                     , x.getVersion()
                                     , failure.getCause().getMessage()
                             );
-                            log.error("esInfo:{},Bulk executionId:[{}] has error messages:{}", GSON.toJson(esInfo), executionId, msg);
+                            log.error("esInfo:{},Bulk executionId:[{}] has error messages:{}", GSON.toJson(esInfo), executionId, msg, failure.getCause());
                             count.incrementAndGet();
                         }
                     });
@@ -230,7 +230,7 @@ public class EsPlugin {
                         , clazz.getSimpleName()
                         , clazz.getTypeName()
                         , clazz.getCanonicalName()
-                        , failure.getMessage());
+                        , failure);
                 sendMessageToTopic(request, esInfo, onFailedConsumer);
             }
         }));

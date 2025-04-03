@@ -32,7 +32,7 @@
 
 
 ## What is Apache OzHera(Incubating)?
-Apache OzHera(Incubating) is an Application Observable Platform in the Cloud Native Era. open-sourced by the R&D efficiency team of Xiaomi-China region. Centered around applications, it integrates metrics monitoring, link tracing, logging, and alerts. It achieves a seamless connection and interaction from metrics to tracing to logging. Moreover, Apache OzHera(Incubating) offers a comprehensive monitoring dashboard featuring application health status lists, application metric boards, interface overviews, application overviews, gateway overviews, etc., along with clear and concise visual text alerts, enabling users to pinpoint issues accurately and efficiently.
+Apache OzHera(Incubating) is an Application Observable Platform in the Cloud Native Era. Centered around applications, it integrates metrics monitoring, link tracing, logging, and alerts. It achieves a seamless connection and interaction from metrics to tracing to logging. Moreover, Apache OzHera(Incubating) offers a comprehensive monitoring dashboard featuring application health status lists, application metric boards, interface overviews, application overviews, gateway overviews, etc., along with clear and concise visual text alerts, enabling users to pinpoint issues accurately and efficiently.
 
 ---
 
@@ -104,13 +104,6 @@ We warmly welcome your valuable opinions and suggestions about the project. Whet
     - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---
-
-## User List
-
-If you are using Apache OzHera(Incubating) and think that it helps you or want to contribute code for Apache OzHera(Incubating), please add your company to the user list to let us know your needs.
-
-|![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
-| :---: | :---: | :---: | :---: |
 
 
 

@@ -84,26 +84,31 @@ public class LogFileAlterationObserver extends FileAlterationObserver {
 
     @Override
     public void checkAndNotify() {
+        try {
+            /* fire onStart() */
+            for (FileAlterationListener listener : getListeners()) {
+                listener.onStart(this);
+            }
 
-        /* fire onStart() */
-        for (FileAlterationListener listener : getListeners()) {
-            listener.onStart(this);
-        }
+            /* fire directory/file events */
+            File rootFile = getDirectory();
+            if (null == childRootEntry) {
+                childRootEntry = (FileEntry) ReflectUtil.getFieldValue(this, "rootEntry");
+            }
+            if (rootFile.exists()) {
+//                log.info("LogFileAlterationObserver checkAndNotify rootFile:{}", rootFile.getAbsolutePath());
+                checkAndNotify(childRootEntry, childRootEntry.getChildren(), listFiles(rootFile));
+            } else if (childRootEntry.isExists()) {
+//                log.info("LogFileAlterationObserver checkAndNotify rootFile:{}", childRootEntry.getFile().getAbsolutePath());
+                checkAndNotify(childRootEntry, childRootEntry.getChildren(), FileUtils.EMPTY_FILE_ARRAY);
+            }
 
-        /* fire directory/file events */
-        File rootFile = getDirectory();
-        if (null == childRootEntry) {
-            childRootEntry = (FileEntry) ReflectUtil.getFieldValue(this, "rootEntry");
-        }
-        if (rootFile.exists()) {
-            checkAndNotify(childRootEntry, childRootEntry.getChildren(), listFiles(rootFile));
-        } else if (childRootEntry.isExists()) {
-            checkAndNotify(childRootEntry, childRootEntry.getChildren(), FileUtils.EMPTY_FILE_ARRAY);
-        }
-
-        /* fire onStop() */
-        for (FileAlterationListener listener : getListeners()) {
-            listener.onStop(this);
+            /* fire onStop() */
+            for (FileAlterationListener listener : getListeners()) {
+                listener.onStop(this);
+            }
+        } catch (Exception e) {
+            log.error("LogFileAlterationObserver checkAndNotify", e);
         }
     }
 
@@ -112,6 +117,9 @@ public class LogFileAlterationObserver extends FileAlterationObserver {
         if (null == childComparator) {
             childComparator = (Comparator) ReflectUtil.getFieldValue(this, "comparator");
         }
+//        List<File> oldFileList = Arrays.stream(previous).map(FileEntry::getFile).collect(Collectors.toList());
+//        List<String> newFileList = Arrays.stream(files).map(File::getAbsolutePath).collect(Collectors.toList());
+//        log.info("childComparator:{},previous:{},files:{}", childComparator, GSON.toJson(oldFileList), GSON.toJson(newFileList));
         FileEntry[] current = files.length > 0 ? new FileEntry[files.length] : EMPTY_ENTRIES;
         for (FileEntry entry : previous) {
             while (c < files.length && childComparator.compare(entry.getFile(), files[c]) > 0) {
@@ -120,6 +128,7 @@ public class LogFileAlterationObserver extends FileAlterationObserver {
                 c++;
             }
             if (c < files.length && childComparator.compare(entry.getFile(), files[c]) == 0) {
+                doMatch(entry, files[c]);
                 checkAndNotify(entry, entry.getChildren(), listFiles(files[c]));
                 current[c] = entry;
                 c++;
@@ -132,6 +141,10 @@ public class LogFileAlterationObserver extends FileAlterationObserver {
             doCreate(current[c]);
         }
         parent.setChildren(current);
+    }
+
+    private void doMatch(final FileEntry entry, final File file) {
+        entry.refresh(file);
     }
 
     private File[] listFiles(File file) {

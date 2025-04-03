@@ -80,4 +80,9 @@ public class LogTailParam {
     private Integer batchSendSize = 20;
 
     private Boolean collectionReady = true;
+
+    private String originSystem;
+
+    private List<String> logLevelList;
+
 }

@@ -14,7 +14,6 @@
 # limitations under the License.
 
 FROM miserver
-MAINTAINER youpin-biz-arch@xiaomi.com
 RUN mkdir -p /home/work/zxw_test2/
 RUN mkdir -p /home/work/log/zxw_test2/
 COPY zxw_test2-server-null-SNAPSHOT.jar /home/work/zxw_test2/

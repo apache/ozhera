@@ -30,7 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author dingtao
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.apache.ozhera.trace.etl.es", "com.xiaomi.data.push.redis", "run.mone.trace.etl"})
+@ComponentScan(basePackages = {"org.apache.ozhera.trace.etl.es", "org.apache.ozhera.trace.etl", "com.xiaomi.data.push.redis", "run.mone.trace.etl"})
 @DubboComponentScan(basePackages = "org.apache.ozhera.trace.etl.es.dubbo")
 @MapperScan("org.apache.ozhera.trace.etl.mapper")
 @Slf4j

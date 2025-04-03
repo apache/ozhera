@@ -40,6 +40,8 @@ public interface HeraAppBaseInfoMapper extends BaseMapper<HeraAppBaseInfo> {
 
     List<AppBaseInfo> queryAppInfo(@Param("appName") String appName, @Param("platformType") Integer platformType, @Param("type") Integer type);
 
+    List<AppBaseInfo> queryLatestAppInfo(@Param("limit") Integer limit);
+
     List<AppBaseInfo> queryByIds(List<Long> ids);
 
     List<HeraAppBaseInfoParticipant> selectByParticipant(HeraAppBaseQuery query);

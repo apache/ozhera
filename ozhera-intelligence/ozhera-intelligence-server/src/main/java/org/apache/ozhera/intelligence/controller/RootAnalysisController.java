@@ -19,13 +19,23 @@
 package org.apache.ozhera.intelligence.controller;
 
 import com.xiaomi.youpin.infra.rpc.Result;
+import com.xiaomi.youpin.infra.rpc.errors.GeneralCodes;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.intelligence.domain.rootanalysis.HeraRootCaseAnalyseRes;
+import org.apache.ozhera.intelligence.domain.rootanalysis.LogParam;
+import org.apache.ozhera.intelligence.domain.rootanalysis.MetricsQueryParam;
+import org.apache.ozhera.intelligence.service.LogService;
+import org.apache.ozhera.intelligence.service.MetricsService;
+import org.apache.ozhera.intelligence.service.TraceService;
+import org.apache.ozhera.trace.etl.domain.tracequery.Span;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.ozhera.intelligence.domain.rootanalysis.TraceQueryParam;
-import org.apache.ozhera.intelligence.service.RootAnalysisService;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/analysis")
@@ -33,10 +43,44 @@ import org.apache.ozhera.intelligence.service.RootAnalysisService;
 public class RootAnalysisController {
 
     @Autowired
-    private RootAnalysisService rootAnalysisService;
+    private TraceService traceService;
 
-    @GetMapping("/trace")
-    public Result<String> traceRootAnalysis(TraceQueryParam param) {
-        return rootAnalysisService.traceRootAnalysis(param);
+    @Autowired
+    private LogService logService;
+
+    @Autowired
+    private MetricsService metricsService;
+
+    @PostMapping("/trace/sectional/span")
+    public Result<List<Span>> traceRootAnalysis(TraceQueryParam param) {
+        try {
+            List<Span> spans = traceService.queryTraceRootAnalysis(param);
+            return Result.success(spans);
+        }catch (Exception e){
+            log.error("trace analyze error , ", e);
+            return Result.fail(GeneralCodes.InternalError, "trace analyze error");
+        }
+    }
+
+    @PostMapping("/log/condition")
+    public Result<List<Map<String, Object>>> logCondition(LogParam param) {
+        try {
+            List<Map<String, Object>> logs = logService.queryLogRootAnalysis(param);
+            return Result.success(logs);
+        }catch (Exception e){
+            log.error("log analyze error , ", e);
+            return Result.fail(GeneralCodes.InternalError, "log analyze error");
+        }
+    }
+
+    @PostMapping("/metrics")
+    public Result<HeraRootCaseAnalyseRes> metrics(MetricsQueryParam param) {
+        try {
+            HeraRootCaseAnalyseRes metrics = metricsService.queryMetricsRootAnalysis(param);
+            return Result.success(metrics);
+        }catch (Exception e){
+            log.error("metrics analyze error , ", e);
+            return Result.fail(GeneralCodes.InternalError, "metrics analyze error");
+        }
     }
 }

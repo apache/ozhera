@@ -18,18 +18,54 @@
  */
 package org.apache.ozhera.intelligence.service;
 
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.ozhera.log.api.model.dto.LogFilterOptions;
+import org.apache.ozhera.log.api.service.HeraLogApiService;
 import org.springframework.stereotype.Service;
 import org.apache.ozhera.intelligence.domain.rootanalysis.LogParam;
 
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author dingtao
+ * @date 2025/1/20 11:26
+ */
 @Service
 public class LogService {
 
+    @DubboReference(interfaceClass = HeraLogApiService.class, group = "${log.query.group}", version = "${log.query.version}")
+    private HeraLogApiService heraLogApiService;
+
     /**
+     * To cover the trace time in the log, we extend the trace time by 5 minutes before and after as a condition to query the log
+     */
+    private static final int LOG_QUERY_TIME_GAP = 1000 * 60 * 5;
+
+
+	/**
      * Query logs based on the specified log query conditions.
+     *
      * @param param
      * @return
      */
-    public String queryLogRootAnalysis(LogParam param){
-        return null;
+    public List<Map<String, Object>> queryLogRootAnalysis(LogParam param) {
+        List<Map<String, Object>> maps = heraLogApiService.queryLogData(buildLogFilterOptions(param));
+        return maps;
+    }
+
+
+    private LogFilterOptions buildLogFilterOptions(LogParam param) {
+        LogFilterOptions logFilterOptions = new LogFilterOptions();
+        logFilterOptions.setProjectId(Long.parseLong(param.getApplication()));
+        logFilterOptions.setEnvId(Long.parseLong(param.getEnvId()));
+        logFilterOptions.setTraceId(param.getTraceId());
+        Long startTime = Long.parseLong(param.getStartTime());
+        Long duration = Long.parseLong(param.getDuration());
+        Long endTime = startTime + duration;
+        logFilterOptions.setStartTime(String.valueOf(startTime / 1000 - LOG_QUERY_TIME_GAP));
+        logFilterOptions.setEndTime(String.valueOf(endTime / 1000 + LOG_QUERY_TIME_GAP));
+        logFilterOptions.setLevel(param.getLevel());
+        return logFilterOptions;
     }
 }

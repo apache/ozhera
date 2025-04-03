@@ -68,12 +68,6 @@
                 <version>1.0.10-mone</version>
             </dependency>
 
-            <!--<dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>1.30</version>
-            </dependency>-->
-
         </dependencies>
     </dependencyManagement>
 

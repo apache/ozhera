@@ -16,30 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.domain.rootanalysis;
+package org.apache.ozhera.log.api.service;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import org.apache.ozhera.log.api.model.dto.LogFilterOptions;
+import org.apache.ozhera.log.api.model.dto.LogUrlParam;
 
-@Data
-@Builder
-@ToString
-public class MetricsQueryParam {
+import java.util.List;
+import java.util.Map;
 
-    private String env;
+/**
+ * @author wtt
+ * @version 1.0
+ * @description
+ * @date 2024/3/6 16:12
+ */
+public interface HeraLogApiService {
 
-    private String application;
+    List<String> queryLogUrl(LogUrlParam logUrlParam);
 
-    private String ip;
+    List<Map<String, Object>> queryLogData(LogFilterOptions filterOptions);
 
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
 }

@@ -48,14 +48,14 @@ public class Http {
                 out1.flush();
                 out1.close();
             }
-            InputStream is = conn.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String finalStr = "";
-            String str = "";
-            while ((str = br.readLine()) != null) {
-                finalStr = new String(str.getBytes(), "UTF-8");
+            try (InputStream is = conn.getInputStream()) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String str = "";
+                while ((str = br.readLine()) != null) {
+                    finalStr = str;
+                }
             }
-            is.close();
             int responseCode = conn.getResponseCode();
             conn.disconnect();
             log.info("innerRequest param url:{},method:{},responseCode:{}", url, method, responseCode);
@@ -87,14 +87,14 @@ public class Http {
                 out1.flush();
                 out1.close();
             }
-            InputStream is = conn.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String finalStr = "";
-            String str = "";
-            while ((str = br.readLine()) != null) {
-                finalStr = new String(str.getBytes(), "UTF-8");
+            try (InputStream is = conn.getInputStream()) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String str = "";
+                while ((str = br.readLine()) != null) {
+                    finalStr = str;
+                }
             }
-            is.close();
             conn.disconnect();
             log.info("innerRequestResponseData param url:{},method:{}", url, method);
             return finalStr;

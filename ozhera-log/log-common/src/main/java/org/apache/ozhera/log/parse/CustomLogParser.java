@@ -21,10 +21,10 @@ package org.apache.ozhera.log.parse;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.utils.IndexUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -89,16 +89,10 @@ public class CustomLogParser extends AbstractLogParser {
             if (ret.values().stream().map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
                 ret.put(ES_KEY_MAP_LOG_SOURCE, originLog);
             }
-            /**
-             * Pocket does not include esKeyMap_timestamp, esKeyMap_topic, esKeyMap_tag, esKeyMap_logstoreName
-             */
-            if (ret.containsKey(esKeyMap_timestamp)) {
-                Long time = getTimestampFromString(ret.get(esKeyMap_timestamp).toString(), collectStamp);
-                ret.put(esKeyMap_timestamp, time);
-            }
         } catch (Exception e) {
             ret.put(ES_KEY_MAP_LOG_SOURCE, originData);
         }
+        validTimestamp(ret, collectStamp);
         return ret;
     }
 

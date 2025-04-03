@@ -72,6 +72,8 @@ public interface HeraAppService {
 
     Long countRole(HeraAppRoleModel roleModel);
 
+    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit);
+
     /**
      * query user have permission project
      *

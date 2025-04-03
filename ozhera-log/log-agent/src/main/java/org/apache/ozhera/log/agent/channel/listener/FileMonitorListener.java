@@ -18,7 +18,7 @@
  */
 package org.apache.ozhera.log.agent.channel.listener;
 
-import org.apache.ozhera.log.agent.channel.ChannelService;
+import org.apache.ozhera.log.agent.channel.AbstractChannelService;
 
 /**
  * @author wtt
@@ -30,10 +30,10 @@ public interface FileMonitorListener {
     /**
      * Add
      */
-    void addChannelService(ChannelService channelService);
+    void addChannelService(AbstractChannelService channelService);
 
     /**
      * Delete
      */
-    void removeChannelService(ChannelService channelService);
+    void removeChannelService(AbstractChannelService channelService);
 }

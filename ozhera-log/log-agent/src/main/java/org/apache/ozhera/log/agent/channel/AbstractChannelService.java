@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
+import static org.apache.ozhera.log.utils.ConfigUtils.getConfigValue;
 
 /**
  * @author wtt
@@ -49,6 +50,8 @@ import static org.apache.ozhera.log.common.Constant.GSON;
 public abstract class AbstractChannelService implements ChannelService {
 
     public String instanceId = UUID.randomUUID().toString();
+
+    private final int FILTER_LOG_PREFIX_LENGTH = Integer.parseInt(getConfigValue("filter_log_level_prefix_length", "60"));
 
     @Override
     public String instanceId() {
@@ -202,4 +205,22 @@ public abstract class AbstractChannelService implements ChannelService {
         fileProgress.setPodType(channelDefine.getPodType());
         fileProgress.setCtTime(ct);
     }
+
+    public Boolean shouldFilterLogs(List<String> logLevelList, String line) {
+        if (logLevelList == null || logLevelList.isEmpty()) {
+            return false;
+        }
+        if (line.length() > FILTER_LOG_PREFIX_LENGTH) {
+            line = line.substring(0, FILTER_LOG_PREFIX_LENGTH);
+        }
+        log.info("The current log information to be filtered is {}, the log level to be filtered is {}", line, logLevelList);
+        String lineLowerCase = line.toLowerCase();
+        for (String level : logLevelList) {
+            if (lineLowerCase.contains(level.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -19,4 +19,8 @@ ARG SRC_PATH
 ARG APP_VERSION
 COPY ${SRC_PATH}/trace-etl-server-${APP_VERSION}.jar /home/work/trace-etl-server.jar
 
-ENTRYPOINT ["sh","-c","java -XX:+UseZGC --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/sun.reflect=ALL-UNNAMED --add-opens java.base/java.xml=ALL-UNNAMED --add-exports java.base/sun.reflect.annotation=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED -Duser.timezone=Asia/Shanghai -jar /home/work/trace-etl-server.jar"]
+#ENTRYPOINT ["sh","-c","java -XX:+UseZGC --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/sun.reflect=ALL-UNNAMED --add-opens java.base/java.xml=ALL-UNNAMED --add-exports java.base/sun.reflect.annotation=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-exports java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED -Duser.timezone=Asia/Shanghai -jar /home/work/trace-etl-server.jar"]
+
+COPY ${SRC_PATH}/lib /home/work/lib/
+
+ENTRYPOINT ["java", "-XX:+UseZGC", "--add-opens=java.base/java.lang=ALL-UNNAMED", "--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.math=ALL-UNNAMED", "--add-opens=java.base/sun.reflect=ALL-UNNAMED", "--add-opens=java.base/java.xml=ALL-UNNAMED", "--add-exports=java.base/sun.reflect.annotation=ALL-UNNAMED", "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED", "--add-exports=java.xml/com.sun.org.apache.xerces.internal.impl.dv.util=ALL-UNNAMED", "-Duser.timezone=Asia/Shanghai", "-cp", "/home/work/trace-etl-server.jar:/home/work/lib/*", "org.apache.ozhera.trace.etl.bootstrap.TraceEtlBootstrap"]

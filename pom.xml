@@ -19,19 +19,20 @@
     under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>31</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.apache.ozhera</groupId>
     <artifactId>ozhera-parent</artifactId>
-    <version>2.2.5-incubating</version>
+    <version>2.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -383,12 +384,12 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.18.0</version>
+                <version>2.24.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-to-slf4j</artifactId>
-                <version>2.18.0</version>
+                <version>2.24.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
@@ -613,7 +614,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>excel</artifactId>
-                <version>${jcommon.release.version}</version>
+                <version>1.6.2-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -853,9 +854,14 @@
                 <version>5.3.1</version>
             </dependency>
             <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>3.1.4</version>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.30</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.5.5</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -964,9 +970,22 @@
                                     License|BSD|3-Clause BSD License|The New BSD License
                                 </licenseMerge>
                             </licenseMerges>
+                            <excludedScopes>provided</excludedScopes>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/DEPENDENCIES</exclude>
+                        <exclude>**/THIRD-PARTY.txt</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <!--            <plugin>-->
             <!--                <groupId>com.mycila</groupId>-->
@@ -1044,10 +1063,29 @@
                             <descriptors>
                                 <descriptor>assembly.xml</descriptor>
                             </descriptors>
-                            <finalName>apache-ozhera-2.2.5-incubating-bin</finalName>
+                            <finalName>apache-ozhera-2.2.6-SNAPSHOT-bin</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <skipAssembly>true</skipAssembly>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -1063,6 +1101,7 @@
                         <exclude>**/*.png</exclude>
                         <exclude>**/*.jpg</exclude>
                         <exclude>**/*.jpeg</exclude>
+                        <exclude>dist/licenses/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -1084,6 +1123,6 @@
         <url>https://github.com/apache/ozhera</url>
         <connection>scm:git:https://github.com/apache/ozhera.git</connection>
         <developerConnection>scm:git:https://github.com/apache/ozhera.git</developerConnection>
-      <tag>HEAD</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>

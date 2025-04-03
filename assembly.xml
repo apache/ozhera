@@ -34,10 +34,8 @@
             <directory></directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>README*</include>
                 <include>DISCLAIMER</include>
-                <include>NOTICE</include>
-                <include>LICENSE</include>
+                <include>README*</include>
             </includes>
         </fileSet>
 
@@ -50,8 +48,90 @@
         </fileSet>
 
         <fileSet>
-            <directory>dist</directory>
-            <outputDirectory>/dist</outputDirectory>
+            <directory>dist/dockerfiles</directory>
+            <outputDirectory>/dockerfiles</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/ext-lib</directory>
+            <outputDirectory>/ext-lib</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>dist/sql</directory>
+            <outputDirectory>/sql</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>NOTICE</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+
+        <!-- licens -->
+        <fileSet>
+            <directory>dist/licenses/apache</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/bsd</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/cc0</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/cddl</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/eclipse</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/mit</directory>
+            <outputDirectory>/licenses</outputDirectory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>dist/licenses/mulan</directory>
+            <outputDirectory>/licenses</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
@@ -63,31 +143,21 @@
                 ozhera-app/app-server/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-app
+                /servers/ozhera-app
             </outputDirectory>
             <includes>
                 <include>app-server-${project.version}.jar</include>
             </includes>
         </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-app/app-server/
-            </directory>
-            <outputDirectory>
-                /dist/ozhera-app
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
-            </includes>
-        </fileSet>
+
 
         <!-- ozhera-demo-client -->
-        <fileSet>
+        <!--<fileSet>
             <directory>
                 ozhera-demo-client/ozhera-demo-client-server/target/
             </directory>
             <outputDirectory>
-                /dist/ozhera-demo-client
+                /servers/ozhera-demo-client
             </outputDirectory>
             <includes>
                 <include>ozhera-demo-client-server-${project.version}.jar</include>
@@ -98,22 +168,21 @@
                 ozhera-demo-client/ozhera-demo-client-server
             </directory>
             <outputDirectory>
-                /dist/ozhera-demo-client
+                /servers/ozhera-demo-client
             </outputDirectory>
             <includes>
-                <include>Dockerfile</include>
                 <include>download-opentelemetry-javaagent.sh</include>
                 <include>README.md</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
 
         <!-- ozhera-demo-server -->
-        <fileSet>
+        <!--<fileSet>
             <directory>
                 ozhera-demo-server/ozhera-demo-server-server/target/
             </directory>
             <outputDirectory>
-                /dist/ozhera-demo-server
+                /servers/ozhera-demo-server
             </outputDirectory>
             <includes>
                 <include>ozhera-demo-server-server-${project.version}.jar</include>
@@ -124,14 +193,13 @@
                 ozhera-demo-server/ozhera-demo-server-server
             </directory>
             <outputDirectory>
-                /dist/ozhera-demo-server
+                /servers/ozhera-demo-server
             </outputDirectory>
             <includes>
-                <include>Dockerfile</include>
                 <include>download-opentelemetry-javaagent.sh</include>
                 <include>README.md</include>
             </includes>
-        </fileSet>
+        </fileSet>-->
 
 
         <!-- log-agent -->
@@ -140,21 +208,10 @@
                 ozhera-log/log-agent/target
             </directory>
             <outputDirectory>
-                /dist/log-agent
+                /servers/ozhera-log-agent
             </outputDirectory>
             <includes>
                 <include>log-agent-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-log/log-agent
-            </directory>
-            <outputDirectory>
-                /dist/log-agent
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -164,21 +221,10 @@
                 ozhera-log/log-agent-server/target
             </directory>
             <outputDirectory>
-                /dist/log-agent-server
+                /servers/ozhera-log-agent-server
             </outputDirectory>
             <includes>
                 <include>log-agent-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-log/log-agent-server
-            </directory>
-            <outputDirectory>
-                /dist/log-agent-server
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -188,21 +234,10 @@
                 ozhera-log/log-manager/target
             </directory>
             <outputDirectory>
-                /dist/log-manager
+                /servers/ozhera-log-manager
             </outputDirectory>
             <includes>
                 <include>log-manager-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-log/log-manager
-            </directory>
-            <outputDirectory>
-                /dist/log-manager
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -212,21 +247,10 @@
                 ozhera-log/log-stream/target
             </directory>
             <outputDirectory>
-                /dist/log-stream
+                /servers/ozhera-log-stream
             </outputDirectory>
             <includes>
                 <include>log-stream-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-log/log-stream
-            </directory>
-            <outputDirectory>
-                /dist/log-stream
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -236,21 +260,10 @@
                 ozhera-monitor/ozhera-monitor-server/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-monitor
+                /servers/ozhera-monitor
             </outputDirectory>
             <includes>
                 <include>ozhera-monitor-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-monitor/ozhera-monitor-server
-            </directory>
-            <outputDirectory>
-                /dist/ozhera-monitor
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -261,21 +274,10 @@
                 ozhera-operator/ozhera-operator-server/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-operator
+                /servers/ozhera-operator
             </outputDirectory>
             <includes>
                 <include>ozhera-operator-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-operator/ozhera-operator-server
-            </directory>
-            <outputDirectory>
-                /dist/ozhera-operator
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -285,21 +287,10 @@
                 ozhera-prometheus-agent/ozhera-prometheus-agent-server/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-prometheus-agent
+                /servers/ozhera-prometheus-agent-server
             </outputDirectory>
             <includes>
                 <include>ozhera-prometheus-agent-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-prometheus-agent/ozhera-prometheus-agent-server
-            </directory>
-            <outputDirectory>
-                /dist/ozhera-prometheus-agent
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -309,21 +300,10 @@
                 ozhera-webhook/ozhera-webhook-server/target
             </directory>
             <outputDirectory>
-                /dist/ozhera-webhook-server
+                /servers/ozhera-webhook
             </outputDirectory>
             <includes>
                 <include>ozhera-webhook-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                ozhera-webhook/ozhera-webhook-server
-            </directory>
-            <outputDirectory>
-                /dist/ozhera-webhook-server
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -334,21 +314,10 @@
                 trace-etl/trace-etl-es/target
             </directory>
             <outputDirectory>
-                /dist/trace-etl-es
+                /servers/ozhera-trace-etl-es
             </outputDirectory>
             <includes>
                 <include>trace-etl-es-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                trace-etl/trace-etl-es/
-            </directory>
-            <outputDirectory>
-                /dist/trace-etl-es
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -358,21 +327,10 @@
                 trace-etl/trace-etl-manager/target
             </directory>
             <outputDirectory>
-                /dist/trace-etl-manager
+                /servers/ozhera-trace-etl-manager
             </outputDirectory>
             <includes>
                 <include>trace-etl-manager-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                trace-etl/trace-etl-manager/
-            </directory>
-            <outputDirectory>
-                /dist/trace-etl-manager
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 
@@ -382,21 +340,10 @@
                 trace-etl/trace-etl-server/target
             </directory>
             <outputDirectory>
-                /dist/trace-etl-server
+                /servers/ozhera-trace-etl-server
             </outputDirectory>
             <includes>
                 <include>trace-etl-server-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>
-                trace-etl/trace-etl-server
-            </directory>
-            <outputDirectory>
-                /dist/trace-etl-server
-            </outputDirectory>
-            <includes>
-                <include>Dockerfile</include>
             </includes>
         </fileSet>
 

@@ -23,7 +23,7 @@ http://www.apache.org/licenses/LICENSE-2.0
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-log</artifactId>
-        <version>2.2.5-incubating</version>
+        <version>2.2.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -165,35 +165,6 @@ http://www.apache.org/licenses/LICENSE-2.0
                     <source>21</source>
                     <target>21</target>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <finalName>${project.artifactId}-${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <attach>false</attach>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                        <manifest>
-                            <mainClass>org.apache.ozhera.log.server.LogAgentServerBootstrap</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 

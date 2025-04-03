@@ -34,7 +34,7 @@ import java.util.Map;
 @Data
 public class ChannelMemory implements Serializable {
 
-    public transient static final String DEFAULT_VERSION = "2.0";
+    public static final String DEFAULT_VERSION = "2.0";
 
     private Long channelId;
 

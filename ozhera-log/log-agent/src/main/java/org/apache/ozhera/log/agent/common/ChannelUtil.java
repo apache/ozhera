@@ -96,7 +96,7 @@ public class ChannelUtil {
                 return unixFileNode;
             }
         } catch (Exception e) {
-            log.info("buildUnixFileNode error,filePath:{}", filePath, e);
+            log.error("buildUnixFileNode error,filePath:{}", filePath, e);
         }
         return new ChannelMemory.UnixFileNode();
     }

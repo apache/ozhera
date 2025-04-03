@@ -34,13 +34,10 @@ public class LogParserFactory {
     private LogParserFactory() {
     }
 
-    public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript) {
-        return LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, "", "", "", "");
-    }
-
     public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript,
-                                         String topicName, String tailName, String mqTag, String logStoreName) {
+                                         String topicName, String tailName, String mqTag, String logStoreName, String keyOrderList) {
         LogParserData logParserData = LogParserData.builder().keyList(keyList)
+                .keyOrderList(keyOrderList)
                 .valueList(valueList)
                 .parseScript(parseScript)
                 .topicName(topicName)
@@ -65,6 +62,10 @@ public class LogParserFactory {
             default:
                 return new RawLogParser(logParserData);
         }
+    }
+
+    public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript, String keyOrderList) {
+        return LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, "", "", "", "", keyOrderList);
     }
 
     @Getter

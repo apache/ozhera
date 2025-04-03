@@ -19,11 +19,11 @@
 package org.apache.ozhera.log.agent.channel.file;
 
 import com.google.common.collect.Lists;
-import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
-import org.apache.ozhera.log.agent.common.ChannelUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.comparator.DefaultFileComparator;
 import org.apache.commons.io.comparator.NameFileComparator;
+import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
+import org.apache.ozhera.log.agent.common.ChannelUtil;
 
 import java.io.File;
 import java.util.*;
@@ -49,33 +49,41 @@ public class InodeFileComparator extends DefaultFileComparator {
 
     @Override
     public int compare(File file1, File file2) {
+//        log.info("InodeFileComparator compare file1:{},file2:{},filePaths:{}", file1, file2, GSON.toJson(filePaths));
         int sort = fileComparator.compare(file1, file2);
-        if (file1.isDirectory() || file2.isDirectory()) {
-            return sort;
-        }
-        if (sort == 0 && filePaths.contains(file1.getAbsolutePath())) {
-            //The file name is the same
-            Long oldInode;
-            if (INODE_MAP.containsKey(file1.getAbsolutePath())) {
-                oldInode = INODE_MAP.get(file1.getAbsolutePath());
-            } else {
-                oldInode = ChannelUtil.buildUnixFileNode(file1.getAbsolutePath()).getSt_ino();
-                INODE_MAP.put(file1.getAbsolutePath(), oldInode);
+        try {
+            if (file1.isDirectory() || file2.isDirectory()) {
+                return sort;
             }
-            ChannelMemory.UnixFileNode unixFileNode2 = ChannelUtil.buildUnixFileNode(file2.getAbsolutePath());
-            if (!Objects.equals(oldInode, unixFileNode2.getSt_ino())) {
-                INODE_MAP.put(file2.getAbsolutePath(), unixFileNode2.getSt_ino());
-                return 1;
+            if (sort == 0 && filePaths.contains(file1.getAbsolutePath())) {
+                //The file name is the same
+//                log.info("INODE_MAP:{}", GSON.toJson(INODE_MAP));
+                Long oldInode;
+                if (INODE_MAP.containsKey(file1.getAbsolutePath())) {
+                    oldInode = INODE_MAP.get(file1.getAbsolutePath());
+                } else {
+                    oldInode = ChannelUtil.buildUnixFileNode(file1.getAbsolutePath()).getSt_ino();
+                    INODE_MAP.put(file1.getAbsolutePath(), oldInode);
+                }
+                ChannelMemory.UnixFileNode unixFileNode2 = ChannelUtil.buildUnixFileNode(file2.getAbsolutePath());
+                if (!Objects.equals(oldInode, unixFileNode2.getSt_ino())) {
+                    INODE_MAP.put(file2.getAbsolutePath(), unixFileNode2.getSt_ino());
+                    return 1;
+                }
             }
+        } catch (Exception e) {
+            log.error("InodeFileComparator compare error,file1:{},file2:{}", file1, file2, e);
         }
         return sort;
     }
 
     public static void addFile(String filePath) {
+        log.info("InodeFileComparator add file : {}", filePath);
         filePaths.add(filePath);
     }
 
     public static void removeFile(String filePath) {
+        log.info("InodeFileComparator remove file : {}", filePath);
         filePaths.remove(filePath);
     }
 }

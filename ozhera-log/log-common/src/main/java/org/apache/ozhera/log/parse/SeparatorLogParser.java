@@ -21,11 +21,7 @@ package org.apache.ozhera.log.parse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,8 +36,9 @@ public class SeparatorLogParser extends AbstractLogParser {
 
     public SeparatorLogParser(LogParserData parserData) {
         super(parserData);
-        keysAndTypes = StringUtils.split(parserData.getKeyList(), ",");
-        values = StringUtils.split(parserData.getValueList(), ",");
+
+        keysAndTypes = splitList(parserData.getKeyList());
+        values = splitList(parserData.getValueList());
     }
 
     @Override
@@ -60,7 +57,7 @@ public class SeparatorLogParser extends AbstractLogParser {
         }
         try {
 
-            int maxLength = (int) Arrays.stream(values).filter(s -> !s.equals("-1")).count();
+            int maxLength = (int) Arrays.stream(values).filter(s -> !"-1".equals(s)).count();
 
             List<String> logArray = parseLogData(logData, maxLength);
             if (0 == maxLength) {
@@ -81,7 +78,7 @@ public class SeparatorLogParser extends AbstractLogParser {
              */
             for (int i = 0; i < keysAndTypes.length; i++) {
                 String[] kTsplit = keysAndTypes[i].split(":");
-                if (kTsplit.length != 2 || i >= values.length) {
+                if (kTsplit.length != 2 || i >= values.length && (null == valueMap || valueMap.isEmpty())) {
                     continue;
                 }
                 if (kTsplit[0].equals(esKeyMap_topic)) {
@@ -104,27 +101,34 @@ public class SeparatorLogParser extends AbstractLogParser {
                     count++;
                     continue;
                 }
-                String value = null;
-                int num = -1;
-                try {
-                    num = Integer.parseInt(values[i]);
-                    if (num == -1) {
-                        valueCount++;
+                if (null != valueMap && !valueMap.isEmpty()) {
+                    String key = kTsplit[0].trim();
+                    if (valueMap.containsKey(key)) {
+                        String value = logArray.get(valueMap.get(key));
+                        ret.put(key, value);
+                    }
+                } else {
+                    String value = null;
+                    int num = -1;
+                    try {
+                        num = Integer.parseInt(values[i]);
+                        if (num == -1) {
+                            valueCount++;
+                            continue;
+                        }
+                    } catch (Exception e) {
                         continue;
                     }
-                } catch (Exception e) {
-                    continue;
-                }
-                if (num < logArray.size() && num > -1) {
-                    value = logArray.get(num);
-                } else {
-                    value = "";
-                }
-                if (kTsplit[0].equals(esKeyMap_timestamp) || kTsplit[1].equalsIgnoreCase(esKeyMap_Date)) {
-                    Long time = getTimestampFromString(value, collectStamp);
-                    ret.put(esKeyMap_timestamp, time);
-                } else {
-                    ret.put(kTsplit[0], StringUtils.isNotEmpty(value) ? value.trim() : value);
+                    if (num < logArray.size() && num > -1) {
+                        value = logArray.get(num);
+                    } else {
+                        value = "";
+                    }
+                    if (kTsplit[0].equals(esKeyMap_timestamp) || kTsplit[1].equalsIgnoreCase(esKeyMap_Date)) {
+                        ret.put(esKeyMap_timestamp, value);
+                    } else {
+                        ret.put(kTsplit[0], StringUtils.isNotEmpty(value) ? value.trim() : value);
+                    }
                 }
             }
 
@@ -138,6 +142,7 @@ public class SeparatorLogParser extends AbstractLogParser {
         } catch (Exception e) {
             ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
+        validTimestamp(ret, collectStamp);
         return ret;
     }
 

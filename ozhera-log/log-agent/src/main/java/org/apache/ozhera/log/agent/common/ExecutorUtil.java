@@ -47,9 +47,7 @@ public class ExecutorUtil {
     public static ExecutorService createPool() {
         System.setProperty("jdk.virtualThreadScheduler.parallelism", String.valueOf(Runtime.getRuntime().availableProcessors() + 1));
         ThreadFactory factory = Thread.ofVirtual().name("ExecutorUtil-TP-Virtual-Thread", 0)
-                .uncaughtExceptionHandler((t, e) -> {
-                    log.error("ExecutorUtil-TP-Virtual-Thread uncaughtException:{}", e.getMessage(), e);
-                }).factory();
+                .uncaughtExceptionHandler((t, e) -> log.error("ExecutorUtil-TP-Virtual-Thread uncaughtException:{}", e.getMessage(), e)).factory();
         return Executors.newThreadPerTaskExecutor(factory);
     }
 

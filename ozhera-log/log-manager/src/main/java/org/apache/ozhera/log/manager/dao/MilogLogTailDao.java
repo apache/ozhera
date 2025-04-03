@@ -274,6 +274,14 @@ public class MilogLogTailDao {
         return sql.getList(MilogLogTailDo.class);
     }
 
+    public List<MilogLogTailDo> getLogTailByLastId(Long lastId, int pageSize) {
+        Sql sql = Sqls.queryEntity("SELECT * FROM milog_logstail WHERE id > @lastId ORDER BY id LIMIT @pageSize");
+        sql.params().set("lastId", lastId);
+        sql.params().set("pageSize", pageSize);
+        dao.execute(sql);
+        return sql.getList(MilogLogTailDo.class);
+    }
+
     public List<MilogLogTailDo> queryStoreIdByRegionNameEN(String nameEn) {
         Sql sql = Sqls.queryEntity("SELECT * FROM `milog_logstail` where JSON_CONTAINS(motor_rooms, JSON_OBJECT(\"nameEn\", @nameEn))");
         sql.params().set("nameEn", nameEn);

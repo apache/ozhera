@@ -120,7 +120,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
 
-        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId()));
+        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
             milogSpaceDao.deleteMilogSpace(dbDO.getId());
@@ -191,18 +191,16 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     }
 
     @Override
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId) {
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName) {
         int pageNum = 1;
         int defaultPageSize = 300;
-        String defaultSpaceKey = buildCacheKey(tenantId);
+        String defaultSpaceKey = buildCacheKey(tenantId, spaceName);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
-
         // return cached result if available
         if (CollectionUtils.isNotEmpty(cachedResult)) {
             return Result.success(cachedResult);
         }
-
-        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize);
+        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize, spaceName);
 
         // transform nodeVos to MapDTO list
         List<MapDTO<String, Long>> result = nodeVos.parallelStream()
@@ -211,19 +209,26 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
         // cache the result
         SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+
         return Result.success(result);
+
+
     }
 
-    private static String buildCacheKey(Long tenantId) {
+    private static String buildCacheKey(Long tenantId, String spaceName) {
         MoneUser currentUser = MoneUserContext.getCurrentUser();
-        return String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+        if (spaceName !=null && !spaceName.isEmpty()){
+            cacheKey = cacheKey + "-" + spaceName;
+        }
+        return cacheKey;
     }
 
-    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize) {
+    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize, String spaceName) {
         List<NodeVo> nodeVos = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace("", pageNum, pageSize);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace(spaceName, pageNum, pageSize);
 
             if (response.getCode() != 0) {
                 throw new MilogManageException("query space from tpc error");
@@ -281,7 +286,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.update(milogSpace)) {
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId()));
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Modify the space permission system not associated with it,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.success("To modify the unassociated permission system of space, contact the server-side performance group");
@@ -313,7 +318,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId()));
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(),""));
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);

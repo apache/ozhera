@@ -19,9 +19,9 @@
 package org.apache.ozhera.log.utils;
 
 import cn.hutool.core.util.HashUtil;
-import org.apache.ozhera.log.common.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.common.Config;
 
 /**
  * @author: wtt
@@ -36,23 +36,27 @@ public class ConfigUtils {
     }
 
     public static String getConfigValue(String propertyKey) {
+        return getConfigValue(propertyKey, "");
+    }
+
+    public static String getConfigValue(String propertyKey, String defaultValue) {
         String propertyValue = "";
         propertyValue = System.getenv(propertyKey);
         try {
-            if(StringUtils.isBlank(propertyValue)) {
+            if (StringUtils.isBlank(propertyValue)) {
                 propertyValue = System.getProperty(propertyKey);
             }
         } catch (Exception e) {
             log.error("get system param error,propertyKey:{}", propertyKey, e);
         }
         if (StringUtils.isBlank(propertyValue)) {
-            propertyValue = Config.ins().get(propertyKey, "");
+            propertyValue = Config.ins().get(propertyKey, defaultValue);
         }
         return propertyValue;
     }
 
     /**
-     *  The data data maps to a value between 0 and max
+     * The data data maps to a value between 0 and max
      *
      * @param data
      * @param max

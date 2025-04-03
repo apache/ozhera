@@ -24,13 +24,13 @@
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-parent</artifactId>
-        <version>2.2.5-incubating</version>
+        <version>2.2.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ozhera-webhook</artifactId>
     <packaging>pom</packaging>
-    <version>2.2.5-incubating</version>
+    <version>2.2.6-SNAPSHOT</version>
 
     <modules>
         <module>ozhera-webhook-server</module>
@@ -51,17 +51,6 @@
                 <version>${spring.boot.version}</version>
             </dependency>
 
-           <!-- <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>nacos</artifactId>
-            </dependency>-->
-
-            <dependency>
-                <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-spring-context</artifactId>
-                <version>0.3.3</version>
-            </dependency>
-
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>nacos-api</artifactId>
@@ -77,12 +66,6 @@
                 <groupId>run.mone</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>1.0.10-mone</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>1.30</version>
             </dependency>
 
         </dependencies>

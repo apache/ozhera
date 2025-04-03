@@ -46,16 +46,16 @@ import java.beans.PropertyVetoException;
 @Configuration
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.driverClassName}")
+    @NacosValue("${spring.datasource.driverClassName}")
     private String driverClass;
 
-    @Value("${spring.datasource.default.initialPoolSize}")
+    @NacosValue("${spring.datasource.default.initialPoolSize}")
     private Integer defaultInitialPoolSize;
 
-    @Value("${spring.datasource.default.maxPoolSize}")
+    @NacosValue("${spring.datasource.default.maxPoolSize}")
     private Integer defaultMaxPoolSize;
 
-    @Value("${spring.datasource.default.minialPoolSize}")
+    @NacosValue("${spring.datasource.default.minialPoolSize}")
     private Integer defaultMinPoolSize;
 
     @NacosValue(value = "${spring.datasource.username}", autoRefreshed = true)

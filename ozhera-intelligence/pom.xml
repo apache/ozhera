@@ -24,11 +24,11 @@
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-parent</artifactId>
-        <version>2.2.5-incubating</version>
+        <version>2.2.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>ozhera-intelligence</artifactId>
-    <version>2.2.5-incubating</version>
+    <version>2.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -66,17 +66,17 @@
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>trace-etl-domain</artifactId>
-                <version>2.2.5-incubating</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>trace-etl-api</artifactId>
-                <version>2.2.5-incubating</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>log-api</artifactId>
-                <version>2.2.5-incubating</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
@@ -174,7 +174,7 @@
                         </goals>
                         <configuration>
                             <executable>gpg</executable>
-                            <keyname>C962B99B87C5B41E79940E4BE72ADFA74291C3C0</keyname>
+                            <keyname>your-gpg-key</keyname>
                         </configuration>
                     </execution>
                 </executions>

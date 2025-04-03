@@ -26,12 +26,6 @@ import org.apache.ozhera.app.api.response.AppBaseInfo;
 
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 14:57
- */
 public interface HeraAppService {
 
     List<AppBaseInfo> queryAppInfoWithLog(String appName, Integer type);

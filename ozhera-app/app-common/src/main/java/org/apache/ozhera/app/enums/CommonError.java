@@ -18,12 +18,6 @@
  */
 package org.apache.ozhera.app.enums;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 13:22
- */
 public enum CommonError {
     Success(0, "success"),
 

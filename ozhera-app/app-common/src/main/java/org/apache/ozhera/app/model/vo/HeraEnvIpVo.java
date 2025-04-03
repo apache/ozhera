@@ -26,12 +26,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description 变更的mq对象
- * @date 2023/2/14 20:01
- */
 @Data
 @Builder
 @NoArgsConstructor

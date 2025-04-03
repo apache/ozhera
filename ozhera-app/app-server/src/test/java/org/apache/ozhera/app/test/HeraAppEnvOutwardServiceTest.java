@@ -20,12 +20,7 @@ package org.apache.ozhera.app.test;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2024/2/28 12:12
- */
+
 @Slf4j
 //@SpringBootTest(classes = AppBootstrap.class)
 public class HeraAppEnvOutwardServiceTest {

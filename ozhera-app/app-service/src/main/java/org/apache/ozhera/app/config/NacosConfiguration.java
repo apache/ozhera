@@ -27,12 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 11:45
- */
+
 @Configuration
 @EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.config.addrs}"))
 @NacosPropertySource(dataId = "hera_app_config", autoRefreshed = true)

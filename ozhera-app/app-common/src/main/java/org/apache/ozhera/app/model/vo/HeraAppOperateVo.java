@@ -27,12 +27,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/10 10:09
- */
 @Data
 public class HeraAppOperateVo {
 

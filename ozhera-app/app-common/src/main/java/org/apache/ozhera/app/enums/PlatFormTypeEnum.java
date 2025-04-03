@@ -18,12 +18,6 @@
  */
 package org.apache.ozhera.app.enums;
 
-/**
- * @author wtt
- * @version 1.0
- * @description mimonitor对应的应用类型
- * @date 2022/10/29 15:39
- */
 public enum PlatFormTypeEnum {
 
     CHINA(0, "china", "china", PlatForm.MIONE, "开源", 0, 0),

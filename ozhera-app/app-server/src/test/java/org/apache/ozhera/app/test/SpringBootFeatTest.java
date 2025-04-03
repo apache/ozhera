@@ -27,14 +27,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
 
-/**
- *
- * @description
- * @version 1.0
- * @author wtt
- * @date 2024/4/28 10:02
- *
- */
+
 //@SpringBootTest(classes = AppBootstrap.class)
 public class SpringBootFeatTest {
 

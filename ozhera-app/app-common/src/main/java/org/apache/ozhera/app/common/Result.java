@@ -24,12 +24,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 13:21
- */
 @Data
 public class Result<T> implements Serializable {
 

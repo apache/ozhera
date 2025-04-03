@@ -26,12 +26,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 16:51
- */
+
 @Slf4j
 @Configuration
 public class BeanConfig {

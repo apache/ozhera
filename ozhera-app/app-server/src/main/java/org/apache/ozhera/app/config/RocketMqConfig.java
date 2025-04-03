@@ -25,12 +25,7 @@ import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.context.annotation.Bean;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/11 19:42
- */
+
 //@Configuration
 @Slf4j
 public class RocketMqConfig {

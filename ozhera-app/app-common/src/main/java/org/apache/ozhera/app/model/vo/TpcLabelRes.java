@@ -22,12 +22,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @author wtt
- * @version 1.0
- * @description tpc标签页返回值
- * @date 2023/8/16 16:35
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

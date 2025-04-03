@@ -30,12 +30,6 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 13:36
- */
 @ControllerAdvice
 public class AppResponseAdvice implements ResponseBodyAdvice<Object> {
 

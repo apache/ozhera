@@ -20,12 +20,6 @@ package org.apache.ozhera.app.enums;
 
 import lombok.Getter;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2023/5/25 10:54
- */
 @Getter
 public enum AppTypeEnum {
 

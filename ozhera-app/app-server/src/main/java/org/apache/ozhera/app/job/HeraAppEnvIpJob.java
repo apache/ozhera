@@ -29,12 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/29 17:12
- */
+
 @Component
 @Slf4j
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")

@@ -26,10 +26,6 @@ import org.apache.ozhera.app.common.Result;
 
 import java.util.List;
 
-/**
- * @author gaoxihui
- * @date 2023/6/6 10:26 上午
- */
 public interface HeraProjectGroupServiceApi {
 
     Result<ProjectGroupTreeNode> getFullTree(Integer type);

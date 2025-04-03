@@ -24,12 +24,6 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/2 11:45
- */
 @Data
 public class AppBaseInfo implements Serializable {
     private Integer id;

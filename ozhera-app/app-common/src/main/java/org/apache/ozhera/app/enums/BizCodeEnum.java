@@ -18,12 +18,6 @@
  */
 package org.apache.ozhera.app.enums;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 13:32
- */
 public enum BizCodeEnum {
 
     UNKNOWN_EXCEPTION(10000,"系统未知异常"),

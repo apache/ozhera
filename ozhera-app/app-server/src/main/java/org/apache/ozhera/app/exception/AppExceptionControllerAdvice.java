@@ -29,12 +29,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 13:27
- */
+
 @Slf4j
 @RestControllerAdvice(basePackages = "org.apache.ozhera.app.controller")
 public class AppExceptionControllerAdvice {

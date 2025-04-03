@@ -20,12 +20,6 @@ package org.apache.ozhera.app.enums;
 
 import lombok.Getter;
 
-/**
- * @author wtt
- * @version 1.0
- * @description milog对应的应用类型
- * @date 2021/10/14 10:28
- */
 @Getter
 public enum ProjectTypeEnum {
 

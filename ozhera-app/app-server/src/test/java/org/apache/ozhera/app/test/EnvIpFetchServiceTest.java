@@ -27,12 +27,7 @@
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
 //
-///**
-// * @author wtt
-// * @version 1.0
-// * @description
-// * @date 2023/2/14 18:29
-// */
+
 //@Slf4j
 //@SpringBootTest(classes = AppBootstrap.class)
 //public class EnvIpFetchServiceTest {

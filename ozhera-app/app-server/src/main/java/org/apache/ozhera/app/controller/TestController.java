@@ -30,12 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2023/8/17 10:00
- */
+
 @RestController
 @RequestMapping("/test")
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")

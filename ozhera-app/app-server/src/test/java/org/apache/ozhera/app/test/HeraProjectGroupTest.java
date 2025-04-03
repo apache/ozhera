@@ -37,10 +37,7 @@
 //import java.util.List;
 //
 //
-///**
-// * @author gaoxihui
-// * @date 2022/11/2 2:59 下午
-// */
+
 //@Slf4j
 //@SpringBootTest(classes = AppBootstrap.class)
 //public class HeraProjectGroupTest {

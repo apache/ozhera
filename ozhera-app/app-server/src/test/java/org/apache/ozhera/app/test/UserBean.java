@@ -23,14 +23,7 @@ import lombok.Data;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
-/**
- *
- * @description
- * @version 1.0
- * @author wtt
- * @date 2024/4/28 10:10
- *
- */
+
 @Data
 public class UserBean {
 

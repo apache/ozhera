@@ -30,12 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description 应用环境相关的http服务
- * @date 2022/11/9 17:45
- */
+
 @RestController
 @RequestMapping("/hera/app/env")
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")

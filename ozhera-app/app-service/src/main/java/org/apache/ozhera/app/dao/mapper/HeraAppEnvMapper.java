@@ -23,12 +23,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ozhera.app.model.HeraAppEnv;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/10 9:57
- */
 @Mapper
 public interface HeraAppEnvMapper extends BaseMapper<HeraAppEnv> {
 }

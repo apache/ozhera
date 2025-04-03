@@ -39,12 +39,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.apache.ozhera.app.common.Constant.GSON;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/11 18:34
- */
+
 //@Configuration
 //@Aspect
 @Slf4j

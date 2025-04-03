@@ -26,12 +26,6 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/12 11:34
- */
 @Data
 @Builder
 @NoArgsConstructor

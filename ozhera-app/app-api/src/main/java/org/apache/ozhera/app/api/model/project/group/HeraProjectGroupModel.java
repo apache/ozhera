@@ -23,10 +23,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * @author gaoxihui
- * @date 2023/6/2 10:13 上午
- */
 @Data
 public class HeraProjectGroupModel implements Serializable {
 

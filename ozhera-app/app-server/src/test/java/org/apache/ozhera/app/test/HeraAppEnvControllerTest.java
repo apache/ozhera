@@ -27,12 +27,7 @@
 //import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 //import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 //
-///**
-// * @author wtt
-// * @version 1.0
-// * @description
-// * @date 2023/6/15 10:03
-// */
+
 //@SpringBootTest(classes = AppBootstrap.class)
 //public class HeraAppEnvControllerTest {
 //

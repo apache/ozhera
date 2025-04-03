@@ -42,12 +42,7 @@
 //import java.util.stream.Collectors;
 //import java.util.stream.IntStream;
 //
-///**
-// * @author wtt
-// * @version 1.0
-// * @description rocketmq 收发消息测试
-// * @date 2023/6/14 16:36
-// */
+
 //@Slf4j
 //@SpringBootTest(classes = AppBootstrap.class)
 //public class RocketMqTest {

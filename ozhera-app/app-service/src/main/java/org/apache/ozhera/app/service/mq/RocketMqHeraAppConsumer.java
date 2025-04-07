@@ -51,10 +51,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-/**
- * @author gaoxihui
- * @date 2021/7/8 9:56 上午
- */
 
 @Service("rocketMqConsumerHera")
 @Slf4j

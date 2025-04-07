@@ -32,10 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * @author gaoxihui
- * @date 2023/6/2 11:24 上午
- */
 @Slf4j
 public class TreeQueryBuilder {
 

@@ -40,8 +40,6 @@ import static org.apache.ozhera.app.common.Constant.DEFAULT_REGISTER_REMOTE_TYPE
 import static org.apache.ozhera.app.common.Constant.URL.HERA_TPC_APP_DETAIL_URL;
 
 /**
- * @author wtt
- * @version 1.0
  * @description 根据配置文件开关选择合适的获取配置环境的实现类
  * @date 2022/11/29 16:54
  */

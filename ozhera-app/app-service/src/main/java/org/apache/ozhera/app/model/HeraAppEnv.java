@@ -37,10 +37,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author wtt
- * @version 1.0
  * @description app和app部署后对应的环境相关的信息（这些信息可能来自于别的系统同步所致）
- * @date 2022/11/9 17:27
  */
 @Data
 @TableName(value = "hera_app_env", autoResultMap = true)

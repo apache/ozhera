@@ -31,10 +31,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author gaoxihui
- * @date 2022/11/22 7:49 下午
- */
 @Slf4j
 @Service
 public class HeraAppRoleService {

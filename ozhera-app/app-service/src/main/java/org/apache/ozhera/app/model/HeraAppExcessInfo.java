@@ -29,12 +29,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 17:01
- */
 @Data
 @TableName(value = "hera_app_excess_info", autoResultMap = true)
 

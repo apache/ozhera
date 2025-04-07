@@ -32,10 +32,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-/**
- * @author gaoxihui
- * @date 2023/4/26 2:19 下午
- */
 @Service
 @Slf4j
 public class HeraAppBaseInfoService {

@@ -53,12 +53,6 @@ import java.util.stream.Collectors;
 import static org.apache.ozhera.app.common.Constant.GSON;
 import static org.apache.ozhera.app.enums.StatusEnum.NOT_DELETED;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 15:05
- */
 @Slf4j
 @Service(registry = "registryConfig", interfaceClass = HeraAppService.class, group = "${dubbo.group}")
 @org.springframework.stereotype.Service

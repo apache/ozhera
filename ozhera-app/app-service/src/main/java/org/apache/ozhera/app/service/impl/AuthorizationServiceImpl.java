@@ -25,10 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * @author gaoxihui
- * @date 2023/6/16 5:21 下午
- */
 @Slf4j
 @Service(registry = "registryConfig", interfaceClass = HeraAuthorizationApi.class, group = "${dubbo.group}")
 public class AuthorizationServiceImpl implements HeraAuthorizationApi {

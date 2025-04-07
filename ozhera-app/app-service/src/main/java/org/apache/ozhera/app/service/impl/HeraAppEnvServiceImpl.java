@@ -57,12 +57,6 @@ import java.util.stream.Collectors;
 import static org.apache.ozhera.app.common.Constant.DEFAULT_OPERATOR;
 import static org.apache.ozhera.app.common.Constant.GSON;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/9 17:46
- */
 @Service
 @Slf4j
 @ConditionalOnProperty(name = "service.selector.property", havingValue = "outer")

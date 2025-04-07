@@ -45,10 +45,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author gaoxihui
- * @date 2023/6/2 11:24 上午
- */
 @Service
 @Slf4j
 public class HeraProjectGroupService {

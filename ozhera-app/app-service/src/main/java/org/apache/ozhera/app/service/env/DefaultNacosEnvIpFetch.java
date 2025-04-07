@@ -34,12 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/29 16:21
- */
 @Service
 public class DefaultNacosEnvIpFetch implements EnvIpFetch {
 

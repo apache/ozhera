@@ -28,12 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/10/29 12:05
- */
 @Data
 @TableName("hera_app_base_info")
 public class HeraAppBaseInfo {

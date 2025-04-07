@@ -22,12 +22,6 @@ import org.apache.ozhera.app.model.vo.HeraAppEnvVo;
 
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/29 16:18
- */
 public interface EnvIpFetch {
 
     String SERVER_PREFIX = "prometheus_server";

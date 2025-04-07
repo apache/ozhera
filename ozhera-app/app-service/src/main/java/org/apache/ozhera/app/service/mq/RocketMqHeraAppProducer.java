@@ -27,10 +27,6 @@ import org.apache.rocketmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * @author gaoxihui
- * @date 2023/4/26 3:12 下午
- */
 @Slf4j
 @Service("rocketMqHeraAppProducer")
 public class RocketMqHeraAppProducer {

@@ -34,12 +34,6 @@ import org.springframework.beans.BeanUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/12 11:39
- */
 @Slf4j
 @Service(interfaceClass = HeraAppEnvOutwardService.class, group = "${dubbo.group}")
 @org.springframework.stereotype.Service

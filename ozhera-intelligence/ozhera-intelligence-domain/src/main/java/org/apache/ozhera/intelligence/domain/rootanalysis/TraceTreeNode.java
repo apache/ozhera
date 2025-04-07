@@ -18,28 +18,28 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
+import org.apache.ozhera.trace.etl.domain.tracequery.Span;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-@Builder
-@ToString
-public class MetricsQueryParam {
+public class TraceTreeNode {
 
-    private String env;
+    private Span span;
+    private List<TraceTreeNode> children;
 
-    private String application;
+    public TraceTreeNode(Span span){
+        this.span = span;
+        this.children = new ArrayList<>();
+    }
 
-    private String ip;
+    public TraceTreeNode(){
 
-    private String startTime;
+    }
 
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+    public void addChild(TraceTreeNode child) {
+        children.add(child);
+    }
 }

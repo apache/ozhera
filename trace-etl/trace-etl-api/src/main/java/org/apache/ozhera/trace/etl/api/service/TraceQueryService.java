@@ -16,30 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.domain.rootanalysis;
+package org.apache.ozhera.trace.etl.api.service;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import org.apache.ozhera.trace.etl.domain.tracequery.Trace;
+import org.apache.ozhera.trace.etl.domain.tracequery.TraceIdQueryVo;
+import org.apache.ozhera.trace.etl.domain.tracequery.TraceListQueryVo;
 
-@Data
-@Builder
-@ToString
-public class MetricsQueryParam {
+import java.util.List;
 
-    private String env;
+/**
+ * @author dingtao
+ * @date 2025/1/20 11:26
+ */
+public interface TraceQueryService {
 
-    private String application;
+    List<Trace> getList(TraceListQueryVo vo);
 
-    private String ip;
-
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+    Trace getByTraceId(TraceIdQueryVo vo);
 }

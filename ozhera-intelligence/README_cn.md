@@ -29,3 +29,17 @@
 ## ozhera-intelligence-server
 
 + 智能化功能启动服务。
++ ozhera-intelligence-server访问需要header中带上x-token，实现有权限的访问ozhera的数据。
+
+## ozhera-intelligence-service
+
++ LogService，取日志数据
++ MetricsService，取监控指标数据
++ TraceService，取链路数据
+
+# 重要依赖
+会依赖小米开源的一款[Agent构建平台——m78](https://github.com/XiaoMi/mone/tree/master/m78-all)
+
+
+# 智能化工作流程（时序图）
+![ozhera-intelligence](../readme/images/ozhera-intelligence.png)

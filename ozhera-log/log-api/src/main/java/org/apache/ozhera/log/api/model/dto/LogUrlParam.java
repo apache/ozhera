@@ -16,30 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.domain.rootanalysis;
+package org.apache.ozhera.log.api.model.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
+/**
+ * @author wtt
+ * @version 1.0
+ * @description
+ * @date 2024/3/6 16:15
+ */
 @Data
-@Builder
-@ToString
-public class MetricsQueryParam {
-
-    private String env;
-
-    private String application;
-
-    private String ip;
-
-    private String startTime;
-
-    private String endTime;
-
-    private String duration;
-
-    // The error margin between the start time and end time,
-    // the actual query time range is [startTime - gap, endTime + gap]
-    private String gap;
+@NoArgsConstructor
+@AllArgsConstructor
+public class LogUrlParam implements Serializable {
+    private Long projectId;
+    private Long envId;
+    private String traceId;
 }

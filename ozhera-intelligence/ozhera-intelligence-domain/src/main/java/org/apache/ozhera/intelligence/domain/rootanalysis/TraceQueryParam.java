@@ -20,13 +20,15 @@ package org.apache.ozhera.intelligence.domain.rootanalysis;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
 @Data
 @Builder
+@ToString
 public class TraceQueryParam {
     private String traceId;
     private String env;
-    private List<String> timeStamp;
+    private long timeStamp;
 }

@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -139,5 +140,25 @@ public class LogParserTest {
         System.out.println(String.valueOf(Instant.now().toEpochMilli()).length());
         DateParser dateFormat1 = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
         System.out.println(dateFormat1.getPattern().length());
+    }
+
+    @Test
+    public void LogPlaceholderParserTest() throws Exception {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        String keyList = "level:keyword,message:text,message_body:text,hostname:keyword,trace_id:keyword,thread:keyword,timestamp:date,time:date,linenumber:long,mqtag:keyword,tail:keyword,filename:keyword,logstore:keyword,logsource:keyword,logip:keyword,mqtopic:keyword";
+        String keyOrderList = "level:1,message:1,message_body:1,hostname:1,trace_id:1,thread:1,timestamp:1,time:1,linenumber:3,mqtag:3,tail:3,filename:3,logstore:3,logsource:3,logip:3,mqtopic:3";
+        String valueList = "2,5,-1,1,3,4,-1,0";
+        String parseScript = "[%s] [%s] [%s] [%s] [%s] %s %s";
+        String logData = "[2025-04-09T10:56:55.259+08:00] [kfs-test-123] [ERROR] [485bf6a9b5898ecdfd22696325b11b05] [DubboServerHandler-thread-495] c.x.k.w.s.i.DataDictServiceImpl - cache is not found. CacheLoader returned null for key DataDictServiceImpl$TenantKey@2f123a.";
+        Long collectStamp = Instant.now().toEpochMilli();
+        Integer parserType = LogParserFactory.LogParserEnum.PLACEHOLDER_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
+        Map<String, Object> parse = customParse.parse(logData, "", 1l, collectStamp, "");
+        System.out.println(parse);
+        List<String> dataList = customParse.parseLogData(logData);
+
+        System.out.println(customParse.getTimestampFromString("2023-08-25 10:46:09.239", collectStamp));
+        stopwatch.stop();
+        log.info("cost time:{}", stopwatch.elapsed().toMillis());
     }
 }

@@ -59,6 +59,8 @@ public class LogParserFactory {
                 return new JsonLogParser(logParserData);
             case NGINX_PARSE:
                 return new NginxLogParser(logParserData);
+            case PLACEHOLDER_PARSE:
+                return new PlaceholderParser(logParserData);
             default:
                 return new RawLogParser(logParserData);
         }
@@ -76,7 +78,8 @@ public class LogParserFactory {
         CUSTOM_PARSE(5, "自定义脚本解析"),
         REGEX_PARSE(6, "正则表达式"),
         JSON_PARSE(7, "JSON解析"),
-        NGINX_PARSE(8, "Nginx解析");
+        NGINX_PARSE(8, "Nginx解析"),
+        PLACEHOLDER_PARSE(9, "占位符解析");
 
         private Integer code;
         private String name;

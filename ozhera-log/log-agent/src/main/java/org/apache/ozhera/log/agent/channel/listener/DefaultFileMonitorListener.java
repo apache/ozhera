@@ -274,7 +274,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
         for (Map.Entry<List<MonitorFile>, ChannelService> channelServiceEntry : pathChannelServiceMap.entrySet()) {
             for (MonitorFile monitorFile : channelServiceEntry.getKey()) {
                 if (filterSuffixList.stream()
-                        .filter(s -> monitorFile.getRealFilePath().contains(s)).findAny().isPresent()
+                        .anyMatch(s -> monitorFile.getRealFilePath().contains(s))
                         && monitorFile.getFilePattern().matcher(changedFilePath).matches()) {
                     serviceMap.put(monitorFile.getRealFilePath(), channelServiceEntry.getValue());
                 }

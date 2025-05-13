@@ -335,63 +335,58 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         }
         // Delete configuration -- Delete log-tail
         if (OperateEnum.DELETE_OPERATE.getCode().equals(type) && !LOG_STORE.equalsIgnoreCase(changeType)) {
-            if (null != existConfig) {
-                List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
-                SinkConfig currentStoreConfig = spaceConfig.stream()
-                        .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
-                        .findFirst()
-                        .orElse(null);
-                if (null != currentStoreConfig) {
-                    List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
-                    List<LogtailConfig> logtailConfigList = new ArrayList<>(logTailConfigs);
+            List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
+            SinkConfig currentStoreConfig = spaceConfig.stream()
+                    .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+                    .findFirst()
+                    .orElse(null);
+            if (null != currentStoreConfig) {
+                List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
+                List<LogtailConfig> logtailConfigList = new ArrayList<>(logTailConfigs);
 
-                    if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
-                            logTailConfigs.stream().anyMatch(config -> config.getLogtailId().equals(tailId))) {
-                        logtailConfigList.removeIf(logtailConfig -> logtailConfig.getLogtailId().equals(tailId));
-                    }
-                    currentStoreConfig.setLogtailConfigs(logtailConfigList);
+                if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
+                        logTailConfigs.stream().anyMatch(config -> null != config.getLogtailId() && config.getLogtailId().equals(tailId))) {
+                    logtailConfigList.removeIf(logtailConfig -> null != logtailConfig.getLogtailId() &&
+                            logtailConfig.getLogtailId().equals(tailId));
                 }
+                currentStoreConfig.setLogtailConfigs(logtailConfigList);
             }
         }
         // Delete configuration -- Delete log-tail
         if (OperateEnum.DELETE_OPERATE.getCode().equals(type) && LOG_STORE.equalsIgnoreCase(changeType)) {
-            if (null != existConfig) {
-                List<SinkConfig> sinkConfigListDelStore = existConfig.getSpaceConfig().stream()
-                        .filter(sinkConfig -> !storeId.equals(sinkConfig.getLogstoreId()))
-                        .collect(Collectors.toList());
-                existConfig.setSpaceConfig(sinkConfigListDelStore);
-            }
+            List<SinkConfig> sinkConfigListDelStore = existConfig.getSpaceConfig().stream()
+                    .filter(sinkConfig -> !storeId.equals(sinkConfig.getLogstoreId()))
+                    .collect(Collectors.toList());
+            existConfig.setSpaceConfig(sinkConfigListDelStore);
         }
         // Modify the configuration -- find a specific tail under this store to make changes
         if (OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
-            if (null != existConfig) {
-                List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
-                //Compare whether the store has changed
-                SinkConfig newSinkConfig = assembleSinkConfig(storeId, tailId, motorRoomEn);
-                SinkConfig currentStoreConfig = spaceConfig.stream()
-                        .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+            List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
+            //Compare whether the store has changed
+            SinkConfig newSinkConfig = assembleSinkConfig(storeId, tailId, motorRoomEn);
+            SinkConfig currentStoreConfig = spaceConfig.stream()
+                    .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+                    .findFirst()
+                    .orElse(null);
+            if (null != currentStoreConfig) {
+                if (!newSinkConfig.equals(currentStoreConfig)) {
+                    currentStoreConfig.updateStoreParam(newSinkConfig);
+                }
+                // Find the specific tail under the old store
+                LogtailConfig filterLogTailConfig = currentStoreConfig.getLogtailConfigs().stream()
+                        .filter(logTailConfig -> Objects.equals(tailId, logTailConfig.getLogtailId()))
                         .findFirst()
                         .orElse(null);
-                if (null != currentStoreConfig) {
-                    if (!newSinkConfig.equals(currentStoreConfig)) {
-                        currentStoreConfig.updateStoreParam(newSinkConfig);
-                    }
-                    // Find the specific tail under the old store
-                    LogtailConfig filterLogTailConfig = currentStoreConfig.getLogtailConfigs().stream()
-                            .filter(logTailConfig -> Objects.equals(tailId, logTailConfig.getLogtailId()))
-                            .findFirst()
-                            .orElse(null);
-                    if (null != filterLogTailConfig) {
-                        BeanUtil.copyProperties(assembleLogTailConfigs(tailId), filterLogTailConfig);
-                    } else {
-                        log.info("query logtailConfig no designed config,tailId:{},insert", tailId);
-                        currentStoreConfig.getLogtailConfigs().add(assembleLogTailConfigs(tailId));
-                    }
+                if (null != filterLogTailConfig) {
+                    BeanUtil.copyProperties(assembleLogTailConfigs(tailId), filterLogTailConfig);
                 } else {
-                    //Does not exist, new
-                    //New addition to the logstore
-                    spaceConfig.add(assembleSinkConfig(storeId, tailId, motorRoomEn));
+                    log.info("query logtailConfig no designed config,tailId:{},insert", tailId);
+                    currentStoreConfig.getLogtailConfigs().add(assembleLogTailConfigs(tailId));
                 }
+            } else {
+                //Does not exist, new
+                //New addition to the logstore
+                spaceConfig.add(assembleSinkConfig(storeId, tailId, motorRoomEn));
             }
         }
         return existConfig;

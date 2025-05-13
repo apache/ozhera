@@ -96,6 +96,9 @@ public class MilogConfigListener {
             List<SinkConfig> sinkConfigs = newMilogSpaceData.getSpaceConfig();
             stopUnusedOldStoreJobs(sinkConfigs);
             for (SinkConfig sinkConfig : sinkConfigs) {
+                if (!streamCommonExtension.preSinkConfigExecution(sinkConfig, milogSpaceData.getMilogSpaceId())) {
+                    continue;
+                }
                 stopOldJobsForRemovedTailIds(sinkConfig);
                 if (oldSinkConfigMap.containsKey(sinkConfig.getLogstoreId())) {
                     //Whether the submission store information changes, the change stops
@@ -246,6 +249,9 @@ public class MilogConfigListener {
         List<SinkConfig> newSpaceConfig = newMilogSpaceData.getSpaceConfig();
         if (newSpaceConfig != null) {
             for (SinkConfig sinkConfig : newSpaceConfig) {
+                if (!streamCommonExtension.preSinkConfigExecution(sinkConfig, milogSpaceData.getMilogSpaceId())) {
+                    continue;
+                }
                 List<LogtailConfig> logTailConfigs = sinkConfig.getLogtailConfigs();
                 if (logTailConfigs != null) {
                     for (LogtailConfig logTailConfig : logTailConfigs) {

@@ -43,6 +43,7 @@ public class DefaultStreamCommonExtension implements StreamCommonExtension {
         return data;
     }
 
+    @Override
     public Boolean checkUniqueMarkExists(String uniqueMarks, Map<String, Map<Long, String>> config) {
         String[] split = uniqueMarks.split(SYMBOL_COMMA);
         for (String s : split) {
@@ -53,12 +54,18 @@ public class DefaultStreamCommonExtension implements StreamCommonExtension {
         return false;
     }
 
+    @Override
     public Map<Long, String> getConfigMapByUniqueMark(Map<String, Map<Long, String>> config, String uniqueMark) {
         return config.get(uniqueMark);
     }
 
     @Override
     public Boolean preCheckTaskExecution(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId) {
+        return true;
+    }
+
+    @Override
+    public Boolean preSinkConfigExecution(SinkConfig sinkConfig, Long logSpaceId) {
         return true;
     }
 }

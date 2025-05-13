@@ -610,6 +610,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         return monitorFileList;
     }
 
+    @Override
     public ChannelMemory getChannelMemory() {
         return channelMemory;
     }

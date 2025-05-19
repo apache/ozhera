@@ -18,8 +18,11 @@
  */
 package org.apache.ozhera.monitor.service.api.impl;
 
+import org.apache.ozhera.monitor.bo.AlarmStrategyParam;
 import org.apache.ozhera.monitor.result.Result;
 import org.apache.ozhera.monitor.service.api.AppAlarmServiceExtension;
+import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleData;
+import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -46,4 +49,20 @@ public class AppAlarmServiceExtensionImpl implements AppAlarmServiceExtension {
         Double alarmId = (Double) result.getData();
         return alarmId == null ? null : alarmId.intValue();
     }
+
+    @Override
+    public Result createBusinessAlert(AlarmRuleRequest param) {
+        return null;
+    }
+
+    @Override
+    public Result editBusinessAlert(AlarmRuleRequest param) {
+        return null;
+    }
+
+    @Override
+    public Result editBusinessAlertSingle(AlarmRuleData ruleData, String user) {
+        return null;
+    }
+
 }

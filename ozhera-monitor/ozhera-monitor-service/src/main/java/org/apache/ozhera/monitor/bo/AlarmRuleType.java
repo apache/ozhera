@@ -27,7 +27,9 @@ public enum AlarmRuleType {
 
     template(0,"模版规则"),
 
-    app_config(1,"应用配置规则")
+    app_config(1,"应用配置规则"),
+
+    business_config(2,"业务指标配置规则"),
     ;
 
     private Integer code;

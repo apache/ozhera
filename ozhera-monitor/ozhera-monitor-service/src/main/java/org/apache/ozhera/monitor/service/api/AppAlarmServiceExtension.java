@@ -18,7 +18,10 @@
  */
 package org.apache.ozhera.monitor.service.api;
 
+import org.apache.ozhera.monitor.bo.AlarmStrategyParam;
 import org.apache.ozhera.monitor.result.Result;
+import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleData;
+import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleRequest;
 
 public interface AppAlarmServiceExtension {
     Result queryFunctionList(Integer projectId);
@@ -26,4 +29,11 @@ public interface AppAlarmServiceExtension {
     Result queryRulesByIamId(Integer iamId, String userName);
 
     Integer getAlarmIdByResult(Result result);
+
+    Result createBusinessAlert(AlarmRuleRequest param);
+
+    Result editBusinessAlert(AlarmRuleRequest param);
+
+    Result editBusinessAlertSingle(AlarmRuleData ruleData, String user);
+
 }

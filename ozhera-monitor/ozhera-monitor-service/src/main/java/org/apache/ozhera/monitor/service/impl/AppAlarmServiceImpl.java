@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.xiaomi.mone.tpc.login.util.GsonUtil;
 import org.apache.ozhera.monitor.bo.AlarmCheckDataCount;
 import org.apache.ozhera.monitor.bo.AlarmRuleMetricType;
 import org.apache.ozhera.monitor.bo.AlarmRuleTemplateType;
@@ -106,7 +107,7 @@ public class AppAlarmServiceImpl implements AppAlarmService {
     
     @NacosValue("${rule.evaluation.interval:20}")
     private Integer evaluationInterval;
-    
+
     @NacosValue("${rule.evaluation.unit:s}")
     private String evaluationUnit;
     
@@ -322,9 +323,12 @@ public class AppAlarmServiceImpl implements AppAlarmService {
          * 校验当前操作人是否具有权限
          */
         AppMonitor app = null;
-        if (param.getStrategyType().equals(AlarmStrategyType.TESLA.getCode())) {
+        if(param.getStrategyType().equals(AlarmStrategyType.BUSINESS_METRIC.getCode())){
+            return appAlarmServiceExtension.createBusinessAlert(param);
+
+        }else if (param.getStrategyType().equals(AlarmStrategyType.TESLA.getCode())) {
             app = appMonitorDao.getByIamTreeId(param.getIamId());
-        } else {
+        }else {
             app = appMonitorDao.getMyApp(param.getProjectId(), param.getIamId(), param.getUser(), AppViewType.MyApp);
         }
         
@@ -353,6 +357,10 @@ public class AppAlarmServiceImpl implements AppAlarmService {
     
     @Override
     public Result batchAddRulesWithStrategy(AlarmRuleRequest param) {
+
+        if(param.getStrategyType().equals(AlarmStrategyType.BUSINESS_METRIC.getCode())){
+            return appAlarmServiceExtension.createBusinessAlert(param);
+        }
         
         List<ProjectAlarmInfo> projectsAlarmInfo = param.getProjectsAlarmInfo();
         if (projectsAlarmInfo == null) {
@@ -601,6 +609,11 @@ public class AppAlarmServiceImpl implements AppAlarmService {
             log.error("editAlarmRuleSingle strategy is not exist!ruleData:{}", ruleData);
             return Result.fail(ErrorCode.nonExistentStrategy);
         }
+
+
+        if(alarmStrategy.getStrategyType().equals(AlarmStrategyType.BUSINESS_METRIC.getCode())){
+            return appAlarmServiceExtension.editBusinessAlertSingle(ruleData,user);
+        }
         
         /**
          * 校验当前操作人是否具有权限
@@ -636,6 +649,10 @@ public class AppAlarmServiceImpl implements AppAlarmService {
         if (CollectionUtils.isEmpty(alarmRuleDatas)) {
             log.error("editRules no rule data found!param:{}", param);
             return Result.fail(ErrorCode.invalidParamError);
+        }
+
+        if(param.getStrategyType().equals(AlarmStrategyType.BUSINESS_METRIC.getCode())){
+            return appAlarmServiceExtension.editBusinessAlert(param);
         }
         
         /**
@@ -874,15 +891,20 @@ public class AppAlarmServiceImpl implements AppAlarmService {
          * 同时暂停远程接口的数据，和本地数据
          */
         for (AppAlarmRule rule : delRules) {
+
+            if(rule.getStatus() != 0){
+                log.info("enabledRules the rule is invalid status! it has been deleted! rule : {}", GsonUtil.gsonString(rule));
+                continue;
+            }
             Result result = alarmService.enabledRule(rule.getAlarmId(), pauseStatus, iamId, user);
             if (result.getCode() == 0) {
-                AppAlarmRule condition = new AppAlarmRule();
-                condition.setIamId(rule.getIamId());
-                condition.setStatus(0);
                 AppAlarmRule value = new AppAlarmRule();
+                value.setId(rule.getId());
                 value.setRuleStatus(pauseStatus);
+                value.setUpdateTime(new Date());
                 try {
-                    int update = appAlarmRuleDao.update(condition, value);
+                    int update = appAlarmRuleDao.updateByIdSelective(value);
+                    log.info("enabledRules in db, update result : {} ,rule : {}", update, GsonUtil.gsonString(value));
                     if (update < 1) {
                         log.info("AppAlarmService.enabledRules update data failed!");
                         return Result.fail(ErrorCode.unknownError);

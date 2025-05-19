@@ -43,8 +43,7 @@ public class ChannelServiceFactory {
 
     private final AgentMemoryService agentMemoryService;
     private final String memoryBasePath;
-
-    private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()|\\[\\]\\\\]");
+    private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()\\[\\]\\\\]");
 
     public ChannelServiceFactory(AgentMemoryService agentMemoryService, String memoryBasePath) {
         this.agentMemoryService = agentMemoryService;

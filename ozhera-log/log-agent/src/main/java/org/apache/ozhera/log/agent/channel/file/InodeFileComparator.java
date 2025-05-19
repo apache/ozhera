@@ -27,6 +27,9 @@ import org.apache.ozhera.log.agent.common.ChannelUtil;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wtt
@@ -46,6 +49,14 @@ public class InodeFileComparator extends DefaultFileComparator {
     private static final Map<String, Long> INODE_MAP = new HashMap<>();
 
     private static final List<String> filePaths = Lists.newArrayList();
+
+    private static final ScheduledExecutorService cleanupExecutor = Executors.newSingleThreadScheduledExecutor();
+
+
+    static {
+        cleanupExecutor.scheduleAtFixedRate(InodeFileComparator::cleanupStaleEntries,
+                1, 1, TimeUnit.MINUTES);
+    }
 
     @Override
     public int compare(File file1, File file2) {
@@ -86,4 +97,32 @@ public class InodeFileComparator extends DefaultFileComparator {
         log.info("InodeFileComparator remove file : {}", filePath);
         filePaths.remove(filePath);
     }
+
+    private static void cleanupStaleEntries() {
+        try {
+            log.debug("Starting cleanup of stale INODE_MAP entries");
+            Iterator<Map.Entry<String, Long>> iterator = INODE_MAP.entrySet().iterator();
+            int removedCount = 0;
+
+            while (iterator.hasNext()) {
+                Map.Entry<String, Long> entry = iterator.next();
+                String filePath = entry.getKey();
+                File file = new File(filePath);
+
+                if (!file.exists()) {
+                    iterator.remove();
+                    removedCount++;
+                    log.debug("Removed stale entry for file: {}", filePath);
+                }
+            }
+
+            if (removedCount > 0) {
+                log.info("Cleaned up {} stale entries from INODE_MAP", removedCount);
+            }
+        } catch (Exception e) {
+            log.error("Error during INODE_MAP cleanup", e);
+        }
+    }
+
+
 }

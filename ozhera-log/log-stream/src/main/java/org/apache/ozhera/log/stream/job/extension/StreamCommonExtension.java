@@ -37,4 +37,6 @@ public interface StreamCommonExtension {
     Map<Long, String> getConfigMapByUniqueMark(Map<String, Map<Long, String>> config, String uniqueMark);
 
     Boolean preCheckTaskExecution(SinkConfig sinkConfig, LogtailConfig logTailConfig, Long logSpaceId);
+
+    Boolean preSinkConfigExecution(SinkConfig sinkConfig, Long logSpaceId);
 }

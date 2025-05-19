@@ -38,6 +38,7 @@ public class AlarmRuleRequest implements Serializable {
     private Integer iamId;
     private Integer iamType;
     private Integer projectId;
+    private String projectName;
     private Integer ruleTemplateId;
     private List<ProjectAlarmInfo> projectsAlarmInfo;
     @Deprecated

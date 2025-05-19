@@ -31,6 +31,7 @@ public enum AlarmStrategyType {
     INTERFACE(1,"接口类监控", "Interface monitoring"),
     PAOMQL(2,"自定义PromQL", "Custom PromQL"),
     TESLA(3,"TESLA监控", "TESLA Monitoring"),
+    BUSINESS_METRIC(4,"业务指标监控", "BUSINESS_METRIC Monitoring"),
     ;
     private Integer code;
     private String label;
@@ -54,6 +55,7 @@ public enum AlarmStrategyType {
         list.add(new Triple(AlarmStrategyType.SYSTEM.getCode() + "", AlarmStrategyType.SYSTEM.getLabel(), AlarmStrategyType.SYSTEM.getLabelEn()));
         list.add(new Triple(AlarmStrategyType.INTERFACE.getCode() + "", AlarmStrategyType.INTERFACE.getLabel(),  AlarmStrategyType.INTERFACE.getLabelEn()));
         list.add(new Triple(AlarmStrategyType.PAOMQL.getCode(), AlarmStrategyType.PAOMQL.getLabel(), AlarmStrategyType.PAOMQL.getLabelEn()));
+        list.add(new Triple(AlarmStrategyType.BUSINESS_METRIC.getCode(), AlarmStrategyType.BUSINESS_METRIC.getLabel(), AlarmStrategyType.BUSINESS_METRIC.getLabelEn()));
         return list;
     }
 

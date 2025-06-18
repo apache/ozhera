@@ -16,22 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.log.api.service;
+package org.apache.ozhera.log.api.model.meta;
 
-import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
-import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
+import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface LogProcessService {
+/**
+ * @author wtt
+ * @version 1.0
+ * @description
+ * @date 2025/6/17 14:20
+ */
+@Data
+public class NodeCollInfo implements Serializable {
+    private String hostIp;
+    private String hostName;
+    private List<TailCollInfo> tailCollInfos;
 
-    /**
-     * Update log collection progress
-     * @param cmd
-     */
-    void updateLogProcess(UpdateLogProcessCmd cmd);
+    @Data
+    public static class TailCollInfo implements Serializable {
+        private Long tailId;
+        private String tailName;
+        private List<CollInfo> collInfos;
+    }
 
-    List<String> getAllIps();
-
-    NodeCollInfo getNodeCollInfo(String ip);
+    @Data
+    public static class CollInfo implements Serializable {
+        private String fileName;
+        private String fileNode;
+        private String collProgress;
+        private Long maxPointer;
+        private Long currentPointer;
+        private Long currentNumber;
+        private Long collTime;
+    }
 }

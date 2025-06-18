@@ -50,10 +50,13 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.agent.output.Output;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.utils.NetUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -258,7 +261,7 @@ public class ChannelEngine {
         try {
             preCheckChannelDefine(channelDefine);
             Output output = channelDefine.getOutput();
-            MsgExporter exporter = exporterTrans(output);
+            MsgExporter exporter = exporterTrans(output, channelDefine.getInput());
             if (null == exporter) {
                 throw new IllegalArgumentException("cant not trans to MsgExporter, output:" + gson.toJson(output));
             }
@@ -293,11 +296,11 @@ public class ChannelEngine {
         OutPutServiceFactory.getOutPutService(output.getServiceName()).preCheckOutput(output);
     }
 
-    private MsgExporter exporterTrans(Output output) throws Exception {
+    private MsgExporter exporterTrans(Output output, Input input) throws Exception {
         if (null == output) {
             return null;
         }
-        return OutPutServiceFactory.getOutPutService(output.getServiceName()).exporterTrans(output);
+        return OutPutServiceFactory.getOutPutService(output.getServiceName()).exporterTrans(output, input);
     }
 
 
@@ -343,6 +346,63 @@ public class ChannelEngine {
         } catch (Exception e) {
             log.error("refresh error,[config change],changed data:{},origin data:{}", gson.toJson(channelDefines), gson.toJson(channelDefineList), e);
         }
+    }
+
+    private String getHostName() {
+        try {
+            Process process = Runtime.getRuntime().exec("hostname");
+            try (InputStream in = process.getInputStream()) {
+                return new String(in.readAllBytes()).trim();
+            }
+        } catch (Exception e) {
+            log.error("get hostname error", e);
+        }
+        return "unknown";
+    }
+
+    public NodeCollInfo getNodeCollInfo() {
+        NodeCollInfo machineCollInfo = new NodeCollInfo();
+        machineCollInfo.setHostIp(NetUtil.getLocalIp());
+
+        machineCollInfo.setHostName(getHostName());
+
+        List<NodeCollInfo.TailCollInfo> tailCollInfos = channelServiceList.stream()
+                .map(this::buildTailCollInfo)
+                .collect(Collectors.toList());
+
+        machineCollInfo.setTailCollInfos(tailCollInfos);
+        return machineCollInfo;
+    }
+
+    private NodeCollInfo.TailCollInfo buildTailCollInfo(ChannelService channelService) {
+        ChannelState channelState = channelService.state();
+
+        NodeCollInfo.TailCollInfo tailCollInfo = new NodeCollInfo.TailCollInfo();
+        tailCollInfo.setTailId(channelState.getTailId());
+        tailCollInfo.setTailName(channelState.getTailName());
+
+        List<NodeCollInfo.CollInfo> collInfos = channelState.getStateProgressMap().entrySet().stream()
+                .map(this::buildCollInfo)
+                .collect(Collectors.toList());
+
+        tailCollInfo.setCollInfos(collInfos);
+        return tailCollInfo;
+    }
+
+    private NodeCollInfo.CollInfo buildCollInfo(Map.Entry<String, ChannelState.StateProgress> entry) {
+        String fileName = entry.getKey();
+        ChannelState.StateProgress stateProgress = entry.getValue();
+
+        NodeCollInfo.CollInfo collInfo = new NodeCollInfo.CollInfo();
+        collInfo.setFileName(fileName);
+        collInfo.setFileNode(stateProgress.getFileInode());
+        collInfo.setCollProgress(getPercent(stateProgress.getPointer(), stateProgress.getFileMaxPointer()));
+        collInfo.setMaxPointer(stateProgress.getFileMaxPointer());
+        collInfo.setCurrentPointer(stateProgress.getPointer());
+        collInfo.setCurrentNumber(stateProgress.getCurrentRowNum());
+        collInfo.setCollTime(stateProgress.getCtTime());
+
+        return collInfo;
     }
 
     /**
@@ -393,7 +453,7 @@ public class ChannelEngine {
                     SimilarComparator outputSimilarComparator = new OutputSimilarComparator(oldChannelDefine.getOutput());
                     FilterSimilarComparator filterSimilarComparator = new FilterSimilarComparator(oldChannelDefine.getFilters());
                     SimilarComparator logLevelSimilarComparator = new LogLevelSimilarComparator(oldChannelDefine.getFilterLogLevelList());
-                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput()) && logLevelSimilarComparator.compare(newChannelDefine.getFilterLogLevelList()) ) {
+                    if (appSimilarComparator.compare(newChannelDefine.getAppId()) && inputSimilarComparator.compare(newChannelDefine.getInput()) && outputSimilarComparator.compare(newChannelDefine.getOutput()) && logLevelSimilarComparator.compare(newChannelDefine.getFilterLogLevelList())) {
                         if (!filterSimilarComparator.compare(newChannelDefine.getFilters())) {
                             channelServiceList.stream().filter(channelService -> ((AbstractChannelService) channelService).getChannelDefine().getChannelId().equals(channelId)).findFirst().ifPresent(channelService -> channelService.filterRefresh(newChannelDefine.getFilters()));
                         }

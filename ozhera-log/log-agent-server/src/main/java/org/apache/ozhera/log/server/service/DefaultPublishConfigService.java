@@ -71,7 +71,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
             if (logAgentMap.containsKey(agentCurrentIp)) {
                 String sendStr = GSON.toJson(logCollectMeta);
                 if (CollectionUtils.isNotEmpty(logCollectMeta.getAppLogMetaList())) {
-                    RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.logReq);
+                    RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
                     log.info("Send the configuration,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
                     Stopwatch started = Stopwatch.createStarted();

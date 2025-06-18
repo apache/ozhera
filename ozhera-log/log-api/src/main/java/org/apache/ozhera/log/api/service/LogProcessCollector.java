@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.api.service;
 
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.AgentLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
@@ -79,4 +80,9 @@ public interface LogProcessCollector {
      * @return
      */
     List<UpdateLogProcessCmd.CollectDetail> getAllCollectDetail(String ip);
+
+    List<String> getAllAgentList();
+
+    NodeCollInfo getNodeCollInfo(String ip);
+
 }

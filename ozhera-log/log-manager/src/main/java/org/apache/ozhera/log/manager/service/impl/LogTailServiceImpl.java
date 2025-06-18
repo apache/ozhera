@@ -357,8 +357,8 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     @Override
-    public Result<Map<String, Object>> getMilogLogBypage(Long storeId, int page, int pagesize) {
-        List<MilogLogTailDo> ret = milogLogtailDao.getMilogLogtailByPage(storeId, page, pagesize);
+    public Result<Map<String, Object>> getMilogLogBypage(Long storeId, String tailName, int page, int pagesize) {
+        List<MilogLogTailDo> ret = milogLogtailDao.getMilogLogtailByPage(storeId, tailName, page, pagesize);
         ArrayList<LogTailDTO> res = Lists.newArrayList();
         ret.forEach(v -> {
             res.add(milogLogtailDO2DTO(v));

@@ -19,12 +19,11 @@
 package org.apache.ozhera.log.manager.service.nacos.impl;
 
 import com.alibaba.nacos.api.config.ConfigService;
-import com.alibaba.nacos.api.exception.NacosException;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
 import org.apache.ozhera.log.model.MilogSpaceData;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import static org.apache.ozhera.log.common.Constant.DEFAULT_GROUP_ID;
 import static org.apache.ozhera.log.common.Constant.TAIL_CONFIG_DATA_ID;
@@ -43,12 +42,17 @@ public class SpaceConfigNacosPublisher implements DynamicConfigPublisher<MilogSp
 
     @Override
     public void publish(Long uniqueSpace, MilogSpaceData config) {
-        log.info("write the creation namespace configuration:{}", gson.toJson(config));
+        String configJson = gson.toJson(config);
+        log.info("write the creation namespace configuration:{}", configJson);
         String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + uniqueSpace;
         try {
-            configService.publishConfig(dataId, DEFAULT_GROUP_ID, gson.toJson(config));
-        } catch (NacosException e) {
-            log.error(String.format("Write the creation namespace configuration...,dataId:{},data:%s", dataId, gson.toJson(config)), e);
+            if (null != configService) {
+                configService.publishConfig(dataId, DEFAULT_GROUP_ID, gson.toJson(config));
+            } else {
+                log.warn("configService is null,uniqueSpace:{},config:{}", uniqueSpace, configJson);
+            }
+        } catch (Exception e) {
+            log.error(String.format("Write the creation namespace configuration...,dataId:%s,data:%s", dataId, configJson), e);
         }
     }
 
@@ -56,8 +60,10 @@ public class SpaceConfigNacosPublisher implements DynamicConfigPublisher<MilogSp
     public void remove(String spaceId) {
         String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
         try {
-            configService.removeConfig(dataId, DEFAULT_GROUP_ID);
-        } catch (NacosException e) {
+            if (null != configService) {
+                configService.removeConfig(dataId, DEFAULT_GROUP_ID);
+            }
+        } catch (Exception e) {
             log.error(String.format("Delete log configuration data data exceptions,param：%s", dataId), e);
         }
     }

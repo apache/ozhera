@@ -19,17 +19,26 @@
 package org.apache.ozhera.log.server.service;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.json.JSONUtil;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import org.apache.ozhera.log.api.model.vo.AgentLogProcessDTO;
-import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
-import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
-import org.apache.ozhera.log.api.service.LogProcessCollector;
+import com.xiaomi.data.push.context.AgentContext;
+import com.xiaomi.data.push.rpc.RpcServer;
+import com.xiaomi.data.push.rpc.netty.AgentChannel;
+import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.youpin.docean.anno.Component;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
+import org.apache.ozhera.log.api.model.vo.AgentLogProcessDTO;
+import org.apache.ozhera.log.api.model.vo.LogCmd;
+import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
+import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
+import org.apache.ozhera.log.api.service.LogProcessCollector;
 
+import javax.annotation.Resource;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
+import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
 
 /**
  * @author wtt
@@ -56,6 +66,9 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
     private static final Integer MAX_STATIC_INTERRUPT_TIME_HOUR = 4;
 
     private static final String PROCESS_SEPARATOR = "%";
+
+    @Resource
+    private RpcServer rpcServer;
 
     @Override
     public void collectLogProcess(UpdateLogProcessCmd cmd) {
@@ -179,6 +192,34 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
     @Override
     public List<UpdateLogProcessCmd.CollectDetail> getAllCollectDetail(String ip) {
         return tailProgressMap.get(ip);
+    }
+
+    @Override
+    public List<String> getAllAgentList() {
+        return new ArrayList<>(getAgentChannelMap().keySet());
+    }
+
+    @Override
+    public NodeCollInfo getNodeCollInfo(String ip) {
+        RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.MACHINE_COLL_INFO);
+        req.setBody(ip.getBytes());
+        log.info("get NodeCollInfo,agent ip:{}", ip);
+        Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
+        Stopwatch started = Stopwatch.createStarted();
+        RemotingCommand res = rpcServer.sendMessage(logAgentMap.get(ip), req, 20000);
+        started.stop();
+        String response = new String(res.getBody());
+        log.info("get NodeCollInfo successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), ip);
+        if (JSONUtil.isTypeJSON(response)) {
+            return GSON.fromJson(response, NodeCollInfo.class);
+        }
+        return new NodeCollInfo();
+    }
+
+    private Map<String, AgentChannel> getAgentChannelMap() {
+        Map<String, AgentChannel> logAgentMap = new HashMap<>();
+        AgentContext.ins().map.forEach((k, v) -> logAgentMap.put(StringUtils.substringBefore(k, SYMBOL_COLON), v));
+        return logAgentMap;
     }
 
     /**

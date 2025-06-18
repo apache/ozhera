@@ -19,12 +19,6 @@
 package org.apache.ozhera.log.agent.extension;
 
 import com.google.common.base.Preconditions;
-import org.apache.ozhera.log.agent.export.MsgExporter;
-import org.apache.ozhera.log.agent.output.Output;
-import org.apache.ozhera.log.agent.service.OutPutService;
-import org.apache.ozhera.log.api.model.meta.LogPattern;
-import org.apache.ozhera.log.api.model.meta.MQConfig;
-import org.apache.ozhera.log.utils.KafkaUtils;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.plugin.config.anno.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.ozhera.log.agent.export.MsgExporter;
+import org.apache.ozhera.log.agent.input.Input;
+import org.apache.ozhera.log.agent.output.Output;
+import org.apache.ozhera.log.agent.service.OutPutService;
+import org.apache.ozhera.log.api.model.meta.LogPattern;
+import org.apache.ozhera.log.api.model.meta.MQConfig;
+import org.apache.ozhera.log.utils.KafkaUtils;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -81,7 +82,7 @@ public class KafkaService implements OutPutService {
     }
 
     @Override
-    public MsgExporter exporterTrans(Output output) throws Exception {
+    public MsgExporter exporterTrans(Output output, Input input) throws Exception {
         KafkaOutput kafkaOutput = (KafkaOutput) output;
         String nameSrvAddr = kafkaOutput.getClusterInfo();
         String key = getKey(nameSrvAddr, kafkaOutput.getTopic(), kafkaOutput.getTag());

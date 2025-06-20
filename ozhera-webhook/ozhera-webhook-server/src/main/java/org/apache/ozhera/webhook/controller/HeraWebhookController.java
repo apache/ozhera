@@ -37,10 +37,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
-/**
- * @author dingtao
- * @date 2023/4/11 14:40
- */
 @RestController
 @Slf4j
 public class HeraWebhookController {

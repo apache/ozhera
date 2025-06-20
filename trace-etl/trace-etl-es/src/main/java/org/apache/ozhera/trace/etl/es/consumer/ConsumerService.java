@@ -51,11 +51,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-/**
- * @author dingtao
- * @Description
- * @date 2021/9/29 2:47 pm
- */
 @Service
 @Slf4j
 public class ConsumerService {

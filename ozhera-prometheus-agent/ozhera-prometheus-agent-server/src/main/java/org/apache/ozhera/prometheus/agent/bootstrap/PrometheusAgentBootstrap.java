@@ -27,9 +27,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * @author dingtao
- */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.apache.ozhera.prometheus.agent", "com.xiaomi.youpin"})
 @DubboComponentScan(basePackages = "org.apache.ozhera.prometheus.agent")

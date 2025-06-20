@@ -1,7 +1,26 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.ozhera.intelligence.agents.function;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.intelligence.domain.rootanalysis.TraceQueryParam;
 import org.apache.ozhera.intelligence.service.TraceAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +41,7 @@ public class TraceAnalysisFunction implements McpFunction {
 
     private String name = "stream_hera_analysis";
 
-    private String desc = "根据traceId分析trace链路上异常或者慢查询出现的根本原因";
+    private String desc = "Analyze the root cause of exceptions or slow queries in the trace chain based on traceId";
 
     private String chaosToolSchema = """
             {
@@ -30,7 +49,7 @@ public class TraceAnalysisFunction implements McpFunction {
                 "properties": {
                     "traceId": {
                         "type": "string",
-                        "description": "traceId，为32位0-9和a-f组成的随机字符串"
+                        "description": "traceId, a random string consisting of 32 characters from 0-9 and a-f"
                     }
                   },
                 "required": ["traceId"]
@@ -45,16 +64,16 @@ public class TraceAnalysisFunction implements McpFunction {
                 String traceId = getStringParam(args, "traceId");
 
                 if (traceId.isEmpty()) {
-                    log.warn("traceId 为空");
+                    log.warn("traceId is empty");
                 }
 
-                String result = traceAnalysisService.analyzeTraceRoot(traceId, "online");
+                String result = traceAnalysisService.analyzeTraceRoot(TraceQueryParam.builder().traceId(traceId).env("online").build());
 
                 return createSuccessFlux(result);
             } catch (Exception e) {
-                log.error("执行混沌操作失败", e);
+                log.error("Failed to execute chaos operation", e);
                 return Flux.just(new McpSchema.CallToolResult(
-                    List.of(new McpSchema.TextContent("操作失败：" + e.getMessage())), true));
+                    List.of(new McpSchema.TextContent("Operation failed: " + e.getMessage())), true));
             }
         });
     }

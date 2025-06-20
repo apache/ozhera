@@ -21,10 +21,6 @@ package org.apache.ozhera.intelligence.domain.rootanalysis;
 import lombok.Data;
 import lombok.ToString;
 
-/**
- * @author dingtao
- * @date 2025/1/20 11:26
- */
 @Data
 @ToString
 public class HeraRootCaseAnalyseRes {

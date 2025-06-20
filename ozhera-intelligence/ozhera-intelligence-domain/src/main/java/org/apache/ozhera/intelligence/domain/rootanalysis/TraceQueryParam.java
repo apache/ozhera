@@ -30,5 +30,5 @@ import java.util.List;
 public class TraceQueryParam {
     private String traceId;
     private String env;
-    private long timeStamp;
+    private Long timeStamp;
 }

@@ -42,10 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.ozhera.intelligence.util.CommitPoolUtil.HERA_SOLUTION_METRICS_POOL;
 
-/**
- * @author dingtao
- * @date 2025/1/20 11:26
- */
 @Service
 @Slf4j
 public class MetricsService {

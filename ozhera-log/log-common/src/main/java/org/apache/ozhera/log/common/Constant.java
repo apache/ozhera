@@ -140,6 +140,8 @@ public class Constant {
 
     public static final String MIFAAS_APP_TYPE_TEXT = "serverLess";
 
+    public static final Integer MATRIX_APP_TYPE_CODE = 6;
+
     /**
      * RocketMQ data monitoring
      */

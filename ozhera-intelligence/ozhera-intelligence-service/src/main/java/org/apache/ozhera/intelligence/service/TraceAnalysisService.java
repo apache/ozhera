@@ -31,8 +31,6 @@ import java.util.Map;
 
 /**
  * Trace analysis service
- * 
- * @author dingtao
  */
 @Slf4j
 @Service

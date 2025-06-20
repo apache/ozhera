@@ -34,8 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * PromptService unit test class
  * Test the basic functionality of various methods in PromptService
- *
- * @author dingtao
  */
 class PromptServiceTest {
 

@@ -50,7 +50,6 @@ public class PromptService {
      *
      * @param trace trace link data
      * @return TracePromptResult analysis result
-     * @author dingtao
      */
     public TracePromptResult traceAnalysis(String trace) {
         // Get the corresponding prompt
@@ -89,7 +88,6 @@ public class PromptService {
      *
      * @param log log data
      * @return LogPromptResult analysis result
-     * @author dingtao
      */
     public LogPromptResult logAnalysis(String log) {
         // Get the corresponding prompt
@@ -122,7 +120,6 @@ public class PromptService {
      *
      * @param metrics metrics data
      * @return MetricsPromptResult analysis result
-     * @author dingtao
      */
     public MetricsPromptResult metricsAnalysis(String metrics) {
         // Get the corresponding prompt, replace data placeholder
@@ -158,7 +155,6 @@ public class PromptService {
      * @param logReason     log analysis result
      * @param metricsReason metrics analysis result
      * @return String comprehensive analysis result
-     * @author dingtao
      */
     public String getSimpleReason(String application, String traceReason, String logReason, String metricsReason) {
         // Build prompt, replace placeholders

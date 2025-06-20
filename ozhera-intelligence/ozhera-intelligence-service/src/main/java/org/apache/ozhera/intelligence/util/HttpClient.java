@@ -31,10 +31,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author dingtao
- * @date 2025/1/20 11:26
- */
 @Slf4j
 public class HttpClient {
 

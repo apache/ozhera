@@ -568,4 +568,21 @@ CREATE TABLE `project`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
 
+-- ----------------------------
+-- Table structure for milog_ai_conversation
+-- ----------------------------
+DROP TABLE IF EXISTS `milog_ai_conversation`;
+CREATE TABLE `milog_ai_conversation`  (
+                            `id` bigint(0) NOT NULL AUTO_INCREMENT,
+                            `store_id` bigint(0) NULL DEFAULT NULL COMMENT 'store id',
+                            `conversation_context` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'The conversation context used by llm',
+                            `original_conversation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'The original context with llm',
+                            `creator` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'creator',
+                            `update_time` bigint(0) NULL DEFAULT NULL,
+                            `create_time` bigint(0) NULL DEFAULT NULL,
+                            PRIMARY KEY (`id`) USING BTREE,
+                            INDEX `idx_store_id`(`store_id`),
+                            INDEX `idx_creator`(`creator`)
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+
 SET FOREIGN_KEY_CHECKS = 1;

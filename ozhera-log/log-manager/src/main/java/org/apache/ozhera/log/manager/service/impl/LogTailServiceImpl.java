@@ -541,7 +541,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     private List<MapDTO> queryAppInfo(String appName, Integer type) {
         int limit = 100;
-        List<AppBaseInfo> apps = heraAppService.querySpecifiedAppInfoWithLog(appName, limit);
+        List<AppBaseInfo> apps = heraAppService.querySpecifiedAppInfoWithLog(appName, limit, type);
         List<MapDTO> mapDTOList = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(apps)) {
             mapDTOList = apps.stream().map(response -> {

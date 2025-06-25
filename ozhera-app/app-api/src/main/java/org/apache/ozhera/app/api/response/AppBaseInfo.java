@@ -34,6 +34,7 @@ import java.util.List;
 public class AppBaseInfo implements Serializable {
     private Integer id;
     private String bindId;
+    private Integer bindType;
     private String appName;
     private String appCname;
     private Integer platformType;

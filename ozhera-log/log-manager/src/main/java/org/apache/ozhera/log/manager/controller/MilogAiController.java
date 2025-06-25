@@ -17,7 +17,12 @@ public class MilogAiController {
     private MilogAiAnalysisService milogAiAnalysisService;
 
     @RequestMapping(path = "/milog/tail/aiAnalysis", method = "post")
-    public Result<LogAiAnalysisResponse> aiAnalysis(@RequestParam(value = "logList") LogAiAnalysisDTO tailLogAiAnalysisDTO){
+    public Result<LogAiAnalysisResponse> aiAnalysis(LogAiAnalysisDTO tailLogAiAnalysisDTO) {
         return milogAiAnalysisService.tailLogAiAnalysis(tailLogAiAnalysisDTO);
+    }
+
+    @RequestMapping(path = "/milog/tail/testCompress", method = "post")
+    public String testCompress(@RequestParam(value = "testParam") String str) {
+        return milogAiAnalysisService.testCompress(str);
     }
 }

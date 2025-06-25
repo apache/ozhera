@@ -8,4 +8,6 @@ public interface MilogAiAnalysisService {
 
     Result<LogAiAnalysisResponse> tailLogAiAnalysis(LogAiAnalysisDTO tailLogAiAnalysisDTO);
 
+    String testCompress(String str);
+
 }

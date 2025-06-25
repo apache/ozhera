@@ -13,5 +13,6 @@ public class BotQAParam {
     public static class QAParam {
         private String bot;
         private String user;
+        private String time;
     }
 }

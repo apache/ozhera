@@ -2,7 +2,7 @@ package org.apache.ozhera.log.manager.service.bot;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.springframework.stereotype.Service;
+import com.xiaomi.youpin.docean.anno.Service;
 import run.mone.hive.Environment;
 import run.mone.hive.llm.LLM;
 import run.mone.hive.llm.LLMProvider;

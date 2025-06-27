@@ -27,9 +27,11 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.ozhera.log.agent.export.MsgExporter;
+import org.apache.ozhera.log.agent.extension.nacos.AppPartitionConfigService;
 import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.agent.output.Output;
 import org.apache.ozhera.log.agent.service.OutPutService;
+import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.meta.MQConfig;
 import org.apache.ozhera.log.utils.KafkaUtils;
@@ -92,7 +94,8 @@ public class KafkaService implements OutPutService {
             producerMap.put(key, mqProducer);
         }
 
-        KafkaExporter rmqExporter = new KafkaExporter(mqProducer, output.getTag());
+        KafkaExporter rmqExporter = new KafkaExporter(mqProducer, output.getTag(), this, input.getType().equals(
+                LogTypeEnum.OPENTELEMETRY.name()));
         rmqExporter.setTopic(kafkaOutput.getTopic());
         rmqExporter.setBatchSize(kafkaOutput.getBatchExportSize());
 
@@ -109,6 +112,32 @@ public class KafkaService implements OutPutService {
         String clusterInfo = output.getClusterInfo();
         String ak = output.getAk();
         String sk = output.getSk();
+
+        if (StringUtils.isNotEmpty(ak) && StringUtils.isNotEmpty(sk) && Objects.equals("true", kafkaUseSsl)) {
+            properties.putAll(KafkaUtils.getSslKafkaProperties(clusterInfo, ak, sk, kafkaSllLocation));
+        } else if (StringUtils.isNotEmpty(ak) && StringUtils.isNotEmpty(sk)) {
+            properties.putAll(KafkaUtils.getVpc9094KafkaProperties(clusterInfo, ak, sk));
+        } else {
+            properties.putAll(KafkaUtils.getDefaultKafkaProperties(clusterInfo));
+        }
+
+        // set other properties
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, clusterInfo);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
+        return new KafkaProducer<>(properties);
+    }
+
+    public Producer initTopTalosProducer(AppPartitionConfigService.TopicInfo topicInfo) {
+        if (null == topicInfo || null == topicInfo.getAk() || null == topicInfo.getSk()) {
+            return null;
+        }
+        Properties properties = new Properties();
+
+        String clusterInfo = topicInfo.getEndpoint();
+        String ak = topicInfo.getAk();
+        String sk = topicInfo.getSk();
 
         if (StringUtils.isNotEmpty(ak) && StringUtils.isNotEmpty(sk) && Objects.equals("true", kafkaUseSsl)) {
             properties.putAll(KafkaUtils.getSslKafkaProperties(clusterInfo, ak, sk, kafkaSllLocation));
@@ -152,4 +181,5 @@ public class KafkaService implements OutPutService {
         output.setProducerGroup(DEFAULT_CONSUMER_GROUP + (null == logPattern.getPatternCode() ? "" : logPattern.getPatternCode()));
         return output;
     }
+
 }

@@ -27,7 +27,6 @@ import javax.annotation.PostConstruct;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/3/7 12:14 PM
  */
 @Configuration

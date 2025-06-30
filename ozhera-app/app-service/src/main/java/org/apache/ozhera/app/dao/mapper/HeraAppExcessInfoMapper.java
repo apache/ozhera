@@ -24,7 +24,6 @@ import org.apache.ozhera.app.model.HeraAppExcessInfo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/31 16:22

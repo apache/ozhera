@@ -23,7 +23,6 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @author shanwb
  * @date 2023-03-02
  */
 @Data

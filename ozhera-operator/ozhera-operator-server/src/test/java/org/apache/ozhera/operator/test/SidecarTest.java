@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * @author goodjava@qq.com
  * @date 2022/6/14 15:56
  */
 public class SidecarTest {

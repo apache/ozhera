@@ -32,8 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
- * @author gaoxihui
- * @date 2023/6/6 10:58 上午
+ * @date 2023/6/6 10:58 AM
  */
 @Slf4j
 @Service(registry = "registryConfig", interfaceClass = HeraProjectGroupServiceApi.class, group = "${dubbo.group}")

@@ -21,8 +21,7 @@ package org.apache.ozhera.app.api.service;
 import org.apache.ozhera.app.common.Result;
 
 /**
- * @author gaoxihui
- * @date 2023/6/16 5:18 下午
+ * @date 2023/6/16 5:18 PM
  */
 public interface HeraAuthorizationApi {
 

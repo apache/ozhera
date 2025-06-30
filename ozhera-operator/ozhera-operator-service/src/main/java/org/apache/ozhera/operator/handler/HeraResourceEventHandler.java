@@ -54,9 +54,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-/**
- * @author wenbang
- */
 @Slf4j
 @Component(name = "HeraResourceEventHandler")
 @Data
@@ -318,6 +315,11 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
      * @param pwd
      */
     private void executeSqlScript(String[] scripts, String url, String userName, String pwd) {
+
+        if (url.contains("?") || url.contains("#") || url.toLowerCase().contains("allowloadlocalinfile")) {
+            throw new IllegalArgumentException("Unsafe URL detected");
+        }
+
         int retryTimes = 3;
         Connection con = null;
         ScriptRunner sr = null;

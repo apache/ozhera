@@ -21,7 +21,6 @@ package org.apache.ozhera.app.enums;
 import lombok.Getter;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/11/2 11:49

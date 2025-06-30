@@ -16,37 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.log.manager.model.pojo;
+package org.apache.ozhera.log.manager.model.dto;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.io.Serializable;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-@TableName("milog_ai_conversation")
-public class MilogAiConversationDO implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
+public class AiAnalysisHistoryDTO {
     private Long id;
-
-    private Long storeId;
-
-    private String conversationName;
-
-    private String conversationContext;
-
-    private String originalConversation;
-
-    private String creator;
-
-    private Long createTime;
-
-    private Long updateTime;
+    private String name;
+    private String createTime;
 }

@@ -22,5 +22,13 @@ http://www.apache.org/licenses/LICENSE-2.0
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.ozhera.log.manager.mapper.MilogAiConversationMapper">
 
+    <select id="getListByUserAndStore"
+            resultType="org.apache.ozhera.log.manager.model.pojo.MilogAiConversationDO">
+        SELECT *
+        FROM milog_ai_conversation
+        WHERE store_id = #{storeId}
+          AND creator = #{creator}
+        ORDER BY update_time DESC
+    </select>
 
 </mapper>

@@ -575,6 +575,7 @@ DROP TABLE IF EXISTS `milog_ai_conversation`;
 CREATE TABLE `milog_ai_conversation`  (
                             `id` bigint(0) NOT NULL AUTO_INCREMENT,
                             `store_id` bigint(0) NULL DEFAULT NULL COMMENT 'store id',
+                            `conversation_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'conversation name',
                             `conversation_context` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'The conversation context used by llm',
                             `original_conversation` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'The original context with llm',
                             `creator` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'creator',

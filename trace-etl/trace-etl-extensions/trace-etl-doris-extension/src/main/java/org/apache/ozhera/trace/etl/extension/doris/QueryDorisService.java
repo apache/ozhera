@@ -53,8 +53,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/7 11:40 上午
+ * @Date 2022/11/7 11:40 am
  */
 @Slf4j
 public class QueryDorisService {

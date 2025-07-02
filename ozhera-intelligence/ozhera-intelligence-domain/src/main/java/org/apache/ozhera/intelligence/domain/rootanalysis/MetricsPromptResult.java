@@ -18,13 +18,17 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class MetricsPromptResult {
 
     private boolean root;
 
     private String metricsReason;
 
+    public static final String ROOT = "root";
+    public static final String METRICS_REASON = "metricsReason";
 }

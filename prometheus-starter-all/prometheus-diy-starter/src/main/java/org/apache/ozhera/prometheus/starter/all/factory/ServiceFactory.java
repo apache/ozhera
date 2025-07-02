@@ -25,10 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.apache.ozhera.prometheus.starter.all.domain.Const;
 
-
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/3/5 3:33 PM
  */
 public class ServiceFactory {

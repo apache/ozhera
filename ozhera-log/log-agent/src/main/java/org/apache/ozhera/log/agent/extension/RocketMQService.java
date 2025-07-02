@@ -42,7 +42,6 @@ import static org.apache.ozhera.log.common.Constant.DEFAULT_CONSUMER_GROUP;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/7 9:44 AM
  */
 @Service(name = "RocketMQService")

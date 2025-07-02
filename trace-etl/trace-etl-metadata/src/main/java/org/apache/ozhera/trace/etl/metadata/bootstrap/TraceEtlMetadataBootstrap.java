@@ -26,9 +26,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * @author dingtao
- */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"com.xiaomi.hera.trace.etl", "run.mone.trace.etl"})
 @DubboComponentScan(basePackages = "run.mone.trace.etl")

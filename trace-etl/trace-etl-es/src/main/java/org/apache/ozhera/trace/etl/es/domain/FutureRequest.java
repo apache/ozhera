@@ -24,7 +24,6 @@ import org.apache.ozhera.tspandata.TSpanData;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/5/23 10:16 am
  */
 public class FutureRequest {

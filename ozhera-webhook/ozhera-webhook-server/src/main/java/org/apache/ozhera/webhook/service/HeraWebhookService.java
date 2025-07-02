@@ -27,10 +27,8 @@ import java.util.List;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/10 11:27 AM
  */
-
 public interface HeraWebhookService {
     
     @PostConstruct

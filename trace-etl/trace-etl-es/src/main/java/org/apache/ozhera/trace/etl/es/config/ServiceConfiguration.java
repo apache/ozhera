@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/4/28 10:32 am
  */
 @Configuration

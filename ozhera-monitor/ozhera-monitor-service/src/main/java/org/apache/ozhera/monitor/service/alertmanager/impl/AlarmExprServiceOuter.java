@@ -136,6 +136,14 @@ public class AlarmExprServiceOuter implements AlarmExprService {
     @NacosValue(value = "${rule.evaluation.duration:30}",autoRefreshed = true)
     private Integer evaluationDuration;
 
+    // trace downgrade strategy switch
+    @NacosValue(value = "${trace.remove.ip:false}", autoRefreshed = true)
+    private String isRemoveIp;
+
+    // trace downgrade mock IP
+    @NacosValue(value = "${trace.remove.mock.ip:10.0.0.0}", autoRefreshed = true)
+    private String traceMockIp;
+
     @Autowired
     private PrometheusService prometheusService;
 
@@ -927,6 +935,10 @@ public class AlarmExprServiceOuter implements AlarmExprService {
         for(Metric metric : metrics){
 
             allIps.add(metric.getPodIp());
+            if (isRemoveIp.equals("true") && !allIps.contains(traceMockIp)) {
+                log.info("trace Downgrade IP strategy begin allIps begin!");
+                allIps.add(traceMockIp);
+            }
 
             if(StringUtils.isBlank(metric.getServerEnv())){
                 continue;
@@ -937,17 +949,29 @@ public class AlarmExprServiceOuter implements AlarmExprService {
             stringObjectMap.putIfAbsent("envIps", new HashSet<>());
             HashSet ipList = (HashSet<String>)stringObjectMap.get("envIps");
             ipList.add(metric.getPodIp());
+            if (isRemoveIp.equals("true") && !ipList.contains(traceMockIp)) {
+                log.info("trace Downgrade IP strategy begin envMaps begin!");
+                ipList.add(traceMockIp);
+            }
 
             if(StringUtils.isNotBlank(metric.getServerZone())){
                 allZones.putIfAbsent(metric.getServerZone(),new HashSet<String>());
                 HashSet<String> zoneIps = allZones.get(metric.getServerZone());
                 zoneIps.add(metric.getPodIp());
+                if (isRemoveIp.equals("true") && !zoneIps.contains(traceMockIp)) {
+                    log.info("trace Downgrade IP strategy begin allZones begin!");
+                    zoneIps.add(traceMockIp);
+                }
 
                 stringObjectMap.putIfAbsent("zoneList", new HashMap<>());
                 HashMap serviceList = (HashMap<String,Set<String>>)stringObjectMap.get("zoneList");
 
                 serviceList.putIfAbsent(metric.getServerZone(), new HashSet<String>());
                 HashSet<String> ips = (HashSet<String>)serviceList.get(metric.getServerZone());
+                if (isRemoveIp.equals("true") && !ips.contains(traceMockIp)) {
+                    log.info("trace Downgrade IP strategy begin zoneList begin!");
+                    ips.add(traceMockIp);
+                }
 
                 ips.add(metric.getPodIp());
             }

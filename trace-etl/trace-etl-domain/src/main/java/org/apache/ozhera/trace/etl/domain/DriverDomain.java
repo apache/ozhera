@@ -21,7 +21,6 @@ package org.apache.ozhera.trace.etl.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2021/10/18 4:28 下午
  */
 public class DriverDomain {

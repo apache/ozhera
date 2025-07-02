@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/27 12:20 PM
  */
 @Service(name = "OuterChannelDefineLocatorExtensionImpl")

@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * @author wtt
  * @version 1.0
  * @description tpc分页信息返回值
  * @date 2023/8/16 16:33

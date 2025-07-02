@@ -24,7 +24,6 @@ import com.xiaomi.youpin.docean.config.HttpServerConfig;
 import com.xiaomi.youpin.docean.mvc.DoceanHttpServer;
 
 /**
- * @author shanwb
  * @date 2023-01-31
  */
 public class HeraBootstrap {

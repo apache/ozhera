@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * @author shanwb
  * @date 2023-02-09
  */
 public class FileUtils {

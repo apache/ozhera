@@ -21,7 +21,6 @@ package org.apache.ozhera.operator.dto;
 import lombok.Data;
 
 /**
- * @author zhangxiaowei6
  * @date 2023-02-22
  */
 @Data

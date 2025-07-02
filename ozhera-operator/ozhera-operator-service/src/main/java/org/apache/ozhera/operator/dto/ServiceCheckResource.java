@@ -24,7 +24,6 @@ import org.apache.ozhera.operator.bo.HeraResource;
 import java.io.Serializable;
 
 /**
- * @author shanwb
  * @date 2023-02-24
  */
 @Data

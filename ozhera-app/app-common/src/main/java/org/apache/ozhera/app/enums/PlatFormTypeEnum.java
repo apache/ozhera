@@ -19,7 +19,6 @@
 package org.apache.ozhera.app.enums;
 
 /**
- * @author wtt
  * @version 1.0
  * @description mimonitor对应的应用类型
  * @date 2022/10/29 15:39

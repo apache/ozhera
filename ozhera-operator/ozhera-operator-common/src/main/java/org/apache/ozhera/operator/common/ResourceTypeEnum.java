@@ -19,7 +19,6 @@
 package org.apache.ozhera.operator.common;
 
 /**
- * @author shanwb
  * @date 2023-02-10
  */
 public enum ResourceTypeEnum {

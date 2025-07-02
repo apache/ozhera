@@ -23,9 +23,6 @@ import lombok.Data;
 import java.util.List;
 
 
-/**
- * @author shanwb
- */
 @Data
 public class HeraSpec {
 

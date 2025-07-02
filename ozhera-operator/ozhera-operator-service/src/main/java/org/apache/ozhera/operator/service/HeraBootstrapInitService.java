@@ -59,7 +59,6 @@ import java.util.stream.Collectors;
 /**
  * Initialize the mone family bucket namespace.
  *
- * @author shanwb
  * @date 2022-06-17
  */
 @Service

@@ -25,7 +25,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/11/11 19:11

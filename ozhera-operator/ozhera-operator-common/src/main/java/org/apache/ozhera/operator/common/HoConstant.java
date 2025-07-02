@@ -19,7 +19,6 @@
 package org.apache.ozhera.operator.common;
 
 /**
- * @author shanwb
  * @date 2022-06-24
  */
 public class HoConstant {

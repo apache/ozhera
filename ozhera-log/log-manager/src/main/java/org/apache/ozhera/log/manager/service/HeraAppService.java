@@ -61,5 +61,5 @@ public interface HeraAppService {
 
     Long getAppCount();
 
-    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit);
+    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit, Integer type);
 }

@@ -16,31 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.app.api.response;
+package org.apache.ozhera.log.manager.service;
 
-import lombok.Data;
+import org.apache.ozhera.log.common.Result;
+import org.apache.ozhera.log.manager.model.bo.BotQAParam;
+import org.apache.ozhera.log.manager.model.dto.AiAnalysisHistoryDTO;
+import org.apache.ozhera.log.manager.model.dto.LogAiAnalysisDTO;
+import org.apache.ozhera.log.manager.model.vo.LogAiAnalysisResponse;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/2 11:45
- */
-@Data
-public class AppBaseInfo implements Serializable {
-    private Integer id;
-    private String bindId;
-    private Integer bindType;
-    private String appName;
-    private String appCname;
-    private Integer platformType;
-    private String platformName;
-    private Integer appType;
-    private String appTypeName;
-    private List<Integer> treeIds;
-    private LinkedHashMap<String, List<String>> nodeIPs;
+public interface MilogAiAnalysisService {
+
+    Result<LogAiAnalysisResponse> tailLogAiAnalysis(LogAiAnalysisDTO tailLogAiAnalysisDTO);
+
+    void shutdown();
+
+    Result<List<AiAnalysisHistoryDTO>> getAiHistoryList(Long storeId);
+
+    Result<List<BotQAParam.QAParam>> getAiConversation(Long id);
+
+    Result<Boolean> deleteAiConversation(Long id);
+
+    Result<Boolean> updateAiName(Long id, String name);
+
+    Result<Boolean> closeAiAnalysis(Long id);
+
 }

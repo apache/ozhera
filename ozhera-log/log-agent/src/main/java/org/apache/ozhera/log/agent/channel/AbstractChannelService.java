@@ -21,6 +21,7 @@ package org.apache.ozhera.log.agent.channel;
 import cn.hutool.core.io.FileUtil;
 import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
+import com.xiaomi.mone.file.common.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
@@ -30,6 +31,7 @@ import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.utils.NetUtil;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +92,11 @@ public abstract class AbstractChannelService implements ChannelService {
             }
             ChannelState.StateProgress stateProgress = new ChannelState.StateProgress();
             stateProgress.setCurrentFile(pattern);
+            File file = new File(pattern);
+            if (file.exists()) {
+                stateProgress.setFileInode(FileUtils.fileKey(file).toString());
+            }
+            file = null;
             stateProgress.setIp(getTailPodIp(pattern));
             stateProgress.setCurrentRowNum(fileProcess.getCurrentRowNum());
             stateProgress.setPointer(fileProcess.getPointer());

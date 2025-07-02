@@ -19,15 +19,15 @@
 package org.apache.ozhera.log.manager.dao;
 
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.enums.MachineTypeEnum;
 import org.apache.ozhera.log.api.enums.ProjectTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterDefine;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.FieldFilter;
@@ -118,8 +118,11 @@ public class MilogLogTailDao {
         return dao.query(MilogLogTailDo.class, Cnd.where("store_id", "in", ids).orderBy("ctime", "desc"));
     }
 
-    public List<MilogLogTailDo> getMilogLogtailByPage(Long storeId, int page, int pagesize) {
+    public List<MilogLogTailDo> getMilogLogtailByPage(Long storeId, String tailName, int page, int pagesize) {
         Cnd cnd = Cnd.where("store_id", EQUAL_OPERATE, storeId);
+        if (StringUtils.isNotBlank(tailName)) {
+            cnd = cnd.and("tail", "like", "%" + tailName + "%");
+        }
         return dao.query(MilogLogTailDo.class, cnd.orderBy("ctime", "desc"), new Pager(page, pagesize));
     }
 

@@ -25,9 +25,10 @@ package org.apache.ozhera.log.api.model.vo;
 public class LogCmd {
 
 
-    public static final int logReq = 3000;
-    public static final int logRes = 3001;
-
-
+    public static final int LOG_REQ = 3000;
+    //send config
+    public static final int LOG_RES = 3001;
+    // machine info
+    public static final int MACHINE_COLL_INFO = 3002;
 
 }

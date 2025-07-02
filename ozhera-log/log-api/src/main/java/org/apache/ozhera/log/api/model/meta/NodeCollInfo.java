@@ -16,31 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.app.api.response;
+package org.apache.ozhera.log.api.model.meta;
 
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
  * @author wtt
  * @version 1.0
  * @description
- * @date 2022/11/2 11:45
+ * @date 2025/6/17 14:20
  */
 @Data
-public class AppBaseInfo implements Serializable {
-    private Integer id;
-    private String bindId;
-    private Integer bindType;
-    private String appName;
-    private String appCname;
-    private Integer platformType;
-    private String platformName;
-    private Integer appType;
-    private String appTypeName;
-    private List<Integer> treeIds;
-    private LinkedHashMap<String, List<String>> nodeIPs;
+public class NodeCollInfo implements Serializable {
+    private String hostIp;
+    private String hostName;
+    private List<TailCollInfo> tailCollInfos;
+
+    @Data
+    public static class TailCollInfo implements Serializable {
+        private Long tailId;
+        private String tailName;
+        private List<CollInfo> collInfos;
+    }
+
+    @Data
+    public static class CollInfo implements Serializable {
+        private String fileName;
+        private String fileNode;
+        private String collProgress;
+        private Long maxPointer;
+        private Long currentPointer;
+        private Long currentNumber;
+        private Long collTime;
+    }
 }

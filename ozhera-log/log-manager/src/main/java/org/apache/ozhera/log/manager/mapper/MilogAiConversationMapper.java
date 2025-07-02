@@ -16,31 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.app.api.response;
+package org.apache.ozhera.log.manager.mapper;
 
-import lombok.Data;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ozhera.log.manager.model.pojo.MilogAiConversationDO;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.List;
 
-/**
- * @author wtt
- * @version 1.0
- * @description
- * @date 2022/11/2 11:45
- */
-@Data
-public class AppBaseInfo implements Serializable {
-    private Integer id;
-    private String bindId;
-    private Integer bindType;
-    private String appName;
-    private String appCname;
-    private Integer platformType;
-    private String platformName;
-    private Integer appType;
-    private String appTypeName;
-    private List<Integer> treeIds;
-    private LinkedHashMap<String, List<String>> nodeIPs;
+@Mapper
+public interface MilogAiConversationMapper extends BaseMapper<MilogAiConversationDO> {
+    List<MilogAiConversationDO> getListByUserAndStore(@Param(value = "storeId") Long storeId, @Param(value = "creator") String creator);
 }

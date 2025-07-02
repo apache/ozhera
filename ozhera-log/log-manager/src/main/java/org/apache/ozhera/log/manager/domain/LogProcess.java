@@ -19,17 +19,18 @@
 package org.apache.ozhera.log.manager.domain;
 
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.AgentLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.api.service.LogProcessCollector;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -114,5 +115,13 @@ public class LogProcess {
 
     public List<UpdateLogProcessCmd.CollectDetail> getColProcessImperfect(Double progressRation) {
         return logProcessCollector.getColProcessImperfect(progressRation);
+    }
+
+    public List<String> getAllAgentList() {
+        return logProcessCollector.getAllAgentList();
+    }
+
+    public NodeCollInfo getNodeCollInfo(String ip) {
+        return logProcessCollector.getNodeCollInfo(ip);
     }
 }

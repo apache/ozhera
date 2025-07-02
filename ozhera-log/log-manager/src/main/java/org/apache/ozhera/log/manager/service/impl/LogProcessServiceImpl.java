@@ -18,6 +18,10 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.api.service.LogProcessService;
@@ -27,9 +31,6 @@ import org.apache.ozhera.log.manager.domain.LogProcess;
 import org.apache.ozhera.log.manager.mapper.MilogLogProcessMapper;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogProcessDOMybatis;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Resource;
@@ -62,6 +63,16 @@ public class LogProcessServiceImpl implements LogProcessService {
         if (null != logProcess) {
             logProcess.updateLogProcess(cmd);
         }
+    }
+
+    @Override
+    public List<String> getAllIps() {
+        return logProcess.getAllAgentList();
+    }
+
+    @Override
+    public NodeCollInfo getNodeCollInfo(String ip) {
+        return logProcess.getNodeCollInfo(ip);
     }
 
     public MilogLogProcessDOMybatis getByIdFramework(Long id) {

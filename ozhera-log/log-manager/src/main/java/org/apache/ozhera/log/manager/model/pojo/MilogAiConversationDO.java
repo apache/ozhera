@@ -16,11 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.service;
+package org.apache.ozhera.log.manager.model.pojo;
 
-public class RootAnalysisConst {
 
-    public static final String LOG_PARAM_LEVEL = "ERROR";
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-    public static final int METRICS_PARAM_GAP = 180000;
+import java.io.Serializable;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
+@TableName("milog_ai_conversation")
+public class MilogAiConversationDO implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
+    private Long storeId;
+
+    private String conversationName;
+
+    private String conversationContext;
+
+    private String originalConversation;
+
+    private String creator;
+
+    private Long createTime;
+
+    private Long updateTime;
 }

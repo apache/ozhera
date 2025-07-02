@@ -25,9 +25,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * @author dingtao
- */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.apache.ozhera.trace.etl", "run.mone.trace.etl"})
 @DubboComponentScan(basePackages = "org.apache.ozhera.trace.etl")

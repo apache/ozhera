@@ -292,6 +292,11 @@ http://www.apache.org/licenses/LICENSE-2.0
         </dependency>
 
         <dependency>
+            <groupId>run.mone</groupId>
+            <artifactId>hive</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>

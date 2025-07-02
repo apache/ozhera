@@ -38,11 +38,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-/**
- * @author dingtao
- * @Description
- * @date 2021/9/29 2:47 下午
- */
 @Service
 @ConditionalOnProperty(name = "mq.type", havingValue = "rocketMQ")
 @Slf4j

@@ -37,9 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author dingtao
- */
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"org.apache.ozhera.webhook"})
 @Slf4j

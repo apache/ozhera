@@ -19,7 +19,6 @@
 package org.apache.ozhera.app.service.extension;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2023/4/24 16:59

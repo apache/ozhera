@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 16:58

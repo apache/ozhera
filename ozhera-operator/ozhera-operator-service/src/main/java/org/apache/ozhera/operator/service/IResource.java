@@ -19,7 +19,6 @@
 package org.apache.ozhera.operator.service;
 
 /**
- * @author shanwb
  * @date 2023-02-09
  */
 public interface IResource {

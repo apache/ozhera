@@ -25,8 +25,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @author gaoxihui
- * @date 2022/11/22 7:35 下午
+ * @date 2022/11/22 7:35 PM
  */
 @Data
 @ToString

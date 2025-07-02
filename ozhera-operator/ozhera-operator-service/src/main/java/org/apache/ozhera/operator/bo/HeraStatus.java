@@ -21,9 +21,6 @@ package org.apache.ozhera.operator.bo;
 
 import lombok.Data;
 
-/**
- * @author shanwb
- */
 @Data
 public class HeraStatus {
 

@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author gaoxihui
- * @date 2023/6/2 10:54 上午
+ * @date 2023/6/2 10:54 AM
  */
 @Data
 public class ProjectGroupTreeNode implements Serializable {

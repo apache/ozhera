@@ -43,3 +43,16 @@
 
 # 智能化工作流程（时序图）
 ![ozhera-intelligence](../readme/images/ozhera-intelligence.png)
+
+# 启动依赖
+## LLM环境变量
+目前使用LLM类进行大模型调用，它所需要的env都在LLMProvider类中，首先需要一个基础的LLM_PROVIDER的env，来指定使用的LLMProvider。
+
+**示例**：
+比如想要使用DEEPSEEK
+
+首先需要设置LLM_PROVIDER=DEEPSEEK
+然后再根据LLMProvider类中的DEEPSEEK，看他需要哪些环境变量。这里DEEPSEEK需要使用DEEPSEEK_API_KEY，所以我们还需要设置DEEPSEEK_API_KEY=xxx-xxxxx
+
+## 推荐使用的模型
+由于这里可能会分析大量数据，而且具有大量的逻辑推理、分析，使用市面上比较好的推理模型或者代码能力较强的模型会比较好

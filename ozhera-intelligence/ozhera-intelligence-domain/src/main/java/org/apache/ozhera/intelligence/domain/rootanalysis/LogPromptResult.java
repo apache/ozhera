@@ -18,11 +18,17 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class LogPromptResult {
+
     private boolean root;
 
     private String logReason;
+
+    public static final String ROOT = "root";
+    public static final String LOG_REASON = "logReason";
 }

@@ -24,10 +24,6 @@ import org.apache.ozhera.trace.etl.domain.tracequery.TraceListQueryVo;
 
 import java.util.List;
 
-/**
- * @author dingtao
- * @date 2025/1/20 11:26
- */
 public interface TraceQueryService {
 
     List<Trace> getList(TraceListQueryVo vo);

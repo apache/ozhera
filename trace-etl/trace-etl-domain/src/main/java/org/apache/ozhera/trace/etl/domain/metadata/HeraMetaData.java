@@ -31,9 +31,6 @@ import lombok.ToString;
 
 import java.util.Date;
 
-/**
- * @Author dingtao
- */
 @Data
 @TableName(value = "hera_meta_data", autoResultMap = true)
 @ToString

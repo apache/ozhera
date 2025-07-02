@@ -26,8 +26,7 @@ import java.util.Map;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/7 4:07 下午
+ * @Date 2022/11/7 4:07 pm
  */
 public class Trace {
     private String traceID;

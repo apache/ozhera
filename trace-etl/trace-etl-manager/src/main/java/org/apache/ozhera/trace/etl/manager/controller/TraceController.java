@@ -34,8 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/7 11:37 上午
+ * @Date 2022/11/7 11:37 am
  */
 @RestController
 @RequestMapping("/tracing/v1")

@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.constant;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/2/7 10:03 上午
+ * @Date 2022/2/7 10:03 am
  */
 public class SpanKind {
 

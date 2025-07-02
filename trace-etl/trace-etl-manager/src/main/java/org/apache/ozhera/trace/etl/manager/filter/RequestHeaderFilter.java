@@ -34,8 +34,7 @@ import java.util.Enumeration;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/6/6 10:15 上午
+ * @Date 2022/6/6 10:15 am
  */
 public class RequestHeaderFilter implements Filter {
 

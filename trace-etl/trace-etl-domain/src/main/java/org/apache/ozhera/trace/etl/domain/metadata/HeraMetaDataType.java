@@ -19,9 +19,6 @@
 
 package org.apache.ozhera.trace.etl.domain.metadata;
 
-/**
- * @Author dingtao
- */
 public class HeraMetaDataType {
     public static final String APP = "app";
     public static final String MYSQL = "mysql";

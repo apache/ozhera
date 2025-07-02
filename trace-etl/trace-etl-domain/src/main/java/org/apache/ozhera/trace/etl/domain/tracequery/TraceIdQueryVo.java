@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.domain.tracequery;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/8 3:04 下午
+ * @Date 2022/11/8 3:04 pm
  */
 public class TraceIdQueryVo {
     private Long startTime;

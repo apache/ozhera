@@ -16,20 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.ozhera.log.agent.extension.nacos;
 
-package org.apache.ozhera.trace.etl.es.domain;
+import com.alibaba.nacos.api.config.ConfigFactory;
+import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.exception.NacosException;
 
-import java.util.concurrent.atomic.AtomicLong;
+import static org.apache.ozhera.log.common.Constant.DEFAULT_GROUP_ID;
+import static org.apache.ozhera.log.common.Constant.DEFAULT_TIME_OUT_MS;
 
 /**
- * @Description
- * @Date 2021/11/10 10:00 am
+ * @author wtt
+ * @version 1.0
+ * @description
+ * @date 2025/6/10 16:52
  */
-public class LocalStorages {
-    public static long firstCurrentSeconds = System.currentTimeMillis() / 1000;
-    public static long secondCurrentSeconds = System.currentTimeMillis() / 1000;
-    public static AtomicLong firstRocksKeySuffix = new AtomicLong(0L);
-    public static AtomicLong secondRocksKeySuffix = new AtomicLong(0L);
+public class NacosConfigUtil {
+    private final ConfigService configService;
 
-    public static volatile boolean talosIsShutDown = false;
+    public NacosConfigUtil(String nacosAddr) throws NacosException {
+        this.configService = ConfigFactory.createConfigService(nacosAddr);
+    }
+
+    public String getConfig(String dataId) throws NacosException {
+        return configService.getConfig(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+    }
 }

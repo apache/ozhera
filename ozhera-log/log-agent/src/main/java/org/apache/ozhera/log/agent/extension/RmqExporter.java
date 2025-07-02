@@ -21,7 +21,6 @@ package org.apache.ozhera.log.agent.extension;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.ozhera.tspandata.TSpanData;
-import org.apache.ozhera.log.agent.common.HashUtil;
 import org.apache.ozhera.log.agent.common.trace.TraceUtil;
 import org.apache.ozhera.log.agent.export.MsgExporter;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
@@ -55,6 +54,8 @@ public class RmqExporter implements MsgExporter {
     private String rmqTopic;
 
     private Integer batchSize;
+
+    private int messageQueueNumber = 2;
 
     private Gson gson = new Gson();
 
@@ -117,9 +118,7 @@ public class RmqExporter implements MsgExporter {
     }
 
     private MessageQueue calculateMessageQueue(String appName) {
-        Integer partitionNumber = 2;
-        appName = String.format("p%s%s", ThreadLocalRandom.current().nextInt(partitionNumber), appName);
-        return messageQueueList.get(HashUtil.consistentHash(appName, messageQueueList.size()));
+        return messageQueueList.get(TopAppPartitioner.getMQNumberByAppName(appName, messageQueueList.size(), messageQueueNumber));
     }
 
     private void sendMessagesToQueues(Map<MessageQueue, List<Message>> messageQueueListMap) {

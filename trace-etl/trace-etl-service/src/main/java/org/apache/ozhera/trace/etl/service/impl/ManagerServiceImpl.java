@@ -41,8 +41,7 @@ import java.util.List;
 
 /**
  * @Description Initialize through the bootstrap project BeanConfig to avoid unwanted project startup errors
- * @Author dingtao
- * @Date 2022/4/18 3:31 下午
+ * @Date 2022/4/18 3:31 pm
  */
 @Slf4j
 public class ManagerServiceImpl implements ManagerService {

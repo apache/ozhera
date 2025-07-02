@@ -55,7 +55,6 @@ import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.utils.NetUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.*;

@@ -31,8 +31,7 @@ import java.util.List;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/4/24 7:35 下午
+ * @Date 2022/4/24 7:35 pm
  */
 @Service(interfaceClass = TraceManagerService.class, group = "${dubbo.group}", version="1.0")
 public class TraceManagerServiceImpl implements TraceManagerService {

@@ -26,9 +26,6 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
-/**
- * @Author dingtao
- */
 @Data
 @ToString
 @AllArgsConstructor

@@ -19,21 +19,20 @@
 package org.apache.ozhera.log.agent.extension;
 
 import com.google.common.collect.Lists;
-import org.apache.ozhera.tspandata.TSpanData;
-import org.apache.ozhera.log.agent.common.HashUtil;
-import org.apache.ozhera.log.agent.common.trace.TraceUtil;
-import org.apache.ozhera.log.agent.export.MsgExporter;
-import org.apache.ozhera.log.api.enums.LogTypeEnum;
-import org.apache.ozhera.log.api.model.msg.LineMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.PartitionInfo;
+import org.apache.ozhera.log.agent.common.trace.TraceUtil;
+import org.apache.ozhera.log.agent.export.MsgExporter;
+import org.apache.ozhera.log.agent.extension.nacos.AppPartitionConfigService;
+import org.apache.ozhera.log.api.enums.LogTypeEnum;
+import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.tspandata.TSpanData;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.apache.ozhera.log.common.Constant.COMMON_MQ_PREFIX;
 
@@ -52,8 +51,16 @@ public class KafkaExporter implements MsgExporter {
 
     private Integer maxPartitionPer = 4;
 
-    public KafkaExporter(Producer mqProducer, String tag) {
+    private Producer topAppMqProducer;
+
+    private AppPartitionConfigService appPartitionConfigService;
+
+    public KafkaExporter(Producer mqProducer, String tag, KafkaService kafkaService, Boolean isInitTopApp) {
         this.producer = mqProducer;
+        appPartitionConfigService = AppPartitionConfigService.ins();
+        if (isInitTopApp) {
+            topAppMqProducer = kafkaService.initTopTalosProducer(appPartitionConfigService.getTopicInfo());
+        }
         this.tag = tag;
     }
 
@@ -105,10 +112,8 @@ public class KafkaExporter implements MsgExporter {
 
                     String appName = tSpanData.getExtra().getServiceName();
                     if (appName != null) {
-                        int key = ThreadLocalRandom.current().nextInt(maxPartitionPer);
-                        appName = String.format("p%s%s", key, appName);
-                        int hash = HashUtil.consistentHash(appName, partitions.size());
-                        int partition = partitions.get(hash).partition();
+                        int number = TopAppPartitioner.getMQNumberByAppName(appName, partitions.size(), maxPartitionPer);
+                        int partition = partitions.get(number).partition();
                         record = new ProducerRecord<>(topic, partition, tag, spanMessage);
                     }
                 }

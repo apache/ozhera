@@ -20,7 +20,6 @@ package org.apache.ozhera.monitor.service.api;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/20 2:31 PM
  */
 public interface MetricsLabelKindService {

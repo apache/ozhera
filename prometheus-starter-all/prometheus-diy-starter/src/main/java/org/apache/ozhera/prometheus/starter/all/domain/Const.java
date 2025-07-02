@@ -21,7 +21,6 @@ package org.apache.ozhera.prometheus.starter.all.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/3/5 3:35 PM
  */
 public class Const {

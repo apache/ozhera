@@ -21,7 +21,6 @@ package org.apache.ozhera.webhook.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/12 4:35 PM
  */
 public class JsonPatch<T> {

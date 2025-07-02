@@ -33,7 +33,6 @@ import java.util.List;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/11/7 6:17 pm
  */
 public class TimeConverter {

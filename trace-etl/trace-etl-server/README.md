@@ -68,3 +68,21 @@ You can run trace-etl-server.
 
 ## Suggestion
 We also recommend that you use zgc when starting. XX:+UseZGC
+
+## Degradation and Optimization
+
+### Optimization for Top Applications
+In practice, we have observed many top applications with the following characteristics:
+`High instance count`, `numerous upstream/downstream dependencies`, and `massive call volumes`.
+
+Top applications significantly impact metric computation by generating a large volume of metrics, imposing heavy pressure on both their own service monitoring and all services involved in metric computation and storage.
+
+Therefore, if top applications are identified, we recommend creating a dedicated `topic` for them, allowing specific applications to consume their respective `partitions` or `message queues`.
+In the configuration center, the app_partition_key_switch is used to configure top applications and their corresponding partitions or message queues.
+
+### Degradation
+The `trace-etl-server` provides comprehensive degradation measures, including:
+
+- `Server IP merging`: Replace IPs with 10.0.0.0. To enable this, set query.exclude.server.ip to true in the Nacos dataId `hera_trace_config`, and set trace.remove.ip to true in the Nacos dataId `mimonitor_open_config`.
+- `Dubbo method merging`: Replace all Dubbo methods with default. To enable this, set query.exclude.dubbo.method to true in the Nacos dataId `hera_trace_config`.
+- `SQL merging`: Replace all SQL statements with default select. To enable this, set query.exclude.sql to true in the Nacos dataId `hera_trace_config`.

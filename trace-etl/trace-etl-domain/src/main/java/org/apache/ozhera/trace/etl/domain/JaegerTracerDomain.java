@@ -25,7 +25,6 @@ import java.math.BigDecimal;
 
 /**
  * @Description
- * @Author dingtao
  */
 public class JaegerTracerDomain {
     private String serviceName;

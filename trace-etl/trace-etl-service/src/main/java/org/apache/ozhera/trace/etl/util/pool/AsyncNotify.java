@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/4/28 3:40 下午
+ * @Date 2022/4/28 3:40 pm
  */
 @Component
 @Slf4j

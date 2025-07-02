@@ -31,10 +31,6 @@ import org.apache.dubbo.config.annotation.Service;
 
 import java.util.List;
 
-
-/**
- * @Author dingtao
- */
 @Slf4j
 @Service(interfaceClass = HeraMetaDataService.class, group = "${dubbo.group}")
 public class HeraMetaDataServiceImpl implements HeraMetaDataService {

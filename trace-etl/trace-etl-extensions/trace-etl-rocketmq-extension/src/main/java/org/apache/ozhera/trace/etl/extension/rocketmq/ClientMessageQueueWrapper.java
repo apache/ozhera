@@ -32,8 +32,7 @@ import java.util.concurrent.Executors;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/6 5:24 下午
+ * @Date 2022/11/6 5:24 pm
  */
 @Slf4j
 public class ClientMessageQueueWrapper {

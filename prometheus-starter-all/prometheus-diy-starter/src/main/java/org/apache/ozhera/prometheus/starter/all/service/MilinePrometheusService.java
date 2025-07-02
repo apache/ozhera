@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/3/5 3:41 PM
  */
 public class MilinePrometheusService extends PrometheusService{

@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.controller.model;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/8/9 6:39 PM
  */
 public enum TimeUnit {

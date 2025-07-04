@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/12/2 4:43 下午
  */
 public enum AreaType {

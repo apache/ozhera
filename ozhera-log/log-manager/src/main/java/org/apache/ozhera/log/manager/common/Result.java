@@ -20,7 +20,7 @@ package org.apache.ozhera.log.manager.common;
 
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/10 7:36 pm
  */
 public class Result<T> {

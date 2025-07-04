@@ -976,3 +976,70 @@ CREATE TABLE `silence_matcher`
     `is_regex`   tinyint(1) NOT NULL COMMENT 'if is regex matcher',
     `is_equal`   tinyint(1) NOT NULL COMMENT ' if is equal matcher'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+CREATE TABLE `hera_scene`
+(
+    `id`            bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `scene_name`    varchar(100) NOT NULL COMMENT '场景名称',
+    `scene_desc`    text COMMENT '场景描述',
+    `creator`       varchar(50)  NOT NULL COMMENT '创建人',
+    `scene_status`  tinyint      NOT NULL DEFAULT '1' COMMENT '场景状态：0-禁用 1-启用',
+    `scene_type`    tinyint      NOT NULL DEFAULT '1' COMMENT '场景类型：1-订单 2-促销 3-商品',
+    `owner_id`      varchar(50)  NOT NULL COMMENT '负责人ID',
+    `owner_name`    varchar(50)  NOT NULL COMMENT '负责人姓名',
+    `notify_type`   tinyint      NOT NULL DEFAULT '1' COMMENT '通知方式：1-飞书 2-短信 3-邮件 4-电话',
+    `notify_target` varchar(500) NOT NULL COMMENT '通知目标，多个用逗号分隔',
+    `is_deleted`    tinyint      NOT NULL DEFAULT '0' COMMENT '是否删除：0-否 1-是',
+    `created_at`    datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`    datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id_path`       varchar(64)  NOT NULL DEFAULT '' COMMENT '所属部门id路径,类似:MI/IT/IT60/IT6003',
+    `name_path`     varchar(256) NOT NULL DEFAULT '' COMMENT '所属部门路径名称',
+    PRIMARY KEY (`id`),
+    KEY             `idx_creator` (`creator`),
+    KEY             `idx_scene_name` (`scene_name`),
+    KEY             `idx_owner_id` (`owner_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='场景表';
+
+CREATE TABLE `hera_indicator`
+(
+    `id`               bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `is_deleted`       tinyint       NOT NULL DEFAULT '0' COMMENT '是否删除：0-否 1-是',
+    `created_at`       datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`       datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `indicator_name`   varchar(100)  NOT NULL COMMENT '指标名称',
+    `indicator_desc`   text COMMENT '指标描述',
+    `creator`          varchar(50)   NOT NULL COMMENT '创建人',
+    `indicator_status` tinyint       NOT NULL DEFAULT '1' COMMENT '指标状态：0-禁用 1-启用',
+    `indicator_type`   tinyint       NOT NULL DEFAULT '0' COMMENT '指标类型：0-counter 1-gauge',
+    `metric_name`      varchar(100)  NOT NULL COMMENT 'Prometheus指标名称',
+    `metric_labels`    text COMMENT 'Prometheus标签，JSON格式',
+    `dashboard_url`    varchar(1024) NOT NULL DEFAULT '' COMMENT '监控看板url',
+    `id_path`          varchar(64)   NOT NULL DEFAULT '' COMMENT '所属部门id路径,类似:MI/IT/IT60/IT6003',
+    `name_path`        varchar(256)  NOT NULL DEFAULT '' COMMENT '所属部门路径名称',
+    PRIMARY KEY (`id`),
+    KEY                `idx_creator` (`creator`),
+    KEY                `idx_indicator_name` (`indicator_name`),
+    KEY                `idx_metric_name` (`metric_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='指标表';
+
+CREATE TABLE `hera_scene_indicator`
+(
+    `id`           bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `scene_id`     bigint   NOT NULL COMMENT '场景ID',
+    `indicator_id` bigint   NOT NULL COMMENT '指标ID',
+    `is_deleted`   tinyint  NOT NULL DEFAULT '0' COMMENT '是否删除：0-否 1-是',
+    `created_at`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY            `idx_scene_id` (`scene_id`),
+    KEY            `idx_indicator_id` (`indicator_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='场景-指标关联表';
+
+CREATE TABLE `tpc_out_id_org_mapping`
+(
+    `id`       bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `out_type` tinyint     NOT NULL DEFAULT '0' COMMENT 'TPC OutIdTypeEnum',
+    `id_path`  varchar(64) NOT NULL DEFAULT '' COMMENT '所属部门id路径,类似:MI/IT/IT60/IT6003',
+    PRIMARY KEY (`id`),
+    KEY        `idx_id_path` (`id_path`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='tpc节点out_id映射表';

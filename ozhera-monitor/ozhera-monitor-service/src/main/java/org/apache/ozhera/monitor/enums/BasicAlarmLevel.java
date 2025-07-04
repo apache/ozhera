@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.enums;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2023/7/24 7:40 下午
  */
 public enum BasicAlarmLevel {

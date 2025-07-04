@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/12/7 1:03 PM
  */
 public enum RuleStatusType {

@@ -21,7 +21,7 @@ package org.apache.ozhera.monitor.service.aop.helper;
 
 import org.apache.ozhera.monitor.bo.HeraReqInfo;
 import org.apache.ozhera.monitor.dao.AppAlarmRuleDao;
-import org.apache.ozhera.monitor.dao.AppAlarmStrategyDao;
+import org.apache.ozhera.monitor.dao.nutz.AppAlarmStrategyDao;
 import org.apache.ozhera.monitor.dao.HeraOperLogDao;
 import org.apache.ozhera.monitor.dao.model.AlarmStrategy;
 import org.apache.ozhera.monitor.dao.model.AppAlarmRule;

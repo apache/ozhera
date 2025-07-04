@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.service.model.prometheus;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/9/3 9:05 上午
  */
 public enum EsIndexDataType {

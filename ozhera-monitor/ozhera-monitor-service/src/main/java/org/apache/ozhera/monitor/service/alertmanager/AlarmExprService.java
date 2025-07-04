@@ -26,7 +26,7 @@ import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleData;
 import java.util.Map;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2023/10/6 11:38 上午
  */
 public interface AlarmExprService {

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @version 1.0
- * @description
+ * @description SDK Logger Initializer for metrics logging configuration
  * @date 2025/5/12 16:01
  */
 public class SdkLoggerInitializer {
@@ -22,20 +22,20 @@ public class SdkLoggerInitializer {
     static {
         LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-        // 编码器设置
+        // Configure encoder settings
         PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setContext(loggerContext);
         encoder.setPattern("%d|%-4.5level|%thread|%logger|%L|%msg%n");
         encoder.start();
 
-        // 文件 appender
+        // Configure file appender
         RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
         rollingFileAppender.setContext(loggerContext);
         rollingFileAppender.setName("SDK_ROLLING_FILE_APPENDER");
         rollingFileAppender.setFile(LogFileNameUtil.getLogPathFile());
         rollingFileAppender.setEncoder(encoder);
 
-        // 滚动策略
+        // Configure rolling policy
         FixedWindowRollingPolicy rollingPolicy = new FixedWindowRollingPolicy();
         rollingPolicy.setContext(loggerContext);
         rollingPolicy.setParent(rollingFileAppender);
@@ -44,7 +44,7 @@ public class SdkLoggerInitializer {
         rollingPolicy.setMaxIndex(10);
         rollingPolicy.start();
 
-        // 大小触发策略
+        // Configure size-based triggering policy
         SizeBasedTriggeringPolicy<ILoggingEvent> sizePolicy = new SizeBasedTriggeringPolicy<>();
         sizePolicy.setContext(loggerContext);
         sizePolicy.setMaxFileSize(FileSize.valueOf("10MB"));
@@ -54,20 +54,20 @@ public class SdkLoggerInitializer {
         rollingFileAppender.setTriggeringPolicy(sizePolicy);
         rollingFileAppender.start();
 
-        // 异步 appender 包装
+        // Configure async appender wrapper
         AsyncAppender asyncAppender = new AsyncAppender();
         asyncAppender.setContext(loggerContext);
         asyncAppender.setName("ASYNC_SDK_APPENDER");
         asyncAppender.addAppender(rollingFileAppender);
-        // 日志缓冲队列大小
+        // Log buffer queue size
         asyncAppender.setQueueSize(5000);
-        // 当队列满时，丢弃低于 INFO 级别的日志
+        // When queue is full, discard logs below INFO level
         asyncAppender.setDiscardingThreshold(0);
-        // 是否记录调用链数据（可减少开销）
+        // Whether to record caller data (can reduce overhead)
         asyncAppender.setIncludeCallerData(false);
         asyncAppender.start();
 
-        // 绑定到指定 logger
+        // Bind to specified logger
         ch.qos.logback.classic.Logger logbackLogger =
                 loggerContext.getLogger("org.apache.ozhera.metrics.api.Metrics");
         logbackLogger.addAppender(asyncAppender);
@@ -76,7 +76,7 @@ public class SdkLoggerInitializer {
         SDK_LOGGER = logbackLogger;
     }
 
-    // 对外提供 org.slf4j.Logger 类型
+    // Provide org.slf4j.Logger type externally
     public static Logger getLogger() {
         return SDK_LOGGER;
     }

@@ -24,7 +24,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/2/18 11:36 AM
  * 接入hera的应用对应的分区
  */

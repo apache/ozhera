@@ -21,7 +21,7 @@ package org.apache.ozhera.monitor.bo;
 import java.util.*;
 
 /**
- * @author gaoxihui
+ * 
  */
 public enum MetricsUnit {
 

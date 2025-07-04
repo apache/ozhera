@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * 指标类型枚举
- * @author gaoxihui
+ *
  * @date 2022/1/12 2:26 下午
  */
 public enum MetricKind {

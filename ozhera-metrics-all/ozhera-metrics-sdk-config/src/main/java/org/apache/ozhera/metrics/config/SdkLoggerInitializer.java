@@ -69,7 +69,7 @@ public class SdkLoggerInitializer {
 
         // 绑定到指定 logger
         ch.qos.logback.classic.Logger logbackLogger =
-                loggerContext.getLogger("com.xiaomi.hera.metrics.api.Metrics");
+                loggerContext.getLogger("org.apache.ozhera.metrics.api.Metrics");
         logbackLogger.addAppender(asyncAppender);
         logbackLogger.setAdditive(false);
 

@@ -27,7 +27,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/22 9:34 AM
  */
 @Configuration

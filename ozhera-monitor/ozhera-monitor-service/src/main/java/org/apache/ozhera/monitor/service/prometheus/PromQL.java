@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.service.prometheus;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/22 4:42 下午
  */
 public class PromQL {

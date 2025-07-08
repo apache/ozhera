@@ -22,7 +22,7 @@ package org.apache.ozhera.monitor.service.prometheus;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/28 10:00 AM
  */
 public enum MetricSuffix {

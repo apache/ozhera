@@ -27,7 +27,7 @@ import org.apache.ozhera.monitor.service.model.HeraAppBaseQuery;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/3/24 4:51 PM
  */
 public interface HeraBaseInfoService {

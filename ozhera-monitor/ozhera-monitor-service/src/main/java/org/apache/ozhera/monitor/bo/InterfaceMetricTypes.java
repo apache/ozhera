@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/5/5 5:31 下午
  */
 public enum InterfaceMetricTypes {

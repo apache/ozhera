@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.result;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/10 7:36 下午
  */
 public class ExceptionCode extends RuntimeException {

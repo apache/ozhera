@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.monitor.dao.impl;
+package org.apache.ozhera.monitor.dao.nutz.impl;
 
 import org.apache.ozhera.monitor.bo.AlarmStrategyInfo;
 import org.apache.ozhera.monitor.bo.AlarmStrategyType;
-import org.apache.ozhera.monitor.dao.AppAlarmStrategyDao;
+import org.apache.ozhera.monitor.dao.nutz.AppAlarmStrategyDao;
 import org.apache.ozhera.monitor.dao.model.AlarmStrategy;
 import org.apache.ozhera.monitor.service.model.PageData;
 import org.apache.ozhera.monitor.service.user.UserConfigService;

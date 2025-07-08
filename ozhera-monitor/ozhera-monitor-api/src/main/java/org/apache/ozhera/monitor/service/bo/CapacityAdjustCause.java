@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.service.bo;
 
 /**
- * @author gaoxihui
+ *
  * @date 2022/12/1 4:37 下午
  */
 public enum CapacityAdjustCause {

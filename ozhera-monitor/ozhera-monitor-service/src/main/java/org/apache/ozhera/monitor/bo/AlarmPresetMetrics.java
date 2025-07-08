@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ * 
  */
 public enum AlarmPresetMetrics {
 

@@ -28,7 +28,7 @@ import org.apache.ozhera.monitor.bo.AlarmStrategyParam;
 import org.apache.ozhera.monitor.bo.AlarmStrategyType;
 import org.apache.ozhera.monitor.bo.AppViewType;
 import org.apache.ozhera.monitor.dao.AppAlarmRuleDao;
-import org.apache.ozhera.monitor.dao.AppAlarmStrategyDao;
+import org.apache.ozhera.monitor.dao.nutz.AppAlarmStrategyDao;
 import org.apache.ozhera.monitor.dao.AppMonitorDao;
 import org.apache.ozhera.monitor.dao.model.AlarmStrategy;
 import org.apache.ozhera.monitor.dao.model.AppAlarmRule;

@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ * 
  */
 public enum ReqSlowMetrics {
     httpSlowQuery("httpSlowQuery","httpServer慢请求", AlarmPresetMetrics.http_slow_query),

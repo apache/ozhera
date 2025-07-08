@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ *
  */
 public enum ReqErrorMetrics {
     httpError("httpError","http请求错误", AlarmPresetMetrics.http_error_times, AlarmPresetMetrics.http_availability),

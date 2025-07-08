@@ -16,36 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.monitor.dao;
+package org.apache.ozhera.monitor.dao.nutz;
 
-import org.apache.ozhera.monitor.bo.AlarmStrategyInfo;
 import org.apache.ozhera.monitor.dao.model.AlarmStrategy;
-import org.apache.ozhera.monitor.service.model.PageData;
+import org.apache.ozhera.monitor.dao.model.BusinessAlarmRule;
 
 import java.util.List;
 
-public interface AppAlarmStrategyDao {
+public interface BusinessAlarmStrategyDao {
 
-    AlarmStrategy getById(Integer id);
+    BusinessAlarmRule getById(Integer id);
 
-    /**
-     * 清洗数据专用
-     * @param type
-     * @return
-     */
-    List<AlarmStrategy> queryByType(int type);
+    List<AlarmStrategy> queryByScenceId(int senceId);
 
-    AlarmStrategyInfo getInfoById(Integer id);
+    boolean insert(BusinessAlarmRule alarmRule);
 
-    boolean insert(AlarmStrategy strategy);
-
-    boolean updateById(AlarmStrategy strategy);
+    boolean updateById(BusinessAlarmRule alarmRule);
 
     boolean deleteById(Integer id);
-
-    PageData<List<AlarmStrategyInfo>> searchByCond(final String user, Boolean filterOwner, AlarmStrategy strategy, int page, int pageSize, String sortBy, String sortRule);
-
-    @Deprecated
-    PageData<List<AlarmStrategyInfo>> searchByCondNoUser(AlarmStrategy strategy, int page, int pageSize,String sortBy,String sortRule);
-
 }

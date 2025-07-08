@@ -20,7 +20,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/12/7 1:09 PM
  */
 public enum AlarmRuleMetricType {

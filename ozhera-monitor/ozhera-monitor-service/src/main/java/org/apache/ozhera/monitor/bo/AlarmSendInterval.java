@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 /**
- * @author gaoxihui
+ * 
  */
 public enum AlarmSendInterval {
 

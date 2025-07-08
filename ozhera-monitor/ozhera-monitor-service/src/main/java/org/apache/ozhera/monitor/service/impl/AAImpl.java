@@ -26,7 +26,7 @@ import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/6 1:54 PM
  */
 @Slf4j

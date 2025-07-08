@@ -26,7 +26,7 @@ import org.apache.ozhera.monitor.bo.SendAlertGroupKey;
 import lombok.Data;
 
 /**
- * @author gaoxihui
+ * 
  */
 @Data
 public class AlarmPresetMetricsPOJO {

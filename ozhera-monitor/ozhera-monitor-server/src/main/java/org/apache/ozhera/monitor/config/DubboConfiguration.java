@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/7/6 2:19 PM
  */
 @Configuration

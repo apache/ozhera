@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/4/1 11:20 上午
  */
 public enum AppType {

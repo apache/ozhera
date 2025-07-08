@@ -21,7 +21,7 @@ package org.apache.ozhera.monitor.bo;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author gaoxihui
+ * 
  */
 public enum ResourceUsageMetrics {
     dockerResourceUsage("dockerResourceUsage","docker资源利用率", "3",AlarmPresetMetrics.container_cpu_resource_use_rate, AlarmPresetMetrics.container_mem_resource_use_rate),

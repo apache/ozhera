@@ -21,7 +21,7 @@ package org.apache.ozhera.monitor.service;
 import org.apache.ozhera.monitor.service.bo.CapacityAdjustNoticeParam;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/12/1 4:20 下午
  */
 public interface NoticeService {

@@ -22,7 +22,7 @@ package org.apache.ozhera.monitor.result;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/7/10 7:36 下午
  */
 public enum ErrorCode {

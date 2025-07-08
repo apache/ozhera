@@ -24,7 +24,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ *
  * @date 2022/2/18 11:31 AM
  * 应用对应的区域
  */

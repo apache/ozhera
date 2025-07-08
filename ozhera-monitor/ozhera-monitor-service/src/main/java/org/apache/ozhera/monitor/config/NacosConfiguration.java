@@ -26,7 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/7/6 2:13 PM
  */
 

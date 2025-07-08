@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/8/19 2:44 下午
  */
 public enum AppMonitorConfigType{

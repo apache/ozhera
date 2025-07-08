@@ -58,7 +58,7 @@
         <module>ozhera-prometheus-agent</module>
         <module>ozhera-tspandata</module>
         <module>ozhera-webhook</module>
-        <module>prometheus-starter-all</module>
+        <module>ozhera-metrics-all</module>
         <module>trace-etl</module>
         <module>ozhera-intelligence</module>
     </modules>

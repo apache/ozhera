@@ -51,7 +51,7 @@ public class ChannelServiceFactory {
     private final String memoryBasePath;
     private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()\\[\\]\\\\]");
 
-    private List<String> multiSpecialFileSuffix;
+    private static List<String> multiSpecialFileSuffix;
 
     public ChannelServiceFactory(AgentMemoryService agentMemoryService, String memoryBasePath) {
         this.agentMemoryService = agentMemoryService;
@@ -60,6 +60,10 @@ public class ChannelServiceFactory {
         if (StringUtils.isNotBlank(specialFileSuffix)) {
             multiSpecialFileSuffix = Lists.newArrayList(specialFileSuffix.split(SYMBOL_COMMA));
         }
+    }
+
+    public static boolean isSpecialFilePath(String logPattern) {
+        return CollectionUtils.isNotEmpty(multiSpecialFileSuffix) && logPattern.contains("*") && multiSpecialFileSuffix.stream().anyMatch(logPattern::endsWith);
     }
 
     public ChannelService createChannelService(ChannelDefine channelDefine,
@@ -72,7 +76,7 @@ public class ChannelServiceFactory {
         String logType = input.getType();
         String logPattern = input.getLogPattern();
 
-        if (CollectionUtils.isNotEmpty(multiSpecialFileSuffix) && multiSpecialFileSuffix.stream().anyMatch(logPattern::endsWith)) {
+        if (isSpecialFilePath(logPattern)) {
             return createStandardChannelService(exporter, channelDefine, filterChain);
         }
 

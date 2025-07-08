@@ -24,6 +24,7 @@ import java.io.Serializable;
 @Data
 public class LogContextQuery implements Serializable {
     private String logstore;
+    private Long logStoreId;
     private String ip;
     private String fileName;
     private Long lineNumber;

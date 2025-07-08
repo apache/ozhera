@@ -257,16 +257,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
      * 2.logSplitExpress:/home/work/log/log-agent/(server.log.*|error.log.*) realFilePaths: ["/home/work/log/log-agent/server.log","/home/work/log/log-agent/server.log"]
      * 2.logSplitExpress:/home/work/log/(log-agent|log-stream)/server.log.* realFilePaths: ["/home/work/log/log-agent/server.log","/home/work/log/log-stream/server.log"]
      * The real file does not exist, it should also listen
-     *
-     * @param logSplitExpress
-     * @param realFilePaths
      */
     private void logMonitorPathDisassembled(String logSplitExpress, List<String> realFilePaths, String configPath) {
         List<String> cleanedPathList = Lists.newArrayList();
         if (StringUtils.isNotBlank(logSplitExpress)) {
             PathUtils.dismantlingStrWithSymbol(logSplitExpress, cleanedPathList);
         }
-        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum || realFilePaths.isEmpty()) {
+        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum || realFilePaths.isEmpty() || ChannelServiceFactory.isSpecialFilePath(configPath)) {
             opentelemetryMonitor(configPath);
             return;
         }

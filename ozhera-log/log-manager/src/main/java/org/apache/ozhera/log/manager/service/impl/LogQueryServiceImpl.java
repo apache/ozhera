@@ -23,6 +23,10 @@ import cn.hutool.core.date.StopWatch;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.mone.es.EsClient;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.model.dto.TraceLogDTO;
 import org.apache.ozhera.log.api.model.vo.TraceLogQuery;
 import org.apache.ozhera.log.api.service.LogDataService;
@@ -45,10 +49,6 @@ import org.apache.ozhera.log.manager.service.LogQueryService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
@@ -128,7 +128,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         StopWatch stopWatch = new StopWatch("HERA-LOG-QUERY");
         try {
             stopWatch.start("before-query");
-            MilogLogStoreDO logStore = logstoreDao.getByName(logQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 log.warn("[EsDataService.logQuery] not find logstore:[{}]", logQuery.getLogstore());
                 return Result.failParam("Not found [" + logQuery.getLogstore() + "]The corresponding data");
@@ -223,7 +223,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         try {
             EsStatisticResult result = new EsStatisticResult();
             result.setName(constractEsStatisticRet(logQuery));
-            MilogLogStoreDO logStore = logstoreDao.getByName(logQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 return new Result<>(CommonError.UnknownError.getCode(), "not found logstore", null);
             }
@@ -337,7 +337,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
             if (searchLog.isLegalParam(logContextQuery) == false) {
                 return Result.failParam("Required parameters are missing");
             }
-            MilogLogStoreDO logStore = logstoreDao.getByName(logContextQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logContextQuery.getLogStoreId());
             if (logStore.getEsClusterId() == null || StringUtils.isEmpty(logStore.getEsIndex())) {
                 return Result.failParam("Store configuration exception");
             }

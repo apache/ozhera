@@ -21,7 +21,6 @@ package org.apache.ozhera.trace.etl.es.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/5/23 2:58 pm
  */
 public class FilterResult {

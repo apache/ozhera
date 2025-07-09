@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.domain;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/2/10 4:46 下午
+ * @Date 2022/2/10 4:46 pm
  */
 public class NginxJaegerDomain {
     private String remoteAddr;

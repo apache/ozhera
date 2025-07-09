@@ -62,7 +62,7 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
     /**
      * List of folders actually monitored
      */
-    List<String> pathList = new CopyOnWriteArrayList<>();
+    private List<String> pathList = new CopyOnWriteArrayList<>();
     /**
      * Actual listener map
      */

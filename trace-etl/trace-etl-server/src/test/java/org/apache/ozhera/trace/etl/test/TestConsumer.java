@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.test;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/10/24 3:35 下午
+ * @Date 2022/10/24 3:35 pm
  */
 public class TestConsumer {
 }

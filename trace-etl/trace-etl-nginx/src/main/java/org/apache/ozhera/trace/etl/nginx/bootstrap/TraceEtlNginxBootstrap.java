@@ -26,9 +26,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
-/**
- * @author dingtao
- */
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 @ComponentScan(basePackages = {"org.apache.ozhera.trace.etl.nginx"})
 @SpringBootApplication(exclude= {DataSourceAutoConfiguration.class})

@@ -27,7 +27,6 @@ import java.util.Map;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/2/22 12:25 PM
  */
 public class ESIndexConst {

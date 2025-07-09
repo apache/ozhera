@@ -59,3 +59,22 @@
 
 ## 建议
 我们也建议启动的时候配置zgc： -XX:+UseZGC
+
+## 降级与优化
+
+### 头部应用的优化
+
+在实践过程中，我们发现有很多`头部应用`，他们都有以下特点：
+**实例数多**、**上下游依赖多**、**调用量大**。
+
+`头部应用`对于指标计算的影响是会产生大量的指标，会对自己服务的监控与所有参与指标计算、存储的服务都带来巨大的压力。
+
+所以如果出现`头部应用`，我们建议将他们单独创建一个topic，某些应用消费各自的partition或message queue。
+在配置中心中，会使用`app_partition_key_switch`去配置头部应用与他们所在的partition或message queue。
+
+### 降级
+trace-etl-server中提供了丰富的降级措施，包括：
+- 合并serverIp，替换为10.0.0.0。这个操作需要将nacos中的dataId为`hera_trace_config`中的`query.exclude.server.ip`修改为true，
+并且将nacos中的dataId为`mimonitor_open_config`中的`trace.remove.ip`修改为true
+- 合并Dubbo method，将所有Dubbo method替换为default。这个操作需要将nacos中的dataId为`hera_trace_config`中的`query.exclude.dubbo.method`修改为true
+- 合并sql，将所有SQL替换为default select。这个操作需要将nacos中的dataId为`hera_trace_config`中的`query.exclude.sql`修改为true

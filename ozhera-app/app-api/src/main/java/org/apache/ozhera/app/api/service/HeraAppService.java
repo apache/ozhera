@@ -27,7 +27,6 @@ import org.apache.ozhera.app.api.response.AppBaseInfo;
 import java.util.List;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 14:57
@@ -72,7 +71,7 @@ public interface HeraAppService {
 
     Long countRole(HeraAppRoleModel roleModel);
 
-    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit);
+    List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit, Integer type);
 
     /**
      * query user have permission project

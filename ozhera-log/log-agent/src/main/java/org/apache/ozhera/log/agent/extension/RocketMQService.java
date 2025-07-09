@@ -19,15 +19,16 @@
 package org.apache.ozhera.log.agent.extension;
 
 import com.google.common.base.Preconditions;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.exception.AgentException;
 import org.apache.ozhera.log.agent.export.MsgExporter;
+import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.agent.output.Output;
 import org.apache.ozhera.log.agent.service.OutPutService;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.meta.MQConfig;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.acl.common.AclClientRPCHook;
 import org.apache.rocketmq.acl.common.SessionCredentials;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -41,7 +42,6 @@ import static org.apache.ozhera.log.common.Constant.DEFAULT_CONSUMER_GROUP;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2023/4/7 9:44 AM
  */
 @Service(name = "RocketMQService")
@@ -83,7 +83,7 @@ public class RocketMQService implements OutPutService {
     }
 
     @Override
-    public MsgExporter exporterTrans(Output output) {
+    public MsgExporter exporterTrans(Output output, Input input) {
         RmqOutput rmqOutput = (RmqOutput) output;
         String nameSrvAddr = rmqOutput.getClusterInfo();
         DefaultMQProducer mqProducer = producerMap.get(nameSrvAddr);

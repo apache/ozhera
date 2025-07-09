@@ -637,7 +637,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             if (searchLog.isLegalParam(logContextQuery) == false) {
                 return Result.failParam("Required parameters are missing");
             }
-            MilogLogStoreDO milogLogstoreDO = logstoreDao.getByName(logContextQuery.getLogstore());
+            MilogLogStoreDO milogLogstoreDO = logstoreDao.queryById(logContextQuery.getLogStoreId());
             if (milogLogstoreDO.getEsClusterId() == null || StringUtils.isEmpty(milogLogstoreDO.getEsIndex())) {
                 return Result.failParam("store Configuration exceptions");
             }

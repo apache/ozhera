@@ -19,6 +19,8 @@
 package org.apache.ozhera.log.agent.channel;
 
 import cn.hutool.core.io.FileUtil;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.export.MsgExporter;
@@ -27,11 +29,13 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
 import static org.apache.ozhera.log.common.PathUtils.PATH_WILDCARD;
 import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
+import static org.apache.ozhera.log.utils.ConfigUtils.getConfigValue;
 
 /**
  * @author wtt
@@ -41,13 +45,25 @@ import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
  */
 public class ChannelServiceFactory {
 
+    private static final String DEFAULT_SPECIAL_FILE_SUFFIX_KEY = "special.file.suffix";
+
     private final AgentMemoryService agentMemoryService;
     private final String memoryBasePath;
     private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()\\[\\]\\\\]");
 
+    private static List<String> multiSpecialFileSuffix;
+
     public ChannelServiceFactory(AgentMemoryService agentMemoryService, String memoryBasePath) {
         this.agentMemoryService = agentMemoryService;
         this.memoryBasePath = memoryBasePath;
+        String specialFileSuffix = getConfigValue(DEFAULT_SPECIAL_FILE_SUFFIX_KEY);
+        if (StringUtils.isNotBlank(specialFileSuffix)) {
+            multiSpecialFileSuffix = Lists.newArrayList(specialFileSuffix.split(SYMBOL_COMMA));
+        }
+    }
+
+    public static boolean isSpecialFilePath(String logPattern) {
+        return CollectionUtils.isNotEmpty(multiSpecialFileSuffix) && logPattern.contains("*") && multiSpecialFileSuffix.stream().anyMatch(logPattern::endsWith);
     }
 
     public ChannelService createChannelService(ChannelDefine channelDefine,
@@ -59,6 +75,10 @@ public class ChannelServiceFactory {
         Input input = channelDefine.getInput();
         String logType = input.getType();
         String logPattern = input.getLogPattern();
+
+        if (isSpecialFilePath(logPattern)) {
+            return createStandardChannelService(exporter, channelDefine, filterChain);
+        }
 
         if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType) || FileUtil.exist(logPattern)) {
             return createStandardChannelService(exporter, channelDefine, filterChain);

@@ -21,7 +21,6 @@ package org.apache.ozhera.app.exception;
 import org.apache.ozhera.app.enums.CommonError;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 13:20

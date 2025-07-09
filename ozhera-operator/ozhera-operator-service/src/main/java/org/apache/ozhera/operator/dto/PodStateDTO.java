@@ -22,7 +22,6 @@ import io.fabric8.kubernetes.api.model.ContainerState;
 import lombok.Data;
 
 /**
- * @author shanwb
  * @date 2023-02-14
  */
 @Data

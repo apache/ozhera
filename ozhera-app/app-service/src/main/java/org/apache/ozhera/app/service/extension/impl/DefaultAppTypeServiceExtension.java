@@ -26,7 +26,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2023/4/24 17:03

@@ -28,8 +28,7 @@ import java.util.List;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/7 4:08 下午
+ * @Date 2022/11/7 4:08 pm
  */
 public class Span {
     private String traceID;

@@ -49,9 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @Author dingtao
- */
 @Service
 @ConditionalOnProperty(name = "mq.type", havingValue = "kafka")
 @Slf4j

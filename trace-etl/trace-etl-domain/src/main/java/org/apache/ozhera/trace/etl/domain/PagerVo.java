@@ -21,7 +21,6 @@ package org.apache.ozhera.trace.etl.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/4/19 10:13 上午
  */
 public class PagerVo {

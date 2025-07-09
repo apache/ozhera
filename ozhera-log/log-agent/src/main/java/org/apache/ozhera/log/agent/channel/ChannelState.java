@@ -65,6 +65,8 @@ public class ChannelState implements Serializable {
          * Current collection file
          */
         private String currentFile;
+
+        private String fileInode;
         /**
          * The latest line number currently being collected.
          */

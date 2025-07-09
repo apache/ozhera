@@ -25,7 +25,6 @@ import com.xiaomi.youpin.docean.Ioc;
 
 /**
  * @Description OutPutServiceFactory Get the factory class of ChannelDefineLocatorExtension
- * @Author dingtao
  * @Date 2023/4/7 9:59 AM
  */
 public class OutPutServiceFactory {

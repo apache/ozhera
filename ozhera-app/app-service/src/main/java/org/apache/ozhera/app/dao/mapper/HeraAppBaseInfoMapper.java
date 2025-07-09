@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 12:13
@@ -40,7 +39,7 @@ public interface HeraAppBaseInfoMapper extends BaseMapper<HeraAppBaseInfo> {
 
     List<AppBaseInfo> queryAppInfo(@Param("appName") String appName, @Param("platformType") Integer platformType, @Param("type") Integer type);
 
-    List<AppBaseInfo> queryLatestAppInfo(@Param("limit") Integer limit);
+    List<AppBaseInfo> queryLatestAppInfo(@Param("limit") Integer limit, @Param("platformType") Integer platformType, @Param("type") Integer type);
 
     List<AppBaseInfo> queryByIds(List<Long> ids);
 

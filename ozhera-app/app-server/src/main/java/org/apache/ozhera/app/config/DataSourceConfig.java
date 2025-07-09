@@ -37,7 +37,6 @@ import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 11:34

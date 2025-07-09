@@ -92,6 +92,13 @@ public class MetricsParseService implements IMetricsParseService {
     private boolean excludeDubboMethod;
     private static final String DEFAULT_DUBBO_METHOD = "default";
 
+    /**
+     * Metric merging, whether enabled per application. If empty (null),
+     * it applies to all applications by default; multiple applications should be separated by the pipe delimiter (|).
+     */
+    @NacosValue(value = "${query.exclude.application}", autoRefreshed = true)
+    private String excludeApplication;
+
     @Value("${es.domain}")
     private String esDomain;
 
@@ -130,7 +137,7 @@ public class MetricsParseService implements IMetricsParseService {
                 return;
             }
             if (metricsParseResult.isValidate()) {
-                computeMetrics(metricsParseResult.getJaegerTracerDomain(), metricsParseResult.getHeraTraceEtlConfig());
+                computeMetrics(metricsParseResult.getJaegerTracerDomain(), metricsParseResult.getHeraTraceEtlConfig(), metricsParseResult.isExcludeApplicationOpen());
             }
             if (metricsParseResult.getDriverDomain() != null) {
                 esService.insertDriver(metricsParseResult.getDriverDomain());
@@ -157,6 +164,12 @@ public class MetricsParseService implements IMetricsParseService {
         if (StringUtils.isEmpty(operationName) || exclude(config == null ? excludeMethod : config.getExcludeMethod(), operationName)) {
             return new MetricsParseResult(true);
         }
+        // Determine whether the applications that need to be downgraded are included
+        boolean excludeApplicationOpen = true;
+        if(StringUtils.isNotEmpty(excludeApplication)){
+            excludeApplicationOpen =  excludeApplication.contains(serviceName);
+        }
+
         DriverDomain driverDomain = null;
         if (operationName.equals(DB_DRIVER)) {
             driverDomain = new DriverDomain();
@@ -179,7 +192,7 @@ public class MetricsParseService implements IMetricsParseService {
         }
         jtd.setEndTime(jtd.getStartTime() + durationUs / 1000);
         jtd.setMethod(operationName);
-        if(excludeServerIp){
+        if(excludeServerIp && excludeApplicationOpen){
             jtd.setServerIp(DEFAULT_SERVER_IP);
         }else{
             jtd.setServerIp(tSpanData.getExtra().getIp());
@@ -215,7 +228,7 @@ public class MetricsParseService implements IMetricsParseService {
                     jtd.setType(value);
                 }
                 if ("rpc.method".equals(key)) {
-                    if(excludeDubboMethod){
+                    if(excludeDubboMethod && excludeApplicationOpen){
                         jtd.setMethod(DEFAULT_DUBBO_METHOD);
                     }else {
                         jtd.setMethod(value);
@@ -312,10 +325,10 @@ public class MetricsParseService implements IMetricsParseService {
         if (StringUtils.isEmpty(jtd.getServiceEnv())) {
             jtd.setServiceEnv("default_env");
         }
-        return new MetricsParseResult(jtd, driverDomain, false, isValidate, config);
+        return new MetricsParseResult(jtd, driverDomain, false, isValidate, config, excludeApplicationOpen);
     }
 
-    private void computeMetrics(JaegerTracerDomain jtc, HeraTraceEtlConfig config) {
+    private void computeMetrics(JaegerTracerDomain jtc, HeraTraceEtlConfig config, boolean excludeApplicationOpen) {
         if (StringUtils.isEmpty(jtc.getType())) {
             return;
         }
@@ -324,7 +337,7 @@ public class MetricsParseService implements IMetricsParseService {
             redisBuild(jtc.getStatement(), jtc);
         }
         if (SpanType.MYSQL.equals(jtc.getType()) || SpanType.MONGODB.equals(jtc.getType())) {
-            if(excludeSql) {
+            if(excludeSql && excludeApplicationOpen) {
                 jtc.setSql(DEFAULT_SQL_LABEL);
             }else{
                 jtc.setSql(jtc.getStatement());

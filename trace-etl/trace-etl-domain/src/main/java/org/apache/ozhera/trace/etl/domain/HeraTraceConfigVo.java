@@ -21,7 +21,6 @@ package org.apache.ozhera.trace.etl.domain;
 
 /**
  * @Description
- * @Author dingtao
  * @Date 2022/4/19 10:16 上午
  */
 public class HeraTraceConfigVo extends PagerVo{

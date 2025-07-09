@@ -52,7 +52,7 @@ public class LogProcessor implements NettyRequestProcessor {
 
         log.info("logCollect config req:{}", GSON.toJson(req));
 
-        RemotingCommand response = RemotingCommand.createResponseCommand(LogCmd.logRes);
+        RemotingCommand response = RemotingCommand.createResponseCommand(LogCmd.LOG_REQ);
         response.setBody("ok".getBytes());
         log.info("【config change】receive data：{}", GSON.toJson(req));
         metaConfigEffect(req);
@@ -100,6 +100,6 @@ public class LogProcessor implements NettyRequestProcessor {
 
     @Override
     public int cmdId() {
-        return LogCmd.logReq;
+        return LogCmd.LOG_REQ;
     }
 }

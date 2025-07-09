@@ -21,7 +21,6 @@ package org.apache.ozhera.app.model;
 import lombok.Data;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/11/9 17:51

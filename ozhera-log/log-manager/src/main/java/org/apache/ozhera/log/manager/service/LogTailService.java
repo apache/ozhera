@@ -59,7 +59,7 @@ public interface LogTailService {
 
     Result<LogTailDTO> getMilogLogtailById(Long id);
 
-    Result<Map<String, Object>> getMilogLogBypage(Long storeId, int page, int pagesize);
+    Result<Map<String, Object>> getMilogLogBypage(Long storeId, String tailName, int page, int pagesize);
 
     Result<Map<String, Object>> getLogTailCountByStoreId(Long storeId);
 

@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.domain.tracequery;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/11/7 2:15 下午
+ * @Date 2022/11/7 2:15 pm
  */
 public class TraceQueryResult<T> {
     private T data;

@@ -36,10 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author dingtao
- * @date 2025/1/20 11:26
- */
 @Service
 public class TraceService {
 
@@ -306,8 +302,24 @@ public class TraceService {
 
         TraceIdQueryVo vo = new TraceIdQueryVo();
         vo.setTraceId(param.getTraceId());
-        long startTime = param.getTimeStamp() - QUERY_TIME_RANGE;
-        long endTime = param.getTimeStamp() + QUERY_TIME_RANGE;
+        
+        long startTime;
+        long endTime;
+        
+        // If timeStamp is null, set it to the start and end times of the current day
+        if (param.getTimeStamp() == null) {
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDateTime startOfDay = today.atStartOfDay();
+            java.time.LocalDateTime endOfDay = today.atTime(23, 59, 59, 999_999_999);
+            
+            startTime = startOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+            endTime = endOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+        } else {
+            // Use the original logic to query within QUERY_TIME_RANGE before and after the specified timestamp
+            startTime = param.getTimeStamp() - QUERY_TIME_RANGE;
+            endTime = param.getTimeStamp() + QUERY_TIME_RANGE;
+        }
+        
         vo.setStartTime(startTime);
         vo.setEndTime(endTime);
         return vo;

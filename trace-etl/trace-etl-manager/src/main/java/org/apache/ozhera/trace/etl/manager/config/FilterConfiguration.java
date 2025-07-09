@@ -29,8 +29,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/5/30 8:06 下午
+ * @Date 2022/5/30 8:06 pm
  */
 @Configuration
 public class FilterConfiguration {

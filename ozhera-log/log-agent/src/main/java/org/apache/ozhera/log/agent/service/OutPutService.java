@@ -19,6 +19,7 @@
 package org.apache.ozhera.log.agent.service;
 
 import org.apache.ozhera.log.agent.export.MsgExporter;
+import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.agent.output.Output;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 
@@ -46,7 +47,7 @@ public interface OutPutService {
      * @return
      * @throws Exception
      */
-    MsgExporter exporterTrans(Output output) throws Exception;
+    MsgExporter exporterTrans(Output output, Input input) throws Exception;
 
     /**
      * remove message producer based on configuration

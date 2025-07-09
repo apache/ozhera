@@ -24,9 +24,6 @@ import lombok.ToString;
 
 import java.util.Date;
 
-/**
- * @Author dingtao
- */
 @Data
 @ToString
 public class HeraMetaDataMessage {

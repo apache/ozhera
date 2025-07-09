@@ -21,8 +21,7 @@ package org.apache.ozhera.trace.etl.constant;
 
 /**
  * @Description
- * @Author dingtao
- * @Date 2022/4/2 9:41 上午
+ * @Date 2022/4/2 9:41 am
  */
 public class SpanType {
     public static final String HTTP = "aop";

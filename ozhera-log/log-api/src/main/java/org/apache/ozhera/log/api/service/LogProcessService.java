@@ -18,7 +18,10 @@
  */
 package org.apache.ozhera.log.api.service;
 
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
+
+import java.util.List;
 
 public interface LogProcessService {
 
@@ -27,4 +30,8 @@ public interface LogProcessService {
      * @param cmd
      */
     void updateLogProcess(UpdateLogProcessCmd cmd);
+
+    List<String> getAllIps();
+
+    NodeCollInfo getNodeCollInfo(String ip);
 }

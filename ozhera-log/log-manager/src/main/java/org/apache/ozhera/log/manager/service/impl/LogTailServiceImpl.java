@@ -1,22 +1,30 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
 import cn.hutool.core.lang.Assert;
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.app.api.response.AppBaseInfo;
 import org.apache.ozhera.app.model.vo.HeraEnvIpVo;
 import org.apache.ozhera.log.api.enums.*;
@@ -28,13 +36,10 @@ import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.common.utils.ManagerUtil;
 import org.apache.ozhera.log.manager.common.validation.HeraConfigValid;
 import org.apache.ozhera.log.manager.dao.*;
-import org.apache.ozhera.log.manager.dao.*;
 import org.apache.ozhera.log.manager.mapper.MilogLogSearchSaveMapper;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
 import org.apache.ozhera.log.manager.model.bo.LogTailParam;
 import org.apache.ozhera.log.manager.model.bo.MlogParseParam;
-import org.apache.ozhera.log.manager.model.dto.*;
-import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.model.dto.*;
 import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.model.vo.QuickQueryVO;
@@ -56,11 +61,7 @@ import org.apache.ozhera.log.manager.service.nacos.impl.StreamConfigNacosProvide
 import org.apache.ozhera.log.parse.LogParser;
 import org.apache.ozhera.log.parse.LogParserFactory;
 import org.apache.ozhera.log.utils.IndexUtils;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.nutz.lang.Strings;
 
 import javax.annotation.Resource;
 import java.time.Instant;
@@ -69,7 +70,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.*;
-import static org.apache.ozhera.log.manager.common.Utils.getKeyValueList;
 
 @Slf4j
 @Service
@@ -164,7 +164,9 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
                 .envName(logTailDo.getEnvName())
                 .isFavourite(isFavourite == null || isFavourite < 1 ? 0 : 1)
                 .deploySpace(logTailDo.getDeploySpace())
+                .logPath(logTailDo.getLogPath())
                 .collectionReady(logTailDo.getCollectionReady())
+                .originSystem(logTailDo.getOriginSystem())
                 .build();
     }
 
@@ -288,12 +290,12 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     @Override
     public void sengMessageToStream(MilogLogTailDo mt, Integer type) {
-        handleNaocsConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), type, ProjectTypeEnum.MIONE_TYPE.getCode());
+        handleNacosConfigByMotorRoom(mt, MachineRegionEnum.CN_MACHINE.getEn(), type, ProjectTypeEnum.MIONE_TYPE.getCode());
     }
 
     @Override
-    public void handleNaocsConfigByMotorRoom(MilogLogTailDo mt, String motorRoomEn, Integer type, Integer projectType) {
-        milogConfigNacosServiceImpl.chooseCurrentEnvNacosSerevice(motorRoomEn);
+    public void handleNacosConfigByMotorRoom(MilogLogTailDo mt, String motorRoomEn, Integer type, Integer projectType) {
+        milogConfigNacosServiceImpl.chooseCurrentEnvNacosService(motorRoomEn);
         if (OperateEnum.ADD_OPERATE.getCode().equals(type) || OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
             milogConfigNacosServiceImpl.publishStreamConfig(mt.getSpaceId(), type, projectType, motorRoomEn);
         }
@@ -304,7 +306,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     public boolean deleteConfigRemote(Long spaceId, Long id, String motorRoomEn, LogStructureEnum logStructureEnum) {
         Assert.notNull(spaceId, "deleteConfigRemote spaceId can not null");
         Assert.notNull(id, "deleteConfigRemote id can not null");
-        milogConfigNacosServiceImpl.chooseCurrentEnvNacosSerevice(motorRoomEn);
+        milogConfigNacosServiceImpl.chooseCurrentEnvNacosService(motorRoomEn);
         if (LogStructureEnum.SPACE == logStructureEnum) {
             milogConfigNacosServiceImpl.publishStreamConfig(spaceId, OperateEnum.DELETE_OPERATE.getCode(), null, motorRoomEn);
             return true;
@@ -326,7 +328,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             MilogLogStoreDO logStore = logStoreDao.queryById(tail.getStoreId());
             if (null != logStore && StringUtils.isNotEmpty(logStore.getKeyList())) {
                 String keyList = logStore.getKeyList();
-                String valueList = getKeyValueList(keyList, tail.getValueList());
+                String valueList = IndexUtils.getKeyValueList(keyList, tail.getValueList());
                 tail.setValueList(valueList);
             }
             // Handle filterconf to rateLimit
@@ -355,8 +357,8 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     @Override
-    public Result<Map<String, Object>> getMilogLogBypage(Long storeId, int page, int pagesize) {
-        List<MilogLogTailDo> ret = milogLogtailDao.getMilogLogtailByPage(storeId, page, pagesize);
+    public Result<Map<String, Object>> getMilogLogBypage(Long storeId, String tailName, int page, int pagesize) {
+        List<MilogLogTailDo> ret = milogLogtailDao.getMilogLogtailByPage(storeId, tailName, page, pagesize);
         ArrayList<LogTailDTO> res = Lists.newArrayList();
         ret.forEach(v -> {
             res.add(milogLogtailDO2DTO(v));
@@ -388,9 +390,15 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     @Override
     public Result<Void> updateMilogLogTail(LogTailParam param) {
+        if (null == param || null == param.getId()) {
+            return Result.failParam("parameter error,param:" + param);
+        }
         MilogLogTailDo ret = milogLogtailDao.queryById(param.getId());
         if (ret == null) {
             return new Result<>(CommonError.ParamsError.getCode(), "tail does not exist");
+        }
+        if ((null != param.getOriginSystem()) && !Strings.equals(ret.getOriginSystem(), param.getOriginSystem())) {
+            return new Result<>(CommonError.ParamsError.getCode(), "origin_system is forbidden to update");
         }
         // Parameter validation
         String errorMsg = heraConfigValid.verifyLogTailParam(param);
@@ -424,7 +432,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             defines.add(filterDefine);
         }
 
-        MilogLogTailDo milogLogtailDo = logTailParam2Do(param, logStoreDO, appBaseInfo);
+        MilogLogTailDo milogLogtailDo = convertLogTailParamToDo(ret, param, logStoreDO, appBaseInfo);
         wrapBaseCommon(milogLogtailDo, OperateEnum.UPDATE_OPERATE);
         boolean isSucceed = milogLogtailDao.update(milogLogtailDo);
 
@@ -532,7 +540,8 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     private List<MapDTO> queryAppInfo(String appName, Integer type) {
-        List<AppBaseInfo> apps = heraAppService.queryAppInfoWithLog(appName, type);
+        int limit = 100;
+        List<AppBaseInfo> apps = heraAppService.querySpecifiedAppInfoWithLog(appName, limit, type);
         List<MapDTO> mapDTOList = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(apps)) {
             mapDTOList = apps.stream().map(response -> {
@@ -631,6 +640,10 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
     private MilogLogTailDo logTailParam2Do(LogTailParam logTailParam, MilogLogStoreDO logStoreDO, AppBaseInfo appBaseInfo) {
         MilogLogTailDo milogLogtailDo = new MilogLogTailDo();
+        return convertLogTailParamToDo(milogLogtailDo, logTailParam, logStoreDO, appBaseInfo);
+    }
+
+    private MilogLogTailDo convertLogTailParamToDo(MilogLogTailDo milogLogtailDo, LogTailParam logTailParam, MilogLogStoreDO logStoreDO, AppBaseInfo appBaseInfo) {
         milogLogtailDo.setId(logTailParam.getId());
         milogLogtailDo.setTail(logTailParam.getTail());
         milogLogtailDo.setSpaceId(logTailParam.getSpaceId());
@@ -655,15 +668,21 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         milogLogtailDo.setValueList(logTailParam.getValueList());
         FilterDefine filterDefine = FilterDefine.consRateLimitFilterDefine(logTailParam.getTailRate());
         if (filterDefine != null) {
-            milogLogtailDo.setFilter(Arrays.asList(filterDefine));
+            milogLogtailDo.setFilter(List.of(filterDefine));
         }
         tailExtensionService.logTailDoExtraFiled(milogLogtailDo, logStoreDO, logTailParam);
         milogLogtailDo.setDeployWay(logTailParam.getDeployWay());
-        if (logStoreDO.isPlatformResourceStore()) {
+        if (logStoreDO.isPlatformResourceStore() || logTailParam.getAppType().equals(MATRIX_APP_TYPE_CODE)) {
             milogLogtailDo.setDeploySpace((StringUtils.isNotEmpty(logTailParam.getDeploySpace()) ? logTailParam.getDeploySpace().trim() : ""));
         }
         milogLogtailDo.setFirstLineReg((StringUtils.isNotEmpty(logTailParam.getFirstLineReg()) ? logTailParam.getFirstLineReg() : ""));
         milogLogtailDo.setCollectionReady(logTailParam.getCollectionReady());
+        milogLogtailDo.setOriginSystem(logTailParam.getOriginSystem());
+
+        if (logTailParam.getLogLevelList() != null && !logTailParam.getLogLevelList().isEmpty()) {
+            milogLogtailDo.setFilterLogLevelList(logTailParam.getLogLevelList());
+        }
+
         return milogLogtailDo;
     }
 
@@ -703,6 +722,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         logTailDTO.setDeploySpace(milogLogtailDo.getDeploySpace());
         logTailDTO.setFirstLineReg(milogLogtailDo.getFirstLineReg());
         logTailDTO.setCollectionReady(milogLogtailDo.getCollectionReady());
+        logTailDTO.setOriginSystem(milogLogtailDo.getOriginSystem());
         return logTailDTO;
     }
 
@@ -796,7 +816,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         String valueList = IndexUtils.getNumberValueList(logstoreDO.getKeyList(), mlogParseParam.getValueList());
         Long currentStamp = Instant.now().toEpochMilli();
         try {
-            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), keyList, valueList, mlogParseParam.getParseScript());
+            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), keyList, valueList, mlogParseParam.getParseScript(), logstoreDO.getKeyList());
             Map<String, Object> parseMsg = logParser.parseSimple(mlogParseParam.getMsg(), currentStamp);
             return Result.success(parseMsg);
         } catch (Exception e) {
@@ -811,7 +831,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
             return Result.failParam(checkMsg);
         }
         try {
-            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), "", "", mlogParseParam.getParseScript());
+            LogParser logParser = LogParserFactory.getLogParser(mlogParseParam.getParseType(), "", "", mlogParseParam.getParseScript(), "");
             List<String> parsedLog = logParser.parseLogData(mlogParseParam.getMsg());
             return Result.success(parsedLog);
         } catch (Exception e) {

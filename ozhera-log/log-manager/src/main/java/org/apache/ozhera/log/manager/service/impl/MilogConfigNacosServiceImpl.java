@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
@@ -22,6 +25,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.nacos.NacosNaming;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.plugin.config.anno.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.enums.MQSourceEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
@@ -32,7 +40,6 @@ import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.dao.MilogMiddlewareConfigDao;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
-import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.model.pojo.*;
 import org.apache.ozhera.log.manager.service.MilogConfigNacosService;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessor;
@@ -46,12 +53,6 @@ import org.apache.ozhera.log.manager.service.nacos.DynamicConfigProvider;
 import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
 import org.apache.ozhera.log.manager.service.nacos.FetchStreamMachineService;
 import org.apache.ozhera.log.manager.service.nacos.MultipleNacosConfig;
-import org.apache.ozhera.log.manager.service.nacos.impl.*;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.plugin.config.anno.Value;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.ozhera.log.manager.service.nacos.impl.*;
 import org.apache.ozhera.log.model.*;
 
@@ -124,7 +125,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
     private void initializeNacosConfigurations() {
         List<String> regions = commonExtensionService.queryMachineRegions();
         for (String region : regions) {
-            chooseCurrentEnvNacosSerevice(region);
+            chooseCurrentEnvNacosService(region);
         }
     }
 
@@ -252,7 +253,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
      *
      * @param motorRoomEn
      */
-    public void chooseCurrentEnvNacosSerevice(String motorRoomEn) {
+    public void chooseCurrentEnvNacosService(String motorRoomEn) {
         MilogMiddlewareConfig middlewareConfig = milogMiddlewareConfigDao.queryCurrentEnvNacos(motorRoomEn);
         if (null != middlewareConfig) {
             ConfigService configService = MultipleNacosConfig.getConfigService(middlewareConfig.getNameServer());
@@ -334,63 +335,58 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         }
         // Delete configuration -- Delete log-tail
         if (OperateEnum.DELETE_OPERATE.getCode().equals(type) && !LOG_STORE.equalsIgnoreCase(changeType)) {
-            if (null != existConfig) {
-                List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
-                SinkConfig currentStoreConfig = spaceConfig.stream()
-                        .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
-                        .findFirst()
-                        .orElse(null);
-                if (null != currentStoreConfig) {
-                    List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
-                    List<LogtailConfig> logtailConfigList = new ArrayList<>(logTailConfigs);
+            List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
+            SinkConfig currentStoreConfig = spaceConfig.stream()
+                    .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+                    .findFirst()
+                    .orElse(null);
+            if (null != currentStoreConfig) {
+                List<LogtailConfig> logTailConfigs = currentStoreConfig.getLogtailConfigs();
+                List<LogtailConfig> logtailConfigList = new ArrayList<>(logTailConfigs);
 
-                    if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
-                            logTailConfigs.stream().anyMatch(config -> config.getLogtailId().equals(tailId))) {
-                        logtailConfigList.removeIf(logtailConfig -> logtailConfig.getLogtailId().equals(tailId));
-                    }
-                    currentStoreConfig.setLogtailConfigs(logtailConfigList);
+                if (null != tailId && CollectionUtils.isNotEmpty(logTailConfigs) &&
+                        logTailConfigs.stream().anyMatch(config -> null != config.getLogtailId() && config.getLogtailId().equals(tailId))) {
+                    logtailConfigList.removeIf(logtailConfig -> null != logtailConfig.getLogtailId() &&
+                            logtailConfig.getLogtailId().equals(tailId));
                 }
+                currentStoreConfig.setLogtailConfigs(logtailConfigList);
             }
         }
         // Delete configuration -- Delete log-tail
         if (OperateEnum.DELETE_OPERATE.getCode().equals(type) && LOG_STORE.equalsIgnoreCase(changeType)) {
-            if (null != existConfig) {
-                List<SinkConfig> sinkConfigListDelStore = existConfig.getSpaceConfig().stream()
-                        .filter(sinkConfig -> !storeId.equals(sinkConfig.getLogstoreId()))
-                        .collect(Collectors.toList());
-                existConfig.setSpaceConfig(sinkConfigListDelStore);
-            }
+            List<SinkConfig> sinkConfigListDelStore = existConfig.getSpaceConfig().stream()
+                    .filter(sinkConfig -> !storeId.equals(sinkConfig.getLogstoreId()))
+                    .collect(Collectors.toList());
+            existConfig.setSpaceConfig(sinkConfigListDelStore);
         }
         // Modify the configuration -- find a specific tail under this store to make changes
         if (OperateEnum.UPDATE_OPERATE.getCode().equals(type)) {
-            if (null != existConfig) {
-                List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
-                //Compare whether the store has changed
-                SinkConfig newSinkConfig = assembleSinkConfig(storeId, tailId, motorRoomEn);
-                SinkConfig currentStoreConfig = spaceConfig.stream()
-                        .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+            List<SinkConfig> spaceConfig = existConfig.getSpaceConfig();
+            //Compare whether the store has changed
+            SinkConfig newSinkConfig = assembleSinkConfig(storeId, tailId, motorRoomEn);
+            SinkConfig currentStoreConfig = spaceConfig.stream()
+                    .filter(sinkConfig -> sinkConfig.getLogstoreId().equals(storeId))
+                    .findFirst()
+                    .orElse(null);
+            if (null != currentStoreConfig) {
+                if (!newSinkConfig.equals(currentStoreConfig)) {
+                    currentStoreConfig.updateStoreParam(newSinkConfig);
+                }
+                // Find the specific tail under the old store
+                LogtailConfig filterLogTailConfig = currentStoreConfig.getLogtailConfigs().stream()
+                        .filter(logTailConfig -> Objects.equals(tailId, logTailConfig.getLogtailId()))
                         .findFirst()
                         .orElse(null);
-                if (null != currentStoreConfig) {
-                    if (!newSinkConfig.equals(currentStoreConfig)) {
-                        currentStoreConfig.updateStoreParam(newSinkConfig);
-                    }
-                    // Find the specific tail under the old store
-                    LogtailConfig filterLogTailConfig = currentStoreConfig.getLogtailConfigs().stream()
-                            .filter(logTailConfig -> Objects.equals(tailId, logTailConfig.getLogtailId()))
-                            .findFirst()
-                            .orElse(null);
-                    if (null != filterLogTailConfig) {
-                        BeanUtil.copyProperties(assembleLogTailConfigs(tailId), filterLogTailConfig);
-                    } else {
-                        log.info("query logtailConfig no designed config,tailId:{},insert", tailId);
-                        currentStoreConfig.getLogtailConfigs().add(assembleLogTailConfigs(tailId));
-                    }
+                if (null != filterLogTailConfig) {
+                    BeanUtil.copyProperties(assembleLogTailConfigs(tailId), filterLogTailConfig);
                 } else {
-                    //Does not exist, new
-                    //New addition to the logstore
-                    spaceConfig.add(assembleSinkConfig(storeId, tailId, motorRoomEn));
+                    log.info("query logtailConfig no designed config,tailId:{},insert", tailId);
+                    currentStoreConfig.getLogtailConfigs().add(assembleLogTailConfigs(tailId));
                 }
+            } else {
+                //Does not exist, new
+                //New addition to the logstore
+                spaceConfig.add(assembleSinkConfig(storeId, tailId, motorRoomEn));
             }
         }
         return existConfig;
@@ -410,6 +406,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
             sinkConfig.setLogstoreName(logStoreDO.getLogstoreName());
             sinkConfig.setKeyList(Utils.parse2KeyAndTypeList(logStoreDO.getKeyList(), logStoreDO.getColumnTypeList()));
+            sinkConfig.setKeyOrderList(logStoreDO.getKeyList());
             MilogEsClusterDO esInfo = esCluster.getById(logStoreDO.getEsClusterId());
             if (null != esInfo) {
                 sinkConfig.setEsIndex(logStoreDO.getEsIndex());
@@ -446,6 +443,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             logtailConfig.setParseScript(milogLogTail.getParseScript());
             logtailConfig.setValueList(milogLogTail.getValueList());
             logtailConfig.setAppType(milogLogTail.getAppType());
+            logtailConfig.setDeploySpace(milogLogTail.getDeploySpace());
             // Query MQ information
             handleTailConfig(tailId, milogLogTail.getStoreId(), milogLogTail.getSpaceId(),
                     milogLogTail.getMilogAppId(), logtailConfig, milogLogTail.getAppType());

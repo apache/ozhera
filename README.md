@@ -1,3 +1,24 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
 # Apache OzHera(Incubating)
 
 <p align="center">
@@ -11,7 +32,7 @@
 
 
 ## What is Apache OzHera(Incubating)?
-Apache OzHera(Incubating) is an Application Observable Platform in the Cloud Native Era. open-sourced by the R&D efficiency team of Xiaomi-China region. Centered around applications, it integrates metrics monitoring, link tracing, logging, and alerts. It achieves a seamless connection and interaction from metrics to tracing to logging. Moreover, Apache OzHera(Incubating) offers a comprehensive monitoring dashboard featuring application health status lists, application metric boards, interface overviews, application overviews, gateway overviews, etc., along with clear and concise visual text alerts, enabling users to pinpoint issues accurately and efficiently.
+Apache OzHera(Incubating) is an Application Observable Platform in the Cloud Native Era. Centered around applications, it integrates metrics monitoring, link tracing, logging, and alerts. It achieves a seamless connection and interaction from metrics to tracing to logging. Moreover, Apache OzHera(Incubating) offers a comprehensive monitoring dashboard featuring application health status lists, application metric boards, interface overviews, application overviews, gateway overviews, etc., along with clear and concise visual text alerts, enabling users to pinpoint issues accurately and efficiently.
 
 ---
 
@@ -59,7 +80,7 @@ Welcome to visit the [official website](https://ozhera.apache.org/) of Apache Oz
 ---
 
 ### Contributing
-Contributors are welcomed to join ozhera project. Please check [contributing.md](readme%2Fcontributing%2Fcontributing.md) about how to contribute to this project.
+Contributors are welcomed to join ozhera project. Please check [contributing.md](CONTRIBUTING.md) about how to contribute to this project.
 
 How can I contribute?
 - Take a look at issues with tags marked [good first issue](https://github.com/apache/ozhera/labels/good%20first%20issue) or [contribution welcome](https://github.com/apache/ozhera/labels/help%20wanted).
@@ -79,17 +100,10 @@ We warmly welcome your valuable opinions and suggestions about the project. Whet
 
 #### Community Engagement
 - We also welcome you to join our community for discussions and exchanges:
-    - Welcome to visit the [community website](https://m.one.mi.com/index) of Apache OzHera(Incubating), where we will publish Apache OzHera(Incubating)'s technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
+    - Welcome to visit the [community website](https://ozhera.apache.org) of Apache OzHera(Incubating), where we will publish Apache OzHera(Incubating)'s technical documentation, thoughts, and achievements. We welcome everyone to join the discussion.
     - [GitHub Discussions](https://github.com/apache/ozhera/issues?q=is%3Aissue+is%3Aopen+%5BDisscusion%5D+)
 
 ---
-
-## User List
-
-If you are using Apache OzHera(Incubating) and think that it helps you or want to contribute code for Apache OzHera(Incubating), please add your company to the user list to let us know your needs.
-
-|![xiao mi](./readme/userlist/mi.png)|![auchosaur games](readme/userlist/auchosaur_games.png)|![lingdong](readme/userlist/lingdong.png)|![airstar](readme/userlist/airstar.png)|
-| :---: | :---: | :---: | :---: |
 
 
 

@@ -1,26 +1,29 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.stream;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.parse.LogParser;
 import org.apache.ozhera.log.parse.LogParserFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -89,7 +92,7 @@ public class TestSomething {
         //RmqSinkJob rmqSinkJob = new RmqSinkJob();
         Integer parserType = LogParserFactory.LogParserEnum.CUSTOM_PARSE.getCode();
 
-        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName);
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, "");
 
 //        rmqSinkJob.setLogParser(customParse);
 
@@ -102,6 +105,6 @@ public class TestSomething {
         Map<String, Map<String, String>> testMap = new HashMap<>();
         Map<String, String> test = testMap.computeIfAbsent("test", k -> new HashMap<>());
         test.put("sfsdf", "ersrser");
-        log.info("result:{}",GSON.toJson(testMap));
+        log.info("result:{}", GSON.toJson(testMap));
     }
 }

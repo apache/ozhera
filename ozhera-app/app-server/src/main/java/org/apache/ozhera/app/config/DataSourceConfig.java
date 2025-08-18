@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.app.config;
 
@@ -34,7 +37,6 @@ import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 
 /**
- * @author wtt
  * @version 1.0
  * @description
  * @date 2022/10/29 11:34
@@ -43,16 +45,16 @@ import java.beans.PropertyVetoException;
 @Configuration
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.driverClassName}")
+    @NacosValue("${spring.datasource.driverClassName}")
     private String driverClass;
 
-    @Value("${spring.datasource.default.initialPoolSize}")
+    @NacosValue("${spring.datasource.default.initialPoolSize}")
     private Integer defaultInitialPoolSize;
 
-    @Value("${spring.datasource.default.maxPoolSize}")
+    @NacosValue("${spring.datasource.default.maxPoolSize}")
     private Integer defaultMaxPoolSize;
 
-    @Value("${spring.datasource.default.minialPoolSize}")
+    @NacosValue("${spring.datasource.default.minialPoolSize}")
     private Integer defaultMinPoolSize;
 
     @NacosValue(value = "${spring.datasource.username}", autoRefreshed = true)
@@ -81,12 +83,12 @@ public class DataSourceConfig {
         dataSource.setMaxPoolSize(defaultMaxPoolSize);
         dataSource.setMinPoolSize(defaultMinPoolSize);
 
-        setDatasouce(dataSource);
+        setDatasource(dataSource);
 
         return dataSource;
     }
 
-    private void setDatasouce(ComboPooledDataSource dataSource) {
+    private void setDatasource(ComboPooledDataSource dataSource) {
         dataSource.setTestConnectionOnCheckin(true);
         dataSource.setTestConnectionOnCheckout(false);
         dataSource.setPreferredTestQuery("select 1");

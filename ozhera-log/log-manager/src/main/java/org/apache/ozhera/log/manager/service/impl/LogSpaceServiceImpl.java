@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
@@ -20,6 +23,14 @@ import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.xiaomi.mone.tpc.common.enums.NodeUserRelTypeEnum;
+import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
+import com.xiaomi.mone.tpc.common.vo.NodeVo;
+import com.xiaomi.mone.tpc.common.vo.PageDataVo;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.db.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.enums.LogStructureEnum;
 import org.apache.ozhera.log.api.enums.MachineRegionEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
@@ -41,14 +52,6 @@ import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
 import org.apache.ozhera.log.manager.service.BaseService;
 import org.apache.ozhera.log.manager.service.LogSpaceService;
 import org.apache.ozhera.log.manager.user.MoneUser;
-import com.xiaomi.mone.tpc.common.enums.NodeUserRelTypeEnum;
-import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
-import com.xiaomi.mone.tpc.common.vo.NodeVo;
-import com.xiaomi.mone.tpc.common.vo.PageDataVo;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.db.Transactional;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -116,6 +119,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         }
         com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
+
+        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
             milogSpaceDao.deleteMilogSpace(dbDO.getId());
@@ -186,18 +191,16 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     }
 
     @Override
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId) {
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName) {
         int pageNum = 1;
         int defaultPageSize = 300;
-        String defaultSpaceKey = buildCacheKey(tenantId);
+        String defaultSpaceKey = buildCacheKey(tenantId, spaceName);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
-
         // return cached result if available
         if (CollectionUtils.isNotEmpty(cachedResult)) {
             return Result.success(cachedResult);
         }
-
-        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize);
+        List<NodeVo> nodeVos = fetchAllNodeVos(pageNum, defaultPageSize, spaceName);
 
         // transform nodeVos to MapDTO list
         List<MapDTO<String, Long>> result = nodeVos.parallelStream()
@@ -206,19 +209,26 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
         // cache the result
         SPACE_ALL_CACHE.put(defaultSpaceKey, result);
+
         return Result.success(result);
+
+
     }
 
-    private static String buildCacheKey(Long tenantId) {
+    private static String buildCacheKey(Long tenantId, String spaceName) {
         MoneUser currentUser = MoneUserContext.getCurrentUser();
-        return String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+        if (spaceName !=null && !spaceName.isEmpty()){
+            cacheKey = cacheKey + "-" + spaceName;
+        }
+        return cacheKey;
     }
 
-    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize) {
+    private List<NodeVo> fetchAllNodeVos(int pageNum, int pageSize, String spaceName) {
         List<NodeVo> nodeVos = new ArrayList<>();
 
         while (true) {
-            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace("", pageNum, pageSize);
+            com.xiaomi.youpin.infra.rpc.Result<PageDataVo<NodeVo>> response = spaceAuthService.getUserPermSpace(spaceName, pageNum, pageSize);
 
             if (response.getCode() != 0) {
                 throw new MilogManageException("query space from tpc error");
@@ -275,6 +285,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
         if (milogSpaceDao.update(milogSpace)) {
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
+
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Modify the space permission system not associated with it,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.success("To modify the unassociated permission system of space, contact the server-side performance group");
@@ -306,6 +318,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(),""));
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);

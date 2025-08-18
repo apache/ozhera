@@ -1,22 +1,26 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.operator.handler;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import com.mysql.cj.jdbc.Driver;
 import com.xiaomi.data.push.client.HttpClientV6;
 import com.xiaomi.youpin.docean.anno.Component;
 import io.fabric8.kubernetes.api.model.*;
@@ -38,9 +42,7 @@ import org.apache.ozhera.operator.common.HoConstant;
 import org.apache.ozhera.operator.common.K8sUtilBean;
 import org.apache.ozhera.operator.common.ResourceTypeEnum;
 import org.apache.ozhera.operator.service.ESService;
-import org.apache.ozhera.operator.service.RocketMQSerivce;
-
-import org.mariadb.jdbc.Driver;
+import org.apache.ozhera.operator.service.RocketMQService;
 
 
 import java.io.*;
@@ -52,9 +54,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-/**
- * @author wenbang
- */
 @Slf4j
 @Component(name = "HeraResourceEventHandler")
 @Data
@@ -80,7 +79,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
     private ESService esService;
 
     @javax.annotation.Resource
-    private RocketMQSerivce rocketMQSerivce;
+    private RocketMQService rocketMQSerivce;
 
     @javax.annotation.Resource
     private K8sUtilBean k8sUtilBean;
@@ -248,8 +247,9 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
         }
     }
 
-    private void initNacos(String action, String nacosAddress, String pwd, List<PropConf> propConfList) {
+    private void initNacos(String action, String nacosAddress, String pwd, List<PropConf> propConfList) throws InterruptedException {
         log.warn("initNacos begin nacosAddress:{}", nacosAddress);
+        Thread.sleep(1000 * 30);
         String url = String.format("http://%s/nacos/v1/ns/cluster/enable?level=4&pwd=%s", nacosAddress, pwd);
         String nacosEnable = HttpClientV6.get(url, new HashMap<>(), 2000);
         if (!"ok".equals(nacosEnable)) {
@@ -275,12 +275,12 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                     String dataId = key.substring(0, key.indexOf("_#_"));
                     String group = key.substring(key.indexOf("_#_") + 3);
                     String body = String.format("type=%s&dataId=%s&group=%s&content=%s", "properties", dataId, group, eContent);
-                    log.info("create nacos conig file:{}", body);
+                    log.info("create nacos config file:{}", body);
                     String result = HttpClientV6.post(nacosCfApi, body, headers, 3000);
                     if (!"true".equals(result)) {
-                        log.error("create nacos conig file failed:{}", result);
+                        log.error("create nacos config file failed:{}", result);
                     } else {
-                        log.info("create nacos conig file success");
+                        log.info("create nacos config file success");
                     }
 
                     break;
@@ -304,7 +304,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
                 "/ozhera_init/mysql/sql/hera.sql"};
         log.warn("sql scripts:{}", scripts);
         executeSqlScript(scripts, url, userName, pwd);
-        log.warn("sql scripts execte success");
+        log.warn("sql scripts execute success");
     }
 
     /**
@@ -315,6 +315,11 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
      * @param pwd
      */
     private void executeSqlScript(String[] scripts, String url, String userName, String pwd) {
+
+        if (url.contains("?") || url.contains("#") || url.toLowerCase().contains("allowloadlocalinfile")) {
+            throw new IllegalArgumentException("Unsafe URL detected");
+        }
+
         int retryTimes = 3;
         Connection con = null;
         ScriptRunner sr = null;
@@ -327,7 +332,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
         while (retryTimes-- > 0) {
             try {
                 //Getting the connection
-                String mariadbUrl = String.format("jdbc:mariadb://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
+                String mariadbUrl = String.format("jdbc:mysql://%s/?useUnicode=true&characterEncoding=utf8&useSSL=false&connectTimeout=4000&socketTimeout=60000", url);
                 con = DriverManager.getConnection(mariadbUrl, userName, pwd);
                 log.warn("Connection established :{}", mariadbUrl);
 

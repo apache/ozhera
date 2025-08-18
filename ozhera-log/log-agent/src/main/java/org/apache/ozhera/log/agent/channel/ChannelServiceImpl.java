@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.agent.channel;
 
@@ -21,6 +24,11 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.mone.file.*;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.file.InodeFileComparator;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
@@ -37,11 +45,6 @@ import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.common.PathUtils;
 import org.apache.ozhera.log.utils.NetUtil;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -62,10 +65,11 @@ import static org.apache.ozhera.log.common.PathUtils.SEPARATOR;
 @Slf4j
 public class ChannelServiceImpl extends AbstractChannelService {
 
-    private AgentMemoryService memoryService;
+    private final AgentMemoryService memoryService;
 
     private MsgExporter msgExporter;
 
+    @Getter
     private ChannelDefine channelDefine;
 
     private ChannelMemory channelMemory;
@@ -76,7 +80,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     @Getter
     private final ConcurrentHashMap<String, Future> futureMap = new ConcurrentHashMap<>();
 
-    private Set<String> delFileCollList = new CopyOnWriteArraySet<>();
+    private final Set<String> delFileCollList = new CopyOnWriteArraySet<>();
 
     private final Map<String, Long> reOpenMap = new HashMap<>();
     private final Map<String, Long> fileReadMap = new ConcurrentHashMap<>();
@@ -85,13 +89,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private ScheduledFuture<?> lastFileLineScheduledFuture;
 
-    private Gson gson = Constant.GSON;
+    private final Gson gson = Constant.GSON;
 
-    private List<LineMessage> lineMessageList = new ArrayList<>();
+    private final List<LineMessage> lineMessageList = new ArrayList<>();
 
-    private ReentrantLock fileColLock = new ReentrantLock();
+    private final ReentrantLock fileColLock = new ReentrantLock();
 
-    private ReentrantLock fileReopenLock = new ReentrantLock();
+    private final ReentrantLock fileReopenLock = new ReentrantLock();
 
     private volatile long lastSendTime = System.currentTimeMillis();
 
@@ -104,18 +108,14 @@ public class ChannelServiceImpl extends AbstractChannelService {
      */
     private boolean collectOnce;
 
-    private FilterChain chain;
+    private final FilterChain chain;
 
     /**
      * The file path to monitor
      */
-    private List<MonitorFile> monitorFileList;
+    private final List<MonitorFile> monitorFileList;
 
     private LogTypeEnum logTypeEnum;
-
-    private String logPattern;
-
-    private String logSplitExpress;
 
     private String linePrefix;
 
@@ -167,8 +167,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
         Long channelId = channelDefine.getChannelId();
         Input input = channelDefine.getInput();
 
-        this.logPattern = input.getLogPattern();
-        this.logSplitExpress = input.getLogSplitExpress();
+        String logPattern = input.getLogPattern();
+        String logSplitExpress = input.getLogSplitExpress();
         this.linePrefix = input.getLinePrefix();
 
         String logType = channelDefine.getInput().getType();
@@ -185,6 +185,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
+            log.info("get channelMemory empty,filePath:{}", logPattern);
             channelMemory = initChannelMemory(channelId, input, patterns, channelDefine);
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
@@ -256,16 +257,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
      * 2.logSplitExpress:/home/work/log/log-agent/(server.log.*|error.log.*) realFilePaths: ["/home/work/log/log-agent/server.log","/home/work/log/log-agent/server.log"]
      * 2.logSplitExpress:/home/work/log/(log-agent|log-stream)/server.log.* realFilePaths: ["/home/work/log/log-agent/server.log","/home/work/log/log-stream/server.log"]
      * The real file does not exist, it should also listen
-     *
-     * @param logSplitExpress
-     * @param realFilePaths
      */
     private void logMonitorPathDisassembled(String logSplitExpress, List<String> realFilePaths, String configPath) {
         List<String> cleanedPathList = Lists.newArrayList();
         if (StringUtils.isNotBlank(logSplitExpress)) {
             PathUtils.dismantlingStrWithSymbol(logSplitExpress, cleanedPathList);
         }
-        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum || realFilePaths.isEmpty()) {
+        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum || realFilePaths.isEmpty() || ChannelServiceFactory.isSpecialFilePath(configPath)) {
             opentelemetryMonitor(configPath);
             return;
         }
@@ -307,26 +305,27 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 return;
             }
             long ct = System.currentTimeMillis();
-            readResult.get().getLines().stream().forEach(l -> {
-                String logType = channelDefine.getInput().getType();
-                LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
-                // Multi-line application log type and opentelemetry type are used to determine the exception stack
-                if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
-                    l = mLog.append2(l);
-                } else {
-                    // tail single line mode
-                }
-                if (null != l) {
-                    try {
-                        fileColLock.lock();
-                        wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
-                    } finally {
-                        fileColLock.unlock();
-                    }
-                } else {
-                    log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
-                }
-            });
+            readResult.get().getLines()
+                    .stream().filter(l -> !shouldFilterLogs(channelDefine.getFilterLogLevelList(), l)).forEach(l -> {
+                        String logType = channelDefine.getInput().getType();
+                        LogTypeEnum logTypeEnum = LogTypeEnum.name2enum(logType);
+                        // Multi-line application log type and opentelemetry type are used to determine the exception stack
+                        if (LogTypeEnum.APP_LOG_MULTI == logTypeEnum || LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
+                            l = mLog.append2(l);
+                        } else {
+                            // tail single line mode
+                        }
+                        if (null != l) {
+                            try {
+                                fileColLock.lock();
+                                wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
+                            } finally {
+                                fileColLock.unlock();
+                            }
+                        } else {
+                            log.debug("biz log channelId:{}, not new line:{}", channelDefine.getChannelId(), l);
+                        }
+                    });
 
         });
         resultMap.put(pattern, Pair.of(mLog, readResult));
@@ -347,7 +346,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                         try {
                             String remainMsg = mLog.takeRemainMsg2();
                             if (null != remainMsg) {
-                                log.info("start send last line,pattern:{},patternCode:{},data:{}", pattern, patternCode, remainMsg);
+                                log.info("start send last line,pattern:{},patternCode:{},ip:{},data:{}", pattern, patternCode, getTailPodIp(pattern), remainMsg);
                                 wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
                             }
                         } finally {
@@ -396,7 +395,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             logFileMap.put(filePath, logFile);
             Future<?> future = ExecutorUtil.submit(() -> {
                 try {
-                    log.info("thread {} {}", Thread.currentThread().isVirtual(), Thread.currentThread());
+                    log.info("filePath:{},is VirtualThread {}, thread:{},id:{}", filePath, Thread.currentThread().isVirtual(), Thread.currentThread(), Thread.currentThread().threadId());
                     logFile.readLine();
                 } catch (Exception e) {
                     logFile.setExceptionFinish();
@@ -434,7 +433,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
 
         if (!collectOnce && !snapshot.isEmpty()) {
-            String jsonMap = gson.toJson(snapshot);
+            String jsonMap = gson.toJson(snapshot.keySet());
             log.info("fileProgressMap: {}", jsonMap);
         }
     }
@@ -469,6 +468,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
         ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
         ILogFile logFile = channelEngine.logFile();
+        log.info("initLogFile filePath:{},pointer:{},lineNumber:{}", filePath, pointer, lineNumber);
         logFile.initLogFile(filePath, listener, pointer, lineNumber);
         return logFile;
     }
@@ -497,7 +497,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public void close() {
-        log.info("Delete the current collection task,channelId:{}", getChannelId());
+        log.info("Delete the current collection task,channelId:{},logPattern:{}", getChannelId(), getChannelDefine().getInput().getLogPattern());
         //1.Stop log capture
         for (Map.Entry<String, ILogFile> fileEntry : logFileMap.entrySet()) {
             fileEntry.getValue().setStop(true);
@@ -517,7 +517,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         for (Future future : futureMap.values()) {
             future.cancel(false);
         }
-        log.info("stop file monitor,fileName:", logFileMap.keySet().stream().collect(Collectors.joining(SYMBOL_COMMA)));
+        log.info("stop file monitor,fileName:{}", String.join(SYMBOL_COMMA, logFileMap.keySet()));
         lineMessageList.clear();
         reOpenMap.clear();
         fileReadMap.clear();
@@ -607,10 +607,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         return monitorFileList;
     }
 
-    public ChannelDefine getChannelDefine() {
-        return channelDefine;
-    }
-
+    @Override
     public ChannelMemory getChannelMemory() {
         return channelMemory;
     }

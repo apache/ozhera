@@ -1,21 +1,29 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.stream.job;
 
 import com.google.gson.Gson;
+import com.xiaomi.youpin.docean.Ioc;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.model.LogtailConfig;
 import org.apache.ozhera.log.model.MilogSpaceData;
@@ -25,17 +33,11 @@ import org.apache.ozhera.log.stream.common.SinkJobEnum;
 import org.apache.ozhera.log.stream.job.extension.SinkJob;
 import org.apache.ozhera.log.stream.job.extension.SinkJobProvider;
 import org.apache.ozhera.log.stream.sink.SinkChain;
-import com.xiaomi.youpin.docean.Ioc;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 
@@ -54,10 +56,6 @@ public class JobManager {
     private String sinkJobType;
 
     private Gson gson = new Gson();
-
-    private ReentrantLock stopLock = new ReentrantLock();
-
-    private ReentrantLock startLock = new ReentrantLock();
 
     public JobManager() {
         sinkJobType = Config.ins().get(SINK_JOB_TYPE_KEY, "");
@@ -97,15 +95,16 @@ public class JobManager {
     }
 
     public void stopJob(LogtailConfig logtailConfig) {
-        stopLock.lock();
         try {
-            List<Long> jobKeys = jobs.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
-            log.info("【stop job】,all jobs:{}", jobKeys);
-            sinkJobsShutDown(logtailConfig);
+            List<Long> jobKeys = jobs.keySet().stream()
+                    .filter(key -> key.equals(logtailConfig.getLogtailId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(jobKeys)) {
+                log.info("stop job,the jobs:{}", jobKeys);
+                sinkJobsShutDown(logtailConfig);
+            }
         } catch (Exception e) {
             log.error(String.format("[JobManager.stopJob] stopJob err,logtailId:%s", logtailConfig.getLogtailId()), e);
-        } finally {
-            stopLock.unlock();
         }
     }
 
@@ -113,7 +112,7 @@ public class JobManager {
             logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
         try {
             SinkJobConfig sinkJobConfig = buildSinkJobConfig(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
-            log.warn("##startConsumerJob## spaceId:{}, storeId:{}, tailId:{}", sinkJobConfig.getLogSpaceId(), sinkJobConfig.getLogStoreId(), sinkJobConfig.getLogTailId());
+            log.warn("startConsumerJob spaceId:{}, storeId:{}, tailId:{}", sinkJobConfig.getLogSpaceId(), sinkJobConfig.getLogStoreId(), sinkJobConfig.getLogTailId());
 
             String sinkProviderBean = sinkJobConfig.getMqType() + LogStreamConstants.sinkJobProviderBeanSuffix;
             SinkJobProvider sinkJobProvider = Ioc.ins().getBean(sinkProviderBean);
@@ -138,10 +137,9 @@ public class JobManager {
                 startSinkJob(sinkJobProvider.getBackupJob(sinkJobConfig), SinkJobEnum.BACKUP_JOB,
                         logtailConfig.getLogtailId());
             }
-
-            log.info(String.format("[JobManager.initJobs] startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()));
+            log.info(String.format("startJob success,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()));
         } catch (Throwable e) {
-            log.error(String.format("[JobManager.initJobs] startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()), new RuntimeException(e));
+            log.error(String.format("startJob err,logTailId:%s,topic:%s,tag:%s,esIndex:%s", logtailConfig.getLogtailId(), logtailConfig.getTopic(), logtailConfig.getTag(), sinkConfig.getEsIndex()), new RuntimeException(e));
         }
     }
 
@@ -164,6 +162,7 @@ public class JobManager {
                 .tag(logtailConfig.getTag())
                 .index(sinkConfig.getEsIndex())
                 .keyList(sinkConfig.getKeyList())
+                .keyOrderList(sinkConfig.getKeyOrderList())
                 .valueList(logtailConfig.getValueList())
                 .parseScript(logtailConfig.getParseScript())
                 .logStoreName(sinkConfig.getLogstoreName())
@@ -175,6 +174,7 @@ public class JobManager {
                 .jobType(SinkJobEnum.NORMAL_JOB.name())
                 .storageType(sinkConfig.getStorageType())
                 .consumerGroup(logtailConfig.getConsumerGroup())
+                .deploySpace(logtailConfig.getDeploySpace())
                 .build();
         sinkJobConfig.setLogTailId(logtailConfig.getLogtailId());
         sinkJobConfig.setLogStoreId(sinkConfig.getLogstoreId());
@@ -183,21 +183,18 @@ public class JobManager {
     }
 
     public void startJob(LogtailConfig logtailConfig, SinkConfig sinkConfig, Long logSpaceId) {
-        startLock.lock();
         try {
             String ak = logtailConfig.getAk();
             String sk = logtailConfig.getSk();
             String clusterInfo = logtailConfig.getClusterInfo();
             String type = logtailConfig.getType();
             if (StringUtils.isEmpty(clusterInfo) || StringUtils.isEmpty(logtailConfig.getTopic())) {
-                log.info("start job error,ak or sk or logtailConfig null,ak:{},sk:{},logtailConfig:{}", ak, sk, new Gson().toJson(logtailConfig));
+                log.info("start job error,ak or sk or logTailConfig null,ak:{},sk:{},logTailConfig:{}", ak, sk, gson.toJson(logtailConfig));
                 return;
             }
             startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);
         } catch (Exception e) {
-            log.error(String.format("[JobManager.startJob] start job err,logtailConfig:%s,esIndex:%s", logtailConfig, sinkConfig.getEsIndex()), e);
-        } finally {
-            startLock.unlock();
+            log.error(String.format("start job err,logTailConfig:%s,esIndex:%s", logtailConfig, sinkConfig.getEsIndex()), e);
         }
     }
 

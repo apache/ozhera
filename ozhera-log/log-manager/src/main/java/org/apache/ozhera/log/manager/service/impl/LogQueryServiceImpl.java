@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
@@ -20,6 +23,10 @@ import cn.hutool.core.date.StopWatch;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.mone.es.EsClient;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.model.dto.TraceLogDTO;
 import org.apache.ozhera.log.api.model.vo.TraceLogQuery;
 import org.apache.ozhera.log.api.service.LogDataService;
@@ -42,10 +49,6 @@ import org.apache.ozhera.log.manager.service.LogQueryService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
@@ -125,7 +128,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         StopWatch stopWatch = new StopWatch("HERA-LOG-QUERY");
         try {
             stopWatch.start("before-query");
-            MilogLogStoreDO logStore = logstoreDao.getByName(logQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 log.warn("[EsDataService.logQuery] not find logstore:[{}]", logQuery.getLogstore());
                 return Result.failParam("Not found [" + logQuery.getLogstore() + "]The corresponding data");
@@ -220,7 +223,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
         try {
             EsStatisticResult result = new EsStatisticResult();
             result.setName(constractEsStatisticRet(logQuery));
-            MilogLogStoreDO logStore = logstoreDao.getByName(logQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logQuery.getStoreId());
             if (logStore == null) {
                 return new Result<>(CommonError.UnknownError.getCode(), "not found logstore", null);
             }
@@ -334,7 +337,7 @@ public class LogQueryServiceImpl implements LogQueryService, LogDataService, EsD
             if (searchLog.isLegalParam(logContextQuery) == false) {
                 return Result.failParam("Required parameters are missing");
             }
-            MilogLogStoreDO logStore = logstoreDao.getByName(logContextQuery.getLogstore());
+            MilogLogStoreDO logStore = logstoreDao.queryById(logContextQuery.getLogStoreId());
             if (logStore.getEsClusterId() == null || StringUtils.isEmpty(logStore.getEsIndex())) {
                 return Result.failParam("Store configuration exception");
             }

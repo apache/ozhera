@@ -1,22 +1,28 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.agent.channel;
 
+import cn.hutool.core.io.FileUtil;
 import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
+import com.xiaomi.mone.file.common.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.input.Input;
@@ -24,8 +30,8 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
 import org.apache.ozhera.log.utils.NetUtil;
-import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
+import static org.apache.ozhera.log.utils.ConfigUtils.getConfigValue;
 
 /**
  * @author wtt
@@ -45,6 +52,8 @@ import static org.apache.ozhera.log.common.Constant.GSON;
 public abstract class AbstractChannelService implements ChannelService {
 
     public String instanceId = UUID.randomUUID().toString();
+
+    private final int FILTER_LOG_PREFIX_LENGTH = Integer.parseInt(getConfigValue("filter_log_level_prefix_length", "60"));
 
     @Override
     public String instanceId() {
@@ -83,6 +92,11 @@ public abstract class AbstractChannelService implements ChannelService {
             }
             ChannelState.StateProgress stateProgress = new ChannelState.StateProgress();
             stateProgress.setCurrentFile(pattern);
+            File file = new File(pattern);
+            if (file.exists()) {
+                stateProgress.setFileInode(FileUtils.fileKey(file).toString());
+            }
+            file = null;
             stateProgress.setIp(getTailPodIp(pattern));
             stateProgress.setCurrentRowNum(fileProcess.getCurrentRowNum());
             stateProgress.setPointer(fileProcess.getPointer());
@@ -152,7 +166,7 @@ public abstract class AbstractChannelService implements ChannelService {
     protected static void wildcardGraceShutdown(List<String> directory, String matchExpress) {
         // Add a shutdown hook to gracefully shutdown FileInfoCache
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{}", GSON.toJson(directory), matchExpress);
+            log.info("wildcardGraceShutdown Shutdown,directory:{},express:{},cacheSize:{}", GSON.toJson(directory), matchExpress, FileInfoCache.ins().caches().size());
             FileInfoCache.ins().shutdown();
         }));
     }
@@ -192,8 +206,28 @@ public abstract class AbstractChannelService implements ChannelService {
         if (null != readResult.get().getFileMaxPointer()) {
             fileProgress.setFileMaxPointer(readResult.get().getFileMaxPointer());
         }
-        fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(fileName));
+        if (FileUtil.exist(fileName)) {
+            fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(fileName));
+        }
         fileProgress.setPodType(channelDefine.getPodType());
         fileProgress.setCtTime(ct);
     }
+
+    public Boolean shouldFilterLogs(List<String> logLevelList, String line) {
+        if (logLevelList == null || logLevelList.isEmpty()) {
+            return false;
+        }
+        if (line.length() > FILTER_LOG_PREFIX_LENGTH) {
+            line = line.substring(0, FILTER_LOG_PREFIX_LENGTH);
+        }
+        log.info("The current log information to be filtered is {}, the log level to be filtered is {}", line, logLevelList);
+        String lineLowerCase = line.toLowerCase();
+        for (String level : logLevelList) {
+            if (lineLowerCase.contains(level.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

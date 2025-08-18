@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
 <!DOCTYPE generatorConfiguration
         PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
@@ -39,9 +59,9 @@
         </javaTypeResolver>
 
         <!-- 生成实体类地址 -->
-        <javaModelGenerator targetPackage="com.xiaomi.mone.monitor.dao.model" targetProject="src/main/java">
-        <!--<javaModelGenerator targetPackage="com.xiaomi.mone.monitor.dao.model.cat" targetProject="src/main/java">-->
-        <!--<javaModelGenerator targetPackage="com.xiaomi.data.push.dao.model" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java">-->
+        <javaModelGenerator targetPackage="org.apache.ozhera.monitor.dao.model" targetProject="src/main/java">
+        <!--<javaModelGenerator targetPackage="org.apache.ozhera.monitor.dao.model.cat" targetProject="src/main/java">-->
+        <!--<javaModelGenerator targetPackage="org.apache.ozhera.push.dao.model" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java">-->
             <!-- 从数据库返回的值被清理前后的空格 -->
             <property name="trimStrings" value="true"/>
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
@@ -49,16 +69,16 @@
         </javaModelGenerator>
 
         <!-- 生成mapper xml文件 -->
-        <sqlMapGenerator targetPackage="com.xiaomi.mone.monitor.dao.mapper" targetProject="src/main/resources/">
-       <!-- <sqlMapGenerator targetPackage="com.xiaomi.cat.dao.mapper" targetProject="src/main/resources/">-->
+        <sqlMapGenerator targetPackage="org.apache.ozhera.monitor.mapper" targetProject="src/main/resources/">
+       <!-- <sqlMapGenerator targetPackage="org.apache.ozhera.cat.dao.mapper" targetProject="src/main/resources/">-->
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- 生成mapper xml对应Client-->
-        <javaClientGenerator targetPackage="com.xiaomi.mone.monitor.dao.mapper" targetProject="src/main/java" type="XMLMAPPER">
-        <!--<javaClientGenerator targetPackage="com.xiaomi.mone.monitor.dao.cat" targetProject="src/main/java" type="XMLMAPPER">-->
-        <!--<javaClientGenerator targetPackage="com.xiaomi.data.push.dao.mapper" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java" type="XMLMAPPER">-->
+        <javaClientGenerator targetPackage="org.apache.ozhera.monitor.mapper" targetProject="src/main/java" type="XMLMAPPER">
+        <!--<javaClientGenerator targetPackage="org.apache.ozhera.monitor.dao.cat" targetProject="src/main/java" type="XMLMAPPER">-->
+        <!--<javaClientGenerator targetPackage="org.apache.ozhera.data.push.dao.mapper" targetProject="/data/workspace/java/web-service/user-profile-push/src/main/java" type="XMLMAPPER">-->
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>

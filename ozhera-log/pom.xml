@@ -1,17 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apache.ozhera</groupId>
         <artifactId>ozhera-parent</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <version>2.2.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>ozhera-log</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -36,33 +54,48 @@
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>log-api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>log-common</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>app-api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
                 <artifactId>ozhera-tspandata</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.2.6-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-1.2-api</artifactId>
-                <version>2.17.0</version>
+                <version>2.24.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-web</artifactId>
-                <version>2.17.0</version>
+                <version>2.24.3</version>
+            </dependency>
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>hive</artifactId>
+                <version>1.6.2-jdk21-SNAPSHOT</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>logback-classic</artifactId>
+                        <groupId>ch.qos.logback</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>logback-core</artifactId>
+                        <groupId>ch.qos.logback</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -70,13 +103,6 @@
                 <artifactId>hutool-all</artifactId>
                 <version>5.8.21</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.apache.ozhera</groupId>
-                <artifactId>app-api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -182,7 +208,7 @@
                             <goal>sign</goal>
                         </goals>
                         <configuration>
-                            <keyname>your key name</keyname>
+                            <keyname>C962B99B87C5B41E79940E4BE72ADFA74291C3C0</keyname>
                         </configuration>
                     </execution>
                 </executions>

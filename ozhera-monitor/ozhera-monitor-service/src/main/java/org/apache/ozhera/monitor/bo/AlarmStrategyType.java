@@ -1,18 +1,22 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package org.apache.ozhera.monitor.bo;
 
 import java.util.ArrayList;
@@ -27,6 +31,7 @@ public enum AlarmStrategyType {
     INTERFACE(1,"接口类监控", "Interface monitoring"),
     PAOMQL(2,"自定义PromQL", "Custom PromQL"),
     TESLA(3,"TESLA监控", "TESLA Monitoring"),
+    BUSINESS_METRIC(4,"业务指标监控", "BUSINESS_METRIC Monitoring"),
     ;
     private Integer code;
     private String label;
@@ -50,6 +55,7 @@ public enum AlarmStrategyType {
         list.add(new Triple(AlarmStrategyType.SYSTEM.getCode() + "", AlarmStrategyType.SYSTEM.getLabel(), AlarmStrategyType.SYSTEM.getLabelEn()));
         list.add(new Triple(AlarmStrategyType.INTERFACE.getCode() + "", AlarmStrategyType.INTERFACE.getLabel(),  AlarmStrategyType.INTERFACE.getLabelEn()));
         list.add(new Triple(AlarmStrategyType.PAOMQL.getCode(), AlarmStrategyType.PAOMQL.getLabel(), AlarmStrategyType.PAOMQL.getLabelEn()));
+        list.add(new Triple(AlarmStrategyType.BUSINESS_METRIC.getCode(), AlarmStrategyType.BUSINESS_METRIC.getLabel(), AlarmStrategyType.BUSINESS_METRIC.getLabelEn()));
         return list;
     }
 

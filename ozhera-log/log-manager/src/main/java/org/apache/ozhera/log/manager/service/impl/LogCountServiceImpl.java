@@ -1,20 +1,29 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.service.impl;
 
+import cn.hutool.core.collection.ListUtil;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.domain.EsCluster;
 import org.apache.ozhera.log.manager.domain.Tpc;
@@ -27,11 +36,6 @@ import org.apache.ozhera.log.manager.model.dto.SpaceCollectTrendDTO;
 import org.apache.ozhera.log.manager.model.pojo.LogCountDO;
 import org.apache.ozhera.log.manager.service.LogCountService;
 import org.apache.ozhera.log.utils.DateUtils;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -143,50 +147,68 @@ public class LogCountServiceImpl implements LogCountService {
             thisDay = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         }
         Long thisDayFirstMillisecond = DateUtils.getThisDayFirstMillisecond(thisDay);
-        List<LogCountDO> logCountDOList = new ArrayList();
-        LogCountDO logCountDO;
-        EsService esService;
-        Long total;
-        String esIndex;
-        List<Map<String, Object>> tailList = logtailMapper.getAllTailForCount();
-        for (Map<String, Object> tail : tailList) {
-            try {
-                esIndex = String.valueOf(tail.get("es_index"));
-                if (StringUtils.isEmpty(esIndex) || tail.get("es_cluster_id") == null) {
-                    total = 0l;
-                    esIndex = "";
-                } else {
-                    esService = esCluster.getEsService(Long.parseLong(String.valueOf(tail.get("es_cluster_id"))));
-                    if (esService == null) {
-                        log.warn("Statistics logs warn,tail:{} the logs are not counted and the ES client is not generated", tail);
-                        continue;
-                    }
-                    SearchSourceBuilder builder = new SearchSourceBuilder();
-                    BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-                    boolQueryBuilder.filter(QueryBuilders.termQuery("tail", tail.get("tail")));
-                    boolQueryBuilder.filter(QueryBuilders.rangeQuery("timestamp").from(thisDayFirstMillisecond).to(thisDayFirstMillisecond + DateUtils.dayms - 1));
-                    builder.query(boolQueryBuilder);
-                    // statistics
-                    CountRequest countRequest = new CountRequest();
-                    countRequest.indices(esIndex);
-                    countRequest.source(builder);
-                    total = esService.count(countRequest);
-                }
-                logCountDO = new LogCountDO();
-                logCountDO.setTailId(Long.parseLong(String.valueOf(tail.get("id"))));
-                logCountDO.setEsIndex(esIndex);
-                logCountDO.setNumber(total);
-                logCountDO.setDay(thisDay);
-                logCountDOList.add(logCountDO);
-            } catch (Exception e) {
-                log.error("collectLogCount error,thisDay:{}", thisDay, e);
-            }
-        }
+
         long res = 0;
+        List<Map<String, Object>> tailList = logtailMapper.getAllTailForCount();
+        if (tailList.size() > 5000) {
+            //group up to 2000 items per group
+            List<List<Map<String, Object>>> partitionList = ListUtil.partition(tailList, 2000);
+            for (List<Map<String, Object>> partition : partitionList) {
+                res += calculateLogCount(thisDay, partition, thisDayFirstMillisecond, res);
+            }
+        } else {
+            res = calculateLogCount(thisDay, tailList, thisDayFirstMillisecond, res);
+        }
+        log.info("End of statistics log,Should be counted{}，Total statistics{}", tailList.size(), res);
+    }
+
+    private long calculateLogCount(String thisDay, List<Map<String, Object>> tailList, Long thisDayFirstMillisecond, long res) {
+        List<LogCountDO> logCountDOList = new ArrayList<>();
+        for (Map<String, Object> tail : tailList) {
+            collectLogCount(thisDay, tail, thisDayFirstMillisecond, logCountDOList);
+        }
         if (CollectionUtils.isNotEmpty(logCountDOList)) {
             res = logCountMapper.batchInsert(logCountDOList);
         }
-        log.info("End of statistics log,Should be counted{}，Total statistics{}", tailList.size(), res);
+        return res;
+    }
+
+    private void collectLogCount(String thisDay, Map<String, Object> tail, Long thisDayFirstMillisecond, List<LogCountDO> logCountDOList) {
+        String esIndex;
+        LogCountDO logCountDO;
+        Long total;
+        EsService esService;
+        try {
+            esIndex = String.valueOf(tail.get("es_index"));
+            if (StringUtils.isEmpty(esIndex) || tail.get("es_cluster_id") == null) {
+                total = 0l;
+                esIndex = "";
+            } else {
+                esService = esCluster.getEsService(Long.parseLong(String.valueOf(tail.get("es_cluster_id"))));
+                if (esService == null) {
+                    log.warn("Statistics logs warn,tail:{} the logs are not counted and the ES client is not generated", tail);
+                    return;
+                }
+                SearchSourceBuilder builder = new SearchSourceBuilder();
+                BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+                boolQueryBuilder.filter(QueryBuilders.termQuery("tail", tail.get("tail")));
+                boolQueryBuilder.filter(QueryBuilders.rangeQuery("timestamp").from(thisDayFirstMillisecond).to(thisDayFirstMillisecond + DateUtils.dayms - 1));
+                builder.query(boolQueryBuilder);
+                // statistics
+                CountRequest countRequest = new CountRequest();
+                countRequest.indices(esIndex);
+                countRequest.source(builder);
+                total = esService.count(countRequest);
+            }
+            logCountDO = new LogCountDO();
+            logCountDO.setTailId(Long.parseLong(String.valueOf(tail.get("id"))));
+            logCountDO.setEsIndex(esIndex);
+            logCountDO.setNumber(total);
+            logCountDO.setDay(thisDay);
+            logCountDOList.add(logCountDO);
+        } catch (Exception e) {
+            log.error("collectLogCount error,thisDay:{}", thisDay, e);
+        }
     }
 
     @Override
@@ -199,8 +221,8 @@ public class LogCountServiceImpl implements LogCountService {
     public void deleteHistoryLogCount() {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_MONTH, -70);
-        String deleteBeforedDay = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-        logCountMapper.deleteBeforeDay(deleteBeforedDay);
+        String deleteBeforeDay = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+        logCountMapper.deleteBeforeDay(deleteBeforeDay);
     }
 
     @Override
@@ -213,18 +235,18 @@ public class LogCountServiceImpl implements LogCountService {
         logtailCollectTrendMap.clear();
     }
 
-    private String getLogNumberFormat(long number) {
+    private static String getLogNumberFormat(long number) {
         NumberFormat format = NumberFormat.getInstance();
         format.setMaximumFractionDigits(2);
         format.setMinimumFractionDigits(2);
         if (number >= 100000000) {
-            return format.format((float) number / 100000000) + "hundred million";
+            return format.format((float) number / 100000000) + " hundred million";
         } else if (number >= 1000000) {
-            return format.format((float) number / 1000000) + "million";
+            return format.format((float) number / 1000000) + " million";
         } else if (number >= 10000) {
-            return format.format((float) number / 10000) + "ten thousand";
+            return format.format((float) number / 10000) + " ten thousand";
         } else {
-            return number + "strip";
+            return number + " strip";
         }
     }
 

@@ -1,24 +1,26 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.agent.extension;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.apache.ozhera.tspandata.TSpanData;
-import org.apache.ozhera.log.agent.common.HashUtil;
 import org.apache.ozhera.log.agent.common.trace.TraceUtil;
 import org.apache.ozhera.log.agent.export.MsgExporter;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
@@ -52,6 +54,8 @@ public class RmqExporter implements MsgExporter {
     private String rmqTopic;
 
     private Integer batchSize;
+
+    private int messageQueueNumber = 2;
 
     private Gson gson = new Gson();
 
@@ -114,9 +118,7 @@ public class RmqExporter implements MsgExporter {
     }
 
     private MessageQueue calculateMessageQueue(String appName) {
-        Integer partitionNumber = 2;
-        appName = String.format("p%s%s", ThreadLocalRandom.current().nextInt(partitionNumber), appName);
-        return messageQueueList.get(HashUtil.consistentHash(appName, messageQueueList.size()));
+        return messageQueueList.get(TopAppPartitioner.getMQNumberByAppName(appName, messageQueueList.size(), messageQueueNumber));
     }
 
     private void sendMessagesToQueues(Map<MessageQueue, List<Message>> messageQueueListMap) {

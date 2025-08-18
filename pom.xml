@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -8,12 +27,12 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>31</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <groupId>org.apache.ozhera</groupId>
     <artifactId>ozhera-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.2.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -39,7 +58,7 @@
         <module>ozhera-prometheus-agent</module>
         <module>ozhera-tspandata</module>
         <module>ozhera-webhook</module>
-        <module>prometheus-starter-all</module>
+        <module>ozhera-metrics-all</module>
         <module>trace-etl</module>
         <module>ozhera-intelligence</module>
     </modules>
@@ -48,8 +67,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ozhera.project.version>1.4.0-jdk21-SNAPSHOT</ozhera.project.version>
-        <jcommon.release.version>1.5.0-jdk21</jcommon.release.version>
+        <jcommon.release.version>1.6.1-jdk21</jcommon.release.version>
         <!-- need set to an absolute path of your ozhera project -->
         <ozhera.project.path>${project.basedir}</ozhera.project.path>
     </properties>
@@ -75,30 +93,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-redis</artifactId>
                 <version>2.7.15</version>
-            </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-monitor-api</artifactId>
-                <version>1.3-jdk21</version>
-            </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-monitor-common</artifactId>
-                <version>1.3-jdk21</version>
-            </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-monitor-server</artifactId>
-                <version>1.3-jdk21</version>
-            </dependency>
-
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-monitor-service</artifactId>
-                <version>1.3-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -147,18 +141,19 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
-                <artifactId>ozhera-tspandata</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
                 <artifactId>nacos-common</artifactId>
                 <version>1.2.1-mone-v3</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-spring-context</artifactId>
-                <version>2.1.0-RC</version>
+                <version>0.3.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.alibaba.nacos</groupId>
+                        <artifactId>nacos-client</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -294,7 +289,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.7</version>
+                <version>2.14.0</version>
             </dependency>
             <dependency>
                 <groupId>com.mchange</groupId>
@@ -389,12 +384,12 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>2.18.0</version>
+                <version>2.24.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-to-slf4j</artifactId>
-                <version>2.18.0</version>
+                <version>2.24.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
@@ -544,22 +539,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>es</artifactId>
-                <version>${jcommon.release.version}</version>
+                <version>1.6.3-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>common</artifactId>
                 <version>${jcommon.release.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-api</artifactId>
-                <version>1.4-jdk21-4</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>app-common</artifactId>
-                <version>1.4-jdk21-4</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -604,7 +589,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>docean-plugin-k8s</artifactId>
-                <version>1.5.1-jdk21</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -629,12 +614,12 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>excel</artifactId>
-                <version>${jcommon.release.version}</version>
+                <version>1.6.2-jdk21</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>file</artifactId>
-                <version>1.5.1-jdk21</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -654,7 +639,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>hera-trace</artifactId>
-                <version>1.4.0</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -663,18 +648,8 @@
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
-                <artifactId>log-api</artifactId>
-                <version>1.4.0-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>log-common</artifactId>
-                <version>1.4.0-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
                 <artifactId>log</artifactId>
-                <version>1.7-jdk21</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -694,27 +669,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>nacos</artifactId>
-                <version>1.5.0-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-demo-server-api</artifactId>
-                <version>1.0.2-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-prometheus-agent-api</artifactId>
-                <version>1.0.0-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>ozhera-prometheus-agent-common</artifactId>
-                <version>1.0.0-jdk21</version>
-            </dependency>
-            <dependency>
-                <groupId>run.mone</groupId>
-                <artifactId>prometheus-diy-client</artifactId>
-                <version>0.0.1-opensource-jdk21</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>run.mone</groupId>
@@ -899,9 +854,14 @@
                 <version>5.3.1</version>
             </dependency>
             <dependency>
-                <groupId>org.mariadb.jdbc</groupId>
-                <artifactId>mariadb-java-client</artifactId>
-                <version>3.1.4</version>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.30</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.5.5</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -911,7 +871,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>infra-common</artifactId>
-                <version>1.4.2</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.activation</groupId>
@@ -926,7 +886,7 @@
             <dependency>
                 <groupId>run.mone</groupId>
                 <artifactId>gitlab</artifactId>
-                <version>1.6-jdk21</version>
+                <version>${jcommon.release.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.aliyun</groupId>
@@ -952,6 +912,13 @@
                 <groupId>org.dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>2.1.3</version>
+            </dependency>
+
+            <!-- hive -->
+            <dependency>
+                <groupId>run.mone</groupId>
+                <artifactId>hive-spring-starter</artifactId>
+                <version>1.6.0-jdk21-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1001,47 +968,62 @@
                             <failOnMissing>false</failOnMissing>
                             <licenseMerges>
                                 <licenseMerge>Apache License, Version 2.0|The Apache Software License, Version
-                                    2.0|ASF 2.0|Apache 2|Apache-2.0|Apache 2.0 License|Apache 2.0|Apache License v2.0|Apache License 2.0|The Apache License, Version 2.0|The Apache Software License, Version 2.0
+                                    2.0|ASF 2.0|Apache 2|Apache-2.0|Apache 2.0 License|Apache 2.0|Apache License
+                                    v2.0|Apache License 2.0|The Apache License, Version 2.0|The Apache Software License,
+                                    Version 2.0
                                 </licenseMerge>
                                 <licenseMerge>The MIT License|MIT License</licenseMerge>
                                 <licenseMerge>The 3-Clause BSD License|New BSD License|3-Clause BSD
                                     License|BSD|3-Clause BSD License|The New BSD License
                                 </licenseMerge>
                             </licenseMerges>
+                            <excludedScopes>provided</excludedScopes>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>com.mycila</groupId>-->
-<!--                <artifactId>license-maven-plugin</artifactId>-->
-<!--                <version>3.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>generate-sources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal>-->
-<!--                            <goal>remove</goal>-->
-<!--                            <goal>format</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--                <configuration>-->
-<!--                    <quiet>true</quiet>-->
-<!--                    <header>${ozhera.project.path}/HEADER</header>-->
-<!--                    <excludes>-->
-<!--                        <exclude>src/main/java/com/mycila</exclude>-->
-<!--                    </excludes>-->
-<!--                    <includes>-->
-<!--                        <include>src/main/java/run/mone/**</include>-->
-<!--                        <include>**/src/test/java/**</include>-->
-<!--                    </includes>-->
-<!--                    <strictCheck>true</strictCheck>-->
-<!--                    <mapping>-->
-<!--                        <java>SLASHSTAR_STYLE</java>-->
-<!--                    </mapping>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/DEPENDENCIES</exclude>
+                        <exclude>**/THIRD-PARTY.txt</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>com.mycila</groupId>-->
+            <!--                <artifactId>license-maven-plugin</artifactId>-->
+            <!--                <version>3.0</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>generate-sources</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>check</goal>-->
+            <!--                            <goal>remove</goal>-->
+            <!--                            <goal>format</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--                <configuration>-->
+            <!--                    <quiet>true</quiet>-->
+            <!--                    <header>${ozhera.project.path}/HEADER</header>-->
+            <!--                    <excludes>-->
+            <!--                        <exclude>src/main/java/com/mycila</exclude>-->
+            <!--                    </excludes>-->
+            <!--                    <includes>-->
+            <!--                        <include>src/main/java/run/mone/**</include>-->
+            <!--                        <include>**/src/test/java/**</include>-->
+            <!--                    </includes>-->
+            <!--                    <strictCheck>true</strictCheck>-->
+            <!--                    <mapping>-->
+            <!--                        <java>SLASHSTAR_STYLE</java>-->
+            <!--                    </mapping>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1054,18 +1036,100 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <executable>gpg</executable>
+                            <keyname>C962B99B87C5B41E79940E4BE72ADFA74291C3C0</keyname>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>apache-ozhera-2.2.6-SNAPSHOT-bin</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <skipAssembly>true</skipAssembly>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*.json</exclude>
+                        <exclude>**/*.PNG</exclude>
+                        <exclude>**/*.png</exclude>
+                        <exclude>**/*.jpg</exclude>
+                        <exclude>**/*.jpeg</exclude>
+                        <exclude>dist/licenses/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <id>apache.snapshots.https</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>apache.releases.https</id>
+            <url>https://repository.apache.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
+    <scm>
+        <url>https://github.com/apache/ozhera</url>
+        <connection>scm:git:https://github.com/apache/ozhera.git</connection>
+        <developerConnection>scm:git:https://github.com/apache/ozhera.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 </project>

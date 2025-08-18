@@ -1,27 +1,30 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.parse;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.utils.IndexUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.IndexUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,16 +89,10 @@ public class CustomLogParser extends AbstractLogParser {
             if (ret.values().stream().map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
                 ret.put(ES_KEY_MAP_LOG_SOURCE, originLog);
             }
-            /**
-             * Pocket does not include esKeyMap_timestamp, esKeyMap_topic, esKeyMap_tag, esKeyMap_logstoreName
-             */
-            if (ret.containsKey(esKeyMap_timestamp)) {
-                Long time = getTimestampFromString(ret.get(esKeyMap_timestamp).toString(), collectStamp);
-                ret.put(esKeyMap_timestamp, time);
-            }
         } catch (Exception e) {
             ret.put(ES_KEY_MAP_LOG_SOURCE, originData);
         }
+        validTimestamp(ret, collectStamp);
         return ret;
     }
 

@@ -1,3 +1,24 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
 # Overview
 
 # How to deploy
@@ -47,3 +68,21 @@ You can run trace-etl-server.
 
 ## Suggestion
 We also recommend that you use zgc when starting. XX:+UseZGC
+
+## Degradation and Optimization
+
+### Optimization for Top Applications
+In practice, we have observed many top applications with the following characteristics:
+`High instance count`, `numerous upstream/downstream dependencies`, and `massive call volumes`.
+
+Top applications significantly impact metric computation by generating a large volume of metrics, imposing heavy pressure on both their own service monitoring and all services involved in metric computation and storage.
+
+Therefore, if top applications are identified, we recommend creating a dedicated `topic` for them, allowing specific applications to consume their respective `partitions` or `message queues`.
+In the configuration center, the app_partition_key_switch is used to configure top applications and their corresponding partitions or message queues.
+
+### Degradation
+The `trace-etl-server` provides comprehensive degradation measures, including:
+
+- `Server IP merging`: Replace IPs with 10.0.0.0. To enable this, set query.exclude.server.ip to true in the Nacos dataId `hera_trace_config`, and set trace.remove.ip to true in the Nacos dataId `mimonitor_open_config`.
+- `Dubbo method merging`: Replace all Dubbo methods with default. To enable this, set query.exclude.dubbo.method to true in the Nacos dataId `hera_trace_config`.
+- `SQL merging`: Replace all SQL statements with default select. To enable this, set query.exclude.sql to true in the Nacos dataId `hera_trace_config`.

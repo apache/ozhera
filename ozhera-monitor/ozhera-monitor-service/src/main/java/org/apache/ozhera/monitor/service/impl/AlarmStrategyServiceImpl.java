@@ -1,17 +1,20 @@
 /*
- *  Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.apache.ozhera.monitor.service.impl;
@@ -19,6 +22,7 @@ package org.apache.ozhera.monitor.service.impl;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.xiaomi.mone.tpc.login.util.GsonUtil;
 import org.apache.ozhera.monitor.bo.AlarmStrategyInfo;
 import org.apache.ozhera.monitor.bo.AlarmStrategyParam;
 import org.apache.ozhera.monitor.bo.AlarmStrategyType;
@@ -33,6 +37,7 @@ import org.apache.ozhera.monitor.result.ErrorCode;
 import org.apache.ozhera.monitor.result.Result;
 import org.apache.ozhera.monitor.service.AlarmStrategyService;
 import org.apache.ozhera.monitor.service.AppAlarmService;
+import org.apache.ozhera.monitor.service.api.AppAlarmServiceExtension;
 import org.apache.ozhera.monitor.service.model.PageData;
 import org.apache.ozhera.monitor.service.model.prometheus.AlarmRuleRequest;
 import org.apache.ozhera.monitor.service.prometheus.PrometheusService;
@@ -71,6 +76,9 @@ public class AlarmStrategyServiceImpl implements AlarmStrategyService {
     
     @Autowired
     private PrometheusService prometheusService;
+
+    @Autowired
+    private AppAlarmServiceExtension appAlarmServiceExtension;
     
     
     private static final List<String> orderSorts = Lists.newArrayList("asc", "ASC", "desc", "DESC");
@@ -245,26 +253,35 @@ public class AlarmStrategyServiceImpl implements AlarmStrategyService {
     
     @Override
     public Result enabled(String user, AlarmStrategyParam param) {
+
         AlarmStrategy strategy = appAlarmStrategyDao.getById(param.getId());
         if (strategy == null) {
             return Result.fail(ErrorCode.nonExistentStrategy);
         }
-        AppMonitor app =
-                AlarmStrategyType.TESLA.getCode().equals(strategy.getStrategyType()) ? appMonitorDao.getByIamTreeId(
-                        strategy.getIamId())
-                        : appMonitorDao.getMyApp(strategy.getAppId(), strategy.getIamId(), user, AppViewType.MyApp);
-        if (app == null) {
-            return Result.fail(ErrorCode.NoOperPermission);
+
+        if(!AlarmStrategyType.BUSINESS_METRIC.getCode().equals(strategy.getStrategyType())){
+            AppMonitor app =
+                    AlarmStrategyType.TESLA.getCode().equals(strategy.getStrategyType()) ? appMonitorDao.getByIamTreeId(
+                            strategy.getIamId())
+                            : appMonitorDao.getMyApp(strategy.getAppId(), strategy.getIamId(), user, AppViewType.MyApp);
+            if (app == null) {
+                return Result.fail(ErrorCode.NoOperPermission);
+            }
         }
+
         Integer ruleStat = param.getStatus() == 0 ? 1 : 0;
         Result result = appAlarmService.enabledRules(strategy.getIamId(), strategy.getId(), ruleStat, user);
+        log.info("enabled alarm result : {}", GsonUtil.gsonString(result));
         if (result.getCode() != ErrorCode.success.getCode()) {
             return result;
         }
         strategy = new AlarmStrategy();
         strategy.setId(param.getId());
         strategy.setStatus(param.getStatus());
-        if (!appAlarmStrategyDao.updateById(strategy)) {
+        boolean updateDb = appAlarmStrategyDao.updateById(strategy);
+        log.info("enabled updateDb : {}", updateDb);
+        if (!updateDb) {
+            log.info("enabled alarm result : {}", GsonUtil.gsonString(result));
             return Result.fail(ErrorCode.unknownError);
         }
         log.info("enabled规则策略成功：strategy={}", strategy);
@@ -304,12 +321,15 @@ public class AlarmStrategyServiceImpl implements AlarmStrategyService {
             return Result.fail(ErrorCode.nonExistentStrategy);
         }
         log.info("AlarmStrategyService.deleteById strategy : {}", new Gson().toJson(strategy));
-        AppMonitor app =
-                AlarmStrategyType.TESLA.getCode().equals(strategy.getStrategyType()) ? appMonitorDao.getByIamTreeId(
-                        strategy.getIamId())
-                        : appMonitorDao.getMyApp(strategy.getAppId(), strategy.getIamId(), user, AppViewType.MyApp);
-        if (app == null) {
-            return Result.fail(ErrorCode.NoOperPermission);
+
+        if(!AlarmStrategyType.BUSINESS_METRIC.getCode().equals(strategy.getStrategyType())){
+            AppMonitor app =
+                    AlarmStrategyType.TESLA.getCode().equals(strategy.getStrategyType()) ? appMonitorDao.getByIamTreeId(
+                            strategy.getIamId())
+                            : appMonitorDao.getMyApp(strategy.getAppId(), strategy.getIamId(), user, AppViewType.MyApp);
+            if (app == null) {
+                return Result.fail(ErrorCode.NoOperPermission);
+            }
         }
         Result result = appAlarmService.deleteRulesByIamId(strategy.getIamId(), strategyId, user);
         if (result.getCode() != ErrorCode.success.getCode()) {
@@ -386,6 +406,14 @@ public class AlarmStrategyServiceImpl implements AlarmStrategyService {
         if (deptMap.containsKey(5)) {
             strategy.setGroup5(deptMap.get(5).getDeptName());
         }
+
+        if(AlarmStrategyType.BUSINESS_METRIC.getCode().equals(param.getStrategyType())){
+            PageData<List<AlarmStrategyInfo>> pageData = appAlarmStrategyDao.searchByCondNoUser(strategy,
+                    param.getPage(), param.getPageSize(), param.getSortBy(), param.getSortOrder());
+            ruleDataHandler(pageData.getList());
+            return Result.success(pageData);
+        }
+
         PageData<List<AlarmStrategyInfo>> pageData = appAlarmStrategyDao.searchByCond(user, param.isOwner(), strategy,
                 param.getPage(), param.getPageSize(), param.getSortBy(), param.getSortOrder());
         ruleDataHandler(pageData.getList());

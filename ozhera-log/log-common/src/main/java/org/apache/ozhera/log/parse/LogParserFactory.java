@@ -1,17 +1,20 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.parse;
 
@@ -31,13 +34,10 @@ public class LogParserFactory {
     private LogParserFactory() {
     }
 
-    public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript) {
-        return LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, "", "", "", "");
-    }
-
     public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript,
-                                         String topicName, String tailName, String mqTag, String logStoreName) {
+                                         String topicName, String tailName, String mqTag, String logStoreName, String keyOrderList) {
         LogParserData logParserData = LogParserData.builder().keyList(keyList)
+                .keyOrderList(keyOrderList)
                 .valueList(valueList)
                 .parseScript(parseScript)
                 .topicName(topicName)
@@ -59,9 +59,15 @@ public class LogParserFactory {
                 return new JsonLogParser(logParserData);
             case NGINX_PARSE:
                 return new NginxLogParser(logParserData);
+            case PLACEHOLDER_PARSE:
+                return new PlaceholderParser(logParserData);
             default:
                 return new RawLogParser(logParserData);
         }
+    }
+
+    public static LogParser getLogParser(Integer parseType, String keyList, String valueList, String parseScript, String keyOrderList) {
+        return LogParserFactory.getLogParser(parseType, keyList, valueList, parseScript, "", "", "", "", keyOrderList);
     }
 
     @Getter
@@ -72,7 +78,8 @@ public class LogParserFactory {
         CUSTOM_PARSE(5, "自定义脚本解析"),
         REGEX_PARSE(6, "正则表达式"),
         JSON_PARSE(7, "JSON解析"),
-        NGINX_PARSE(8, "Nginx解析");
+        NGINX_PARSE(8, "Nginx解析"),
+        PLACEHOLDER_PARSE(9, "占位符解析");
 
         private Integer code;
         private String name;

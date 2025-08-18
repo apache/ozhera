@@ -1,28 +1,25 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.stream.config;
 
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.google.gson.Gson;
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.model.MiLogStreamConfig;
-import org.apache.ozhera.log.model.MilogSpaceData;
-import org.apache.ozhera.log.stream.common.util.StreamUtils;
-import org.apache.ozhera.log.stream.exception.StreamException;
-import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
@@ -31,6 +28,12 @@ import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.model.MiLogStreamConfig;
+import org.apache.ozhera.log.model.MilogSpaceData;
+import org.apache.ozhera.log.stream.common.util.StreamUtils;
+import org.apache.ozhera.log.stream.exception.StreamException;
+import org.apache.ozhera.log.stream.job.extension.StreamCommonExtension;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -92,27 +95,30 @@ public class ConfigManager {
                 log.warn("[ConfigManager.initConfigManager] Nacos configuration [dataID:{},group:{}]not found,exit initConfigManager", spaceDataId, DEFAULT_GROUP_ID);
                 return;
             }
-            String uniqueMark = StreamUtils.getCurrentMachineMark();
+            String uniqueMarks = StreamUtils.getCurrentMachineMark();
             Map<String, Map<Long, String>> config = milogStreamConfig.getConfig();
-            if (config.containsKey(uniqueMark)) {
-                Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
-                log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, gson.toJson(milogStreamDataMap));
-                for (Long spaceId : milogStreamDataMap.keySet()) {
-                    final String dataId = milogStreamDataMap.get(spaceId);
-                    // init spaceData config
-                    String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
-                    if (StringUtils.isNotEmpty(logSpaceDataStr)) {
-                        MilogSpaceData milogSpaceData = GSON.fromJson(logSpaceDataStr, MilogSpaceData.class);
-                        if (null != milogSpaceData && !milogSpaceDataMap.containsKey(spaceId)) {
-                            MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
-                            addListener(spaceId, configListener);
-                            milogSpaceDataMap.put(spaceId, milogSpaceData);
-                            log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
+            String[] split = uniqueMarks.split(SYMBOL_COMMA);
+            for (String uniqueMark : split) {
+                if (config.containsKey(uniqueMark)) {
+                    Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
+                    log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, gson.toJson(milogStreamDataMap));
+                    for (Long spaceId : milogStreamDataMap.keySet()) {
+                        final String dataId = milogStreamDataMap.get(spaceId);
+                        // init spaceData config
+                        String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+                        if (StringUtils.isNotEmpty(logSpaceDataStr)) {
+                            MilogSpaceData milogSpaceData = GSON.fromJson(logSpaceDataStr, MilogSpaceData.class);
+                            if (null != milogSpaceData && !milogSpaceDataMap.containsKey(spaceId)) {
+                                MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
+                                addListener(spaceId, configListener);
+                                milogSpaceDataMap.put(spaceId, milogSpaceData);
+                                log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
+                            }
                         }
                     }
+                } else {
+                    log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);
                 }
-            } else {
-                log.info("server start current not contain space config,uniqueMark:{}", uniqueMark);
             }
         } catch (Exception e) {
             log.error("[ConfigManager.initStream] initStream exec err", e);
@@ -164,16 +170,19 @@ public class ConfigManager {
     private void processConfigForUniqueMark(String uniqueMark, Map<String, Map<Long, String>> config) {
         StreamCommonExtension extensionInstance = getStreamCommonExtensionInstance();
         if (!extensionInstance.checkUniqueMarkExists(uniqueMark, config)) {
-            log.warn("listen dataID:{},groupId:{},but receive config is empty", spaceDataId, DEFAULT_GROUP_ID);
+            log.warn("listen dataID:{},groupId:{},but receive config is empty,uniqueMarks:{}", spaceDataId, DEFAULT_GROUP_ID, uniqueMark);
             return;
         }
         Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
-        try {
-            spaceLock.tryLock();
-            stopUnusefulListenerAndJob(dataIdMap);
-            startNewListenerAndJob(dataIdMap);
-        } finally {
-            spaceLock.unlock();
+        if (spaceLock.tryLock()) {
+            try {
+                stopUnusefulListenerAndJob(dataIdMap);
+                startNewListenerAndJob(dataIdMap);
+            } finally {
+                spaceLock.unlock();
+            }
+        } else {
+            log.warn("Failed to acquire lock, skipping processing for dataIdMap: {}", dataIdMap);
         }
     }
 

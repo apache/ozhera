@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 CREATE
 DATABASE  IF NOT EXISTS `hera`  DEFAULT CHARACTER SET utf8mb4 ;
 
@@ -30,6 +48,8 @@ CREATE TABLE `hera_trace_etl_config`
     `update_time`               datetime                         DEFAULT NULL,
     `create_user`               varchar(32) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT 'Creator',
     `update_user`               varchar(32) COLLATE utf8mb4_bin  DEFAULT NULL COMMENT 'Editor',
+    `bind_id` varchar(50) DEFAULT NULL COMMENT 'project id',
+    `app_name` varchar(255) DEFAULT NULL COMMENT 'project name',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -765,6 +785,7 @@ CREATE TABLE `milog_logstail`
     `deploy_way`        int(11) NULL DEFAULT NULL COMMENT 'deploy way: 1-mione, 2-miline, 3-k8s',
     `deploy_space`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'matrix service deployment space',
     `first_line_reg`    varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL COMMENT 'Regular expression at the beginning of a line',
+    `collection_ready` tinyint(1) DEFAULT '1' COMMENT 'Any non-zero value is true',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 90210 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin;
 

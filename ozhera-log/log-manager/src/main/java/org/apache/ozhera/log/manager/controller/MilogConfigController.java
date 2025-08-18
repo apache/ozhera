@@ -1,20 +1,28 @@
 /*
- * Copyright (C) 2020 Xiaomi Corporation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.ozhera.log.manager.controller;
 
+import cn.hutool.core.lang.Assert;
+import com.xiaomi.youpin.docean.anno.Controller;
+import com.xiaomi.youpin.docean.anno.RequestMapping;
+import com.xiaomi.youpin.docean.anno.RequestParam;
+import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Result;
@@ -22,7 +30,6 @@ import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 import org.apache.ozhera.log.manager.model.bo.BatchQueryParam;
 import org.apache.ozhera.log.manager.model.bo.LogTailParam;
 import org.apache.ozhera.log.manager.model.bo.MlogParseParam;
-import org.apache.ozhera.log.manager.model.dto.*;
 import org.apache.ozhera.log.manager.model.dto.*;
 import org.apache.ozhera.log.manager.model.page.PageInfo;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
@@ -33,9 +40,6 @@ import org.apache.ozhera.log.manager.service.impl.LogProcessServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogSpaceServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogStoreServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogTailServiceImpl;
-import com.xiaomi.youpin.docean.anno.Controller;
-import com.xiaomi.youpin.docean.anno.RequestMapping;
-import com.xiaomi.youpin.docean.anno.RequestParam;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -75,8 +79,9 @@ public class MilogConfigController {
     }
 
     @RequestMapping(path = "/milog/space/getall", method = "get")
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(@RequestParam("tenantId") Long tenantId) {
-        return logSpaceService.getMilogSpaces(tenantId);
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(@RequestParam("tenantId") Long tenantId,
+                                                             @RequestParam("spaceName") String spaceName) {
+        return logSpaceService.getMilogSpaces(tenantId, spaceName);
     }
 
     @RequestMapping(path = "/milog/space/getbypage", method = "get")
@@ -184,9 +189,10 @@ public class MilogConfigController {
 
     @RequestMapping(path = "/milog/tail/getbypage", method = "get")
     public Result<Map<String, Object>> getLogTailByPage(@RequestParam("storeId") Long storeId,
+                                                        @RequestParam("tailName") String tailName,
                                                         @RequestParam("page") int page,
                                                         @RequestParam("pageSize") int pageSize) throws IOException {
-        return logTailService.getMilogLogBypage(storeId, page, pageSize);
+        return logTailService.getMilogLogBypage(storeId, tailName, page, pageSize);
     }
 
     @RequestMapping(path = "/milog/tail/getcntbystoreid", method = "get")
@@ -252,7 +258,7 @@ public class MilogConfigController {
     public Result<List<MilogAppEnvDTO>> getEnInfosByAppId(@RequestParam(value = "milogAppId") Long milogAppId,
                                                           @RequestParam(value = "deployWay") Integer deployWay,
                                                           @RequestParam(value = "machineRoom") String machineRoom) {
-        return logTailService.getEnInfosByAppId(milogAppId, deployWay,machineRoom);
+        return logTailService.getEnInfosByAppId(milogAppId, deployWay, machineRoom);
     }
 
     /**
@@ -365,5 +371,21 @@ public class MilogConfigController {
     @RequestMapping(path = "/log/store/config/redistribute", method = "get")
     public Result<String> redistributeStoreConfig(@RequestParam(value = "storeId") Long storeId) {
         return logStoreService.redistributeStoreConfig(storeId);
+    }
+
+    /**
+     * agent机器配置相关
+     */
+    @RequestMapping(path = "/log/agent/ips", method = "get")
+    public Result<List<String>> getAllIps() {
+        List<String> ips = logProcessService.getAllIps();
+        return Result.success(ips);
+    }
+
+    @RequestMapping(path = "/log/agent/coll/info", method = "get")
+    public Result<NodeCollInfo> getNodeCollInfo(@RequestParam(value = "ip") String ip) {
+        Assert.notBlank("ip not blank");
+        NodeCollInfo nodeCollInfo = logProcessService.getNodeCollInfo(ip);
+        return Result.success(nodeCollInfo);
     }
 }

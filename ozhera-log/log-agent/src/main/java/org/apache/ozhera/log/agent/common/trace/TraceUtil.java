@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
 @Slf4j
 public class TraceUtil {
@@ -61,7 +60,6 @@ public class TraceUtil {
     private static final String TAG_KEY_HOST = "host.name";
     private static final Set<String> SPECIAL_TAG_KEYS = Sets.newHashSet(TAG_KEY_SPAN_KIND,
             TAG_KEY_SERVICE_NAME, TAG_KEY_IP, TAG_KEY_HOST);
-    private static Pattern EMPTY_PATTERN = Pattern.compile("\\r\\n");
 
     public static byte[] toBytes(String spanStr) {
         try {
@@ -91,15 +89,15 @@ public class TraceUtil {
     }
 
     public static TSpanData toTSpanData(String spanStr) {
-        String message;
-        spanStr = EMPTY_PATTERN.matcher(spanStr).replaceAll("");
-        if (spanStr.contains(" ||| ")) {
-            String[] messages = spanStr.split(" \\|\\|\\| ");
-            message = messages[1];
-        } else {
-            message = spanStr.split(" \\| ")[1];
-        }
-        String[] messageArray = message.split(MessageUtil.SPLIT);
+        // 步骤1优化：使用简单字符串替换代替正则表达式
+        String cleanSpanStr = spanStr.replace("\r\n", "");
+        
+        // 步骤2优化：使用 indexOf 代替 split 减少数组创建
+        String message = extractMessage(cleanSpanStr);
+        
+        // 步骤3优化：使用预分配大小的分割逻辑
+        String[] messageArray = splitMessage(message);
+        
         // Bit check
         if (messageArray.length != MessageUtil.COUNT) {
             log.error("message count illegal : " + spanStr);
@@ -107,6 +105,51 @@ public class TraceUtil {
         }
 
         return toTSpanData(messageArray);
+    }
+
+    /**
+     * 优化的消息提取方法 - 避免创建不必要的数组
+     */
+    private static String extractMessage(String spanStr) {
+        int tripleIndex = spanStr.indexOf(" ||| ");
+        if (tripleIndex != -1) {
+            // 找到三重管道符，取后面的部分
+            return spanStr.substring(tripleIndex + 5);
+        }
+        
+        int singleIndex = spanStr.indexOf(" | ");
+        if (singleIndex != -1) {
+            // 找到单管道符，取后面的部分
+            return spanStr.substring(singleIndex + 3);
+        }
+        
+        // 兜底：如果都没找到，返回原字符串
+        return spanStr;
+    }
+
+    /**
+     * 优化的消息分割方法 - 预分配容量减少扩容
+     */
+    private static String[] splitMessage(String message) {
+        String delimiter = MessageUtil.SPLIT;
+        int delimiterLength = delimiter.length();
+        
+        // 预估分段数量，减少数组扩容
+        List<String> parts = new ArrayList<>(MessageUtil.COUNT);
+        int start = 0;
+        int end;
+        
+        while ((end = message.indexOf(delimiter, start)) != -1) {
+            parts.add(message.substring(start, end));
+            start = end + delimiterLength;
+        }
+        
+        // 添加最后一段
+        if (start < message.length()) {
+            parts.add(message.substring(start));
+        }
+        
+        return parts.toArray(new String[0]);
     }
 
     private static TSpanData toTSpanData(String[] array) {
@@ -138,13 +181,94 @@ public class TraceUtil {
         return span;
     }
 
+    /**
+     * 优化的字符串解码方法 - 避免多次字符串替换和正则表达式
+     */
     private static String decodeLineBreak(String value) {
-        if (StringUtils.isNotEmpty(value)) {
-            return value.replaceAll("\\\\","\\\\\\\\").replaceAll("##r'", "\\\\\"")
-                    .replaceAll("##n", "\\\\n").replaceAll("##r", "\\\\r").replaceAll("##t", "\\\\t")
-                    .replaceAll("##tat", "\\\\tat").replaceAll("##'", "\\\\\"");
+        if (StringUtils.isEmpty(value)) {
+            return value;
         }
-        return value;
+        
+        // 如果不包含需要替换的字符，直接返回，避免不必要的处理
+        if (!containsDecodeChars(value)) {
+            return value;
+        }
+        
+        // 使用 StringBuilder 进行一次性替换，避免多次字符串创建
+        return performOptimizedDecode(value);
+    }
+    
+    /**
+     * 快速检查是否包含需要解码的字符序列
+     */
+    private static boolean containsDecodeChars(String value) {
+        return value.indexOf('\\') != -1 || value.indexOf('#') != -1;
+    }
+    
+    /**
+     * 执行优化的解码操作 - 使用字符级别的处理避免正则表达式
+     */
+    private static String performOptimizedDecode(String value) {
+        StringBuilder result = new StringBuilder(value.length() + 20);
+        char[] chars = value.toCharArray();
+        
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '\\' && i + 1 < chars.length && chars[i + 1] == '\\') {
+                // 处理 \\ -> \\\\
+                result.append("\\\\\\\\");
+                i++; // 跳过下一个字符
+            } else if (chars[i] == '#' && i + 2 < chars.length && chars[i + 1] == '#') {
+                // 处理 ## 开头的序列
+                String replacement = getReplacementForSequence(chars, i);
+                if (replacement != null) {
+                    result.append(replacement);
+                    i += getSequenceLength(chars, i) - 1; // 跳过已处理的字符
+                } else {
+                    result.append(chars[i]);
+                }
+            } else {
+                result.append(chars[i]);
+            }
+        }
+        
+        return result.toString();
+    }
+    
+    /**
+     * 获取字符序列的替换内容
+     */
+    private static String getReplacementForSequence(char[] chars, int start) {
+        if (start + 3 < chars.length) {
+            String sequence = new String(chars, start, Math.min(6, chars.length - start));
+            
+            // 精确匹配，避免正则表达式
+            if (sequence.startsWith("##r'")) return "\\\\\"";
+            if (sequence.startsWith("##n")) return "\\\\n";
+            if (sequence.startsWith("##r")) return "\\\\r";
+            if (sequence.startsWith("##t")) return "\\\\t";
+            if (sequence.startsWith("##tat")) return "\\\\tat";
+            if (sequence.startsWith("##'")) return "\\\\\"";
+        }
+        
+        return null;
+    }
+    
+    /**
+     * 获取匹配序列的长度
+     */
+    private static int getSequenceLength(char[] chars, int start) {
+        if (start + 3 < chars.length) {
+            String sequence = new String(chars, start, Math.min(6, chars.length - start));
+            
+            if (sequence.startsWith("##tat")) return 5;
+            if (sequence.startsWith("##r'")) return 4;
+            if (sequence.startsWith("##n")) return 3;
+            if (sequence.startsWith("##r")) return 3;
+            if (sequence.startsWith("##t")) return 3;
+            if (sequence.startsWith("##'")) return 3;
+        }
+        
+        return 1;
     }
 
     /**

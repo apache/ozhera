@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.service;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/7/6 1:49 下午
  */
 public interface AB {

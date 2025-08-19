@@ -29,7 +29,7 @@ import org.apache.ozhera.monitor.bo.AlarmStrategyInfo;
 import org.apache.ozhera.monitor.bo.AppViewType;
 import org.apache.ozhera.monitor.bo.RuleStatusType;
 import org.apache.ozhera.monitor.dao.AppAlarmRuleDao;
-import org.apache.ozhera.monitor.dao.AppAlarmStrategyDao;
+import org.apache.ozhera.monitor.dao.nutz.AppAlarmStrategyDao;
 import org.apache.ozhera.monitor.dao.AppMonitorDao;
 import org.apache.ozhera.monitor.dao.HeraAppRoleDao;
 import org.apache.ozhera.monitor.dao.model.AlarmHealthQuery;
@@ -72,7 +72,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/8/13 11:07 AM
  */
 @Slf4j

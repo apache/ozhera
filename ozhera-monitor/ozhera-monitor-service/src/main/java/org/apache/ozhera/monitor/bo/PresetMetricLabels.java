@@ -19,7 +19,7 @@
 package org.apache.ozhera.monitor.bo;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2021/11/12 3:19 PM
  */
 public enum PresetMetricLabels {

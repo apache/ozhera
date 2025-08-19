@@ -25,7 +25,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ *
  */
 @Data
 public class ReqErrorMetricsPOJO {

@@ -27,7 +27,7 @@ import org.apache.ozhera.monitor.service.model.redis.AppAlarmData;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/8/17 10:08 AM
  */
 public interface ComputeTimerService {

@@ -19,6 +19,7 @@
 
 package org.apache.ozhera.monitor.listener;
 
+import org.apache.ozhera.monitor.service.rocketmq.BusinessMetricsContextConsumer;
 import org.apache.ozhera.monitor.service.rocketmq.RocketMqHeraMonitorConsumer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- * @author gaoxihui
+ *
  * @date 2021/7/9 10:23 PM
  */
 @Slf4j
@@ -40,6 +41,11 @@ public class ApplicationStartedListener implements ApplicationListener<Applicati
         RocketMqHeraMonitorConsumer rocketMqConsumerHera = (RocketMqHeraMonitorConsumer) applicationStartedEvent.getApplicationContext().getBean("heraMonitorMqConsumer");
         rocketMqConsumerHera.start();
         log.info("process ApplicationStartedEvent finish ... ");
+
+        log.info("accept and process business metrics context event ... ");
+        BusinessMetricsContextConsumer businessMetricsContextConsumer = (BusinessMetricsContextConsumer) applicationStartedEvent.getApplicationContext().getBean("businessMetricsContextConsumer");
+        businessMetricsContextConsumer.start();
+        log.info("accept and process business metrics context event finish ... ");
     }
 
 }

@@ -31,7 +31,7 @@ import org.apache.ozhera.monitor.service.model.prometheus.AppAlarmRuleTemplateQu
 import java.util.List;
 
 /**
- * @author gaoxihui
+ *
  */
 public interface AppAlarmService {
     

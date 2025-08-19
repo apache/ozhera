@@ -23,7 +23,7 @@ import org.apache.ozhera.monitor.service.model.ResourceUsageMessage;
 import java.util.List;
 
 /**
- * @author gaoxihui
+ * 
  * @date 2022/5/12 5:18 PM
  */
 public interface ResourceUsageService {

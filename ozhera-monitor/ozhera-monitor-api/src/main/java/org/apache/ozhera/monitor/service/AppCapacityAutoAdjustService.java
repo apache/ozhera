@@ -21,7 +21,7 @@ package org.apache.ozhera.monitor.service;
 import org.apache.ozhera.monitor.service.bo.AppCapacityAutoAdjustBo;
 
 /**
- * @author gaoxihui
+ *
  * @date 2022/6/6 7:18 下午
  */
 public interface AppCapacityAutoAdjustService {

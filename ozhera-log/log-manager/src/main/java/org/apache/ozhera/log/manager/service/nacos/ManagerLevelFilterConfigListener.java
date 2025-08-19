@@ -24,6 +24,7 @@ import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.youpin.docean.anno.Component;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
@@ -92,12 +93,15 @@ public class ManagerLevelFilterConfigListener {
         ScheduledExecutorService scheduledExecutor = Executors
                 .newSingleThreadScheduledExecutor(ThreadUtil.newNamedThreadFactory("log-level-filter-manager", false));
         scheduledExecutor.scheduleAtFixedRate(() ->
-                SafeRun.run(() -> configChangeOperator()), 1, 1, TimeUnit.MINUTES);
+                SafeRun.run(this::configChangeOperator), 1, 1, TimeUnit.MINUTES);
 
     }
 
     public void configChangeOperator() {
         String filterConfig = nacosConfig.getConfigStr(logLevelFilterKey, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+        if (StringUtils.isEmpty(filterConfig)) {
+            return;
+        }
         ManagerLogFilterConfig newConfig = GSON.fromJson(filterConfig, ManagerLogFilterConfig.class);
 
         if (Objects.equals(config, newConfig)) return;
@@ -112,7 +116,7 @@ public class ManagerLevelFilterConfigListener {
             if (newConfig != null) {
                 List<MilogLogTailDo> newLogtailList = logtailDao.getMilogLogtail(newConfig.getTailIdList());
                 newLogtailList.forEach(tail -> tail.setFilterLogLevelList(newConfig.getLogLevelList()));
-                List<Long> newIdList = newLogtailList.stream().map(MilogLogTailDo::getId).toList();
+                List<Long> newIdList = newConfig.getTailIdList();
                 oldLogtailList = oldLogtailList.stream().filter(tail -> !newIdList.contains(tail.getId())).toList();
                 updateMilogLogtailList.addAll(newLogtailList);
             }
@@ -121,18 +125,18 @@ public class ManagerLevelFilterConfigListener {
 
             for (MilogLogTailDo tailDo : updateMilogLogtailList) {
                 boolean isSuccess = logtailDao.update(tailDo);
-                if (isSuccess){
+                if (isSuccess) {
                     log.info("update tail and send to agent, the message of tail is: {}", tailDo);
                     updateSingleTail(tailDo);
                 }
             }
         }
 
-        if (newConfig!= null && newConfig.getEnableGlobalFilter()) {
+        if (newConfig != null && newConfig.getEnableGlobalFilter()) {
             if (config != null && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
                 return;
             }
-            globalUpdateSendMsg();
+//            globalUpdateSendMsg();
         }
         config = newConfig;
     }

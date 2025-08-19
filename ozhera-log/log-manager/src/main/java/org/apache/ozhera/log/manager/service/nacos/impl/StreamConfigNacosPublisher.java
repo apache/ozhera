@@ -20,12 +20,12 @@ package org.apache.ozhera.log.manager.service.nacos.impl;
 
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
-import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
-import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
-import org.apache.ozhera.log.model.MiLogStreamConfig;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
+import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
+import org.apache.ozhera.log.model.MiLogStreamConfig;
 
 import static org.apache.ozhera.log.common.Constant.DEFAULT_GROUP_ID;
 
@@ -44,13 +44,14 @@ public class StreamConfigNacosPublisher implements DynamicConfigPublisher<MiLogS
 
     @Override
     public synchronized void publish(Long spaceId, MiLogStreamConfig config) {
-        if (config == null) {
+        if (config == null || null == configService) {
+            log.error("config is null or configService is null,spaceId:{},config:{}", spaceId, gson.toJson(config));
             return;
         }
         try {
             configService.publishConfig(CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId), DEFAULT_GROUP_ID, gson.toJson(config));
         } catch (NacosException e) {
-            log.error(String.format("Create namespace push data exceptions, parameters：%s", gson.toJson(config)), e);
+            log.error("Create namespace push data exceptions, parameters：{}", gson.toJson(config), e);
         }
     }
 

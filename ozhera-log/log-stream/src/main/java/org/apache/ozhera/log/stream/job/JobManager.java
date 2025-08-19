@@ -18,7 +18,8 @@
  */
 package org.apache.ozhera.log.stream.job;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,7 @@ public class JobManager {
 
     private String sinkJobType;
 
-    private Gson gson = new Gson();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     public JobManager() {
         sinkJobType = Config.ins().get(SINK_JOB_TYPE_KEY, "");
@@ -63,9 +64,9 @@ public class JobManager {
         jobs = new ConcurrentHashMap<>();
     }
 
-    public void closeJobs(MilogSpaceData milogSpaceData) {
+    public void closeJobs(MilogSpaceData milogSpaceData) throws JsonProcessingException {
         List<SinkConfig> configList = milogSpaceData.getSpaceConfig();
-        log.info("tasks that are already running:{},The task that is about to be shut down:{}", gson.toJson(jobs), gson.toJson(milogSpaceData));
+        log.info("tasks that are already running:{},The task that is about to be shut down:{}", objectMapper.writeValueAsString(jobs), objectMapper.writeValueAsString(milogSpaceData));
         if (CollectionUtils.isNotEmpty(configList)) {
             for (SinkConfig sinkConfig : configList) {
                 List<LogtailConfig> tailConfigs = sinkConfig.getLogtailConfigs();
@@ -189,7 +190,7 @@ public class JobManager {
             String clusterInfo = logtailConfig.getClusterInfo();
             String type = logtailConfig.getType();
             if (StringUtils.isEmpty(clusterInfo) || StringUtils.isEmpty(logtailConfig.getTopic())) {
-                log.info("start job error,ak or sk or logTailConfig null,ak:{},sk:{},logTailConfig:{}", ak, sk, gson.toJson(logtailConfig));
+                log.info("start job error,ak or sk or logTailConfig null,ak:{},sk:{},logTailConfig:{}", ak, sk, objectMapper.writeValueAsString(logtailConfig));
                 return;
             }
             startConsumerJob(type, ak, sk, clusterInfo, logtailConfig, sinkConfig, logSpaceId);

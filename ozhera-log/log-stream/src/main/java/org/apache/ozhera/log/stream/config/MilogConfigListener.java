@@ -315,8 +315,8 @@ public class MilogConfigListener {
                     if (StringUtils.equals(originConfig, dataValue)) {
                         return;
                     }
-                    originConfig = dataValue;
                     log.info("listen tail received a configuration request:{},origin config:{}", dataValue, originConfig);
+                    originConfig = dataValue;
                     if (StringUtils.isNotEmpty(dataValue) && !Constant.NULLVALUE.equals(dataValue)) {
                         dataValue = streamCommonExtension.dataPreProcess(dataValue);
                         MilogSpaceData newMilogSpaceData = GSON.fromJson(dataValue, MilogSpaceData.class);

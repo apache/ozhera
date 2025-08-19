@@ -225,12 +225,11 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     /**
      * compatible When the queried IP is different from the actual one, the actual one is returned
-     *
-     * @param existConfig
-     * @param ipList
-     * @return
      */
     private List<String> ensureDefaultCompatibility(MiLogStreamConfig existConfig, List<String> ipList) {
+        if (null == existConfig) {
+            return ipList;
+        }
         Set<String> keySet = existConfig.getConfig().keySet();
         if (!CollectionUtils.isEqualCollection(keySet, ipList)) {
             log.info("ipList not belong to config,query list:{},actual list:{}", GSON.toJson(ipList), GSON.toJson(keySet));

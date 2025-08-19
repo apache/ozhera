@@ -35,7 +35,9 @@ public class ExecutorUtil {
                         log.error("ExecutorUtil-STP-Virtual-Thread uncaughtException:{}", e.getMessage(), e);
                     }).factory());
 
-    public static ExecutorService TP_EXECUTOR = createPool();
+    public static ExecutorService TP_EXECUTOR = createPool("TP");
+
+    public static ExecutorService TELE_TP_EXECUTOR = createPool("TELE_TP");
 
     public static ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                          long initialDelay,
@@ -44,9 +46,9 @@ public class ExecutorUtil {
         return STP_EXECUTOR.scheduleAtFixedRate(command, initialDelay, period, unit);
     }
 
-    public static ExecutorService createPool() {
+    public static ExecutorService createPool(String name) {
         System.setProperty("jdk.virtualThreadScheduler.parallelism", String.valueOf(Runtime.getRuntime().availableProcessors() + 1));
-        ThreadFactory factory = Thread.ofVirtual().name("ExecutorUtil-TP-Virtual-Thread", 0)
+        ThreadFactory factory = Thread.ofVirtual().name("ExecutorUtil-" + name + "-Virtual-Thread", 0)
                 .uncaughtExceptionHandler((t, e) -> log.error("ExecutorUtil-TP-Virtual-Thread uncaughtException:{}", e.getMessage(), e)).factory();
         return Executors.newThreadPerTaskExecutor(factory);
     }

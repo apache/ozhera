@@ -279,6 +279,7 @@ public class MilogLogTailDao {
 
     public List<MilogLogTailDo> getLogTailByLastId(Long lastId, int pageSize) {
         Sql sql = Sqls.queryEntity("SELECT * FROM milog_logstail WHERE id > @lastId ORDER BY id LIMIT @pageSize");
+        sql.setEntity(dao.getEntity(MilogLogTailDo.class));
         sql.params().set("lastId", lastId);
         sql.params().set("pageSize", pageSize);
         dao.execute(sql);

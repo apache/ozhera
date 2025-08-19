@@ -293,7 +293,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private void opentelemetryMonitor(String configPath) {
         List<String> cleanedPathList = ChannelUtil.buildLogExpressList(configPath);
-        monitorFileList.add(MonitorFile.of(configPath, cleanedPathList.get(0), logTypeEnum, collectOnce));
+        monitorFileList.add(MonitorFile.of(configPath, cleanedPathList.getFirst(), logTypeEnum, collectOnce));
     }
 
     private ReadListener initFileReadListener(MLog mLog, String patternCode, String ip, String pattern) {
@@ -393,7 +393,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             stopOldCurrentFileThread(filePath);
             log.info("start to collect file,channelId:{},fileName:{}", channelId, filePath);
             logFileMap.put(filePath, logFile);
-            Future<?> future = ExecutorUtil.submit(() -> {
+            Future<?> future = getExecutorServiceByType(logTypeEnum).submit(() -> {
                 try {
                     log.info("filePath:{},is VirtualThread {}, thread:{},id:{}", filePath, Thread.currentThread().isVirtual(), Thread.currentThread(), Thread.currentThread().threadId());
                     logFile.readLine();

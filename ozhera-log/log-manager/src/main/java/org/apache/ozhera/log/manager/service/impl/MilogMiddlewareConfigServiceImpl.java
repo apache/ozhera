@@ -25,6 +25,10 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.enums.*;
 import org.apache.ozhera.log.api.model.bo.MiLogResource;
 import org.apache.ozhera.log.api.model.bo.ResourcePage;
@@ -55,10 +59,6 @@ import org.apache.ozhera.log.manager.service.BaseService;
 import org.apache.ozhera.log.manager.service.MilogMiddlewareConfigService;
 import org.apache.ozhera.log.manager.service.extension.resource.ResourceExtensionService;
 import org.apache.ozhera.log.manager.service.extension.resource.ResourceExtensionServiceFactory;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Condition;
@@ -539,8 +539,8 @@ public class MilogMiddlewareConfigServiceImpl extends BaseService implements Mil
 
     private List<String> mergeUserAndResourceLabels(String creatorUId, String updaterUId, List<String> existLabels) {
         List<String> resourceDeptLabels = resourceExtensionService.generateResourceLabels(updaterUId);
-        if (!Objects.equals(creatorUId, updaterUId) &&
-                CollectionUtils.isNotEmpty(existLabels) && !CollUtil.containsAll(existLabels, resourceDeptLabels)) {
+        if ((!Objects.equals(creatorUId, updaterUId) ||
+                CollectionUtils.isEmpty(existLabels)) || !CollUtil.containsAll(existLabels, resourceDeptLabels)) {
             existLabels.addAll(resourceDeptLabels);
         }
         return existLabels;

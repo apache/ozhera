@@ -43,7 +43,6 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
-import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.PathUtils;
 
 import java.io.File;
@@ -164,7 +163,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             // Compile the file expression pattern
             Pattern pattern = Pattern.compile(fileExpression);
             for (String monitorPath : monitorPaths) {
-                fileCollFutures.add(ExecutorUtil.submit(() -> monitorFileChanges(fileMonitor, monitorPath, pattern)));
+                fileCollFutures.add(getExecutorServiceByType(getLogTypeEnum()).submit(() -> monitorFileChanges(fileMonitor, monitorPath, pattern)));
             }
         } catch (Exception e) {
             log.error("startCollectFile error, channelId: {}, input: {}, ip: {}", channelId, GSON.toJson(input), ip, e);

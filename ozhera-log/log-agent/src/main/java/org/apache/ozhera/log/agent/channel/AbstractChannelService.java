@@ -25,6 +25,7 @@ import com.xiaomi.mone.file.common.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
+import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -230,4 +232,10 @@ public abstract class AbstractChannelService implements ChannelService {
         return false;
     }
 
+    public ExecutorService getExecutorServiceByType(LogTypeEnum logTypeEnum) {
+        if (LogTypeEnum.OPENTELEMETRY == logTypeEnum) {
+            return ExecutorUtil.TELE_TP_EXECUTOR;
+        }
+        return ExecutorUtil.TP_EXECUTOR;
+    }
 }

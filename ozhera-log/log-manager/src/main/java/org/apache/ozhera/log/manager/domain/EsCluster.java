@@ -18,6 +18,12 @@
  */
 package org.apache.ozhera.log.manager.domain;
 
+import com.xiaomi.youpin.docean.Ioc;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.StringUtils;
+import com.xiaomi.youpin.docean.plugin.es.EsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.manager.bootstrap.LogStoragePlugin;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
@@ -25,15 +31,13 @@ import org.apache.ozhera.log.manager.mapper.MilogEsClusterMapper;
 import org.apache.ozhera.log.manager.model.pojo.MilogEsClusterDO;
 import org.apache.ozhera.log.manager.service.extension.store.StoreExtensionService;
 import org.apache.ozhera.log.manager.service.extension.store.StoreExtensionServiceFactory;
-import com.xiaomi.youpin.docean.Ioc;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.StringUtils;
-import com.xiaomi.youpin.docean.plugin.es.EsService;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static org.apache.ozhera.log.common.Constant.YES;
 
 @Service
 @Slf4j
@@ -130,6 +134,15 @@ public class EsCluster {
             return null;
         }
         if (clusterList.size() > 1) {
+            List<MilogEsClusterDO> esClusterDoList = clusterList.stream()
+                    .filter(data -> Objects.equals(data.getIsDefault(), YES))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(esClusterDoList) && esClusterDoList.size() == 1) {
+                return esClusterDoList.getFirst();
+            }
+            if (CollectionUtils.isNotEmpty(esClusterDoList)) {
+                clusterList = esClusterDoList;
+            }
             String zone = MoneUserContext.getCurrentUser().getZone();
             for (MilogEsClusterDO clusterDO : clusterList) {
                 if (Objects.equals(zone, clusterDO.getTag())) {
@@ -137,6 +150,6 @@ public class EsCluster {
                 }
             }
         }
-        return clusterList.get(0);
+        return clusterList.getFirst();
     }
 }

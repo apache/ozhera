@@ -19,7 +19,8 @@
 package org.apache.ozhera.log.stream.config;
 
 import com.alibaba.nacos.api.config.listener.Listener;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xiaomi.youpin.docean.Ioc;
 import com.xiaomi.youpin.docean.anno.Service;
 import com.xiaomi.youpin.docean.common.StringUtils;
@@ -73,11 +74,13 @@ public class ConfigManager {
      * key: spaceId
      * value: milogSpaceData
      */
+    @Getter
     private ConcurrentHashMap<Long, MilogSpaceData> milogSpaceDataMap = new ConcurrentHashMap<>();
 
-    private Gson gson = new Gson();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    ;
 
-    private ReentrantLock spaceLock = new ReentrantLock();
+    private final ReentrantLock spaceLock = new ReentrantLock();
 
     /**
      * Executed once when the service starts
@@ -101,7 +104,7 @@ public class ConfigManager {
             for (String uniqueMark : split) {
                 if (config.containsKey(uniqueMark)) {
                     Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
-                    log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, gson.toJson(milogStreamDataMap));
+                    log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, objectMapper.writeValueAsString(milogStreamDataMap));
                     for (Long spaceId : milogStreamDataMap.keySet()) {
                         final String dataId = milogStreamDataMap.get(spaceId);
                         // init spaceData config
@@ -130,7 +133,8 @@ public class ConfigManager {
         listeners.put(spaceId, listener);
     }
 
-    private static ExecutorService THREAD_POOL = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ExecutorService THREAD_POOL = Executors.newVirtualThreadPerTaskExecutor();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public void listenLogStreamConfig() {
         nacosConfig.addListener(spaceDataId, DEFAULT_GROUP_ID, new Listener() {
@@ -142,18 +146,18 @@ public class ConfigManager {
             @Override
             public void receiveConfigInfo(String spaceStr) {
                 try {
-                    MiLogStreamConfig milogStreamConfig = GSON.fromJson(spaceStr, MiLogStreamConfig.class);
+                    MiLogStreamConfig milogStreamConfig = MAPPER.readValue(spaceStr, MiLogStreamConfig.class);
                     handleMiLogStreamConfig(milogStreamConfig);
                 } catch (Exception e) {
-                    log.error("Error deserializing MiLogStreamConfig,spaceStr:{}", spaceStr, e);
+                    log.error(String.format("error deserializing MiLogStreamConfig,spaceStr:%s", spaceStr), e);
                 }
             }
         });
     }
 
-    private void handleMiLogStreamConfig(MiLogStreamConfig milogStreamConfig) {
+    private void handleMiLogStreamConfig(MiLogStreamConfig milogStreamConfig) throws Exception {
         String uniqueMark = StreamUtils.getCurrentMachineMark();
-        log.info("listening namespace received a configuration request,{},uniqueMark:{}", gson.toJson(milogStreamConfig), uniqueMark);
+        log.info("listening namespace received a configuration request,{},uniqueMark:{}", objectMapper.writeValueAsString(milogStreamConfig), uniqueMark);
 
         if (milogStreamConfig != null) {
             Map<String, Map<Long, String>> config = milogStreamConfig.getConfig();
@@ -167,13 +171,14 @@ public class ConfigManager {
         }
     }
 
-    private void processConfigForUniqueMark(String uniqueMark, Map<String, Map<Long, String>> config) {
+    private void processConfigForUniqueMark(String uniqueMark, Map<String, Map<Long, String>> config) throws Exception {
         StreamCommonExtension extensionInstance = getStreamCommonExtensionInstance();
         if (!extensionInstance.checkUniqueMarkExists(uniqueMark, config)) {
             log.warn("listen dataID:{},groupId:{},but receive config is empty,uniqueMarks:{}", spaceDataId, DEFAULT_GROUP_ID, uniqueMark);
             return;
         }
         Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
+        log.info("uniqueMark:{},data key:{}", uniqueMark, objectMapper.writeValueAsString(dataIdMap.keySet()));
         if (spaceLock.tryLock()) {
             try {
                 stopUnusefulListenerAndJob(dataIdMap);
@@ -207,7 +212,8 @@ public class ConfigManager {
      * @param newLogStreamDataMap new {spaceId,dataId}
      * @return Returns a list of {dataId} that are no longer needed
      */
-    public List<Long> unUseFilter(Map<Long, String> newLogStreamDataMap) {
+    public List<Long> unUseFilter(Map<Long, String> newLogStreamDataMap) throws Exception {
+        log.info("unUseFilter,newConfig key:{},oldConfig key:{}", objectMapper.writeValueAsString(newLogStreamDataMap.keySet()), objectMapper.writeValueAsString(milogSpaceDataMap.keySet()));
         List<Long> unUseSpaceIds = new ArrayList<>(milogSpaceDataMap.keySet());
         unUseSpaceIds.removeIf(newLogStreamDataMap::containsKey);
         return unUseSpaceIds;
@@ -219,7 +225,7 @@ public class ConfigManager {
      *
      * @param milogStreamDataMap
      */
-    public void stopUnusefulListenerAndJob(Map<Long, String> milogStreamDataMap) {
+    public void stopUnusefulListenerAndJob(Map<Long, String> milogStreamDataMap) throws Exception {
         List<Long> unUseSpaceIds = unUseFilter(milogStreamDataMap);
         if (CollectionUtils.isEmpty(unUseSpaceIds)) {
             return;
@@ -230,35 +236,39 @@ public class ConfigManager {
         unUseSpaceIds.forEach(this::stopAndRemoveListenerAndJob);
     }
 
-    private void logUnusefulSpaceIds(List<Long> unUseSpaceIds) {
-        log.info("[listening namespace] The space ID that needs to be stopped: {}", gson.toJson(unUseSpaceIds));
+    private void logUnusefulSpaceIds(List<Long> unUseSpaceIds) throws Exception {
+        log.info("[listening namespace] The space ID that needs to be stopped: {}", objectMapper.writeValueAsString(unUseSpaceIds));
         logExistingListeners();
     }
 
-    private void logExistingListeners() {
+    private void logExistingListeners() throws Exception {
         List<Long> listenerKeys = new ArrayList<>(listeners.keySet());
-        log.info("[listening namespace] all listeners already exist: {}", gson.toJson(listenerKeys));
+        log.info("[listening namespace] all listeners already exist: {}", objectMapper.writeValueAsString(listenerKeys));
     }
 
 
     private void stopAndRemoveListenerAndJob(Long stopSpaceId) {
-        MilogConfigListener spaceConfigListener = listeners.get(stopSpaceId);
+        try {
+            MilogConfigListener spaceConfigListener = listeners.get(stopSpaceId);
 
-        if (spaceConfigListener != null) {
-            log.info("stopping the space ID: {}", stopSpaceId);
-            spaceConfigListener.shutdown();
-            log.info("Removing stopSpaceId: {} log tail config listener", stopSpaceId);
-            listeners.remove(stopSpaceId);
-        } else {
-            log.warn("No space ID in the current listener is ready to be stopped: {}", stopSpaceId);
+            if (spaceConfigListener != null) {
+                log.info("stopping the space ID: {}", stopSpaceId);
+                spaceConfigListener.shutdown();
+                log.info("Removing stopSpaceId: {} log tail config listener", stopSpaceId);
+                listeners.remove(stopSpaceId);
+            } else {
+                log.warn("No space ID in the current listener is ready to be stopped: {}", stopSpaceId);
+            }
+            stopJob(stopSpaceId, spaceConfigListener);
+        } catch (Exception e) {
+            log.error("error stopping space ID: {}", stopSpaceId, e);
         }
-        stopJob(stopSpaceId, spaceConfigListener);
     }
 
-    private void stopJob(Long stopSpaceId, MilogConfigListener spaceConfigListener) {
+    private void stopJob(Long stopSpaceId, MilogConfigListener spaceConfigListener) throws JsonProcessingException {
         MilogSpaceData milogSpaceData = milogSpaceDataMap.get(stopSpaceId);
 
-        if (milogSpaceData != null) {
+        if (milogSpaceData != null && null != spaceConfigListener) {
             spaceConfigListener.getJobManager().closeJobs(milogSpaceData);
             log.info("Closing stopSpaceId: {} logTail consumer job", stopSpaceId);
         } else {
@@ -272,21 +282,25 @@ public class ConfigManager {
      * 1. The listener corresponds to the data ID
      * 2. start job
      *
-     * @param milogStreamDataMap
      */
     public void startNewListenerAndJob(Map<Long, String> milogStreamDataMap) {
         milogStreamDataMap.forEach((spaceId, dataId) -> {
             // there is no listener corresponding to the spaceId in memory
-            if (!existListener(spaceId)) {
-                log.info("startNewListenerAndJob for spaceId:{}", spaceId);
-                // Get a copy of the spaceData configuration through the dataID and put it in the configListener cache
-                MilogSpaceData milogSpaceData = getMilogSpaceData(dataId);
+            try {
+                if (!existListener(spaceId)) {
+                    log.info("startNewListenerAndJob for spaceId start:{}", spaceId);
+                    // Get a copy of the spaceData configuration through the dataID and put it in the configListener cache
+                    MilogSpaceData milogSpaceData = getMilogSpaceData(dataId);
 
-                // Listen configuration
-                MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
-                addListener(spaceId, configListener);
+                    // Listen configuration
+                    MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);
+                    addListener(spaceId, configListener);
 
-                milogSpaceDataMap.put(spaceId, milogSpaceData);
+                    milogSpaceDataMap.put(spaceId, milogSpaceData);
+                    log.info("startNewListenerAndJob for spaceId end:{},dataId:{}", spaceId, dataId);
+                }
+            } catch (Exception e) {
+                log.error(String.format("startNewListenerAndJob for spaceId error:%s", spaceId), e);
             }
         });
     }
@@ -295,16 +309,12 @@ public class ConfigManager {
         try {
             // get a copy of the spaceData configuration through the data ID
             String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
-            return StringUtils.isNotEmpty(logSpaceDataStr) ? GSON.fromJson(logSpaceDataStr, MilogSpaceData.class) : new MilogSpaceData();
+            return StringUtils.isNotEmpty(logSpaceDataStr) ? MAPPER.readValue(logSpaceDataStr, MilogSpaceData.class) : new MilogSpaceData();
         } catch (Exception e) {
             log.error("Failed to get MilogSpaceData for dataId: {}", dataId, e);
             // Handle the exception by providing a default logSpaceData
             return new MilogSpaceData();
         }
-    }
-
-    public ConcurrentHashMap<Long, MilogSpaceData> getMilogSpaceDataMap() {
-        return milogSpaceDataMap;
     }
 
 }

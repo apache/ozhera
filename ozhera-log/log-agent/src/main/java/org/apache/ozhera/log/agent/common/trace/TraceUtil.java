@@ -222,7 +222,7 @@ public class TraceUtil {
                 // 处理 \\ -> \\\\
                 result.append("\\\\\\\\");
                 i++; // 跳过下一个字符
-            } else if (chars[i] == '#' && i + 2 < chars.length && chars[i + 1] == '#') {
+            } else if (chars[i] == '#' && i + 1 < chars.length && chars[i + 1] == '#') {
                 // 处理 ## 开头的序列
                 String replacement = getReplacementForSequence(chars, i);
                 if (replacement != null) {
@@ -243,16 +243,25 @@ public class TraceUtil {
      * 获取字符序列的替换内容
      */
     private static String getReplacementForSequence(char[] chars, int start) {
-        if (start + 3 < chars.length) {
-            String sequence = new String(chars, start, Math.min(6, chars.length - start));
+        if (start + 2 < chars.length) {
+            // 先检查最长的序列
+            if (start + 5 < chars.length) {
+                String sequence = new String(chars, start, 6);
+                if (sequence.equals("##tat")) return "\\\\tat";
+            }
 
-            // 精确匹配，避免正则表达式
-            if (sequence.startsWith("##r'")) return "\\\\\"";
-            if (sequence.startsWith("##n")) return "\\\\n";
-            if (sequence.startsWith("##r")) return "\\\\r";
-            if (sequence.startsWith("##t")) return "\\\\t";
-            if (sequence.startsWith("##tat")) return "\\\\tat";
-            if (sequence.startsWith("##'")) return "\\\\\"";
+            // 检查4字符序列
+            if (start + 3 < chars.length) {
+                String sequence = new String(chars, start, 4);
+                if (sequence.equals("##r'")) return "\\\"";
+            }
+
+            // 检查3字符序列
+            String sequence = new String(chars, start, 3);
+            if (sequence.equals("##n")) return "\\\\n";
+            if (sequence.equals("##r")) return "\\\\r";
+            if (sequence.equals("##t")) return "\\\\t";
+            if (sequence.equals("##'")) return "\\\"";
         }
 
         return null;
@@ -262,15 +271,22 @@ public class TraceUtil {
      * 获取匹配序列的长度
      */
     private static int getSequenceLength(char[] chars, int start) {
-        if (start + 3 < chars.length) {
-            String sequence = new String(chars, start, Math.min(6, chars.length - start));
+        if (start + 5 < chars.length) {
+            String sequence = new String(chars, start, 6);
+            if (sequence.equals("##tat")) return 6;
+        }
 
-            if (sequence.startsWith("##tat")) return 5;
-            if (sequence.startsWith("##r'")) return 4;
-            if (sequence.startsWith("##n")) return 3;
-            if (sequence.startsWith("##r")) return 3;
-            if (sequence.startsWith("##t")) return 3;
-            if (sequence.startsWith("##'")) return 3;
+        if (start + 3 < chars.length) {
+            String sequence = new String(chars, start, 4);
+            if (sequence.equals("##r'")) return 4;
+        }
+
+        if (start + 2 < chars.length) {
+            String sequence = new String(chars, start, 3);
+            if (sequence.equals("##n") || sequence.equals("##r") ||
+                sequence.equals("##t") || sequence.equals("##'")) {
+                return 3;
+            }
         }
 
         return 1;

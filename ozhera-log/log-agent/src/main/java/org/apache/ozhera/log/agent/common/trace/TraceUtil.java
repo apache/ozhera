@@ -89,22 +89,27 @@ public class TraceUtil {
     }
 
     public static TSpanData toTSpanData(String spanStr) {
-        // 步骤1优化：使用简单字符串替换代替正则表达式
-        String cleanSpanStr = spanStr.replace("\r\n", "");
-        
-        // 步骤2优化：使用 indexOf 代替 split 减少数组创建
-        String message = extractMessage(cleanSpanStr);
-        
-        // 步骤3优化：使用预分配大小的分割逻辑
-        String[] messageArray = splitMessage(message);
-        
-        // Bit check
-        if (messageArray.length != MessageUtil.COUNT) {
-            log.error("message count illegal : " + spanStr);
-            return null;
-        }
+        try {
+            // 步骤1优化：使用简单字符串替换代替正则表达式
+            String cleanSpanStr = spanStr.replace("\r\n", "");
 
-        return toTSpanData(messageArray);
+            // 步骤2优化：使用 indexOf 代替 split 减少数组创建
+            String message = extractMessage(cleanSpanStr);
+
+            // 步骤3优化：使用预分配大小的分割逻辑
+            String[] messageArray = splitMessage(message);
+
+            // Bit check
+            if (messageArray.length != MessageUtil.COUNT) {
+                log.error("message count illegal : " + spanStr);
+                return null;
+            }
+
+            return toTSpanData(messageArray);
+        } catch (Throwable t) {
+            log.error("Failed to convert span to TSpanData, spanStr={}", spanStr, t);
+        }
+        return null;
     }
 
     /**
@@ -116,13 +121,13 @@ public class TraceUtil {
             // 找到三重管道符，取后面的部分
             return spanStr.substring(tripleIndex + 5);
         }
-        
+
         int singleIndex = spanStr.indexOf(" | ");
         if (singleIndex != -1) {
             // 找到单管道符，取后面的部分
             return spanStr.substring(singleIndex + 3);
         }
-        
+
         // 兜底：如果都没找到，返回原字符串
         return spanStr;
     }
@@ -133,22 +138,22 @@ public class TraceUtil {
     private static String[] splitMessage(String message) {
         String delimiter = MessageUtil.SPLIT;
         int delimiterLength = delimiter.length();
-        
+
         // 预估分段数量，减少数组扩容
         List<String> parts = new ArrayList<>(MessageUtil.COUNT);
         int start = 0;
         int end;
-        
+
         while ((end = message.indexOf(delimiter, start)) != -1) {
             parts.add(message.substring(start, end));
             start = end + delimiterLength;
         }
-        
+
         // 添加最后一段
         if (start < message.length()) {
             parts.add(message.substring(start));
         }
-        
+
         return parts.toArray(new String[0]);
     }
 
@@ -188,36 +193,36 @@ public class TraceUtil {
         if (StringUtils.isEmpty(value)) {
             return value;
         }
-        
+
         // 如果不包含需要替换的字符，直接返回，避免不必要的处理
         if (!containsDecodeChars(value)) {
             return value;
         }
-        
+
         // 使用 StringBuilder 进行一次性替换，避免多次字符串创建
         return performOptimizedDecode(value);
     }
-    
+
     /**
      * 快速检查是否包含需要解码的字符序列
      */
     private static boolean containsDecodeChars(String value) {
         return value.indexOf('\\') != -1 || value.indexOf('#') != -1;
     }
-    
+
     /**
      * 执行优化的解码操作 - 使用字符级别的处理避免正则表达式
      */
     private static String performOptimizedDecode(String value) {
         StringBuilder result = new StringBuilder(value.length() + 20);
         char[] chars = value.toCharArray();
-        
+
         for (int i = 0; i < chars.length; i++) {
             if (chars[i] == '\\' && i + 1 < chars.length && chars[i + 1] == '\\') {
                 // 处理 \\ -> \\\\
                 result.append("\\\\\\\\");
                 i++; // 跳过下一个字符
-            } else if (chars[i] == '#' && i + 2 < chars.length && chars[i + 1] == '#') {
+            } else if (chars[i] == '#' && i + 1 < chars.length && chars[i + 1] == '#') {
                 // 处理 ## 开头的序列
                 String replacement = getReplacementForSequence(chars, i);
                 if (replacement != null) {
@@ -230,44 +235,60 @@ public class TraceUtil {
                 result.append(chars[i]);
             }
         }
-        
+
         return result.toString();
     }
-    
+
     /**
      * 获取字符序列的替换内容
      */
     private static String getReplacementForSequence(char[] chars, int start) {
-        if (start + 3 < chars.length) {
-            String sequence = new String(chars, start, Math.min(6, chars.length - start));
-            
-            // 精确匹配，避免正则表达式
-            if (sequence.startsWith("##r'")) return "\\\\\"";
-            if (sequence.startsWith("##n")) return "\\\\n";
-            if (sequence.startsWith("##r")) return "\\\\r";
-            if (sequence.startsWith("##t")) return "\\\\t";
-            if (sequence.startsWith("##tat")) return "\\\\tat";
-            if (sequence.startsWith("##'")) return "\\\\\"";
+        if (start + 2 < chars.length) {
+            // 先检查最长的序列
+            if (start + 5 < chars.length) {
+                String sequence = new String(chars, start, 6);
+                if (sequence.equals("##tat")) return "\\\\tat";
+            }
+
+            // 检查4字符序列
+            if (start + 3 < chars.length) {
+                String sequence = new String(chars, start, 4);
+                if (sequence.equals("##r'")) return "\\\"";
+            }
+
+            // 检查3字符序列
+            String sequence = new String(chars, start, 3);
+            if (sequence.equals("##n")) return "\\\\n";
+            if (sequence.equals("##r")) return "\\\\r";
+            if (sequence.equals("##t")) return "\\\\t";
+            if (sequence.equals("##'")) return "\\\"";
         }
-        
+
         return null;
     }
-    
+
     /**
      * 获取匹配序列的长度
      */
     private static int getSequenceLength(char[] chars, int start) {
-        if (start + 3 < chars.length) {
-            String sequence = new String(chars, start, Math.min(6, chars.length - start));
-            
-            if (sequence.startsWith("##tat")) return 5;
-            if (sequence.startsWith("##r'")) return 4;
-            if (sequence.startsWith("##n")) return 3;
-            if (sequence.startsWith("##r")) return 3;
-            if (sequence.startsWith("##t")) return 3;
-            if (sequence.startsWith("##'")) return 3;
+        if (start + 5 < chars.length) {
+            String sequence = new String(chars, start, 6);
+            if (sequence.equals("##tat")) return 6;
         }
-        
+
+        if (start + 3 < chars.length) {
+            String sequence = new String(chars, start, 4);
+            if (sequence.equals("##r'")) return 4;
+        }
+
+        if (start + 2 < chars.length) {
+            String sequence = new String(chars, start, 3);
+            if (sequence.equals("##n") || sequence.equals("##r") ||
+                sequence.equals("##t") || sequence.equals("##'")) {
+                return 3;
+            }
+        }
+
         return 1;
     }
 
@@ -369,38 +390,38 @@ public class TraceUtil {
             TAttributeKey attributeKey = toTAttributeKey(attrJson);
             Object value = attrJson.get("value");
 //            try {
-                TValue attributeValue = new TValue();
-                switch (attributeKey.getType()) {
-                    case LONG:
-                        if(value instanceof String){
-                            attributeValue.setLongValue(Long.valueOf((String) value));
-                        } else {
-                            attributeValue.setLongValue((Long) value);
-                        }
-                        break;
-                    case DOUBLE:
-                        if(value instanceof String){
-                            attributeValue.setDoubleValue(Double.valueOf((String) value));
-                        } else {
-                            attributeValue.setDoubleValue((Double) value);
-                        }
-                        break;
-                    case STRING:
-                            attributeValue.setStringValue(String.valueOf(value));
-                        break;
-                    case BOOLEAN:
-                        if(value instanceof String){
-                            attributeValue.setBoolValue(Boolean.valueOf((String) value));
-                        } else {
-                            attributeValue.setBoolValue((Boolean) value);
-                        }
-                        break;
-                }
-                if (specialAttrMap != null && SPECIAL_TAG_KEYS.contains(attributeKey.getValue())) {
-                    specialAttrMap.put(attributeKey.getValue(), attributeValue);
-                }
-                ret.getKeys().add(attributeKey);
-                ret.getValues().add(attributeValue);
+            TValue attributeValue = new TValue();
+            switch (attributeKey.getType()) {
+                case LONG:
+                    if (value instanceof String) {
+                        attributeValue.setLongValue(Long.valueOf((String) value));
+                    } else {
+                        attributeValue.setLongValue((Long) value);
+                    }
+                    break;
+                case DOUBLE:
+                    if (value instanceof String) {
+                        attributeValue.setDoubleValue(Double.valueOf((String) value));
+                    } else {
+                        attributeValue.setDoubleValue((Double) value);
+                    }
+                    break;
+                case STRING:
+                    attributeValue.setStringValue(String.valueOf(value));
+                    break;
+                case BOOLEAN:
+                    if (value instanceof String) {
+                        attributeValue.setBoolValue(Boolean.valueOf((String) value));
+                    } else {
+                        attributeValue.setBoolValue((Boolean) value);
+                    }
+                    break;
+            }
+            if (specialAttrMap != null && SPECIAL_TAG_KEYS.contains(attributeKey.getValue())) {
+                specialAttrMap.put(attributeKey.getValue(), attributeValue);
+            }
+            ret.getKeys().add(attributeKey);
+            ret.getValues().add(attributeValue);
 //            } catch (Exception e) {
 //                log.error("Failed to add key '{}' value '{}' to attributes", attributeKey, value, e);
 //            }

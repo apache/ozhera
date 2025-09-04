@@ -73,7 +73,7 @@ import static org.apache.ozhera.log.common.Constant.GSON;
 @Service
 @Slf4j
 public class ChannelEngine {
-    private AgentMemoryService agentMemoryService;
+    private volatile AgentMemoryService agentMemoryService;
 
     private ChannelDefineLocator channelDefineLocator;
     /**
@@ -91,7 +91,7 @@ public class ChannelEngine {
 
     private String memoryBasePath;
 
-    private Gson gson = GSON;
+    private final Gson gson = GSON;
 
     @Getter
     private volatile boolean initComplete;
@@ -117,7 +117,7 @@ public class ChannelEngine {
             channelServiceFactory = new ChannelServiceFactory(agentMemoryService, memoryBasePath);
 
             log.info("query channelDefineList:{}", gson.toJson(channelDefineList));
-            channelServiceList = channelDefineList.stream()
+            channelServiceList = channelDefineList.parallelStream()
                     .filter(channelDefine -> filterCollStart(channelDefine.getAppName()))
                     .map(channelDefine -> {
                         ChannelService channelService = this.channelServiceTrans(channelDefine);
@@ -270,6 +270,7 @@ public class ChannelEngine {
             if (null == agentMemoryService) {
                 agentMemoryService = new AgentMemoryServiceImpl(org.apache.ozhera.log.common.Config.ins().get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH));
             }
+            log.info("channelServiceTrans,channelDefine,channelId:{}", channelDefine.getChannelId());
             return channelServiceFactory.createChannelService(channelDefine, exporter, filterChain);
         } catch (Throwable e) {
             log.error("channelServiceTrans exception, channelDefine:{}", gson.toJson(channelDefine), e);

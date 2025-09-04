@@ -19,11 +19,11 @@
 package org.apache.ozhera.log.manager.model.pojo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.ozhera.log.api.model.meta.FilterDefine;
 import org.apache.ozhera.log.manager.model.BaseCommon;
 import org.apache.ozhera.log.manager.model.dto.MotorRoomDTO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.nutz.dao.entity.annotation.*;
 import org.nutz.json.JsonField;
 
@@ -155,7 +155,7 @@ public class MilogLogTailDo extends BaseCommon {
     @Column(value = "collection_ready")
     @ColDefine(type = ColType.VARCHAR, width = 1024)
     @Comment("start to ready coll")
-    private Boolean collectionReady;
+    private Boolean collectionReady = true;
 
     @Column(value = "origin_system")
     @ColDefine(type = ColType.VARCHAR, width = 1024)

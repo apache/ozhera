@@ -145,11 +145,11 @@ public class LogParserTest {
     @Test
     public void LogPlaceholderParserTest() throws Exception {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        String keyList = "level:keyword,message:text,message_body:text,hostname:keyword,trace_id:keyword,thread:keyword,timestamp:date,time:date,linenumber:long,mqtag:keyword,tail:keyword,filename:keyword,logstore:keyword,logsource:keyword,logip:keyword,mqtopic:keyword";
-        String keyOrderList = "level:1,message:1,message_body:1,hostname:1,trace_id:1,thread:1,timestamp:1,time:1,linenumber:3,mqtag:3,tail:3,filename:3,logstore:3,logsource:3,logip:3,mqtopic:3";
-        String valueList = "2,5,-1,1,3,4,-1,0";
-        String parseScript = "[%s] [%s] [%s] [%s] [%s] %s %s";
-        String logData = "[2025-04-09T10:56:55.259+08:00] [kfs-test-123] [ERROR] [485bf6a9b5898ecdfd22696325b11b05] [DubboServerHandler-thread-495] c.x.k.w.s.i.DataDictServiceImpl - cache is not found. CacheLoader returned null for key DataDictServiceImpl$TenantKey@2f123a.";
+        String keyList = "timestamp:date,mqtopic:keyword,mqtag:keyword,logstore:keyword,logsource:keyword,message:text,tail:keyword,logip:keyword,linenumber:long,filename:keyword,level:keyword,time:keyword,trace_id:keyword,msg:keyword,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword,traceId:keyword";
+        String keyOrderList = "timestamp:1,mqtopic:3,mqtag:3,logstore:3,logsource:3,message:1,tail:3,logip:3,linenumber:3,filename:3,level:1,time:1,trace_id:1,msg:1,tailId:3,spaceId:3,storeId:3,deploySpace:3,traceId:1";
+        String valueList = "-1,-1,0,1,2,3,-1";
+        String parseScript = "[%s %s[2@ ] %s[-]] -[trace_id=%s] %s - %s";
+        String logData = "[INFO 2025-09-03 09:47:05.233 http-nio-1115-exec-4] -[trace_id=47f8940234d777de50d17685171a6183] com.test.update.web.controller.v0.UpdatesController - request info d:sapphiren_id_global to test";
         Long collectStamp = Instant.now().toEpochMilli();
         Integer parserType = LogParserFactory.LogParserEnum.PLACEHOLDER_PARSE.getCode();
         LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);

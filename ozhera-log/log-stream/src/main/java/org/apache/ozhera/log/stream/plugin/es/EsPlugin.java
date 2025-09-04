@@ -150,11 +150,15 @@ public class EsPlugin {
         }
         MqMessageDTO MqMessageDTO = new MqMessageDTO();
         MqMessageDTO.setEsInfo(esInfo);
+        AtomicInteger count = new AtomicInteger();
         List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
         request.requests().stream().filter(x -> x instanceof IndexRequest)
                 .forEach(x -> {
+                    int currentNum = count.incrementAndGet();
                     Map source = ((IndexRequest) x).sourceAsMap();
-                    log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
+                    if (currentNum == 1 || currentNum % 600 == 0) {
+                        log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
+                    }
                     MqMessageDTO.CompensateMqDTO compensateMqDTO = new MqMessageDTO.CompensateMqDTO();
                     compensateMqDTO.setMsg(JSON.toJSONString(source));
                     compensateMqDTO.setEsIndex(x.index());

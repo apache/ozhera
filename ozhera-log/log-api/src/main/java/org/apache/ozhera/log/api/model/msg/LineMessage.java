@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.api.model.msg;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -28,6 +29,7 @@ import java.util.Map;
  * @author shanwb
  * @date 2021-07-19
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
 public class LineMessage implements Serializable {
 

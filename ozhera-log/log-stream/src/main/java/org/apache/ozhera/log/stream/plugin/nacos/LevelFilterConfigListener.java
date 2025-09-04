@@ -58,7 +58,7 @@ public class LevelFilterConfigListener {
         ScheduledExecutorService scheduledExecutor = Executors
                 .newSingleThreadScheduledExecutor(ThreadUtil.newNamedThreadFactory("log-level-filter", false));
         scheduledExecutor.scheduleAtFixedRate(() ->
-                SafeRun.run(() -> configChangeOperate()), 0, 1, TimeUnit.MINUTES);
+                SafeRun.run(this::configChangeOperate), 0, 1, TimeUnit.MINUTES);
     }
 
     private void configChangeOperate() {

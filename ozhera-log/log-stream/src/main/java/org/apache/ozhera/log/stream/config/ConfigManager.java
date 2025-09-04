@@ -59,6 +59,9 @@ public class ConfigManager {
     @Value("$hera.stream.monitor_space_data_id")
     private String spaceDataId;
 
+    @Value("$hera.stream.type")
+    private String streamType;
+
     //final String spaceDataId = LOG_MANAGE_PREFIX + NAMESPACE_CONFIG_DATA_ID;
 
     /**
@@ -177,11 +180,25 @@ public class ConfigManager {
             log.warn("listen dataID:{},groupId:{},but receive config is empty,uniqueMarks:{}", spaceDataId, DEFAULT_GROUP_ID, uniqueMark);
             return;
         }
-        Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
-        log.info("uniqueMark:{},data key:{}", uniqueMark, objectMapper.writeValueAsString(dataIdMap.keySet()));
+        if ("all".equals(streamType)) {
+            for (Map.Entry<String, Map<Long, String>> entry : config.entrySet()) {
+                Map<Long, String> dataIdMap = entry.getValue();
+                log.info("uniqueMark:{},data key:{}", uniqueMark, objectMapper.writeValueAsString(dataIdMap.keySet()));
+                processDataIdMapWithLock(dataIdMap);
+            }
+        } else {
+            Map<Long, String> dataIdMap = extensionInstance.getConfigMapByUniqueMark(config, uniqueMark);
+            log.info("uniqueMark:{},data key:{}", uniqueMark, objectMapper.writeValueAsString(dataIdMap.keySet()));
+            processDataIdMapWithLock(dataIdMap);
+        }
+    }
+
+    private void processDataIdMapWithLock(Map<Long, String> dataIdMap) throws Exception {
         if (spaceLock.tryLock()) {
             try {
-                stopUnusefulListenerAndJob(dataIdMap);
+                if (!"all".equals(streamType)) {
+                    stopUnusefulListenerAndJob(dataIdMap);
+                }
                 startNewListenerAndJob(dataIdMap);
             } finally {
                 spaceLock.unlock();
@@ -194,16 +211,6 @@ public class ConfigManager {
     private StreamCommonExtension getStreamCommonExtensionInstance() {
         String factualServiceName = Config.ins().get("common.stream.extension", DEFAULT_COMMON_STREAM_EXTENSION);
         return Ioc.ins().getBean(factualServiceName);
-    }
-
-    /**
-     * The new {spaceid,dataid} A is compared to {spaceid,dataid} B in memory to filter out the sets A-B
-     *
-     * @param spaceId
-     * @return
-     */
-    public boolean existListener(Long spaceId) {
-        return milogSpaceDataMap.containsKey(spaceId);
     }
 
     /**
@@ -287,7 +294,7 @@ public class ConfigManager {
         milogStreamDataMap.forEach((spaceId, dataId) -> {
             // there is no listener corresponding to the spaceId in memory
             try {
-                if (!existListener(spaceId)) {
+                if (!milogSpaceDataMap.containsKey(spaceId)) {
                     log.info("startNewListenerAndJob for spaceId start:{}", spaceId);
                     // Get a copy of the spaceData configuration through the dataID and put it in the configListener cache
                     MilogSpaceData milogSpaceData = getMilogSpaceData(dataId);

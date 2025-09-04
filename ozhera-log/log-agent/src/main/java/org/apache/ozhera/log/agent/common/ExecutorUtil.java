@@ -19,7 +19,10 @@
 package org.apache.ozhera.log.agent.common;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.utils.ConfigUtils;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -47,7 +50,13 @@ public class ExecutorUtil {
     }
 
     public static ExecutorService createPool(String name) {
-        System.setProperty("jdk.virtualThreadScheduler.parallelism", String.valueOf(Runtime.getRuntime().availableProcessors() + 1));
+        String configValue = ConfigUtils.getConfigValue("jdk.virtualThreadScheduler.parallelism");
+        if (StringUtils.isEmpty(configValue) || Objects.equals("-1", configValue)) {
+            System.setProperty("jdk.virtualThreadScheduler.parallelism", String.valueOf(Runtime.getRuntime().availableProcessors() + 1));
+        } else {
+            System.setProperty("jdk.virtualThreadScheduler.parallelism", configValue);
+        }
+        log.info("jdk.virtualThreadScheduler.parallelism:{}", configValue);
         ThreadFactory factory = Thread.ofVirtual().name("ExecutorUtil-" + name + "-Virtual-Thread", 0)
                 .uncaughtExceptionHandler((t, e) -> log.error("ExecutorUtil-TP-Virtual-Thread uncaughtException:{}", e.getMessage(), e)).factory();
         return Executors.newThreadPerTaskExecutor(factory);

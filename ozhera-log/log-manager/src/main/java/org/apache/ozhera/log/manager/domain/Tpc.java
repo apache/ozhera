@@ -19,12 +19,6 @@
 package org.apache.ozhera.log.manager.domain;
 
 import com.google.common.collect.Lists;
-import org.apache.ozhera.log.manager.common.context.MoneUserContext;
-import org.apache.ozhera.log.manager.common.exception.MilogManageException;
-import org.apache.ozhera.log.manager.dao.MilogSpaceDao;
-import org.apache.ozhera.log.manager.model.MilogSpaceParam;
-import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
-import org.apache.ozhera.log.manager.user.MoneUser;
 import com.xiaomi.mone.tpc.api.service.NodeFacade;
 import com.xiaomi.mone.tpc.api.service.NodeUserFacade;
 import com.xiaomi.mone.tpc.api.service.UserOrgFacade;
@@ -33,6 +27,7 @@ import com.xiaomi.mone.tpc.common.enums.NodeTypeEnum;
 import com.xiaomi.mone.tpc.common.enums.OutIdTypeEnum;
 import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
 import com.xiaomi.mone.tpc.common.param.*;
+import com.xiaomi.mone.tpc.common.vo.NodeUserRelVo;
 import com.xiaomi.mone.tpc.common.vo.NodeVo;
 import com.xiaomi.mone.tpc.common.vo.OrgInfoVo;
 import com.xiaomi.mone.tpc.common.vo.PageDataVo;
@@ -43,12 +38,19 @@ import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
 import com.xiaomi.youpin.infra.rpc.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ozhera.log.manager.common.context.MoneUserContext;
+import org.apache.ozhera.log.manager.common.exception.MilogManageException;
+import org.apache.ozhera.log.manager.dao.MilogSpaceDao;
+import org.apache.ozhera.log.manager.model.MilogSpaceParam;
+import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
+import org.apache.ozhera.log.manager.user.MoneUser;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.apache.ozhera.log.common.Constant.DEFAULT_OPERATOR;
 import static org.apache.ozhera.log.common.Constant.GSON;
 
 @Service
@@ -251,27 +253,21 @@ public class Tpc {
         tpcUserService.add(add);
     }
 
-    public NodeVo getByOuterId(Long id, Integer outType) {
+    public NodeVo getByOuterId(Long id, String account) {
         MoneUser currentUser = MoneUserContext.getCurrentUser();
         NodeQryParam param = new NodeQryParam();
-        param.setPager(false);
-        param.setAccount(currentUser == null ? "system" : currentUser.getUser());
+        param.setAccount(StringUtils.isNotBlank(account) ? account : currentUser.getUser());
         param.setUserType(UserTypeEnum.CAS_TYPE.getCode());
-        param.setType(NodeTypeEnum.PRO_SUB_GROUP.getCode());
-        if (null != currentUser) {
-            param.setUserType(currentUser.getUserType());
-        }
         param.setStatus(NodeStatusEnum.ENABLE.getCode());
         param.setOutIdType(OutIdTypeEnum.SPACE.getCode());
         param.setOutId(id);
         param.setMyNode(false);
         Result<NodeVo> nodeVoResult = tpcService.getByOutId(param);
-        NodeVo data = nodeVoResult.getData();
-        return data;
+        return nodeVoResult.getData();
     }
 
     public NodeVo getSpaceByOuterId(Long id) {
-        return getByOuterId(id, OutIdTypeEnum.SPACE.getCode());
+        return getByOuterId(id, "");
     }
 
     public String getSpaceLastOrg(Long id) {
@@ -294,5 +290,20 @@ public class Tpc {
         }
         return res.getData();
     }
+
+    public List<NodeUserRelVo> querySpaceMember(Long spaceId) {
+        NodeVo nodeVo = getByOuterId(spaceId, DEFAULT_OPERATOR);
+        if (null != nodeVo) {
+            NodeUserQryParam param = new NodeUserQryParam();
+            param.setNodeId(nodeVo.getId());
+            param.setAccount(DEFAULT_OPERATOR);
+            param.setUserType(UserTypeEnum.CAS_TYPE.getCode());
+            Result<PageDataVo<NodeUserRelVo>> nodeUserResult = tpcUserService.list(param);
+            PageDataVo<NodeUserRelVo> nodeUserResultData = nodeUserResult.getData();
+            return nodeUserResultData.getList();
+        }
+        return Lists.newArrayList();
+    }
+
 
 }

@@ -47,13 +47,13 @@ public class PathUtilsTest {
 
     @Test
     public void test00() {
-        String logPattern = "/home/work/logs/neo-logs/(a|b)/applogs/mi_com_event/mi_com_event.log";
+        String logPattern = "/home/work/log/log-test/info-*.log";
         List<String> watches = PathUtils.parseWatchDirectory(logPattern);
         System.out.println(new Gson().toJson(watches));
 
-        Assert.assertEquals(2, watches.size());
-        Assert.assertEquals("/home/work/logs/neo-logs/a/applogs", watches.get(0));
-        Assert.assertEquals("/home/work/logs/neo-logs/b/applogs", watches.get(1));
+        Assert.assertEquals(1, watches.size());
+        Assert.assertEquals("/home/work/log/log-test/info-1.log", logPattern);
+        Assert.assertEquals("/home/work/logs/neo-logs/b/applogs", logPattern);
     }
 
     @Test
@@ -313,10 +313,10 @@ public class PathUtilsTest {
 
     @Test
     public void testLogPattern1() {
-        String logSplitExpress = "/home/work/logs/neo-logs/(eventapi-stable-66fd975598-z8fd9|eventapi-stable-66fd975598-zfhwq|eventapi-ams-runscript-stable-5c76f54c68-lrmcl|eventapi-stable-66fd975598-l7c4s|eventapi-stable-66fd975598-ckwwd)/applogs/mi_com_event.log-.*";
+        String logSplitExpress = "/home/work/log/log-test/info-.*.log";
         Pattern pattern = Pattern.compile(logSplitExpress);
-        Assert.assertEquals(true, pattern.matcher("/home/work/logs/neo-logs/eventapi-stable-66fd975598-z8fd9/applogs/mi_com_event.log-2022-01-11-16").matches());
-        Assert.assertEquals(true, pattern.matcher("/home/work/logs/neo-logs/eventapi-ams-runscript-stable-5c76f54c68-lrmcl/applogs/mi_com_event.log-2022-01-11-16").matches());
+        Assert.assertEquals(true, pattern.matcher("/home/work/log/log-test/info-1.log").matches());
+        Assert.assertEquals(false, pattern.matcher("/home/work/logs/neo-logs/info-2.log").matches());
     }
 
     @Test

@@ -127,7 +127,7 @@ public class AgentMemoryServiceImpl implements AgentMemoryService {
     }
 
     @Override
-    public List<ChannelMemory> restoreFromDisk() {
+    public List<ChannelMemory>  restoreFromDisk() {
         List<ChannelMemory> channelMemoryList = new ArrayList<>();
         File file = new File(this.basePath + MEMORY_DIR);
         File[] fs = file.listFiles();

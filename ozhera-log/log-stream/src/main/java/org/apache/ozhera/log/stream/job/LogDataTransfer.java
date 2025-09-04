@@ -140,6 +140,12 @@ public class LogDataTransfer {
         return objectMapper.readValue(msg, LineMessage.class);
     }
 
+    public static void main(String[] args) throws JsonProcessingException {
+        String message = "{\"extMap\":{\"ct\":\"1756780824719\",\"ip\":\"10.7.84.220\",\"tag\":\"tags_392_120935_132193\",\"type\":\"1\"},\"fileName\":\"/home/work/log/nr-promotion-promotion-admin-global-1080348-c-67bbfb479c-27t45/promotion-admin-global/server.log\",\"lineNumber\":2642,\"msgBody\":\"2025-09-02 10:40:21,610|INFO |4a1378575e03c5d38fa9fd0f7351227a|call_client213|c.x.n.p.a.g.i.u.filter.DubboCommonFilter|dubbo invoke. service:com.xiaomi.nr.promotion.admin.global.impl.DubboHealthServiceImpl, method:health, cost:0 ms, params:null, result:{\\\"code\\\":0,\\\"message\\\":\\\"ok\\\",\\\"data\\\":\\\"ok\\\"}.\",\"pointer\":764135,\"timestamp\":1756780824719}";
+        LineMessage lineMessage = new ObjectMapper().readValue(message, LineMessage.class);
+        System.out.println(lineMessage.getTimestamp());
+    }
+
     private void putCommonData(Map<String, Object> dataMap) {
         dataMap.putIfAbsent(LOG_STREAM_SPACE_ID, sinkJobConfig.getLogSpaceId());
         dataMap.putIfAbsent(LOG_STREAM_STORE_ID, sinkJobConfig.getLogStoreId());

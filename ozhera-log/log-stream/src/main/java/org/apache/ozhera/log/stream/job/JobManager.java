@@ -20,6 +20,7 @@ package org.apache.ozhera.log.stream.job;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,7 @@ public class JobManager {
         sinkJobType = Config.ins().get(SINK_JOB_TYPE_KEY, "");
         sinkChain = Ioc.ins().getBean(SinkChain.class);
         jobs = new ConcurrentHashMap<>();
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     public void closeJobs(MilogSpaceData milogSpaceData) throws JsonProcessingException {

@@ -173,14 +173,14 @@ public abstract class AbstractChannelService implements ChannelService {
         }));
     }
 
-    protected LineMessage createLineMessage(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String ip, long ct) {
+    protected LineMessage createLineMessage(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
         LineMessage lineMessage = new LineMessage();
         lineMessage.setMsgBody(lineMsg);
         lineMessage.setPointer(readResult.get().getPointer());
         lineMessage.setLineNumber(readResult.get().getLineNumber());
         lineMessage.setFileName(pattern);
         lineMessage.setProperties(LineMessage.KEY_MQ_TOPIC_TAG, patternCode);
-        lineMessage.setProperties(LineMessage.KEY_IP, ip);
+        lineMessage.setProperties(LineMessage.KEY_IP, getTailPodIp(pattern));
         lineMessage.setProperties(LineMessage.KEY_COLLECT_TIMESTAMP, String.valueOf(ct));
 
         String logType = getChannelDefine().getInput().getType();

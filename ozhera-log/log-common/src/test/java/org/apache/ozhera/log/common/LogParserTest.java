@@ -151,7 +151,27 @@ public class LogParserTest {
         String parseScript = "[%s %s[2@ ] %s[-]] -[trace_id=%s] %s - %s";
         String logData = "[INFO 2025-09-03 09:47:05.233 http-nio-1115-exec-4] -[trace_id=47f8940234d777de50d17685171a6183] com.test.update.web.controller.v0.UpdatesController - request info d:sapphiren_id_global to test";
         Long collectStamp = Instant.now().toEpochMilli();
-        Integer parserType = LogParserFactory.LogParserEnum.PLACEHOLDER_PARSE.getCode();
+        Integer parserType = LogParserFactory.LogParserEnum.CUSTOM_PARSE.getCode();
+        LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
+        Map<String, Object> parse = customParse.parse(logData, "", 1l, collectStamp, "");
+        System.out.println(parse);
+        List<String> dataList = customParse.parseLogData(logData);
+
+        System.out.println(customParse.getTimestampFromString("2023-08-25 10:46:09.239", collectStamp));
+        stopwatch.stop();
+        log.info("cost time:{}", stopwatch.elapsed().toMillis());
+    }
+
+    @Test
+    public void LogPlaceholderParserTest1() throws Exception {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        String keyList = "timestamp:date,level:keyword,traceId:keyword,threadName:text,className:text,line:keyword,methodName:keyword,message:text,podName:keyword,ng_id:text,logstore:keyword,logsource:keyword,mqtopic:keyword,mqtag:keyword,logip:keyword,tail:keyword,linenumber:long,tailId:integer,spaceId:integer,storeId:integer,deploySpace:keyword";
+        String keyOrderList = "timestamp:1,level:1,traceId:1,threadName:1,className:1,line:1,methodName:1,message:1,podName:1,ng_id:2,logstore:3,logsource:3,mqtopic:3,mqtag:3,logip:3,tail:3,linenumber:3,tailId:3,spaceId:3,storeId:3,deploySpace:3";
+        String valueList = "0,2,5,4,-1,6,-1,7,1,3";
+        String parseScript = "[%s]-[%s]-[%s]-[%s]-[%s]-[%s]-[%s]-%s";
+        String logData = "[2025-09-16 14:50:22.718] [mit-after-sales-asp-spareparts-service-1201735-5486d457fd-hrcmk] [INFO] [] [DubboServerHandler-10.158.197.220:20880-thread-196] [fa7ff7698c88a87dd9f5d1541ee33130] [?.?(?:?)] transferTypeValueIllegalNew removed, values:[C015520011700],rules:[{\\\"id\\\":805868,\\\"ruleId\\\":2674,\\\"type\\\":15,\\\"value\\\":\\\"SCNE010076600\\\"}]\\r\\n";
+        Long collectStamp = Instant.now().toEpochMilli();
+        Integer parserType = LogParserFactory.LogParserEnum.CUSTOM_PARSE.getCode();
         LogParser customParse = LogParserFactory.getLogParser(parserType, keyList, valueList, parseScript, topicName, tailName, tag, logStoreName, keyOrderList);
         Map<String, Object> parse = customParse.parse(logData, "", 1l, collectStamp, "");
         System.out.println(parse);

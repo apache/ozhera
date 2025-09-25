@@ -23,6 +23,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
 import org.apache.ozhera.log.model.MiLogStreamConfig;
@@ -49,7 +50,12 @@ public class StreamConfigNacosPublisher implements DynamicConfigPublisher<MiLogS
             return;
         }
         try {
-            configService.publishConfig(CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId), DEFAULT_GROUP_ID, gson.toJson(config));
+            String spaceDataId = CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId);
+            if (StringUtils.isBlank(spaceDataId)) {
+                log.error("spaceDataId is null,spaceId:{}", spaceId);
+                return;
+            }
+            configService.publishConfig(spaceDataId, DEFAULT_GROUP_ID, gson.toJson(config));
         } catch (NacosException e) {
             log.error("Create namespace push data exceptions, parameters：{}", gson.toJson(config), e);
         }

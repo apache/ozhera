@@ -234,7 +234,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private void startCollectFile(Long channelId, Input input, List<String> patterns) {
         for (int i = 0; i < patterns.size(); i++) {
             log.info("startCollectFile,total file:{},start:{},remain:{}", patterns.size(), i + 1, patterns.size() - (i + 1));
-            readFile(input.getPatternCode(), getTailPodIp(patterns.get(i)), patterns.get(i), channelId);
+            readFile(input.getPatternCode(), getTailPodIp(patterns.get(i)), channelId);
             InodeFileComparator.addFile(patterns.get(i));
         }
         lastLineRemainSendSchedule(input.getPatternCode());
@@ -242,13 +242,11 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
 
     private void handleAllFileCollectMonitor(String patternCode, String newFilePath, Long channelId) {
-        String ip = getTailPodIp(newFilePath);
-
         if (logFileMap.keySet().stream().anyMatch(key -> Objects.equals(newFilePath, key))) {
             log.info("collectOnce open file:{}", newFilePath);
             logFileMap.get(newFilePath).setReOpen(true);
         } else {
-            readFile(patternCode, ip, newFilePath, channelId);
+            readFile(patternCode, newFilePath, channelId);
         }
     }
 
@@ -296,7 +294,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         monitorFileList.add(MonitorFile.of(configPath, cleanedPathList.getFirst(), logTypeEnum, collectOnce));
     }
 
-    private ReadListener initFileReadListener(MLog mLog, String patternCode, String ip, String pattern) {
+    private ReadListener initFileReadListener(MLog mLog, String patternCode, String pattern) {
         AtomicReference<ReadResult> readResult = new AtomicReference<>();
         ReadListener listener = new DefaultReadListener(event -> {
             readResult.set(event.getReadResult());
@@ -318,7 +316,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                         if (null != l) {
                             try {
                                 fileColLock.lock();
-                                wrapDataToSend(l, readResult, pattern, patternCode, ip, ct);
+                                wrapDataToSend(l, readResult, pattern, patternCode, ct);
                             } finally {
                                 fileColLock.unlock();
                             }
@@ -347,7 +345,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                             String remainMsg = mLog.takeRemainMsg2();
                             if (null != remainMsg) {
                                 log.info("start send last line,pattern:{},patternCode:{},ip:{},data:{}", pattern, patternCode, getTailPodIp(pattern), remainMsg);
-                                wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, getTailPodIp(pattern), appendTime);
+                                wrapDataToSend(remainMsg, referenceEntry.getValue().getValue(), pattern, patternCode, appendTime);
                             }
                         } finally {
                             fileColLock.unlock();
@@ -358,8 +356,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }), 30, 30, TimeUnit.SECONDS);
     }
 
-    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, String ip, long ct) {
-        LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ip, ct);
+    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
+        LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ct);
 
         updateChannelMemory(channelMemory, pattern, logTypeEnum, ct, readResult);
         lineMessageList.add(lineMessage);
@@ -372,14 +370,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
     }
 
-    private void readFile(String patternCode, String ip, String filePath, Long channelId) {
+    private void readFile(String patternCode, String filePath, Long channelId) {
         MLog mLog = new MLog();
         if (StringUtils.isNotBlank(this.linePrefix)) {
             mLog.setCustomLinePattern(this.linePrefix);
         }
-        String usedIp = StringUtils.isBlank(ip) ? NetUtil.getLocalIp() : ip;
-
-        ReadListener listener = initFileReadListener(mLog, patternCode, usedIp, filePath);
+        ReadListener listener = initFileReadListener(mLog, patternCode, filePath);
         Map<String, ChannelMemory.FileProgress> fileProgressMap = channelMemory.getFileProgressMap();
         printMapToJson(fileProgressMap, collectOnce);
 
@@ -399,7 +395,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     logFile.readLine();
                 } catch (Exception e) {
                     logFile.setExceptionFinish();
-                    log.error("logFile read line err,channelId:{},localIp:{},file:{},patternCode:{}", channelId, usedIp, fileProgressMap, patternCode, e);
+                    log.error("logFile read line err,channelId:{},file:{},patternCode:{}", channelId, fileProgressMap, patternCode, e);
                 }
             });
             futureMap.put(filePath, future);
@@ -568,7 +564,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             String ip = StringUtils.isBlank(tailPodIp) ? NetUtil.getLocalIp() : tailPodIp;
             if (null == logFile || logFile.getExceptionFinish()) {
                 // Add new log file
-                readFile(channelDefine.getInput().getPatternCode(), ip, filePath, getChannelId());
+                readFile(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
                 log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
             } else {
                 handleExistingLogFileWithRetry(logFile, filePath, ip);

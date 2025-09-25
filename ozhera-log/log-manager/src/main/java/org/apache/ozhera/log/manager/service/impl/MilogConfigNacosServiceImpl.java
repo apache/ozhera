@@ -302,7 +302,12 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
 
     private synchronized MilogSpaceData dealSpaceConfigByRule(
             String motorRoomEn, Long spaceId, Long storeId, Long tailId, Integer type, String changeType) {
-        MilogSpaceData existConfig = getSpaceConfigNacosProvider(motorRoomEn).getConfig(spaceId);
+        SpaceConfigNacosProvider configNacosProvider = getSpaceConfigNacosProvider(motorRoomEn);
+        if (null == configNacosProvider) {
+            log.error("configNacosProvider is null,contact us,motorRoomEn:{},tailId:{},changeType:{}", motorRoomEn, tailId, changeType);
+            return null;
+        }
+        MilogSpaceData existConfig = configNacosProvider.getConfig(spaceId);
         // new configuration
         if (null == existConfig || OperateEnum.ADD_OPERATE.getCode().equals(type)) {
             // The configuration is not configured yet, initialize the configuration

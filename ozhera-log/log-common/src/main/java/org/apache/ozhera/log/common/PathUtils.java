@@ -242,12 +242,10 @@ public class PathUtils {
     }
 
     private static void readFile(String filepath, String fileName, List<String> list) throws FileNotFoundException, IOException {
-        try {
-            File file = new File(filepath);
-            if (!file.isDirectory()) {
-                return;
-            } else if (file.isDirectory()) {
-                String[] fileList = file.list();
+        File file = new File(filepath);
+        if (file.isDirectory()) {
+            String[] fileList = file.list();
+            if (null != fileList && fileList.length > 0) {
                 for (int i = 0; i < fileList.length; i++) {
                     String subPath;
                     if (filepath.endsWith("/")) {
@@ -263,14 +261,8 @@ public class PathUtils {
                         readFile(subPath, fileName, list);
                     }
                 }
-
             }
-        } catch (FileNotFoundException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
         }
-        return;
     }
 
     private static void readFile(String filepath, String fileName, String dictionaries, List<String> list) throws FileNotFoundException, IOException {

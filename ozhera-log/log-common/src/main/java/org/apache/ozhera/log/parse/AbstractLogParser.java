@@ -129,7 +129,7 @@ public abstract class AbstractLogParser implements LogParser {
         if (!ret.containsKey(esKeyMap_timestamp) && logData.startsWith(LOG_PREFIX)) {
             String timeStamp = StringUtils.substringBetween(logData, LOG_PREFIX, LOG_SUFFFIX);
             Long time = getTimestampFromString(timeStamp, collectStamp);
-            ret.put(esKeyMap_timestamp, time);
+            ret.put(esKeyMap_timestamp, time != null ? time : System.currentTimeMillis());
         }
         /**
          * Special handling, only dates starting with a date in the file such as yyyy-mm-dd HH:mm:ss will be extracted
@@ -137,7 +137,7 @@ public abstract class AbstractLogParser implements LogParser {
         if (!ret.containsKey(esKeyMap_timestamp) && logData.startsWith(specialTimePrefix)) {
             String timeStamp = StringUtils.substring(logData, 0, specialTimeLength);
             Long time = getTimestampFromString(timeStamp, collectStamp);
-            ret.put(esKeyMap_timestamp, time);
+            ret.put(esKeyMap_timestamp, time != null ? time : System.currentTimeMillis());
         }
     }
 

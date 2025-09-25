@@ -54,7 +54,7 @@ public class LineMessage implements Serializable {
     public LineMessage() {
     }
 
-    public long getTimestamp() {
+    public long extractTimestamp() {
         String value = extMap.get(KEY_COLLECT_TIMESTAMP);
         if (value == null || "".equals(value)) {
             return 0;

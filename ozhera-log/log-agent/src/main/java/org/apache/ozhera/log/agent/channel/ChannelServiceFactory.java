@@ -30,6 +30,7 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
@@ -49,7 +50,7 @@ public class ChannelServiceFactory {
 
     private final AgentMemoryService agentMemoryService;
     private final String memoryBasePath;
-    private static final Pattern regexCharsPattern = Pattern.compile("[*+?^${}()\\[\\]\\\\]");
+    private static final Pattern REGEX_CHARS_PATTERN = Pattern.compile("[*+?^${}\\[\\]]");
 
     private static List<String> multiSpecialFileSuffix;
 
@@ -115,7 +116,22 @@ public class ChannelServiceFactory {
         if (StringUtils.isEmpty(logPattern)) {
             return false;
         }
-        return regexCharsPattern.matcher(logPattern).find();
+
+        boolean hasGroup = logPattern.contains("(") && logPattern.contains(")") && logPattern.contains("|");
+        boolean hasRegexChars = REGEX_CHARS_PATTERN.matcher(logPattern).find();
+
+        // Case 1: Contains regular key symbols (*, ?, ^, $, { }, [ ], \, .) → must be regular
+        if (hasRegexChars) {
+            return true;
+        }
+
+        // Case 2: Only include () and | → enumeration, not regular
+        if (hasGroup) {
+            return false;
+        }
+
+        // Case 3: Normal path
+        return false;
     }
 
     private ChannelService createStandardChannelService(MsgExporter exporter,

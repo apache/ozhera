@@ -21,6 +21,7 @@ package org.apache.ozhera.log.manager.service.nacos.impl;
 import com.alibaba.nacos.api.config.ConfigService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.manager.service.nacos.DynamicConfigPublisher;
 import org.apache.ozhera.log.model.MilogSpaceData;
@@ -47,6 +48,10 @@ public class SpaceConfigNacosPublisher implements DynamicConfigPublisher<MilogSp
         String dataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + uniqueSpace;
         try {
             if (null != configService) {
+                if (StringUtils.isBlank(dataId)) {
+                    log.error("dataId is null,uniqueSpace:{},config:{}", uniqueSpace, configJson);
+                    return;
+                }
                 configService.publishConfig(dataId, DEFAULT_GROUP_ID, gson.toJson(config));
             } else {
                 log.warn("configService is null,uniqueSpace:{},config:{}", uniqueSpace, configJson);

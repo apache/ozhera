@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.manager.service.extension.common;
 
+import org.apache.ozhera.log.api.enums.FilterIdEnum;
 import org.apache.ozhera.log.manager.model.vo.LogQuery;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -56,4 +57,6 @@ public interface CommonExtensionService {
     String getSpaceDataId(Long spaceId);
 
     List<String> queryMachineRegions();
+
+    Boolean matchesCondition(Long space, FilterIdEnum idEnum, Long id);
 }

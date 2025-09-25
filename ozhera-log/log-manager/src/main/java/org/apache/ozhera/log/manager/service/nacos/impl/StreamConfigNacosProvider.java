@@ -49,7 +49,12 @@ public class StreamConfigNacosProvider implements DynamicConfigProvider<MiLogStr
             if (null == spaceId) {
                 rules = configService.getConfig(CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + NAMESPACE_CONFIG_DATA_ID, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
             } else {
-                rules = configService.getConfig(CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId), DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
+                String spaceDataId = CommonExtensionServiceFactory.getCommonExtensionService().getSpaceDataId(spaceId);
+                if (StringUtils.isBlank(spaceDataId)) {
+                    log.error("The space does not exist, please check the spaceId,spaceId:{}", spaceId);
+                    return null;
+                }
+                rules = configService.getConfig(spaceDataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
 
             }
             log.info("The NACOS query log is initially configured：{}", rules);

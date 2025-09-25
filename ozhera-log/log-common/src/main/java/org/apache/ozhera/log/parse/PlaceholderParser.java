@@ -165,13 +165,13 @@ public class PlaceholderParser extends AbstractLogParser {
                 } else {
                     // 静态部分严格匹配
                     if (!remaining.startsWith(part.text)) {
-                        return Collections.emptyMap();
+                        return new HashMap<>();
                     }
                     remaining = remaining.substring(part.text.length());
                 }
             }
         } catch (Exception e) {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
 
         return result;

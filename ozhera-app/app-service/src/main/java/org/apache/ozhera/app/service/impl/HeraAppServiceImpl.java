@@ -22,6 +22,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Service;
 import org.apache.ozhera.app.api.model.HeraAppBaseInfoModel;
 import org.apache.ozhera.app.api.model.HeraAppBaseInfoParticipant;
 import org.apache.ozhera.app.api.model.HeraAppBaseQuery;
@@ -37,10 +41,6 @@ import org.apache.ozhera.app.model.HeraAppExcessInfo;
 import org.apache.ozhera.app.model.HeraAppRole;
 import org.apache.ozhera.app.service.HeraAppRoleService;
 import org.apache.ozhera.app.service.extension.AppTypeServiceExtension;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Service;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +76,8 @@ public class HeraAppServiceImpl implements HeraAppService {
 
     private final AppTypeServiceExtension appTypeServiceExtension;
 
+    private final Integer DEFAULT_LIMIT = 2000;
+
     public HeraAppServiceImpl(HeraAppBaseInfoMapper heraAppBaseInfoMapper, HeraAppExcessInfoMapper heraAppExcessInfoMapper, HeraAppRoleService roleService, HeraAppRoleMapper heraAppRoleMapper, AppTypeServiceExtension appTypeServiceExtension) {
         this.heraAppBaseInfoMapper = heraAppBaseInfoMapper;
         this.heraAppExcessInfoMapper = heraAppExcessInfoMapper;
@@ -101,6 +103,9 @@ public class HeraAppServiceImpl implements HeraAppService {
                 return appBaseInfo;
             }).collect(Collectors.toList());
         }
+        if (appBaseInfos.size() > DEFAULT_LIMIT) {
+            return new ArrayList<>(appBaseInfos.stream().limit(DEFAULT_LIMIT).toList());
+        }
         return appBaseInfos;
     }
 
@@ -115,7 +120,7 @@ public class HeraAppServiceImpl implements HeraAppService {
                 platformType = appTypeServiceExtension.getAppPlatForm(type);
             }
             appBaseInfos = heraAppBaseInfoMapper.queryAppInfo(appName, platformType, appType);
-        }else{
+        } else {
             appBaseInfos = heraAppBaseInfoMapper.queryLatestAppInfo(limit, platformType, appType);
         }
         if (CollectionUtils.isNotEmpty(appBaseInfos)) {

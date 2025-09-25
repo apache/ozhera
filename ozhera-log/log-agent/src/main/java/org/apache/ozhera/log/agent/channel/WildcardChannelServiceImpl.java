@@ -135,7 +135,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
 
-        startCollectFile(channelId, input, getTailPodIp(logPattern));
+        startCollectFile(channelId, input);
 
         startExportQueueDataThread();
         memoryService.refreshMemory(channelMemory);
@@ -143,13 +143,13 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     }
 
-    private void startCollectFile(Long channelId, Input input, String ip) {
+    private void startCollectFile(Long channelId, Input input) {
         try {
             // Load the restart file
             String restartFile = buildRestartFilePath();
             FileInfoCache.ins().load(restartFile);
 
-            fileMonitor = createFileMonitor(input.getPatternCode(), ip);
+            fileMonitor = createFileMonitor(input.getPatternCode());
 
             String fileExpression = buildFileExpression(input.getLogPattern());
 
@@ -166,7 +166,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                 fileCollFutures.add(getExecutorServiceByType(getLogTypeEnum()).submit(() -> monitorFileChanges(fileMonitor, monitorPath, pattern)));
             }
         } catch (Exception e) {
-            log.error("startCollectFile error, channelId: {}, input: {}, ip: {}", channelId, GSON.toJson(input), ip, e);
+            log.error("startCollectFile error, channelId: {}, input: {}", channelId, GSON.toJson(input), e);
         }
     }
 
@@ -257,7 +257,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     }
 
 
-    private HeraFileMonitor createFileMonitor(String patternCode, String ip) {
+    private HeraFileMonitor createFileMonitor(String patternCode) {
         MLog mLog = new MLog();
         if (StringUtils.isNotBlank(this.linePrefix)) {
             mLog.setCustomLinePattern(this.linePrefix);
@@ -272,7 +272,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                 log.info("Empty data");
                 return;
             }
-            processLogLines(readResult, patternCode, ip, mLog);
+            processLogLines(readResult, patternCode, mLog);
         });
 
         monitor.setListener(defaultMonitorListener);
@@ -280,11 +280,11 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         /**
          * Collect all data in the last row of data that has not been sent for more than 10 seconds.
          */
-        scheduleLastLineSender(mLog, readResult, patternCode, ip);
+        scheduleLastLineSender(mLog, readResult, patternCode);
         return monitor;
     }
 
-    private void processLogLines(AtomicReference<ReadResult> readResult, String patternCode, String ip, MLog mLog) {
+    private void processLogLines(AtomicReference<ReadResult> readResult, String patternCode, MLog mLog) {
         long currentTime = System.currentTimeMillis();
         ReadResult result = readResult.get();
 
@@ -297,7 +297,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             if (line != null) {
                 try {
                     reentrantLock.lock();
-                    wrapDataToSend(line, readResult, patternCode, ip, currentTime);
+                    wrapDataToSend(line, readResult, patternCode, currentTime);
                 } finally {
                     reentrantLock.unlock();
                 }
@@ -307,7 +307,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         });
     }
 
-    private void scheduleLastLineSender(MLog mLog, AtomicReference<ReadResult> readResult, String patternCode, String ip) {
+    private void scheduleLastLineSender(MLog mLog, AtomicReference<ReadResult> readResult, String patternCode) {
         lastFileLineScheduledFuture = ExecutorUtil.scheduleAtFixedRate(() -> {
             Long appendTime = mLog.getAppendTime();
             if (appendTime != null && Instant.now().toEpochMilli() - appendTime > 10 * 1000) {
@@ -316,7 +316,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                         String remainMsg = mLog.takeRemainMsg2();
                         if (null != remainMsg) {
                             log.info("start send last line, fileName:{}, patternCode:{}, data:{}", readResult.get().getFilePathName(), patternCode, remainMsg);
-                            wrapDataToSend(remainMsg, readResult, patternCode, ip, Instant.now().toEpochMilli());
+                            wrapDataToSend(remainMsg, readResult, patternCode, Instant.now().toEpochMilli());
                         }
                     } finally {
                         reentrantLock.unlock();
@@ -326,9 +326,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         }, 30, 30, TimeUnit.SECONDS);
     }
 
-    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String patternCode, String localIp, long ct) {
+    private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String patternCode, long ct) {
         String filePathName = readResult.get().getFilePathName();
-        LineMessage lineMessage = createLineMessage(lineMsg, readResult, filePathName, patternCode, localIp, ct);
+        LineMessage lineMessage = createLineMessage(lineMsg, readResult, filePathName, patternCode, ct);
         updateChannelMemory(channelMemory, filePathName, getLogTypeEnum(), ct, readResult);
 
         lineMessageList.add(lineMessage);

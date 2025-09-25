@@ -19,7 +19,11 @@
 package org.apache.ozhera.log.manager.service.impl;
 
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ozhera.app.api.response.AppBaseInfo;
+import org.apache.ozhera.log.api.enums.FilterIdEnum;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
@@ -34,9 +38,8 @@ import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
 import org.apache.ozhera.log.manager.model.pojo.MilogStoreSpaceAuth;
 import org.apache.ozhera.log.manager.service.HeralogHomePageService;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
+import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Resource;
@@ -44,27 +47,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class HeralogHomePageServiceImpl implements HeralogHomePageService {
-    
+
     @Resource
     private MilogLogTailDao milogLogtailDao;
-    
+
     @Resource
     private HeraAppServiceImpl heraAppService;
-    
+
     @Resource
     private MilogLogstoreDao milogLogstoreDao;
-    
+
     @Resource
     private MilogStoreSpaceAuthDao milogStoreSpaceAuthDao;
-    
+
     private List<ValueDTO<String>> milogpattern;
-    
+
+    private CommonExtensionService commonExtensionService;
+
     {
         String pattern = Config.ins().get("milogpattern", "");
         String[] split = pattern.split(",");
@@ -74,7 +78,11 @@ public class HeralogHomePageServiceImpl implements HeralogHomePageService {
         }
         milogpattern = valueDTOS;
     }
-    
+
+    public void init() {
+        commonExtensionService = CommonExtensionServiceFactory.getCommonExtensionService();
+    }
+
     @Override
     public Result<Map<String, Object>> milogAccess() {
         Long total = heraAppService.getAppCount();
@@ -84,7 +92,7 @@ public class HeralogHomePageServiceImpl implements HeralogHomePageService {
         map.put("access", access);
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), map);
     }
-    
+
     @Override
     public Result<List<UnAccessAppDTO>> unAccessAppList() {
         List<AppBaseInfo> appBaseInfos = heraAppService.queryAllExistsApp();
@@ -99,30 +107,33 @@ public class HeralogHomePageServiceImpl implements HeralogHomePageService {
         }
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), list);
     }
-    
+
     @Override
     public Result<List<MilogSpaceTreeDTO>> getMilogSpaceTree(Long spaceId) {
         List<MilogLogStoreDO> stores = getMilogLogStoreDOS(spaceId);
-        List<MilogSpaceTreeDTO> spaceTreeDTOS = stores.stream().map(milogLogstoreDO -> {
-            Long logstoreDOId = milogLogstoreDO.getId();
+        assert stores != null;
+        List<MilogSpaceTreeDTO> spaceTrees = stores.stream().map(milogLogstoreDO -> {
+            Long logStoreDoId = milogLogstoreDO.getId();
             MilogSpaceTreeDTO milogSpaceTreeDTO = new MilogSpaceTreeDTO();
             milogSpaceTreeDTO.setLabel(milogLogstoreDO.getLogstoreName());
-            milogSpaceTreeDTO.setValue(logstoreDOId);
-            List<MilogLogTailDo> logTailDos = milogLogtailDao.getMilogLogtailByStoreId(logstoreDOId);
+            milogSpaceTreeDTO.setValue(logStoreDoId);
+            List<MilogLogTailDo> logTailDos = milogLogtailDao.getMilogLogtailByStoreId(logStoreDoId);
             if (CollectionUtils.isNotEmpty(logTailDos)) {
-                List<MapDTO<String, Long>> collect = logTailDos.stream().map(logTailDo -> {
-                    MapDTO<String, Long> mapDTO = new MapDTO();
-                    mapDTO.setValue(logTailDo.getId());
-                    mapDTO.setLabel(logTailDo.getTail());
-                    return mapDTO;
-                }).collect(Collectors.toList());
+                List<MapDTO<String, Long>> collect = logTailDos.stream()
+                        .filter(logTailDo -> commonExtensionService.matchesCondition(spaceId, FilterIdEnum.FILTER_TAIL_ID, logTailDo.getId()))
+                        .map(logTailDo -> {
+                            MapDTO<String, Long> mapDTO = new MapDTO<>();
+                            mapDTO.setValue(logTailDo.getId());
+                            mapDTO.setLabel(logTailDo.getTail());
+                            return mapDTO;
+                        }).collect(Collectors.toList());
                 milogSpaceTreeDTO.setChildren(collect);
             }
             return milogSpaceTreeDTO;
         }).collect(Collectors.toList());
-        return Result.success(spaceTreeDTOS);
+        return Result.success(spaceTrees);
     }
-    
+
     /**
      * Query the store that originally belonged to the space, and query the authorized store
      *
@@ -132,21 +143,24 @@ public class HeralogHomePageServiceImpl implements HeralogHomePageService {
     @Override
     @Nullable
     public List<MilogLogStoreDO> getMilogLogStoreDOS(Long spaceId) {
-        List<MilogLogStoreDO> storeDOS = Lists.newArrayList();
+        List<MilogLogStoreDO> storeDoS = Lists.newArrayList();
         List<MilogLogStoreDO> stores = milogLogstoreDao.getMilogLogstoreBySpaceId(spaceId);
         List<MilogStoreSpaceAuth> storeSpaceAuths = milogStoreSpaceAuthDao.queryStoreIdsBySpaceId(spaceId);
         if (CollectionUtils.isNotEmpty(stores)) {
-            storeDOS = stores;
+            storeDoS = stores;
         }
         if (CollectionUtils.isNotEmpty(storeSpaceAuths)) {
             List<MilogLogStoreDO> collect = storeSpaceAuths.stream()
                     .map(storeSpaceAuth -> milogLogstoreDao.queryById(storeSpaceAuth.getStoreId()))
-                    .filter(Objects::nonNull).collect(Collectors.toList());
-            storeDOS.addAll(collect);
+                    .toList();
+            storeDoS.addAll(collect);
         }
-        return storeDOS;
+        if (CollectionUtils.isNotEmpty(storeDoS)) {
+            storeDoS = storeDoS.stream().filter(store -> null != store && commonExtensionService.matchesCondition(spaceId, FilterIdEnum.FILTER_STORE_ID, store.getId())).toList();
+        }
+        return storeDoS;
     }
-    
+
     @Override
     public Result<List<ValueDTO<String>>> getMiloglogAccessPattern() {
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), milogpattern);

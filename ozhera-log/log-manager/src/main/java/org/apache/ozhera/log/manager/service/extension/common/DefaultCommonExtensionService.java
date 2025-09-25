@@ -18,12 +18,13 @@
  */
 package org.apache.ozhera.log.manager.service.extension.common;
 
-import org.apache.ozhera.log.api.enums.MQSourceEnum;
-import org.apache.ozhera.log.api.enums.MachineRegionEnum;
-import org.apache.ozhera.log.manager.model.vo.LogQuery;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.api.enums.FilterIdEnum;
+import org.apache.ozhera.log.api.enums.MQSourceEnum;
+import org.apache.ozhera.log.api.enums.MachineRegionEnum;
+import org.apache.ozhera.log.manager.model.vo.LogQuery;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
@@ -104,6 +105,11 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
     @Override
     public List<String> queryMachineRegions() {
         return Arrays.stream(MachineRegionEnum.values()).map(MachineRegionEnum::getEn).collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean matchesCondition(Long spaceId, FilterIdEnum idEnum, Long id) {
+        return true;
     }
 
     @Getter

@@ -43,6 +43,7 @@ public class LogQuery implements Serializable {
     private String statField;
 
     private Object[] searchAfter;
+    private Boolean isDownload = false;
 
     public LogQuery() {
     }

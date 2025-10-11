@@ -65,8 +65,9 @@ import org.apache.ozhera.log.manager.service.HeraAppEnvService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -399,8 +400,7 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         builder.query(boolQueryBuilder);
 
         builder.sort(commonExtensionService.getSortedKey(logQuery, logQuery.getSortKey()), logQuery.getAsc() ? ASC : DESC);
-        builder.sort("_id", ASC);
-        if (logQuery.getSearchAfter() != null){
+        if (logQuery.getSearchAfter() != null && logQuery.getIsDownload()){
             builder.from(0);
             builder.size(logQuery.getPageSize());
             builder.searchAfter(logQuery.getSearchAfter());
@@ -411,8 +411,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             builder.size(logQuery.getPageSize());
         }
 
-        // highlight
-        builder.highlighter(getHighlightBuilder(keyList));
+        // highlight, it is only necessary when not downloading.
+        if(!logQuery.getIsDownload()){
+            builder.highlighter(getHighlightBuilder(keyList));
+        }
         builder.timeout(TimeValue.timeValueMinutes(2L));
         return builder;
     }
@@ -748,19 +750,16 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         final int rowsPerSheet = 5000; //each sheet is fixed at 5000 rows
         final int maxPage = 100; //max pages, the upper limit of the number of rows: 5000*100
         int page = 1;
-        HSSFWorkbook workbook = new HSSFWorkbook();
+        Workbook workbook = new SXSSFWorkbook();
         String title = generateTitle(logQuery);
         List<String> headers = null;
         Object[] lastSortValues = null;
+        logQuery.setIsDownload(true);
         while(page <= maxPage) {
             logQuery.setPageSize(rowsPerSheet);
             logQuery.setPage(page);
-            if (page <= 2){
-                logQuery.setSearchAfter(null);
-            }else{
-                //Prevent errors when performing deep paging in the ES database
-                logQuery.setSearchAfter(lastSortValues);
-            }
+            //Prevent errors when performing deep paging in the ES database
+            logQuery.setSearchAfter(lastSortValues);
 
             Result<LogDTO> logDTOResult = this.logQuery(logQuery);
             if (logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData() == null || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty()) {
@@ -781,17 +780,17 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                 headers = new ArrayList<>(list.getFirst().keySet());
             }
 
-            HSSFSheet sheet = workbook.createSheet("Sheet" + page);
+            Sheet sheet = workbook.createSheet("Sheet" + page);
             int dataBeginRow;
 
             if (title != null && !title.isEmpty() && page == 1) {  //only the first sheet has a title
-                HSSFRow titleRow = sheet.createRow(0);
-                HSSFCell cell = titleRow.createCell(0);
+                Row titleRow = sheet.createRow(0);
+                Cell cell = titleRow.createCell(0);
                 cell.setCellValue(title);
-                HSSFCellStyle titleStyle = workbook.createCellStyle();
+                CellStyle titleStyle = workbook.createCellStyle();
                 titleStyle.setAlignment((short)2);
                 titleStyle.setVerticalAlignment((short)1);
-                HSSFFont titleFont = workbook.createFont();
+                Font titleFont = workbook.createFont();
                 titleFont.setBoldweight((short)700);
                 titleStyle.setFont(titleFont);
                 cell.setCellStyle(titleStyle);
@@ -801,15 +800,15 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             }
 
             if (list != null && !list.isEmpty()) {
-                HSSFCellStyle headerStyle = workbook.createCellStyle();
+                CellStyle headerStyle = workbook.createCellStyle();
                 headerStyle.setAlignment((short)2);
                 headerStyle.setBorderBottom((short)2);
                 headerStyle.setBorderTop((short)2);
                 int headRowIndex = title != null && !title.isEmpty() && page == 1 ? 1 : 0;
-                HSSFRow headRow = sheet.createRow(headRowIndex);
+                Row headRow = sheet.createRow(headRowIndex);
                 int i = 0;
                 for (String h : headers){
-                    HSSFCell cell = headRow.createCell(i++);
+                    Cell cell = headRow.createCell(i++);
                     cell.setCellValue(h);
                     cell.setCellStyle(headerStyle);
                 }
@@ -817,10 +816,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                 dataBeginRow = title != null && !title.isEmpty() && page == 1 ? 2 : 1;
 
                 for(int j = 0; j < list.size(); ++j) {
-                    HSSFRow row = sheet.createRow(dataBeginRow++);
+                    Row row = sheet.createRow(dataBeginRow++);
                     Map<String, Object> rowMap = list.get(j);
                     for (int k = 0; k < headers.size(); k++){
-                        HSSFCell cell = row.createCell(k);
+                        Cell cell = row.createCell(k);
                         Object val = rowMap.get(headers.get(k));
                         cell.setCellValue(val == null ? "" : val.toString());
                     }
@@ -830,8 +829,8 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
             page++;
         }
         // Download
-        String fileName = String.format("%s_log.xls", logQuery.getLogstore());
-        searchLog.downLogFile(workbook, fileName);
+        String fileName = String.format("%s_log.xlsx", logQuery.getLogstore());
+        searchLog.downLogFileV2(workbook, fileName);
     }
 
     private String generateTitle(LogQuery logQuery) {

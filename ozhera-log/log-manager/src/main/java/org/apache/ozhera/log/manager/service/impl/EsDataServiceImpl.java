@@ -65,7 +65,9 @@ import org.apache.ozhera.log.manager.service.HeraAppEnvService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionService;
 import org.apache.ozhera.log.manager.service.extension.common.CommonExtensionServiceFactory;
 import org.apache.ozhera.log.parse.LogParser;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -76,7 +78,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StopWatch;
-import run.mone.excel.ExportExcel;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -399,12 +400,21 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         builder.query(boolQueryBuilder);
 
         builder.sort(commonExtensionService.getSortedKey(logQuery, logQuery.getSortKey()), logQuery.getAsc() ? ASC : DESC);
-        if (null != logQuery.getPage()) {
-            builder.from((logQuery.getPage() - 1) * logQuery.getPageSize());
+        if (logQuery.getSearchAfter() != null && logQuery.getIsDownload()){
+            builder.from(0);
+            builder.size(logQuery.getPageSize());
+            builder.searchAfter(logQuery.getSearchAfter());
+        }else {
+            if (null != logQuery.getPage()) {
+                builder.from((logQuery.getPage() - 1) * logQuery.getPageSize());
+            }
+            builder.size(logQuery.getPageSize());
         }
-        builder.size(logQuery.getPageSize());
-        // highlight
-        builder.highlighter(getHighlightBuilder(keyList));
+
+        // highlight, it is only necessary when not downloading.
+        if(!logQuery.getIsDownload()){
+            builder.highlighter(getHighlightBuilder(keyList));
+        }
         builder.timeout(TimeValue.timeValueMinutes(2L));
         return builder;
     }
@@ -737,17 +747,95 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     public void logExport(LogQuery logQuery) throws Exception {
         log.info("Log query, logExport, logQuery:{}", GSON.toJson(logQuery));
         // Generate Excel
-        int maxLogNum = 5000;
-        logQuery.setPageSize(maxLogNum);
-        Result<LogDTO> logDTOResult = this.logQuery(logQuery);
-        List<Map<String, Object>> exportData = logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty() ? null : logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());
-        HSSFWorkbook excel = ExportExcel.HSSFWorkbook4Map(exportData, generateTitle(logQuery));
+        final int rowsPerSheet = 5000; //each sheet is fixed at 5000 rows
+        final int maxPage = 100; //max pages, the upper limit of the number of rows: 5000*100
+        int page = 1;
+        Workbook workbook = new SXSSFWorkbook();
+        String title = generateTitle(logQuery);
+        List<String> headers = null;
+        Object[] lastSortValues = null;
+        logQuery.setIsDownload(true);
+        while(page <= maxPage) {
+            logQuery.setPageSize(rowsPerSheet);
+            logQuery.setPage(page);
+            //Prevent errors when performing deep paging in the ES database
+            logQuery.setSearchAfter(lastSortValues);
+
+            Result<LogDTO> logDTOResult = this.logQuery(logQuery);
+            if (logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData() == null || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty()) {
+                break;
+            }
+            List<Map<String, Object>> list = logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());
+
+            if (list == null || list.isEmpty()) {
+                break;
+            }
+
+            if (page == 1){
+                headers = new ArrayList<>(list.getFirst().keySet());
+            }
+
+            //If the table header is empty, then obtain the header from the current page.
+            if (headers == null || headers.isEmpty()) {
+                headers = new ArrayList<>(list.getFirst().keySet());
+            }
+
+            Sheet sheet = workbook.createSheet("Sheet" + page);
+            int dataBeginRow;
+
+            if (title != null && !title.isEmpty() && page == 1) {  //only the first sheet has a title
+                Row titleRow = sheet.createRow(0);
+                Cell cell = titleRow.createCell(0);
+                cell.setCellValue(title);
+                CellStyle titleStyle = workbook.createCellStyle();
+                titleStyle.setAlignment((short)2);
+                titleStyle.setVerticalAlignment((short)1);
+                Font titleFont = workbook.createFont();
+                titleFont.setBoldweight((short)700);
+                titleStyle.setFont(titleFont);
+                cell.setCellStyle(titleStyle);
+                titleRow.setHeight((short)450);
+                dataBeginRow = list != null && !list.isEmpty() ? ((Map)list.get(0)).size() - 1 : 5;
+                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, dataBeginRow));
+            }
+
+            if (list != null && !list.isEmpty()) {
+                CellStyle headerStyle = workbook.createCellStyle();
+                headerStyle.setAlignment((short)2);
+                headerStyle.setBorderBottom((short)2);
+                headerStyle.setBorderTop((short)2);
+                int headRowIndex = title != null && !title.isEmpty() && page == 1 ? 1 : 0;
+                Row headRow = sheet.createRow(headRowIndex);
+                int i = 0;
+                for (String h : headers){
+                    Cell cell = headRow.createCell(i++);
+                    cell.setCellValue(h);
+                    cell.setCellStyle(headerStyle);
+                }
+
+                dataBeginRow = title != null && !title.isEmpty() && page == 1 ? 2 : 1;
+
+                for(int j = 0; j < list.size(); ++j) {
+                    Row row = sheet.createRow(dataBeginRow++);
+                    Map<String, Object> rowMap = list.get(j);
+                    for (int k = 0; k < headers.size(); k++){
+                        Cell cell = row.createCell(k);
+                        Object val = rowMap.get(headers.get(k));
+                        cell.setCellValue(val == null ? "" : val.toString());
+                    }
+                }
+            }
+            lastSortValues = logDTOResult.getData().getThisSortValue();
+            page++;
+        }
         // Download
-        String fileName = String.format("%s_log.xls", logQuery.getLogstore());
-        searchLog.downLogFile(excel, fileName);
+        String fileName = String.format("%s_log.xlsx", logQuery.getLogstore());
+        searchLog.downLogFileV2(workbook, fileName);
     }
 
     private String generateTitle(LogQuery logQuery) {
         return String.format("%sLogs, search terms:[%s],time range%d-%d", logQuery.getLogstore(), logQuery.getFullTextSearch() == null ? "" : logQuery.getFullTextSearch(), logQuery.getStartTime(), logQuery.getEndTime());
     }
+
+
 }

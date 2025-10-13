@@ -42,6 +42,9 @@ public class LogQuery implements Serializable {
     private Long[] appIds;
     private String statField;
 
+    private Object[] searchAfter;
+    private Boolean isDownload = false;
+
     public LogQuery() {
     }
 

@@ -32,6 +32,8 @@ import com.xiaomi.youpin.docean.plugin.es.antlr4.common.util.EsQueryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -331,6 +333,33 @@ public class SearchLog {
         } finally {
             if (excel != null) {
                 excel.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
+            if (file != null) {
+                file.delete();
+            }
+        }
+    }
+
+    public void downLogFileV2(Workbook excel, String fileName) throws IOException {
+        File file = null;
+        FileOutputStream fos = null;
+        try {
+            file = new File(DoceanConfig.ins().get("download_file_path", "/tmp") + File.separator + fileName);
+            file.createNewFile();
+            fos = new FileOutputStream(file);
+            excel.write(fos);
+            Down.down(fileName);
+        } catch (Exception e) {
+            log.error("downLogFile error,fileName:{}", fileName, e);
+        } finally {
+            if (excel != null) {
+                excel.close();
+                if (excel instanceof SXSSFWorkbook sxssf) {
+                    sxssf.dispose();
+                }
             }
             if (fos != null) {
                 fos.close();

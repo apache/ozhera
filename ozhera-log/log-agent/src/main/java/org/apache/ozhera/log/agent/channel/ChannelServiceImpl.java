@@ -234,7 +234,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private void startCollectFile(Long channelId, Input input, List<String> patterns) {
         for (int i = 0; i < patterns.size(); i++) {
             log.info("startCollectFile,total file:{},start:{},remain:{}", patterns.size(), i + 1, patterns.size() - (i + 1));
-            readFile(input.getPatternCode(), getTailPodIp(patterns.get(i)), channelId);
+            readFile(input.getPatternCode(), patterns.get(i), channelId);
             InodeFileComparator.addFile(patterns.get(i));
         }
         lastLineRemainSendSchedule(input.getPatternCode());

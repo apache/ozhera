@@ -61,18 +61,16 @@ public class CustomLogParser extends AbstractLogParser {
     @Override
     public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
-        String originData = logData;
-        if (logData == null) {
-            return null;
+        if (StringUtils.isBlank(logData)) {
+            return ret;
         }
         try {
             if (!isParsePattern) {
                 parsePatter(parserData.getParseScript());
             }
-            if (logData.length() == 0) {
+            if (logData.isEmpty()) {
                 return ret;
             }
-            String originLog = logData;
             if (StringUtils.isBlank(keyValueList) && CollectionUtil.isEmpty(logPerComments)) {
                 ret.put(ES_KEY_MAP_MESSAGE, logData);
                 return ret;
@@ -87,10 +85,10 @@ public class CustomLogParser extends AbstractLogParser {
                 ret.put(logPerComments.get(i), StringUtils.isNotEmpty(value) ? value.trim() : value);
             }
             if (ret.values().stream().map(String::valueOf).anyMatch(StringUtils::isEmpty)) {
-                ret.put(ES_KEY_MAP_LOG_SOURCE, originLog);
+                ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
             }
         } catch (Exception e) {
-            ret.put(ES_KEY_MAP_LOG_SOURCE, originData);
+            ret.put(ES_KEY_MAP_LOG_SOURCE, logData);
         }
         validTimestamp(ret, collectStamp);
         return ret;

@@ -54,7 +54,7 @@ public class RegexLogParser extends AbstractLogParser {
     @Override
     public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
-        if (logData == null || logData.isEmpty()) {
+        if (StringUtils.isBlank(logData)) {
             return ret;
         }
         try {

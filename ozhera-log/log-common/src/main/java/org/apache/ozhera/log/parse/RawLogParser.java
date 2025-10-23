@@ -20,6 +20,7 @@ package org.apache.ozhera.log.parse;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,9 @@ public class RawLogParser extends AbstractLogParser {
     @Override
     public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
+        if (StringUtils.isBlank(logData)) {
+            return ret;
+        }
         ret.put(ES_KEY_MAP_MESSAGE, logData);
         if (null != collectStamp) {
             ret.put(esKeyMap_timestamp, collectStamp);

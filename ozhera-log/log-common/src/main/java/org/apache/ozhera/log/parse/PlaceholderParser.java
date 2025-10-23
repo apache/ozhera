@@ -18,6 +18,8 @@
  */
 package org.apache.ozhera.log.parse;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.*;
 
 /**
@@ -93,6 +95,9 @@ public class PlaceholderParser extends AbstractLogParser {
 
     public Map<String, Object> parse(String logLine) {
         Map<String, Object> result = new LinkedHashMap<>();
+        if (StringUtils.isBlank(logLine)) {
+            return result;
+        }
         String remaining = logLine;
         int fieldIndex = 0;
 

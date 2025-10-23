@@ -49,10 +49,7 @@ public class SeparatorLogParser extends AbstractLogParser {
     @Override
     public Map<String, Object> doParseSimple(String logData, Long collectStamp) {
         Map<String, Object> ret = new HashMap<>();
-        if (logData == null) {
-            return ret;
-        }
-        if (logData.isEmpty()) {
+        if (StringUtils.isBlank(logData)) {
             return ret;
         }
         try {

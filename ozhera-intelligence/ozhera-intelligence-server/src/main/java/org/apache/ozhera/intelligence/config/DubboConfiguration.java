@@ -37,13 +37,13 @@ public class DubboConfiguration {
     @Value("${server.port}")
     private String httpGateWayPort;
 
-    @NacosValue("${dubbo.registry.address}")
+    @Value("${dubbo.registry.address}")
     private String regAddress;
 
     @Bean
     public ApplicationConfig applicationConfig() {
         ApplicationConfig applicationConfig = new ApplicationConfig();
-        applicationConfig.setName("Trace-etl-manager");
+        applicationConfig.setName("ozhera-intelligence");
         applicationConfig.setParameters(Maps.newHashMap());
         applicationConfig.getParameters().put("http_gateway_port", httpGateWayPort);
         applicationConfig.getParameters().put("dubbo_version", "1.0");

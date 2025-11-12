@@ -18,30 +18,31 @@
  */
 package org.apache.ozhera.intelligence.domain.rootanalysis;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+/**
+ * Code fix information containing projectId, envId and stacktrace
+ */
 @Data
 @Builder
-public class MarkDownParam {
-
-    private String traceReason;
-
-    private String application;
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class CodeFixInfo {
+    /**
+     * Project ID extracted from service name
+     */
     private String projectId;
 
+    /**
+     * Environment ID extracted from process tags
+     */
     private String envId;
 
-    private String logReason;
-
-    private String metricsReason;
-
-    private String simpleReason;
-
-    private String traceId;
-
-    private String timestamp;
-
-    private String env;
+    /**
+     * Exception stack trace extracted from span logs
+     */
+    private String stacktrace;
 }

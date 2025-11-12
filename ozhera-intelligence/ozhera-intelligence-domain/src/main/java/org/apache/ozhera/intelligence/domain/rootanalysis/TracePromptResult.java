@@ -35,6 +35,9 @@ public class TracePromptResult {
     // Whether it is the root cause, determined based on analysis
     private boolean root;
 
+    // project ID of the application.
+    private String projectId;
+
     // Environment ID of the application,
     // obtained from the value of service.env.id in process.tags of the problem node
     private String envId;

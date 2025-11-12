@@ -75,6 +75,7 @@ public class PromptService {
                 .traceReason(keyValuePairs.get(TracePromptResult.TRACE_REASON_KEY))
                 .application(keyValuePairs.get(TracePromptResult.APPLICATION))
                 .root(Boolean.parseBoolean(keyValuePairs.get(TracePromptResult.ROOT)))
+                .projectId(keyValuePairs.get(TracePromptResult.PROJECT_ID))
                 .envId(keyValuePairs.get(TracePromptResult.ENV_ID))
                 .startTime(keyValuePairs.get(TracePromptResult.START_TIME))
                 .duration(keyValuePairs.get(TracePromptResult.DURATION))
@@ -178,5 +179,31 @@ public class PromptService {
 
         // Return simplified analysis result
         return keyValuePairs.get("simpleReason");
+    }
+
+    /**
+     * Perform LLM analysis based on trace data to find the root cause spanId for code fix
+     *
+     * @param trace trace link data
+     * @return spanId of the root cause node
+     */
+    public String codeFixAnalysis(String trace) {
+        // Get the corresponding prompt
+        String prompt = Prompts.CODE_FIX_ANALYSIS_PROMPT + "\n" + trace;
+
+        // Call LLM for analysis
+        String llmRes = llm.chat(prompt);
+
+        // Parse the XML result returned by LLM
+        List<ToolDataInfo> tools = new MultiXmlParser().parse(llmRes);
+        if (tools == null || tools.isEmpty()) {
+            // If parsing result is empty, return null
+            return null;
+        }
+
+        Map<String, String> keyValuePairs = tools.get(0).getKeyValuePairs();
+
+        // Return spanId
+        return keyValuePairs.get("spanId");
     }
 }

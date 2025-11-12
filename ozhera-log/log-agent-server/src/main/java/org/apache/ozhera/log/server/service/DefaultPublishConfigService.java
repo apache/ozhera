@@ -24,14 +24,14 @@ import com.xiaomi.data.push.context.AgentContext;
 import com.xiaomi.data.push.rpc.RpcServer;
 import com.xiaomi.data.push.rpc.netty.AgentChannel;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
-import org.apache.ozhera.log.api.model.meta.LogCollectMeta;
-import org.apache.ozhera.log.api.model.vo.LogCmd;
-import org.apache.ozhera.log.api.service.PublishConfigService;
-import org.apache.ozhera.log.utils.NetUtil;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.model.meta.LogCollectMeta;
+import org.apache.ozhera.log.api.model.vo.LogCmd;
+import org.apache.ozhera.log.api.service.PublishConfigService;
+import org.apache.ozhera.log.utils.NetUtil;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -56,6 +56,26 @@ public class DefaultPublishConfigService implements PublishConfigService {
     @Resource
     private RpcServer rpcServer;
 
+    private static final String CONFIG_COMPRESS_KEY = "CONFIG_COMPRESS_ENABLED";
+
+    private volatile boolean configCompressValue = false;
+
+    public void init() {
+        String raw = System.getenv(CONFIG_COMPRESS_KEY);
+        if (StringUtils.isBlank(raw)) {
+            raw = System.getProperty(CONFIG_COMPRESS_KEY);
+        }
+        if (StringUtils.isNotBlank(raw)) {
+            try {
+                configCompressValue = Boolean.parseBoolean(raw);
+                log.info("configCompressValue {}", configCompressValue);
+            } catch (Exception e) {
+                log.error("parse {} error,use default value:{},config value:{}", CONFIG_COMPRESS_KEY, configCompressValue, raw);
+            }
+        }
+    }
+
+
     /**
      * dubbo interface, the timeout period cannot be too long
      *
@@ -73,6 +93,11 @@ public class DefaultPublishConfigService implements PublishConfigService {
                 if (CollectionUtils.isNotEmpty(logCollectMeta.getAppLogMetaList())) {
                     RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
+
+                    if (configCompressValue) {
+                        req.enableCompression();
+                    }
+
                     log.info("Send the configuration,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
                     Stopwatch started = Stopwatch.createStarted();
                     RemotingCommand res = rpcServer.sendMessage(logAgentMap.get(agentCurrentIp), req, 10000);

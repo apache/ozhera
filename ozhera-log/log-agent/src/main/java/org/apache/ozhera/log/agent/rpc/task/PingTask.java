@@ -61,9 +61,9 @@ public class PingTask extends Task {
                 String message = load.get() ? "ping:" + System.currentTimeMillis() : "load";
                 ping.setMessage(message);
 
-                RemotingCommand req = RemotingCommand.createRequestCommand(RpcCmd.pingReq);
-                req.setBody(GSON.toJson(ping).getBytes());
                 for (String service : client.getServerList().get()) {
+                    RemotingCommand req = RemotingCommand.createRequestCommand(RpcCmd.pingReq);
+                    req.setBody(GSON.toJson(ping).getBytes());
                     client.sendMessage(service, req, PingTask::handleResponse);
                 }
                 RpcClient.startLatch.countDown();

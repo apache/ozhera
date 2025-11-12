@@ -163,8 +163,12 @@ public class PlaceholderParser extends AbstractLogParser {
                     }
 
                     // 丢弃字段
-                    if (!"-".equals(part.modifier) && fieldIndex < fieldNames.size()) {
-                        result.put(fieldNames.get(fieldIndex++), fieldValue);
+                    if (!"-".equals(part.modifier) && (fieldIndex < fieldNames.size() || fieldNames.isEmpty())) {
+                        if (!fieldNames.isEmpty()) {
+                            result.put(fieldNames.get(fieldIndex++), fieldValue);
+                        } else {
+                            result.put("field" + fieldIndex++, fieldValue);
+                        }
                     }
 
                 } else {

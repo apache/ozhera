@@ -26,7 +26,7 @@ http://www.apache.org/licenses/LICENSE-2.0
         <version>2.2.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>2.2.7-SNAPSHOT</version>
+    <version>2.2.8-SNAPSHOT</version>
 
     <artifactId>log-agent-server</artifactId>
 
@@ -66,6 +66,7 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>rpc</artifactId>
+            <version>1.6.4-jdk21-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>

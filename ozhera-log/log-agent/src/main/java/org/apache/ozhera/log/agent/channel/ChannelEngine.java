@@ -93,6 +93,14 @@ public class ChannelEngine {
 
     private final Gson gson = GSON;
 
+    private static final String PROGRESS_ENV_KEY = "CHANNEL_STATE_PERIOD_SECONDS";
+
+    private static final String COMPRESS_KEY = "CHANNEL_STATE_COMPRESS_ENABLED";
+
+    private static final long DEFAULT_PERIOD_SECONDS = 10L;
+
+    private volatile boolean progressCompressValue = false;
+
     @Getter
     private volatile boolean initComplete;
 
@@ -138,10 +146,26 @@ public class ChannelEngine {
             log.info("current channelDefineList:{},current channelServiceList:{}", gson.toJson(this.channelDefineList), gson.toJson(this.channelServiceList.stream().map(ChannelService::instanceId).collect(Collectors.toList())));
             monitorFilesClean();
             executorFileClean();
+            resolveCompressEnabled();
         } catch (Exception e) {
             log.error("ChannelEngine init exception", e);
         } finally {
             initComplete = true;
+        }
+    }
+
+    private void resolveCompressEnabled() {
+        String raw = System.getenv(COMPRESS_KEY);
+        if (StringUtils.isBlank(raw)) {
+            raw = System.getProperty(COMPRESS_KEY);
+        }
+        if (StringUtils.isNotBlank(raw)) {
+            try {
+                progressCompressValue = Boolean.parseBoolean(raw);
+                log.info("progressCompressValue {}", progressCompressValue);
+            } catch (Exception e) {
+                log.error("parse {} error,use default value:{},config value:{}", COMPRESS_KEY, progressCompressValue, raw);
+            }
         }
     }
 
@@ -200,13 +224,34 @@ public class ChannelEngine {
     }
 
     private void exportChannelState() {
+        final long period = resolvePeriodSeconds();
+        log.info("exportChannelState schedule period = {}s", period);
+
         ExecutorUtil.scheduleAtFixedRate(() -> {
             SafeRun.run(() -> {
                 List<ChannelState> channelStateList = channelServiceList.stream().map(c -> c.state()).collect(Collectors.toList());
                 // Send the collection progress
                 sendCollectionProgress(channelStateList);
             });
-        }, 10, 10, TimeUnit.SECONDS);
+        }, 10, period, TimeUnit.SECONDS);
+    }
+
+    private long resolvePeriodSeconds() {
+        String raw = System.getenv(PROGRESS_ENV_KEY);
+        if (StringUtils.isBlank(raw)) {
+            raw = System.getProperty(PROGRESS_ENV_KEY);
+        }
+
+        if (StringUtils.isBlank(raw)) {
+            return DEFAULT_PERIOD_SECONDS;
+        }
+
+        try {
+            return Long.parseLong(raw.trim());
+        } catch (NumberFormatException e) {
+            log.warn("Invalid {} value '{}', fallback to {}s", PROGRESS_ENV_KEY, raw, DEFAULT_PERIOD_SECONDS);
+            return DEFAULT_PERIOD_SECONDS;
+        }
     }
 
     private List<Long> channelStart(List<ChannelService> channelServiceList) {
@@ -634,6 +679,12 @@ public class ChannelEngine {
         UpdateLogProcessCmd processCmd = assembleLogProcessData(channelStateList);
         RpcClient rpcClient = Ioc.ins().getBean(RpcClient.class);
         RemotingCommand req = RemotingCommand.createRequestCommand(Constant.RPCCMD_AGENT_CODE);
+
+        if (progressCompressValue) {
+            // enable collection progress compression
+            req.enableCompression();
+        }
+
         req.setBody(GSON.toJson(processCmd).getBytes());
         rpcClient.sendToAllMessage(req);
         log.debug("send collect progress,data:{}", gson.toJson(processCmd));

@@ -50,7 +50,7 @@ public class LogProcessor implements NettyRequestProcessor {
     public RemotingCommand processRequest(ChannelHandlerContext channelHandlerContext, RemotingCommand remotingCommand) throws Exception {
         LogCollectMeta req = remotingCommand.getReq(LogCollectMeta.class);
 
-        log.info("logCollect config req:{}", GSON.toJson(req));
+        log.info("ca:{}", GSON.toJson(req));
 
         RemotingCommand response = RemotingCommand.createResponseCommand(LogCmd.LOG_REQ);
         response.setBody("ok".getBytes());

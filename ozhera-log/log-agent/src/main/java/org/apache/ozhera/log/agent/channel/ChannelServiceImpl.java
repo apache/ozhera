@@ -103,6 +103,8 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private ScheduledFuture<?> scheduledFuture;
 
+    private ScheduledFuture<?> deletedFileCleanupFuture;
+
     /**
      * collect once flag
      */
@@ -193,6 +195,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         startCollectFile(channelId, input, patterns);
 
         startExportQueueDataThread();
+        startDeletedFileCleanupTask();
         memoryService.refreshMemory(channelMemory);
         log.warn("channelId:{}, channelInstanceId:{} start success! channelDefine:{}", channelId, instanceId(), gson.toJson(this.channelDefine));
     }
@@ -240,11 +243,39 @@ public class ChannelServiceImpl extends AbstractChannelService {
         lastLineRemainSendSchedule(input.getPatternCode());
     }
 
+    private void startDeletedFileCleanupTask() {
+        // Periodically cleanup files that no longer exist or have inode changes to release file handles
+        deletedFileCleanupFuture = ExecutorUtil.scheduleAtFixedRate(() -> SafeRun.run(() -> {
+            for (String path : new ArrayList<>(logFileMap.keySet())) {
+                if (!FileUtil.exist(path)) {
+                    log.info("deleted file cleanup trigger for path:{}", path);
+                    cleanFile(path::equals);
+                    continue;
+                }
+                
+                if (ChannelUtil.isInodeChanged(channelMemory, path)) {
+                    Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, path);
+                    log.info("deleted file cleanup trigger for inode changed path:{}, oldInode:{}, newInode:{}",
+                            path, inodeInfo != null ? inodeInfo[0] : "unknown", inodeInfo != null ? inodeInfo[1] : "unknown");
+                    cleanFile(path::equals);
+                }
+            }
+        }), 60, 60, TimeUnit.SECONDS);
+    }
+
 
     private void handleAllFileCollectMonitor(String patternCode, String newFilePath, Long channelId) {
         if (logFileMap.keySet().stream().anyMatch(key -> Objects.equals(newFilePath, key))) {
-            log.info("collectOnce open file:{}", newFilePath);
-            logFileMap.get(newFilePath).setReOpen(true);
+            if (ChannelUtil.isInodeChanged(channelMemory, newFilePath)) {
+                Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, newFilePath);
+                log.info("handleAllFileCollectMonitor: inode changed for path:{}, oldInode:{}, newInode:{}, cleaning up old file handle",
+                        newFilePath, inodeInfo != null ? inodeInfo[0] : "unknown", inodeInfo != null ? inodeInfo[1] : "unknown");
+                cleanFile(newFilePath::equals);
+                readFile(patternCode, newFilePath, channelId);
+            } else {
+                log.info("collectOnce open file:{}", newFilePath);
+                logFileMap.get(newFilePath).setReOpen(true);
+            }
         } else {
             readFile(patternCode, newFilePath, channelId);
         }
@@ -384,9 +415,20 @@ public class ChannelServiceImpl extends AbstractChannelService {
             log.warn("file:{} marked stop to collect", filePath);
             return;
         }
-        //Determine whether the file exists
         if (FileUtil.exist(filePath)) {
-            stopOldCurrentFileThread(filePath);
+            // Stop old file thread if exists (will close file handle via setStop(true))
+            // Note: inode change detection is handled by periodic cleanup task
+            if (logFileMap.containsKey(filePath)) {
+                if (ChannelUtil.isInodeChanged(channelMemory, filePath)) {
+                    Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, filePath);
+                    log.info("readFile: inode changed for path:{}, oldInode:{}, newInode:{}, stopping old file thread",
+                            filePath, inodeInfo != null ? inodeInfo[0] : "unknown", inodeInfo != null ? inodeInfo[1] : "unknown");
+                    // Clean up all related maps for inode change case
+                    cleanFile(filePath::equals);
+                } else {
+                    stopOldCurrentFileThread(filePath);
+                }
+            }
             log.info("start to collect file,channelId:{},fileName:{}", channelId, filePath);
             logFileMap.put(filePath, logFile);
             Future<?> future = getExecutorServiceByType(logTypeEnum).submit(() -> {
@@ -461,6 +503,16 @@ public class ChannelServiceImpl extends AbstractChannelService {
                             filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
                 }
             }
+            
+            // Check if pointer exceeds file length (file may have been truncated but inode unchanged)
+            // This handles the case where log rotation truncates the file without changing inode
+            java.io.File file = new java.io.File(filePath);
+            if (file.exists() && pointer > file.length()) {
+                log.warn("pointer {} exceeds file length {} for file:{}, resetting to 0 (file may have been truncated)",
+                        pointer, file.length(), filePath);
+                pointer = 0L;
+                lineNumber = 0L;
+            }
         }
         ChannelEngine channelEngine = Ioc.ins().getBean(ChannelEngine.class);
         ILogFile logFile = channelEngine.logFile();
@@ -509,6 +561,9 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
         if (null != lastFileLineScheduledFuture) {
             lastFileLineScheduledFuture.cancel(false);
+        }
+        if (null != deletedFileCleanupFuture) {
+            deletedFileCleanupFuture.cancel(false);
         }
         for (Future future : futureMap.values()) {
             future.cancel(false);
@@ -567,7 +622,16 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 readFile(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
                 log.info("watch new file create for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
             } else {
-                handleExistingLogFileWithRetry(logFile, filePath, ip);
+                if (ChannelUtil.isInodeChanged(channelMemory, filePath)) {
+                    Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, filePath);
+                    log.info("reOpen: inode changed for path:{}, oldInode:{}, newInode:{}, cleaning up old file handle",
+                            filePath, inodeInfo != null ? inodeInfo[0] : "unknown", inodeInfo != null ? inodeInfo[1] : "unknown");
+                    cleanFile(filePath::equals);
+                    readFile(channelDefine.getInput().getPatternCode(), filePath, getChannelId());
+                    log.info("reOpen: file reopened after inode change for channelId:{},ip:{},path:{}", getChannelId(), filePath, ip);
+                } else {
+                    handleExistingLogFileWithRetry(logFile, filePath, ip);
+                }
             }
         } finally {
             fileReopenLock.unlock();
@@ -642,7 +706,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private void delCollFile(String path) {
         boolean shouldRemovePath = false;
         if (logFileMap.containsKey(path) && fileReadMap.containsKey(path)) {
-            if ((Instant.now().toEpochMilli() - fileReadMap.get(path)) > TimeUnit.MINUTES.toMillis(1)) {
+            if (ChannelUtil.isInodeChanged(channelMemory, path)) {
+                Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, path);
+                log.info("delCollFile trigger for inode changed path:{}, oldInode:{}, newInode:{}",
+                        path, inodeInfo != null ? inodeInfo[0] : "unknown", inodeInfo != null ? inodeInfo[1] : "unknown");
+                cleanFile(path::equals);
+                shouldRemovePath = true;
+            } else if ((Instant.now().toEpochMilli() - fileReadMap.get(path)) > TimeUnit.MINUTES.toMillis(1)) {
                 cleanFile(path::equals);
                 shouldRemovePath = true;
                 log.info("stop coll file:{}", path);

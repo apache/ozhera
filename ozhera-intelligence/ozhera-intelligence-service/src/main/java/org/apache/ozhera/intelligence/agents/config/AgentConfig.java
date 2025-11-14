@@ -27,6 +27,12 @@ import org.springframework.context.annotation.Configuration;
 import run.mone.hive.mcp.function.ChatFunction;
 import run.mone.hive.mcp.service.RoleMeta;
 import run.mone.hive.roles.tool.*;
+import run.mone.mcp.git.tool.GitCloneTool;
+import run.mone.mcp.git.tool.GitCommitTool;
+import run.mone.mcp.git.tool.GitPushTool;
+import run.mone.mcp.miline.tools.GetPipelineDetailTool;
+import run.mone.mcp.miline.tools.RunPipelineTool;
+
 
 @Configuration
 public class AgentConfig {
@@ -36,6 +42,15 @@ public class AgentConfig {
 
     @Autowired
     private CodeFixTool codeFixTool;
+
+    @Autowired
+    private GitCloneTool gitCloneTool;
+    @Autowired
+    private GitCommitTool gitCommitTool;
+    @Autowired
+    private GitPushTool gitPushTool;
+
+    private boolean isRemoteFile = false;
 
     @Bean
     public RoleMeta roleMeta() {
@@ -55,12 +70,31 @@ public class AgentConfig {
                         new ChatTool(),
                         new AskTool(),
                         new AttemptCompletionTool(),
-                        new SpeechToTextTool(),
-                        new TextToSpeechTool(),
-                        codeFixTool
+                        codeFixTool,
+                        new ListFilesTool(isRemoteFile),
+                        new ExecuteCommandToolOptimized(),
+                        new ReadFileTool(isRemoteFile),
+                        new SearchFilesTool(isRemoteFile),
+                        new ReplaceInFileTool(isRemoteFile),
+                        new ListCodeDefinitionNamesTool(),
+                        new WriteToFileTool(isRemoteFile),
+                        new RunPipelineTool(),
+                        new GetPipelineDetailTool(),
+                        gitCloneTool,
+                        gitCommitTool,
+                        gitPushTool
                 ))
                 //mcp工具
                 .mcpTools(Lists.newArrayList(chat))
+                .workflow("""
+                    你是代码级自动异常修复系统，严格按照以下步骤执行： 
+                        1、根据traceId获取链路上根因节点的项目信息与异常信息 
+                        2、根据根因节点的projectId和envId获取流水线详情 
+                        3、根据流水线详情中的gitUrl、gitBranch、gitCommitId调用git_clone工具进行git clone 
+                        4、根据trace链路上的异常信息，结合项目代码进行异常修复 
+                        5、修复完成后，将本地代码使用git_commit工具进行git commit，commit信息是自动代码修复, 使用git_push进行git push 
+                        6、根据projectId和envId调用RunPipelineTool进行发布
+                """)
                 .build();
     }
 }

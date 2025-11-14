@@ -66,7 +66,9 @@ public class FileListener implements FileAlterationListener {
 
     @Override
     public void onFileDelete(File file) {
-
+        log.info("onFileDelete:" + file.getAbsolutePath());
+        // File deletion is handled by startDeletedFileCleanupTask and ordinaryFileChanged's existence check
+        // No need to trigger consumer here to avoid duplicate handling
     }
 
     @Override

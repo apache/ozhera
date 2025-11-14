@@ -101,6 +101,71 @@ public class ChannelUtil {
         return new ChannelMemory.UnixFileNode();
     }
 
+    /**
+     * Get inode pair (memory inode and current inode) for a file
+     *
+     * @param channelMemory the channel memory containing file progress
+     * @param filePath the file path to check
+     * @return array with [memoryInode, currentInode] or null if not available
+     */
+    private static ChannelMemory.UnixFileNode[] getInodePair(ChannelMemory channelMemory, String filePath) {
+        if (channelMemory == null || channelMemory.getFileProgressMap() == null) {
+            return null;
+        }
+        
+        ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(filePath);
+        if (fileProgress == null || fileProgress.getUnixFileNode() == null) {
+            return null;
+        }
+        
+        ChannelMemory.UnixFileNode memoryInode = fileProgress.getUnixFileNode();
+        ChannelMemory.UnixFileNode currentInode = buildUnixFileNode(filePath);
+        
+        return new ChannelMemory.UnixFileNode[]{memoryInode, currentInode};
+    }
+
+    /**
+     * Check if file inode has changed by comparing memory inode with current file inode
+     *
+     * @param channelMemory the channel memory containing file progress
+     * @param filePath the file path to check
+     * @return true if inode has changed, false otherwise
+     */
+    public static boolean isInodeChanged(ChannelMemory channelMemory, String filePath) {
+        ChannelMemory.UnixFileNode[] inodePair = getInodePair(channelMemory, filePath);
+        if (inodePair == null) {
+            return false;
+        }
+        
+        ChannelMemory.UnixFileNode memoryInode = inodePair[0];
+        ChannelMemory.UnixFileNode currentInode = inodePair[1];
+        
+        return memoryInode.getSt_ino() != null && currentInode.getSt_ino() != null &&
+               !java.util.Objects.equals(memoryInode.getSt_ino(), currentInode.getSt_ino());
+    }
+
+    /**
+     * Get inode information for logging
+     *
+     * @param channelMemory the channel memory
+     * @param filePath the file path
+     * @return array with [oldInode, newInode] or null if not available
+     */
+    public static Long[] getInodeInfo(ChannelMemory channelMemory, String filePath) {
+        ChannelMemory.UnixFileNode[] inodePair = getInodePair(channelMemory, filePath);
+        if (inodePair == null) {
+            return null;
+        }
+        
+        ChannelMemory.UnixFileNode memoryInode = inodePair[0];
+        ChannelMemory.UnixFileNode currentInode = inodePair[1];
+        
+        if (memoryInode.getSt_ino() != null && currentInode.getSt_ino() != null) {
+            return new Long[]{memoryInode.getSt_ino(), currentInode.getSt_ino()};
+        }
+        return null;
+    }
+
     public static long countFilesRecursive(File directory) {
         long count = 0;
         File[] files = directory.listFiles();

@@ -18,12 +18,12 @@
  */
 package org.apache.ozhera.intelligence.service;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.intelligence.domain.rootanalysis.*;
 import org.apache.ozhera.trace.etl.domain.tracequery.Span;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.Map;
 @Service
 public class TraceAnalysisService {
 
-    @NacosValue("${hera.trace.url}")
+    @Value("${hera.trace.url}")
     private String heraTraceUrl;
 
     @Autowired
@@ -148,6 +148,8 @@ public class TraceAnalysisService {
         // Get simplified root cause analysis results
         String application = traceResult != null ? traceResult.getApplication() : "";
         String traceReason = traceResult != null ? traceResult.getTraceReason() : "";
+        String projectId = traceResult != null ? traceResult.getProjectId() : "";
+        String envId = traceResult != null ? traceResult.getEnvId() : "";
         String logReason = logResult != null ? logResult.getLogReason() : "";
         String metricsReason = metricsResult != null ? metricsResult.getMetricsReason() : "";
         
@@ -155,6 +157,8 @@ public class TraceAnalysisService {
         
         // Build MarkDownParam parameters
         MarkDownParam markDownParam = MarkDownParam.builder()
+                .projectId(projectId)
+                .envId(envId)
                 .application(application)
                 .traceReason(traceReason)
                 .logReason(logReason)

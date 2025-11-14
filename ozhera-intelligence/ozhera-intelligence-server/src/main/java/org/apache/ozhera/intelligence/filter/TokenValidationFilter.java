@@ -18,9 +18,9 @@
  */
 package org.apache.ozhera.intelligence.filter;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -35,7 +35,7 @@ public class TokenValidationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenValidationFilter.class);
 
-    @NacosValue("${analyze.token}")
+    @Value("${analyze.token}")
     private String validToken;
 
     @Override

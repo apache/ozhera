@@ -18,17 +18,25 @@
  */
 package org.apache.ozhera.intelligence.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.ozhera.intelligence.domain.rootanalysis.TraceTreeNode;
+import org.apache.ozhera.intelligence.util.HttpClient;
 import org.apache.ozhera.trace.etl.api.service.TraceQueryService;
 import org.apache.ozhera.trace.etl.domain.jaegeres.JaegerAttribute;
 import org.apache.ozhera.trace.etl.domain.tracequery.Span;
 import org.apache.ozhera.trace.etl.domain.tracequery.Trace;
 import org.apache.ozhera.trace.etl.domain.tracequery.TraceIdQueryVo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.apache.ozhera.intelligence.domain.rootanalysis.TraceQueryParam;
 import org.apache.ozhera.trace.etl.domain.jaegeres.JaegerProcess;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -36,14 +44,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class TraceService {
 
     /**
      * call trace-etl-manager TraceQueryService, The group and version in Dubbo should be consistent with the group and version in TraceQueryServiceImpl in trace-etl-manager.
      */
-    @DubboReference(interfaceClass = TraceQueryService.class, group = "${trace.query.group}", version = "${trace.query.version}")
+    @DubboReference(interfaceClass = TraceQueryService.class, group = "${trace.query.group}", version = "${trace.query.version}", check = false)
     private TraceQueryService traceQueryService;
+
+    /**
+     * Trace span sectional API URL
+     */
+    @Value("${trace.span.sectional.url}")
+    private String traceSpanSectionalUrl;
+
+    /**
+     * Trace query mode: http or dubbo
+     */
+    @Value("${trace.query.mode:dubbo}")
+    private String traceQueryMode;
 
     /**
      * The time range threshold for querying before and after the given timestamp.
@@ -65,18 +86,106 @@ public class TraceService {
     /**
      * Query trace based on the specified trace query conditions.
      *
-     * @param param
-     * @return
+     * @param param trace query parameters
+     * @return list of filtered spans
      */
     public List<Span> queryTraceRootAnalysis(TraceQueryParam param) {
-        Trace traceResult = traceQueryService.getByTraceId(buildTraceIdQueryVo(param));
-        List<Span> result = new ArrayList<>();
-        if (traceResult != null && traceResult.getSpans() != null && !traceResult.getSpans().isEmpty()) {
-            // analyze and cut span
-            List<Span> analyze = analyzeTrace(traceResult.getSpans(), TRACE_DEEP);
-            result = getSpansFilter(analyze);
+        // Check query mode configuration
+        if ("http".equalsIgnoreCase(traceQueryMode)) {
+            // Use HTTP API - return result directly without filtering (already filtered by API)
+            log.info("Using HTTP mode to query trace spans");
+            try {
+                List<Span> spans = querySpansBySectionalApi(param);
+                if (spans != null) {
+                    log.info("Successfully fetched {} spans from sectional API", spans.size());
+                    return spans;
+                } else {
+                    log.warn("HTTP API returned null, returning empty list");
+                    return new ArrayList<>();
+                }
+            } catch (Exception e) {
+                log.error("Failed to fetch spans from sectional API", e);
+                return new ArrayList<>();
+            }
+        } else {
+            // Use Dubbo mode - apply analysis and filtering logic
+            log.info("Using Dubbo mode to query trace spans");
+            Trace traceResult = traceQueryService.getByTraceId(buildTraceIdQueryVo(param));
+            List<Span> result = new ArrayList<>();
+            if (traceResult != null && traceResult.getSpans() != null && !traceResult.getSpans().isEmpty()) {
+                // analyze and cut span
+                List<Span> analyze = analyzeTrace(traceResult.getSpans(), TRACE_DEEP);
+                result = getSpansFilter(analyze);
+            }
+            return result;
         }
-        return result;
+    }
+
+    /**
+     * Query spans from the sectional API via HTTP
+     *
+     * @param param trace query parameters
+     * @return list of spans
+     */
+    private List<Span> querySpansBySectionalApi(TraceQueryParam param) {
+        try {
+            String url = buildSectionalApiUrl(param);
+            log.info("Calling sectional API: {}", url);
+
+            String response = HttpClient.get(url, new HashMap<>());
+            if (response == null || response.isEmpty()) {
+                log.error("Empty response from sectional API");
+                return null;
+            }
+
+            // Parse the JSON response into Result<List<Span>>
+            Gson gson = new Gson();
+            JsonObject jsonObject = gson.fromJson(response, JsonObject.class);
+
+            // Check if response is successful (code == 0 or code == 200)
+            if (jsonObject.has("code")) {
+                int code = jsonObject.get("code").getAsInt();
+                if (code != 0 && code != 200) {
+                    String message = jsonObject.has("message") ? jsonObject.get("message").getAsString() : "Unknown error";
+                    log.error("Failed to get spans from sectional API, code: {}, message: {}", code, message);
+                    return null;
+                }
+            }
+
+            // Extract data field and parse as List<Span>
+            if (jsonObject.has("data") && !jsonObject.get("data").isJsonNull()) {
+                TypeToken<List<Span>> typeToken = new TypeToken<List<Span>>() {};
+                List<Span> spans = gson.fromJson(jsonObject.get("data"), typeToken.getType());
+                return spans;
+            } else {
+                log.warn("No data field in response from sectional API");
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("Error calling sectional API", e);
+            return null;
+        }
+    }
+
+    /**
+     * Build the URL for the sectional API
+     *
+     * @param param trace query parameters
+     * @return complete URL with query parameters
+     */
+    private String buildSectionalApiUrl(TraceQueryParam param) {
+        try {
+            URIBuilder builder = new URIBuilder(traceSpanSectionalUrl);
+            builder.addParameter("traceId", param.getTraceId());
+            builder.addParameter("env", param.getEnv());
+            if(param.getTimeStamp() != null) {
+                builder.addParameter("time", String.valueOf(param.getTimeStamp()));
+            }
+            return builder.build().toString();
+        } catch (URISyntaxException e) {
+            log.error("Error building sectional API URL", e);
+            throw new RuntimeException("Failed to build sectional API URL", e);
+        }
     }
 
     /**

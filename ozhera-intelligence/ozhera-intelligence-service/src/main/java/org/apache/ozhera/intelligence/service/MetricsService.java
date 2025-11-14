@@ -18,7 +18,6 @@
  */
 package org.apache.ozhera.intelligence.service;
 
-import com.alibaba.nacos.api.config.annotation.NacosValue;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.utils.URIBuilder;
@@ -26,6 +25,7 @@ import org.apache.ozhera.intelligence.domain.rootanalysis.HeraRootCaseAnalyseRes
 import org.apache.ozhera.intelligence.domain.rootanalysis.MetricDataRangeSetVector;
 import org.apache.ozhera.intelligence.domain.rootanalysis.MetricRangeResponseVector;
 import org.apache.ozhera.intelligence.util.HttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.apache.ozhera.intelligence.domain.rootanalysis.MetricsQueryParam;
 
@@ -46,7 +46,7 @@ import static org.apache.ozhera.intelligence.util.CommitPoolUtil.HERA_SOLUTION_M
 @Slf4j
 public class MetricsService {
 
-    @NacosValue("${prometheus.api.url}")
+    @Value("${prometheus.api.url}")
     private String prometheusUrl;
 
     private static final String URI_QUERY_RANGE = "/api/v1/query_range";

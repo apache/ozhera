@@ -31,6 +31,7 @@ import org.apache.ozhera.log.agent.channel.ChannelService;
 import org.apache.ozhera.log.agent.channel.WildcardChannelServiceImpl;
 import org.apache.ozhera.log.agent.channel.file.FileMonitor;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
+import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
@@ -237,11 +238,21 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
 
     /**
      * Normal file change event handling
+     * Note: File deletion and inode change detection are handled by:
+     * - startDeletedFileCleanupTask() in ChannelServiceImpl (periodic cleanup)
+     * - reOpen() method in ChannelServiceImpl (inode change check)
      */
     private void ordinaryFileChanged(String changedFilePath) {
         for (Map.Entry<List<MonitorFile>, ChannelService> channelServiceEntry : pathChannelServiceMap.entrySet()) {
             for (MonitorFile monitorFile : channelServiceEntry.getKey()) {
                 if (monitorFile.getFilePattern().matcher(changedFilePath).matches()) {
+                    ChannelService service = channelServiceEntry.getValue();
+                    if (service == null) {
+                        log.warn("ChannelService is null for monitorFile:{}", monitorFile.getMonitorFileExpress());
+                        continue;
+                    }
+                    
+                    // Reopen file (inode change and file deletion are handled by reOpen() and periodic cleanup)
                     String reOpenFilePath = monitorFile.getRealFilePath();
                     /**
                      * OPENTELEMETRY Special processing of logs
@@ -255,13 +266,18 @@ public class DefaultFileMonitorListener implements FileMonitorListener {
                     }
                     log.info("【change file path reopen】started,changedFilePath:{},realFilePath:{},monitorFileExpress:{}",
                             changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress());
-                    channelServiceEntry.getValue().reOpen(reOpenFilePath);
-                    log.info("【end change file path】 end,changedFilePath:{},realFilePath:{},monitorFileExpress:{},InstanceId:{}",
-                            changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress(), channelServiceEntry.getValue().instanceId());
+                    try {
+                        service.reOpen(reOpenFilePath);
+                        log.info("【end change file path】 end,changedFilePath:{},realFilePath:{},monitorFileExpress:{},InstanceId:{}",
+                                changedFilePath, reOpenFilePath, monitorFile.getMonitorFileExpress(), service.instanceId());
+                    } catch (Exception e) {
+                        log.error("Error reopening file:{}", reOpenFilePath, e);
+                    }
                 }
             }
         }
     }
+
 
     /**
      * Special file suffix change event handling Through actual observation,

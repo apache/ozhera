@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
@@ -186,20 +187,74 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     // 清理无效的文件信息的方法
     private void cleanUpInvalidFileInfos() {
+        // Check for inode changes (files with same path but different inode)
+        checkAndShutdownInodeChangedReadListeners();
+
+        // Clean up FileInfoCache for files that no longer exist
         ConcurrentMap<String, FileInfo> caches = FileInfoCache.ins().caches();
 
         for (Iterator<Map.Entry<String, FileInfo>> iterator = caches.entrySet().iterator(); iterator.hasNext(); ) {
             Map.Entry<String, FileInfo> entry = iterator.next();
             FileInfo fileInfo = entry.getValue();
-            File file = new File(fileInfo.getFileName());
+            String filePath = fileInfo.getFileName();
+            String cacheKey = entry.getKey();
 
-            if (StringUtils.isEmpty(fileInfo.getFileName())) {
+            if (StringUtils.isEmpty(filePath)) {
                 continue;
             }
 
+            File file = new File(filePath);
+            // Check if file no longer exists
             if (!file.exists()) {
-                FileInfoCache.ins().remove(entry.getKey());
+                log.info("cleanUpInvalidFileInfos: file no longer exists, removing from cache, cacheKey:{}, filePath:{}", cacheKey, filePath);
+                FileInfoCache.ins().remove(cacheKey);
             }
+        }
+    }
+
+    // Check for inode changes: when a file with the same path is deleted and recreated with a new inode
+    // DefaultMonitorListener handles file deletion, but may not detect inode changes for files with the same path
+    private void checkAndShutdownInodeChangedReadListeners() {
+        try {
+            ConcurrentHashMap<String, com.xiaomi.mone.file.ozhera.HeraFile> fileMap = fileMonitor.getFileMap();
+            ConcurrentHashMap<Object, com.xiaomi.mone.file.ozhera.HeraFile> map = fileMonitor.getMap();
+            
+            List<ReadListener> listeners = defaultMonitorListener.getReadListenerList();
+            
+            for (ReadListener readListener : listeners) {
+                if (readListener instanceof com.xiaomi.mone.file.listener.OzHeraReadListener) {
+                    com.xiaomi.mone.file.listener.OzHeraReadListener ozHeraReadListener = 
+                            (com.xiaomi.mone.file.listener.OzHeraReadListener) readListener;
+                    com.xiaomi.mone.file.LogFile2 logFile = ozHeraReadListener.getLogFile();
+                    if (logFile == null) {
+                        continue;
+                    }
+                    
+                    String filePath = logFile.getFile();
+                    Object logFileKey = logFile.getFileKey();
+                    
+                    // Check if file path still exists in fileMap (may be new file with same path but different inode)
+                    com.xiaomi.mone.file.ozhera.HeraFile currentHeraFile = fileMap.get(filePath);
+                    
+                    // Shutdown old file handle if inode changed (same path, different inode)
+                    if (currentHeraFile != null && !Objects.equals(logFileKey, currentHeraFile.getFileKey())) {
+                        log.info("inode changed for path:{}, oldInode:{}, newInode:{}, shutting down old file handle",
+                                filePath, logFileKey, currentHeraFile.getFileKey());
+                        logFile.shutdown();
+                        // Remove old listener from readListenerMap (new file with same path has different inode)
+                        defaultMonitorListener.remove(logFileKey);
+                    } else if (currentHeraFile == null && ChannelUtil.isInodeChanged(channelMemory, filePath)) {
+                        // File removed from fileMap but ReadListener still exists, inode changed
+                        log.info("file removed from fileMap but inode changed, path:{}, oldInode:{}, shutting down old file handle",
+                                filePath, logFileKey);
+                        logFile.shutdown();
+                        // Remove listener from readListenerMap
+                        defaultMonitorListener.remove(logFileKey);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error checking and shutting down inode changed ReadListeners", e);
         }
     }
 

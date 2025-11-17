@@ -38,7 +38,7 @@
 + TraceService，取链路数据
 
 # 重要依赖
-会依赖小米开源的一款[Agent构建平台——m78](https://github.com/XiaoMi/mone/tree/master/m78-all)
+会依赖小米开源的一款[Agent平台——hive](https://github.com/XiaoMi/mone/tree/master/m78-all)
 
 
 # 智能化工作流程（时序图）

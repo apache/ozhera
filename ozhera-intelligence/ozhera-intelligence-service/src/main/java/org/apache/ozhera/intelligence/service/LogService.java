@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 public class LogService {
 
-    @DubboReference(interfaceClass = HeraLogApiService.class, group = "${log.query.group}", version = "${log.query.version}")
+    @DubboReference(interfaceClass = HeraLogApiService.class, group = "${log.query.group}", version = "${log.query.version}", check = false)
     private HeraLogApiService heraLogApiService;
 
     /**

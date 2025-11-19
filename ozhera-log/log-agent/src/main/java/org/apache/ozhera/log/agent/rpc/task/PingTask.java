@@ -23,10 +23,10 @@ import com.xiaomi.data.push.rpc.RpcCmd;
 import com.xiaomi.data.push.rpc.netty.ResponseFuture;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.data.push.task.Task;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.model.meta.AppLogMeta;
 import org.apache.ozhera.log.api.model.vo.PingReq;
 import org.apache.ozhera.log.utils.NetUtil;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,7 +66,10 @@ public class PingTask extends Task {
                     req.setBody(GSON.toJson(ping).getBytes());
                     client.sendMessage(service, req, PingTask::handleResponse);
                 }
-                RpcClient.startLatch.countDown();
+                //when there is no server, the agent will be blocked when it starts.
+                if (!client.getServerList().get().isEmpty()) {
+                    RpcClient.startLatch.countDown();
+                }
             } catch (Exception ex) {
                 log.error("ping error:{}", ex.getMessage());
             }

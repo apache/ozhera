@@ -217,25 +217,21 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             }
             
             // Check for file truncation (handles copytruncate log rotation)
-            checkFileTruncation(filePath, fileInfo);
+            checkFileTruncation(filePath);
         }
     }
 
     /**
      * Check if file has been truncated during runtime (handles copytruncate log rotation)
      */
-    private void checkFileTruncation(String filePath, FileInfo fileInfo) {
+    private void checkFileTruncation(String filePath) {
         try {
-            // Get saved pointer from ReadListener
+            // Get saved pointer from channelMemory
             long savedPointer = 0L;
-            for (ReadListener readListener : defaultMonitorListener.getReadListenerList()) {
-                if (readListener instanceof com.xiaomi.mone.file.listener.OzHeraReadListener) {
-                    com.xiaomi.mone.file.LogFile2 logFile = 
-                            ((com.xiaomi.mone.file.listener.OzHeraReadListener) readListener).getLogFile();
-                    if (logFile != null && filePath.equals(logFile.getFile())) {
-                        savedPointer = logFile.getPointer() != null ? logFile.getPointer() : 0L;
-                        break;
-                    }
+            if (channelMemory != null) {
+                ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(filePath);
+                if (fileProgress != null && fileProgress.getPointer() != null) {
+                    savedPointer = fileProgress.getPointer();
                 }
             }
             

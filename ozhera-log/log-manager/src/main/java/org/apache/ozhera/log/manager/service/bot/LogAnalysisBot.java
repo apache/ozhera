@@ -18,10 +18,16 @@
  */
 package org.apache.ozhera.log.manager.service.bot;
 
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.manager.model.bo.BotQAParam;
+import org.apache.ozhera.log.manager.model.bo.LogAiMessage;
+import org.nutz.log.Log;
 import run.mone.hive.Environment;
+import run.mone.hive.llm.CustomConfig;
 import run.mone.hive.llm.LLM;
 import run.mone.hive.llm.LLMProvider;
 import run.mone.hive.roles.Role;
@@ -33,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Slf4j
 public class LogAnalysisBot extends Role {
     private static String baseText = """
             ## 角色
@@ -56,7 +63,6 @@ public class LogAnalysisBot extends Role {
             - 可扩展性强：随着日志数据量和复杂性的增长，能够持续适应并提供有效分析。
             
             下面是你需要分析的日志内容或用户问题：
-            {{log_text}}
             """;
 
     public LogAnalysisBot() {
@@ -64,31 +70,121 @@ public class LogAnalysisBot extends Role {
         setEnvironment(new Environment());
     }
 
+    // 重试相关配置
+    private static final int MAX_RETRY_COUNT = 3;
+    private static final int INITIAL_RETRY_DELAY_MS = 1000;
+    private static final int MAX_RETRY_DELAY_MS = 5000;
+
+    private static final Gson GSON = new Gson();
+
     @Override
     public CompletableFuture<Message> run() {
+//        Message msg = this.rc.getNews().poll();
+//        String content = msg.getContent();
+//        String text = baseText.replace("{{log_text}}", content);
+//        JsonObject req = getReq(llm, text);
+//        List<AiMessage> messages = new ArrayList<>();
+//        messages.add(AiMessage.builder().jsonContent(req).build());
+//        String result = llm.syncChat(this, messages);
+
         Message msg = this.rc.getNews().poll();
         String content = msg.getContent();
-        String text = baseText.replace("{{log_text}}", content);
-        JsonObject req = getReq(llm, text);
+
+        JsonObject req = getReq(llm, content);
+
+        if (req == null) {
+            return null;
+        }
         List<AiMessage> messages = new ArrayList<>();
         messages.add(AiMessage.builder().jsonContent(req).build());
-        String result = llm.syncChat(this, messages);
 
+        // 添加重试逻辑
+        int retryCount = 0;
+        String result = null;
+        Exception lastException = null;
+
+        while (retryCount <= MAX_RETRY_COUNT) {
+            try {
+                if (retryCount > 0) {
+                    log.info("尝试第 {} 次调用LLM", retryCount);
+                    // 计算退避时间
+                    int delayMs = Math.min(INITIAL_RETRY_DELAY_MS * (1 << (retryCount - 1)), MAX_RETRY_DELAY_MS);
+                    log.info("等待 {} 毫秒后重试", delayMs);
+                    Thread.sleep(delayMs);
+                }
+
+                // 调用LLM
+                CustomConfig customConfig = new CustomConfig();
+                customConfig.setModel("gpt-5");
+                customConfig.addCustomHeader(CustomConfig.X_MODEL_PROVIDER_ID, "azure_openai");
+
+                StringBuilder responseBuilder = new StringBuilder();
+                llm.call(messages, "你是一个ai日志排查报告总结助手", customConfig).doOnNext(x -> {
+                    responseBuilder.append(x);
+                }).blockLast();
+                result = responseBuilder.toString().trim();
+
+                // 如果成功获取结果，跳出循环
+                if (StringUtils.isNotBlank(result)) {
+                    break;
+                }
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("LLM调用失败 (重试 {}/{}): {}", retryCount, MAX_RETRY_COUNT, e.getMessage());
+
+                // 如果是429错误（Too Many Requests），进行重试
+                if (e.getMessage() != null && e.getMessage().contains("429")) {
+                    retryCount++;
+                    continue;
+                } else {
+                    // 其他错误直接抛出
+                    log.error("LLM调用发生非429错误，不再重试: {}", e.getMessage());
+                    break;
+                }
+            }
+
+            retryCount++;
+        }
+
+        // 如果所有重试都失败，记录错误并返回空结果
+        if (result == null) {
+            String errorMsg = lastException != null ? lastException.getMessage() : "未知错误";
+            log.error("在 {} 次尝试后调用LLM仍然失败: {}", MAX_RETRY_COUNT, errorMsg);
+            result = ""; // 返回空字符串作为结果
+        }
         return CompletableFuture.completedFuture(Message.builder().content(result).build());
     }
 
-    private JsonObject getReq(LLM llm, String text) {
-        JsonObject req = new JsonObject();
-        if (llm.getConfig().getLlmProvider() == LLMProvider.CLAUDE_COMPANY) {
-            req.addProperty("role", "user");
-            JsonArray contentJsons = new JsonArray();
-            JsonObject obj1 = new JsonObject();
-            obj1.addProperty("type", "text");
-            obj1.addProperty("text", text);
-            contentJsons.add(obj1);
-            req.add("content", contentJsons);
+    private JsonObject getReq(LLM llm, String content) {
+        if(llm.getConfig().getLlmProvider() == LLMProvider.MIFY_GATEWAY){
+            List<LogAiMessage> logAiMessages = initMessageList();
+            BotQAParam botQAParam = GSON.fromJson(content, BotQAParam.class);
+            botQAParam.getHistoryConversation().forEach(history -> {
+                if (history.getUser() != null && !history.getUser().isBlank()){
+                    LogAiMessage userMessage = LogAiMessage.user(history.getUser());
+                    logAiMessages.add(userMessage);
+                }
+                if (history.getBot() != null && !history.getBot().isBlank()){
+                    LogAiMessage assistantMessage = LogAiMessage.assistant(history.getBot());
+                    logAiMessages.add(assistantMessage);
+                }
+
+            });
+            String latestQuestion = botQAParam.getLatestQuestion();
+            LogAiMessage userMessage = LogAiMessage.user(latestQuestion);
+            logAiMessages.add(userMessage);
+            return GSON.toJsonTree(logAiMessages).getAsJsonObject();
         }
-        return req;
+        return null;
     }
+
+    private List<LogAiMessage> initMessageList(){
+        List<LogAiMessage> messages = new ArrayList<>();
+        LogAiMessage userMessage = LogAiMessage.user(baseText);
+        messages.add(userMessage);
+        return messages;
+    }
+
+
 
 }

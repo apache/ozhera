@@ -118,8 +118,8 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             try {
                 BotQAParam param = new BotQAParam();
                 param.setLatestQuestion(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
-                String text = formatString(param);
-                analysisBot.getRc().news.put(Message.builder().content(text).build());
+                String paramJson = gson.toJson(param);
+                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
                 answer = result.getContent();
             } catch (Exception e) {
@@ -174,8 +174,8 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
                     BotQAParam param = new BotQAParam();
                     param.setHistoryConversation(modelHistory);
                     param.setLatestQuestion(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
-                    String text = formatString(param);
-                    analysisBot.getRc().news.put(Message.builder().content(gson.toJson(text)).build());
+                    String paramJson = gson.toJson(param);
+                    analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                     Message result = analysisBot.run().join();
                     answer = result.getContent();
 

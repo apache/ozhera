@@ -79,24 +79,21 @@ public class LogAnalysisBot extends Role {
 
     @Override
     public CompletableFuture<Message> run() {
-//        Message msg = this.rc.getNews().poll();
-//        String content = msg.getContent();
-//        String text = baseText.replace("{{log_text}}", content);
-//        JsonObject req = getReq(llm, text);
-//        List<AiMessage> messages = new ArrayList<>();
-//        messages.add(AiMessage.builder().jsonContent(req).build());
-//        String result = llm.syncChat(this, messages);
-
         Message msg = this.rc.getNews().poll();
         String content = msg.getContent();
 
-        JsonObject req = getReq(llm, content);
+        List<LogAiMessage> reqList = getReq(llm, content);
 
-        if (req == null) {
+        if (reqList == null || reqList.isEmpty()) {
             return null;
         }
-        List<AiMessage> messages = new ArrayList<>();
-        messages.add(AiMessage.builder().jsonContent(req).build());
+        List<AiMessage> messages = reqList.stream().map(m -> {
+            AiMessage aiMessage = new AiMessage();
+            LogAiMessage.Role role = m.getRole();
+            aiMessage.setRole(role.name());
+            aiMessage.setContent(m.getContent());
+            return aiMessage;
+        }).toList();
 
         // 添加重试逻辑
         int retryCount = 0;
@@ -155,25 +152,27 @@ public class LogAnalysisBot extends Role {
         return CompletableFuture.completedFuture(Message.builder().content(result).build());
     }
 
-    private JsonObject getReq(LLM llm, String content) {
+    private List<LogAiMessage> getReq(LLM llm, String content) {
         if(llm.getConfig().getLlmProvider() == LLMProvider.MIFY_GATEWAY){
             List<LogAiMessage> logAiMessages = initMessageList();
             BotQAParam botQAParam = GSON.fromJson(content, BotQAParam.class);
-            botQAParam.getHistoryConversation().forEach(history -> {
-                if (history.getUser() != null && !history.getUser().isBlank()){
-                    LogAiMessage userMessage = LogAiMessage.user(history.getUser());
-                    logAiMessages.add(userMessage);
-                }
-                if (history.getBot() != null && !history.getBot().isBlank()){
-                    LogAiMessage assistantMessage = LogAiMessage.assistant(history.getBot());
-                    logAiMessages.add(assistantMessage);
-                }
+            if (botQAParam.getHistoryConversation() != null && !botQAParam.getHistoryConversation().isEmpty()){
+                botQAParam.getHistoryConversation().forEach(history -> {
+                    if (history.getUser() != null && !history.getUser().isBlank()){
+                        LogAiMessage userMessage = LogAiMessage.user(history.getUser());
+                        logAiMessages.add(userMessage);
+                    }
+                    if (history.getBot() != null && !history.getBot().isBlank()){
+                        LogAiMessage assistantMessage = LogAiMessage.assistant(history.getBot());
+                        logAiMessages.add(assistantMessage);
+                    }
 
-            });
+                });
+            }
             String latestQuestion = botQAParam.getLatestQuestion();
             LogAiMessage userMessage = LogAiMessage.user(latestQuestion);
             logAiMessages.add(userMessage);
-            return GSON.toJsonTree(logAiMessages).getAsJsonObject();
+            return logAiMessages;
         }
         return null;
     }

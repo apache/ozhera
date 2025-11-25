@@ -34,4 +34,8 @@ public class LogAiMessage {
         aiMessage.setContent(content);
         return aiMessage;
     }
+
+    public String getContent(){
+        return this.content;
+    }
 }

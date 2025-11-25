@@ -920,6 +920,12 @@
                 <artifactId>hive-spring-starter</artifactId>
                 <version>1.6.0-jdk21-SNAPSHOT</version>
             </dependency>
+
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>3.3.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

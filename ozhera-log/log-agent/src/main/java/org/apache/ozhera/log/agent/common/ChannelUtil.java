@@ -193,7 +193,7 @@ public class ChannelUtil {
         if (StringUtils.isBlank(raw)) {
             raw = System.getProperty(key);
         }
-        if (StringUtils.isBlank(raw)) {
+        if (StringUtils.isBlank(raw) && null != config) {
             raw = config.get(key, "");
         }
         return raw;

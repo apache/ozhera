@@ -33,6 +33,8 @@ import org.apache.ozhera.log.agent.channel.file.InodeFileComparator;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
+import org.apache.ozhera.log.agent.channel.pipeline.Pipeline;
+import org.apache.ozhera.log.agent.channel.pipeline.RequestContext;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.agent.export.MsgExporter;
@@ -131,12 +133,17 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private String linePrefix;
 
-    public ChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService, ChannelDefine channelDefine, FilterChain chain) {
+
+    private Pipeline pipeline;
+
+    public ChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
+                              ChannelDefine channelDefine, FilterChain chain, Pipeline pipeline) {
         this.memoryService = memoryService;
         this.msgExporter = msgExporter;
         this.channelDefine = channelDefine;
         this.chain = chain;
         this.monitorFileList = Lists.newArrayList();
+        this.pipeline = pipeline;
     }
 
     @Override
@@ -263,7 +270,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     cleanFile(path::equals);
                     continue;
                 }
-                
+
                 if (ChannelUtil.isInodeChanged(channelMemory, path)) {
                     Long[] inodeInfo = ChannelUtil.getInodeInfo(channelMemory, path);
                     log.info("deleted file cleanup trigger for inode changed path:{}, oldInode:{}, newInode:{}",
@@ -470,6 +477,10 @@ public class ChannelServiceImpl extends AbstractChannelService {
     }
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
+        RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
+        if (pipeline.invoke(requestContext)) {
+            return;
+        }
         LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ct);
 
         updateChannelMemory(channelMemory, pattern, logTypeEnum, ct, readResult);
@@ -665,7 +676,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                             filePath, gson.toJson(memoryUnixFileNode), gson.toJson(currentUnixFileNode));
                 }
             }
-            
+
             // Check if pointer exceeds file length (file may have been truncated but inode unchanged)
             // This handles the case where log rotation truncates the file without changing inode
             java.io.File file = new java.io.File(filePath);

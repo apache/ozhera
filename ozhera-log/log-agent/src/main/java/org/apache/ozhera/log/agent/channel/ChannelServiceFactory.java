@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
+import org.apache.ozhera.log.agent.channel.pipeline.Pipeline;
 import org.apache.ozhera.log.agent.export.MsgExporter;
 import org.apache.ozhera.log.agent.filter.FilterChain;
 import org.apache.ozhera.log.agent.input.Input;
@@ -30,7 +31,6 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COMMA;
@@ -67,8 +67,8 @@ public class ChannelServiceFactory {
         return CollectionUtils.isNotEmpty(multiSpecialFileSuffix) && logPattern.contains("*") && multiSpecialFileSuffix.stream().anyMatch(logPattern::endsWith);
     }
 
-    public ChannelService createChannelService(ChannelDefine channelDefine,
-                                               MsgExporter exporter, FilterChain filterChain) {
+    public ChannelService createChannelService(ChannelDefine channelDefine, MsgExporter exporter,
+                                               FilterChain filterChain, Pipeline pipeline) {
         if (channelDefine == null || channelDefine.getInput() == null) {
             throw new IllegalArgumentException("Channel define or input cannot be null");
         }
@@ -78,18 +78,18 @@ public class ChannelServiceFactory {
         String logPattern = input.getLogPattern();
 
         if (isSpecialFilePath(logPattern)) {
-            return createStandardChannelService(exporter, channelDefine, filterChain);
+            return createStandardChannelService(exporter, channelDefine, filterChain, pipeline);
         }
 
         if (LogTypeEnum.OPENTELEMETRY == LogTypeEnum.name2enum(logType) || FileUtil.exist(logPattern)) {
-            return createStandardChannelService(exporter, channelDefine, filterChain);
+            return createStandardChannelService(exporter, channelDefine, filterChain, pipeline);
         }
 
         if (shouldUseWildcardService(logPattern)) {
-            return createWildcardChannelService(exporter, channelDefine, filterChain);
+            return createWildcardChannelService(exporter, channelDefine, filterChain, pipeline);
         }
 
-        return createStandardChannelService(exporter, channelDefine, filterChain);
+        return createStandardChannelService(exporter, channelDefine, filterChain, pipeline);
     }
 
     private boolean shouldUseWildcardService(String logPattern) {
@@ -134,15 +134,15 @@ public class ChannelServiceFactory {
         return false;
     }
 
-    private ChannelService createStandardChannelService(MsgExporter exporter,
-                                                        ChannelDefine channelDefine, FilterChain filterChain) {
+    private ChannelService createStandardChannelService(MsgExporter exporter, ChannelDefine channelDefine,
+                                                        FilterChain filterChain, Pipeline pipeline) {
         return new ChannelServiceImpl(exporter, agentMemoryService,
-                channelDefine, filterChain);
+                channelDefine, filterChain, pipeline);
     }
 
-    private ChannelService createWildcardChannelService(MsgExporter exporter,
-                                                        ChannelDefine channelDefine, FilterChain filterChain) {
+    private ChannelService createWildcardChannelService(MsgExporter exporter, ChannelDefine channelDefine,
+                                                        FilterChain filterChain, Pipeline pipeline) {
         return new WildcardChannelServiceImpl(exporter, agentMemoryService,
-                channelDefine, filterChain, memoryBasePath);
+                channelDefine, filterChain, memoryBasePath, pipeline);
     }
 }

@@ -46,7 +46,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class CodeFixTool implements ITool {
+public class RootExceptionSpanTool implements ITool {
 
     @Value("${server.type}")
     private String env;
@@ -54,7 +54,7 @@ public class CodeFixTool implements ITool {
     /**
      * Tool name
      */
-    public static final String name = "code_fix";
+    public static final String name = "root_exception_span";
 
     /**
      * Trace service for querying spans
@@ -124,10 +124,10 @@ public class CodeFixTool implements ITool {
             taskProgress = "";
         }
         return """
-                <code_fix>
+                <root_exception_span>
                 <traceId>32位追踪ID</traceId>
                 %s
-                </code_fix>
+                </root_exception_span>
                 """.formatted(taskProgress);
     }
 
@@ -135,9 +135,9 @@ public class CodeFixTool implements ITool {
     public String example() {
         return """
                 示例: 分析异常trace并提取修复信息
-                <code_fix>
+                <root_exception_span>
                 <traceId>a1b2c3d4e5f6789012345678abcdef01</traceId>
-                </code_fix>
+                </root_exception_span>
                 """;
     }
 
@@ -148,7 +148,7 @@ public class CodeFixTool implements ITool {
         try {
             // Validate required parameter
             if (!inputJson.has("traceId") || StringUtils.isBlank(inputJson.get("traceId").getAsString())) {
-                log.error("code_fix operation missing required parameter traceId");
+                log.error("root_exception_span operation missing required parameter traceId");
                 result.addProperty("error", "缺少必填参数 'traceId'");
                 return result;
             }
@@ -236,7 +236,7 @@ public class CodeFixTool implements ITool {
             return result;
 
         } catch (Exception e) {
-            log.error("Error executing code_fix operation", e);
+            log.error("Error executing root_exception_span operation", e);
             result.addProperty("error", "代码修复分析失败：" + e.getMessage());
             result.addProperty("success", false);
             return result;

@@ -19,7 +19,7 @@
 package org.apache.ozhera.intelligence.agents.config;
 
 import com.google.common.collect.Lists;
-import org.apache.ozhera.intelligence.agents.tool.CodeFixTool;
+import org.apache.ozhera.intelligence.agents.tool.RootExceptionSpanTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +30,7 @@ import run.mone.hive.roles.tool.*;
 import run.mone.mcp.git.tool.GitCloneTool;
 import run.mone.mcp.git.tool.GitCommitTool;
 import run.mone.mcp.git.tool.GitPushTool;
+import run.mone.mcp.hera.analysis.tool.LogQueryTool;
 import run.mone.mcp.miline.tools.GetPipelineDetailTool;
 import run.mone.mcp.miline.tools.RunPipelineTool;
 
@@ -41,7 +42,7 @@ public class AgentConfig {
     private String agentName;
 
     @Autowired
-    private CodeFixTool codeFixTool;
+    private RootExceptionSpanTool codeFixTool;
 
     @Autowired
     private GitCloneTool gitCloneTool;
@@ -49,6 +50,8 @@ public class AgentConfig {
     private GitCommitTool gitCommitTool;
     @Autowired
     private GitPushTool gitPushTool;
+    @Autowired
+    private LogQueryTool logQueryTool;
 
     private boolean isRemoteFile = false;
 
@@ -82,16 +85,18 @@ public class AgentConfig {
                         new GetPipelineDetailTool(),
                         gitCloneTool,
                         gitCommitTool,
-                        gitPushTool
+                        gitPushTool,
+                        logQueryTool
                 ))
                 //mcp工具
                 .mcpTools(Lists.newArrayList(chat))
                 .workflow("""
                     你是代码级自动异常修复系统，严格按照以下步骤执行： 
                         1、根据traceId获取链路上根因节点的项目信息与异常信息 
+                        2、查询对应project和流水线最近半小时的该traceId的全部日志
                         2、根据根因节点的projectId和envId获取流水线详情 
                         3、根据流水线详情中的gitUrl、gitBranch、gitCommitId调用git_clone工具进行git clone 
-                        4、根据trace链路上的异常信息，结合项目代码进行异常修复 
+                        4、根据trace链路上的异常信息或者是日志中的信息，结合项目代码进行异常修复 
                         5、修复完成后，将本地代码使用git_commit工具进行git commit，commit信息是自动代码修复, 使用git_push进行git push 
                         6、根据projectId和envId调用RunPipelineTool进行发布
                 """)

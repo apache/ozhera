@@ -19,9 +19,10 @@
 package org.apache.ozhera.log.agent.common;
 
 import com.google.common.collect.Lists;
-import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
+import com.xiaomi.youpin.docean.plugin.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -112,15 +113,15 @@ public class ChannelUtil {
         if (channelMemory == null || channelMemory.getFileProgressMap() == null) {
             return null;
         }
-        
+
         ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(filePath);
         if (fileProgress == null || fileProgress.getUnixFileNode() == null) {
             return null;
         }
-        
+
         ChannelMemory.UnixFileNode memoryInode = fileProgress.getUnixFileNode();
         ChannelMemory.UnixFileNode currentInode = buildUnixFileNode(filePath);
-        
+
         return new ChannelMemory.UnixFileNode[]{memoryInode, currentInode};
     }
 
@@ -136,12 +137,12 @@ public class ChannelUtil {
         if (inodePair == null) {
             return false;
         }
-        
+
         ChannelMemory.UnixFileNode memoryInode = inodePair[0];
         ChannelMemory.UnixFileNode currentInode = inodePair[1];
-        
+
         return memoryInode.getSt_ino() != null && currentInode.getSt_ino() != null &&
-               !java.util.Objects.equals(memoryInode.getSt_ino(), currentInode.getSt_ino());
+                !java.util.Objects.equals(memoryInode.getSt_ino(), currentInode.getSt_ino());
     }
 
     /**
@@ -156,10 +157,10 @@ public class ChannelUtil {
         if (inodePair == null) {
             return null;
         }
-        
+
         ChannelMemory.UnixFileNode memoryInode = inodePair[0];
         ChannelMemory.UnixFileNode currentInode = inodePair[1];
-        
+
         if (memoryInode.getSt_ino() != null && currentInode.getSt_ino() != null) {
             return new Long[]{memoryInode.getSt_ino(), currentInode.getSt_ino()};
         }
@@ -179,6 +180,23 @@ public class ChannelUtil {
             }
         }
         return count;
+    }
+
+    /**
+     * 获取配置,先从环境变量中获取,再从系统属性中获取,最后从配置文件中获取
+     * @param key 配置的key
+     * @param config 配置对象
+     * @return 配置的值
+     */
+    public static String getConfig(String key, Config config) {
+        String raw = System.getenv(key);
+        if (StringUtils.isBlank(raw)) {
+            raw = System.getProperty(key);
+        }
+        if (StringUtils.isBlank(raw)) {
+            raw = config.get(key, "");
+        }
+        return raw;
     }
 
 }

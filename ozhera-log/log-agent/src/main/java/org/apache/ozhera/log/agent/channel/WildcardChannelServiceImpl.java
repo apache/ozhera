@@ -35,6 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.file.MonitorFile;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.channel.memory.ChannelMemory;
+import org.apache.ozhera.log.agent.channel.pipeline.Pipeline;
+import org.apache.ozhera.log.agent.channel.pipeline.RequestContext;
 import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.agent.export.MsgExporter;
@@ -49,11 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -115,13 +113,17 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     private final Map<String, Long> fileTruncationCheckMap = new ConcurrentHashMap<>();
 
 
+    private Pipeline pipeline;
+
     public WildcardChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
-                                      ChannelDefine channelDefine, FilterChain chain, String memoryBasePath) {
+                                      ChannelDefine channelDefine, FilterChain chain,
+                                      String memoryBasePath, Pipeline pipeline) {
         this.memoryService = memoryService;
         this.msgExporter = msgExporter;
         this.channelDefine = channelDefine;
         this.chain = chain;
         this.memoryBasePath = memoryBasePath;
+        this.pipeline = pipeline;
     }
 
     @Override
@@ -278,24 +280,24 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         try {
             ConcurrentHashMap<String, com.xiaomi.mone.file.ozhera.HeraFile> fileMap = fileMonitor.getFileMap();
             ConcurrentHashMap<Object, com.xiaomi.mone.file.ozhera.HeraFile> map = fileMonitor.getMap();
-            
+
             List<ReadListener> listeners = defaultMonitorListener.getReadListenerList();
-            
+
             for (ReadListener readListener : listeners) {
                 if (readListener instanceof com.xiaomi.mone.file.listener.OzHeraReadListener) {
-                    com.xiaomi.mone.file.listener.OzHeraReadListener ozHeraReadListener = 
+                    com.xiaomi.mone.file.listener.OzHeraReadListener ozHeraReadListener =
                             (com.xiaomi.mone.file.listener.OzHeraReadListener) readListener;
                     com.xiaomi.mone.file.LogFile2 logFile = ozHeraReadListener.getLogFile();
                     if (logFile == null) {
                         continue;
                     }
-                    
+
                     String filePath = logFile.getFile();
                     Object logFileKey = logFile.getFileKey();
-                    
+
                     // Check if file path still exists in fileMap (may be new file with same path but different inode)
                     com.xiaomi.mone.file.ozhera.HeraFile currentHeraFile = fileMap.get(filePath);
-                    
+
                     // Shutdown old file handle if inode changed (same path, different inode)
                     if (currentHeraFile != null && !Objects.equals(logFileKey, currentHeraFile.getFileKey())) {
                         log.info("inode changed for path:{}, oldInode:{}, newInode:{}, shutting down old file handle",
@@ -442,6 +444,10 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     }
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String patternCode, long ct) {
+        RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
+        if (pipeline.invoke(requestContext)) {
+            return;
+        }
         String filePathName = readResult.get().getFilePathName();
         LineMessage lineMessage = createLineMessage(lineMsg, readResult, filePathName, patternCode, ct);
         updateChannelMemory(channelMemory, filePathName, getLogTypeEnum(), ct, readResult);

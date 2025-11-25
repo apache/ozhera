@@ -49,6 +49,12 @@ public class ExecutorUtil {
         return STP_EXECUTOR.scheduleAtFixedRate(command, initialDelay, period, unit);
     }
 
+    public static ScheduledFuture<?> schedule(Runnable command,
+                                              long delay,
+                                              TimeUnit unit) {
+        return STP_EXECUTOR.schedule(command, delay, unit);
+    }
+
     public static ExecutorService createPool(String name) {
         String configValue = ConfigUtils.getConfigValue("jdk.virtualThreadScheduler.parallelism");
         if (StringUtils.isEmpty(configValue) || Objects.equals("-1", configValue)) {

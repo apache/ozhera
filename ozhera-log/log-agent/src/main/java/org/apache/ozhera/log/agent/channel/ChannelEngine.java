@@ -42,6 +42,8 @@ import org.apache.ozhera.log.agent.channel.locator.ChannelDefineLocator;
 import org.apache.ozhera.log.agent.channel.locator.ChannelDefineRpcLocator;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryServiceImpl;
+import org.apache.ozhera.log.agent.channel.pipeline.Pipeline;
+import org.apache.ozhera.log.agent.common.ChannelUtil;
 import org.apache.ozhera.log.agent.common.ExecutorUtil;
 import org.apache.ozhera.log.agent.export.MsgExporter;
 import org.apache.ozhera.log.agent.factory.OutPutServiceFactory;
@@ -89,7 +91,11 @@ public class ChannelEngine {
 
     private ChannelServiceFactory channelServiceFactory;
 
+    private Pipeline pipeline;
+
     private String memoryBasePath;
+
+    private Config config;
 
     private final Gson gson = GSON;
 
@@ -112,7 +118,7 @@ public class ChannelEngine {
     public void init() {
         List<Long> failedChannelId = Lists.newArrayList();
         try {
-            Config config = Ioc.ins().getBean(Config.class.getName());
+            config = Ioc.ins().getBean(Config.class.getName());
             memoryBasePath = config.get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH);
             //talosProducerMap = new ConcurrentHashMap<>(512);
 
@@ -121,6 +127,7 @@ public class ChannelEngine {
             log.info("current agent all config meta:{}", gson.toJson(channelDefineList));
             agentMemoryService = new AgentMemoryServiceImpl(memoryBasePath);
             fileMonitorListener = new DefaultFileMonitorListener();
+            pipeline = new Pipeline();
 
             channelServiceFactory = new ChannelServiceFactory(agentMemoryService, memoryBasePath);
 
@@ -128,7 +135,7 @@ public class ChannelEngine {
             channelServiceList = channelDefineList.parallelStream()
                     .filter(channelDefine -> filterCollStart(channelDefine.getAppName()))
                     .map(channelDefine -> {
-                        ChannelService channelService = this.channelServiceTrans(channelDefine);
+                        ChannelService channelService = this.channelServiceTrans(channelDefine, pipeline);
                         if (null == channelService) {
                             failedChannelId.add(channelDefine.getChannelId());
                         }
@@ -155,10 +162,7 @@ public class ChannelEngine {
     }
 
     private void resolveCompressEnabled() {
-        String raw = System.getenv(COMPRESS_KEY);
-        if (StringUtils.isBlank(raw)) {
-            raw = System.getProperty(COMPRESS_KEY);
-        }
+        String raw = ChannelUtil.getConfig(COMPRESS_KEY, config);
         if (StringUtils.isNotBlank(raw)) {
             try {
                 progressCompressValue = Boolean.parseBoolean(raw);
@@ -237,11 +241,7 @@ public class ChannelEngine {
     }
 
     private long resolvePeriodSeconds() {
-        String raw = System.getenv(PROGRESS_ENV_KEY);
-        if (StringUtils.isBlank(raw)) {
-            raw = System.getProperty(PROGRESS_ENV_KEY);
-        }
-
+        String raw = ChannelUtil.getConfig(PROGRESS_ENV_KEY, config);
         if (StringUtils.isBlank(raw)) {
             return DEFAULT_PERIOD_SECONDS;
         }
@@ -301,7 +301,7 @@ public class ChannelEngine {
         }));
     }
 
-    private ChannelService channelServiceTrans(ChannelDefine channelDefine) {
+    private ChannelService channelServiceTrans(ChannelDefine channelDefine, Pipeline pipeline) {
         try {
             preCheckChannelDefine(channelDefine);
             Output output = channelDefine.getOutput();
@@ -316,7 +316,7 @@ public class ChannelEngine {
                 agentMemoryService = new AgentMemoryServiceImpl(org.apache.ozhera.log.common.Config.ins().get("agent.memory.path", AgentMemoryService.DEFAULT_BASE_PATH));
             }
             log.info("channelServiceTrans,channelDefine,channelId:{}", channelDefine.getChannelId());
-            return channelServiceFactory.createChannelService(channelDefine, exporter, filterChain);
+            return channelServiceFactory.createChannelService(channelDefine, exporter, filterChain, pipeline);
         } catch (Throwable e) {
             log.error("channelServiceTrans exception, channelDefine:{}", gson.toJson(channelDefine), e);
         }
@@ -626,7 +626,7 @@ public class ChannelEngine {
     private List<ChannelDefine> intersection(List<ChannelDefine> origin, List<ChannelDefine> source) {
         List<Long> sourceIds = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(source)) {
-            sourceIds = source.stream().map(ChannelDefine::getChannelId).collect(Collectors.toList());
+            sourceIds = source.stream().map(ChannelDefine::getChannelId).toList();
         }
         List<Long> finalSourceIds = sourceIds;
         return origin.stream().filter(channelDefine -> finalSourceIds.contains(channelDefine.getChannelId()) && OperateEnum.DELETE_OPERATE != channelDefine.getOperateEnum()).collect(Collectors.toList());
@@ -643,7 +643,7 @@ public class ChannelEngine {
                 .filter(Objects::nonNull)
                 .filter(channelDefine -> filterCollStart(channelDefine.getAppName()))
                 .map(channelDefine -> {
-                    ChannelService channelService = channelServiceTrans(channelDefine);
+                    ChannelService channelService = channelServiceTrans(channelDefine, pipeline);
                     if (null == channelService) {
                         failedChannelId.add(channelDefine.getChannelId());
                     }

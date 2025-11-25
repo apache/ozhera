@@ -108,6 +108,11 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     private DefaultMonitorListener defaultMonitorListener;
 
     private HeraFileMonitor fileMonitor;
+    
+    /**
+     * Track file truncation check time to avoid duplicate handling
+     */
+    private final Map<String, Long> fileTruncationCheckMap = new ConcurrentHashMap<>();
 
 
     public WildcardChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
@@ -208,10 +213,65 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             if (!file.exists()) {
                 log.info("cleanUpInvalidFileInfos: file no longer exists, removing from cache, cacheKey:{}, filePath:{}", cacheKey, filePath);
                 FileInfoCache.ins().remove(cacheKey);
+                continue;
             }
+            
+            // Check for file truncation (handles copytruncate log rotation)
+            checkFileTruncation(filePath);
         }
     }
 
+    /**
+     * Check if file has been truncated during runtime (handles copytruncate log rotation)
+     */
+    private void checkFileTruncation(String filePath) {
+        try {
+            // Get saved pointer from channelMemory
+            long savedPointer = 0L;
+            if (channelMemory != null) {
+                ChannelMemory.FileProgress fileProgress = channelMemory.getFileProgressMap().get(filePath);
+                if (fileProgress != null && fileProgress.getPointer() != null) {
+                    savedPointer = fileProgress.getPointer();
+                }
+            }
+            
+            if (savedPointer <= 0) {
+                return;
+            }
+            
+            File file = new File(filePath);
+            if (!file.exists() || savedPointer <= file.length()) {
+                return;
+            }
+            
+            long lastCheckTime = fileTruncationCheckMap.getOrDefault(filePath, 0L);
+            long currentTime = System.currentTimeMillis();
+            long currentFileLength = file.length();
+            boolean isImmediateTruncation = currentFileLength == 0 || currentFileLength < savedPointer * 0.1;
+            
+            if (isImmediateTruncation || (lastCheckTime > 0 && (currentTime - lastCheckTime) > 15000)) {
+                log.warn("File truncation detected: pointer {} > length {} for file:{}, restarting read",
+                        savedPointer, currentFileLength, filePath);
+                
+                // Shutdown and restart ReadListener for this file
+                for (ReadListener readListener : defaultMonitorListener.getReadListenerList()) {
+                    if (readListener instanceof com.xiaomi.mone.file.listener.OzHeraReadListener) {
+                        com.xiaomi.mone.file.LogFile2 logFile = 
+                                ((com.xiaomi.mone.file.listener.OzHeraReadListener) readListener).getLogFile();
+                        if (logFile != null && filePath.equals(logFile.getFile())) {
+                            logFile.shutdown();
+                            defaultMonitorListener.remove(logFile.getFileKey());
+                            break;
+                        }
+                    }
+                }
+            }
+            fileTruncationCheckMap.put(filePath, currentTime);
+        } catch (Exception e) {
+            log.debug("Error checking file truncation for path:{}", filePath, e);
+        }
+    }
+    
     // Check for inode changes: when a file with the same path is deleted and recreated with a new inode
     // DefaultMonitorListener handles file deletion, but may not detect inode changes for files with the same path
     private void checkAndShutdownInodeChangedReadListeners() {
@@ -522,5 +582,6 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             fileCollFuture.cancel(false);
         }
         lineMessageList.clear();
+        fileTruncationCheckMap.clear();
     }
 }

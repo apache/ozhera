@@ -28,6 +28,7 @@ import run.mone.hive.common.AiTemplate;
 import run.mone.hive.common.MultiXmlParser;
 import run.mone.hive.common.ToolDataInfo;
 import run.mone.hive.configs.LLMConfig;
+import run.mone.hive.llm.CustomConfig;
 import run.mone.hive.llm.LLM;
 import run.mone.hive.llm.LLMProvider;
 
@@ -42,7 +43,18 @@ public class PromptService {
 
     @PostConstruct
     private void init() {
-        llm = new LLM(LLMConfig.builder().llmProvider(LLMProvider.valueOf(System.getenv("LLM_PROVIDER"))).build());
+        LLMProvider llmProvider = LLMProvider.valueOf(System.getenv("LLM_PROVIDER"));
+        LLMConfig config = LLMConfig.builder().llmProvider(llmProvider).build();
+        llm = new LLM(config);
+        // 为 MIFY_GATEWAY 设置环境变量中的配置
+        if (llmProvider == LLMProvider.MIFY_GATEWAY) {
+            config.setUrl(System.getenv("MIFY_GATEWAY_URL"));
+            config.setToken(System.getenv("MIFY_API_KEY"));
+            CustomConfig customConfig = new CustomConfig();
+            customConfig.setModel(System.getenv("MIFY_MODEL"));
+            customConfig.addCustomHeader(CustomConfig.X_MODEL_PROVIDER_ID, System.getenv("MIFY_MODEL_PROVIDER_ID"));
+            config.setCustomConfig(customConfig);
+        }
     }
 
     /**

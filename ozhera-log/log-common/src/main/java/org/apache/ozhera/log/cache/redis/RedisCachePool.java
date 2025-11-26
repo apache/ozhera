@@ -25,47 +25,47 @@ import org.apache.ozhera.log.cache.util.CachePool;
 public interface RedisCachePool extends CachePool {
 
     /**
-     * @return 当前{@link CachePool}的maxTotal
+     * @return current{@link CachePool}的maxTotal
      */
     int getMaxTotal();
 
     /**
-     * @return 当前{@link CachePool}的maxIdle
+     * @return current{@link CachePool}的maxIdle
      */
     int getMaxIdle();
 
     /**
-     * @return 当前{@link CachePool}的minIdle
+     * @return current{@link CachePool}的minIdle
      */
     int getMinIdle();
 
     /**
-     * @return 当前{@link CachePool}的maxWaitMillis
+     * @return current{@link CachePool}的maxWaitMillis
      */
     long getMaxWaitMillis();
 
     /**
-     * @return 当前{@link CachePool}的connectionTimeout
+     * @return current{@link CachePool}的connectionTimeout
      */
     int getConnTimeout();
 
     /**
-     * @return 当前{@link CachePool}的socketTimeout
+     * @return current{@link CachePool}的socketTimeout
      */
     int getSocketTimeout();
 
     /**
-     * @return 当前{@link CachePool}的minEvictableIdleTimeMillis
+     * @return current{@link CachePool}的minEvictableIdleTimeMillis
      */
     long getMinEvictableIdleTimeMillis();
 
     /**
-     * @return 当前{@link CachePool}的maxAttempts
+     * @return current{@link CachePool}的maxAttempts
      */
     int getMaxAttempts();
 
     /**
-     * @return 当前{@link CachePool}的password
+     * @return current{@link CachePool}的password
      */
     String getPassword();
 }

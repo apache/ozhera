@@ -208,7 +208,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             param.setHistoryConversation(modelHistory);
             param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
             String paramJson = gson.toJson(param);
-            if (TOKENIZER.countTokens(paramJson) < 7000) {
+            if (TOKENIZER.countTokens(paramJson) < 70000) {
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
                 String answer = result.getContent();
@@ -420,10 +420,10 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
     private static Integer compressIndex(List<BotQAParam.QAParam> paramList, List<BotQAParam.QAParam> originalList) {
         String modelJson = gson.toJson(paramList);
         int count = TOKENIZER.countTokens(modelJson);
-        if (count <= 15000) {
+        if (count <= 50000) {
             return 0;
         }
-        int limit = 5000;
+        int limit = 20000;
         int sum = 0;
         int index = originalList.size();
         for (int i = originalList.size() - 1; i >= 0; i--) {

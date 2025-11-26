@@ -28,19 +28,15 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RedisCachePoolImpl implements RedisCachePool{
-    /**
-     * 给@{link Node}排序用
-     */
+
     private static Comparator<Node> nodeComparator =
             new Comparator<Node>() {
                 @Override
                 public int compare(Node n1, Node n2) {
-                    // 先比hostname
                     int cmp = n1.getHostname().compareTo(n2.getHostname());
                     if (cmp != 0) {
                         return cmp;
                     }
-                    // 再比port
                     if (n1.getPort() < n2.getPort()) {
                         return -1;
                     } else if (n1.getPort() > n2.getPort()) {
@@ -183,7 +179,7 @@ public class RedisCachePoolImpl implements RedisCachePool{
     }
 
     /**
-     * 向池中添加一个节点
+     * add a node to pool
      *
      * @param node
      */
@@ -203,7 +199,7 @@ public class RedisCachePoolImpl implements RedisCachePool{
     }
 
     /**
-     * 比较两组节点是否相同。只要数据相同就可以，与顺序无关。
+     * Compare whether the two groups of nodes are the same. As long as the data are the same, it doesn't matter about the order.
      *
      * @param nodes1
      * @param nodes2

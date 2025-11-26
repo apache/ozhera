@@ -129,7 +129,7 @@ public class RedisClientFactory {
             log.error("Failed to init redis cluster");
         }
 
-        // 拼接namespace+'#'+poolName的方式作为pool的name，防止XCache中多个namespace共用pool导致的问题
+
         RedisCachePoolImpl pool =
                 new RedisCachePoolImpl(
                         poolName,

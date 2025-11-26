@@ -16,23 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.bootstrap;
-
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-
-@EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.apache.ozhera.intelligence", "run.mone.mcp.git", "run.mone.mcp.hera.analysis.tool", "run.mone.mcp.hera.analysis.service"})
-@Slf4j
-public class IntelligenceBootStrap {
-    public static void main(String... args) {
-        try {
-            SpringApplication.run(IntelligenceBootStrap.class, args);
-        } catch (Throwable throwable) {
-            log.error(throwable.getMessage(), throwable);
-            System.exit(-1);
-        }
-    }
-}
+/**
+ * @author wtt
+ * @date 2025/11/21 15:04
+ * @version 1.0
+ *
+ * 日志过滤器链，这个过滤器使用了pipeline模式,参考了tomcat的过滤器链,通过SPI机制,
+ * 将日志过滤器加入到过滤器链中，并实现日志过滤器接口，实现日志过滤逻辑
+ */
+package org.apache.ozhera.log.agent.channel.pipeline;

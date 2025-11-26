@@ -16,23 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.bootstrap;
+package org.apache.ozhera.log.agent.channel.pipeline;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+/**
+ * @author wtt
+ * @date 2025/11/21 15:08
+ * @version 1.0
+ */
+public interface Valve extends Comparable<Valve> {
 
-@EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.apache.ozhera.intelligence", "run.mone.mcp.git", "run.mone.mcp.hera.analysis.tool", "run.mone.mcp.hera.analysis.service"})
-@Slf4j
-public class IntelligenceBootStrap {
-    public static void main(String... args) {
-        try {
-            SpringApplication.run(IntelligenceBootStrap.class, args);
-        } catch (Throwable throwable) {
-            log.error(throwable.getMessage(), throwable);
-            System.exit(-1);
-        }
+    boolean invoke(RequestContext ctx);
+
+    default boolean shouldExecute(RequestContext ctx) {
+        return true;
+    }
+
+    int getOrder();
+
+    @Override
+    default int compareTo(Valve o) {
+        return Integer.compare(this.getOrder(), o.getOrder());
     }
 }

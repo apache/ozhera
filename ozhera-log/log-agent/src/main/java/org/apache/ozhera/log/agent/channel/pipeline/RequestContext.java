@@ -16,23 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.intelligence.bootstrap;
+package org.apache.ozhera.log.agent.channel.pipeline;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import com.xiaomi.mone.file.ReadResult;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.ozhera.log.agent.channel.ChannelDefine;
 
-@EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.apache.ozhera.intelligence", "run.mone.mcp.git", "run.mone.mcp.hera.analysis.tool", "run.mone.mcp.hera.analysis.service"})
-@Slf4j
-public class IntelligenceBootStrap {
-    public static void main(String... args) {
-        try {
-            SpringApplication.run(IntelligenceBootStrap.class, args);
-        } catch (Throwable throwable) {
-            log.error(throwable.getMessage(), throwable);
-            System.exit(-1);
-        }
-    }
+/**
+ * @author wtt
+ * @date 2025/11/21 15:09
+ * @version 1.0
+ */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RequestContext {
+    private ChannelDefine channelDefine;
+    private ReadResult readResult;
+    private String lineMsg;
 }

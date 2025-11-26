@@ -229,6 +229,7 @@ public class RootExceptionSpanTool implements ITool {
             result.addProperty("spanId", rootCauseSpanId);
             result.addProperty("projectId", codeFixInfo.getProjectId());
             result.addProperty("envId", codeFixInfo.getEnvId());
+            result.addProperty("endTime", codeFixInfo.getEndTime());
             result.addProperty("stacktrace", codeFixInfo.getStacktrace());
 
             log.info("Successfully analyzed code fix info for traceId: {}", traceId);
@@ -290,10 +291,14 @@ public class RootExceptionSpanTool implements ITool {
                 }
             }
 
+            // Calculate endTime from startTime + duration (convert from microseconds to milliseconds)
+            Long endTime = (span.getStartTime() + span.getDuration()) / 1000;
+
             return CodeFixInfo.builder()
                     .projectId(projectId)
                     .envId(envId)
                     .stacktrace(stacktrace)
+                    .endTime(endTime)
                     .build();
 
         } catch (Exception e) {

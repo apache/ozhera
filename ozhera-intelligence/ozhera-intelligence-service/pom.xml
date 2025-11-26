@@ -49,6 +49,17 @@
         </dependency>
         <dependency>
             <groupId>run.mone</groupId>
+            <artifactId>mcp-hera-analysis</artifactId>
+            <version>1.6.1-jdk21-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-webmvc</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>run.mone</groupId>
             <artifactId>mcp-git</artifactId>
             <version>1.6.1-jdk21-SNAPSHOT</version>
             <exclusions>

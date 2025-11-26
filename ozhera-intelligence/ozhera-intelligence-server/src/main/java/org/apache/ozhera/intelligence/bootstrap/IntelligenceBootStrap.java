@@ -24,7 +24,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @EnableAutoConfiguration
-@ComponentScan(basePackages = {"org.apache.ozhera.intelligence", "run.mone.mcp.git"})
+@ComponentScan(basePackages = {"org.apache.ozhera.intelligence", "run.mone.mcp.git", "run.mone.mcp.hera.analysis.tool", "run.mone.mcp.hera.analysis.service"})
 @Slf4j
 public class IntelligenceBootStrap {
     public static void main(String... args) {

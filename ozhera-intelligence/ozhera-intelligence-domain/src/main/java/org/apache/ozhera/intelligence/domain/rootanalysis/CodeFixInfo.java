@@ -45,4 +45,9 @@ public class CodeFixInfo {
      * Exception stack trace extracted from span logs
      */
     private String stacktrace;
+
+    /**
+     * End time of the span in milliseconds (calculated from startTime + duration)
+     */
+    private Long endTime;
 }

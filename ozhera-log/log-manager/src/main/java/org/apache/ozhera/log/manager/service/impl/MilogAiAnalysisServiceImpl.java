@@ -49,6 +49,8 @@ import run.mone.hive.configs.LLMConfig;
 import run.mone.hive.llm.LLM;
 import run.mone.hive.llm.LLMProvider;
 import run.mone.hive.schema.Message;
+import run.mone.hive.schema.MetaKey;
+import run.mone.hive.schema.MetaValue;
 
 
 import javax.annotation.Resource;
@@ -206,7 +208,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             param.setHistoryConversation(modelHistory);
             param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
             String paramJson = gson.toJson(param);
-            if (TOKENIZER.countTokens(paramJson) < 70000) {
+            if (TOKENIZER.countTokens(paramJson) < 7000) {
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
                 String answer = result.getContent();
@@ -248,10 +250,24 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             List<BotQAParam.QAParam> needCompress = new ArrayList<>(originalHistory.subList(0, index));
             List<BotQAParam.QAParam> unchangeList = new ArrayList<>(originalHistory.subList(index, originalHistory.size()));
 
+            String needCompressJson = gson.toJson(needCompress);
+            //Compress the content that needs to be compressed to have the same number of tokens as the content that does not need to be compressed, as much as possible.
+
+            int currentTokenCount = TOKENIZER.countTokens(needCompressJson);
+            int targetTokenCount = TOKENIZER.countTokens( gson.toJson(unchangeList));
+
+            Map<MetaKey, MetaValue> meta = new HashMap<>();
+            MetaKey currentKey = MetaKey.builder().key("currentCount").desc("currentCount").build();
+            MetaValue currentValue = MetaValue.builder().value(currentTokenCount).desc("currentCount").build();
+            meta.put(currentKey, currentValue);
+
+            MetaKey targetKey = MetaKey.builder().key("targetCount").desc("targetCount").build();
+            MetaValue targetValue = MetaValue.builder().value(targetTokenCount).desc("targetCount").build();
+            meta.put(targetKey, targetValue);
             String res;
             try {
                 contentSimplifyBot.getRc().news.put(
-                        Message.builder().content(gson.toJson(needCompress)).build());
+                        Message.builder().content(needCompressJson).meta(meta).build());
                 Message result = contentSimplifyBot.run().join();
                 res = result.getContent();
             } catch (Exception e) {
@@ -404,10 +420,10 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
     private static Integer compressIndex(List<BotQAParam.QAParam> paramList, List<BotQAParam.QAParam> originalList) {
         String modelJson = gson.toJson(paramList);
         int count = TOKENIZER.countTokens(modelJson);
-        if (count <= 50000) {
+        if (count <= 15000) {
             return 0;
         }
-        int limit = 20000;
+        int limit = 5000;
         int sum = 0;
         int index = originalList.size();
         for (int i = originalList.size() - 1; i >= 0; i--) {
@@ -422,6 +438,8 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         int maxCompress = originalList.size() - 20;
         return Math.max(index, maxCompress);
     }
+
+
 
 
     @Override
@@ -642,7 +660,14 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
     @Data
     static class AnalysisResult {
         private String answer;
-        private List<BotQAParam.QAParam> compressedModelHistory; // 可能为 null
+        private List<BotQAParam.QAParam> compressedModelHistory;
+    }
+
+    @Data
+    static class CompressionIndex {
+        private Integer index;
+        private Integer currentTokenCount;
+        private Integer targetTokenCount;
     }
 
 }

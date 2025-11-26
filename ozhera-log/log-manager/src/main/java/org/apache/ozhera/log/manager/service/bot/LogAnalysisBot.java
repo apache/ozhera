@@ -70,7 +70,6 @@ public class LogAnalysisBot extends Role {
         setEnvironment(new Environment());
     }
 
-    // 重试相关配置
     private static final int MAX_RETRY_COUNT = 3;
     private static final int INITIAL_RETRY_DELAY_MS = 1000;
     private static final int MAX_RETRY_DELAY_MS = 5000;
@@ -95,7 +94,6 @@ public class LogAnalysisBot extends Role {
             return aiMessage;
         }).toList();
 
-        // 添加重试逻辑
         int retryCount = 0;
         String result = null;
         Exception lastException = null;
@@ -103,39 +101,34 @@ public class LogAnalysisBot extends Role {
         while (retryCount <= MAX_RETRY_COUNT) {
             try {
                 if (retryCount > 0) {
-                    log.info("尝试第 {} 次调用LLM", retryCount);
-                    // 计算退避时间
+                    log.info("Attempt the {} th call to LLM", retryCount);
                     int delayMs = Math.min(INITIAL_RETRY_DELAY_MS * (1 << (retryCount - 1)), MAX_RETRY_DELAY_MS);
-                    log.info("等待 {} 毫秒后重试", delayMs);
+                    log.info("Wait {} seconds and try again", delayMs);
                     Thread.sleep(delayMs);
                 }
 
-                // 调用LLM
                 CustomConfig customConfig = new CustomConfig();
                 customConfig.setModel("gpt-5");
                 customConfig.addCustomHeader(CustomConfig.X_MODEL_PROVIDER_ID, "azure_openai");
 
                 StringBuilder responseBuilder = new StringBuilder();
-                llm.call(messages, "你是一个ai日志排查报告总结助手", customConfig).doOnNext(x -> {
+                llm.call(messages, "你是一个ai日志分析助手", customConfig).doOnNext(x -> {
                     responseBuilder.append(x);
                 }).blockLast();
                 result = responseBuilder.toString().trim();
 
-                // 如果成功获取结果，跳出循环
                 if (StringUtils.isNotBlank(result)) {
                     break;
                 }
             } catch (Exception e) {
                 lastException = e;
-                log.warn("LLM调用失败 (重试 {}/{}): {}", retryCount, MAX_RETRY_COUNT, e.getMessage());
+                log.warn("LLM call failed (retry {}/{}): {}", retryCount, MAX_RETRY_COUNT, e.getMessage());
 
-                // 如果是429错误（Too Many Requests），进行重试
                 if (e.getMessage() != null && e.getMessage().contains("429")) {
                     retryCount++;
                     continue;
                 } else {
-                    // 其他错误直接抛出
-                    log.error("LLM调用发生非429错误，不再重试: {}", e.getMessage());
+                    log.error("LLM call failed due to a non-429 error. No further retries will be made: {}", e.getMessage());
                     break;
                 }
             }
@@ -143,11 +136,10 @@ public class LogAnalysisBot extends Role {
             retryCount++;
         }
 
-        // 如果所有重试都失败，记录错误并返回空结果
         if (result == null) {
-            String errorMsg = lastException != null ? lastException.getMessage() : "未知错误";
-            log.error("在 {} 次尝试后调用LLM仍然失败: {}", MAX_RETRY_COUNT, errorMsg);
-            result = ""; // 返回空字符串作为结果
+            String errorMsg = lastException != null ? lastException.getMessage() : "unknown error";
+            log.error("After {} attempts, the LLM still failed to be called: {}", MAX_RETRY_COUNT, errorMsg);
+            result = "";
         }
         return CompletableFuture.completedFuture(Message.builder().content(result).build());
     }

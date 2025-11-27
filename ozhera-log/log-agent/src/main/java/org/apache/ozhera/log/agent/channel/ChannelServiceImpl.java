@@ -51,6 +51,7 @@ import org.apache.ozhera.log.utils.NetUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
@@ -111,7 +112,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private volatile long lastSendTime = System.currentTimeMillis();
 
-    private volatile long logCounts = 0;
+    private final AtomicLong logCounts = new AtomicLong();
 
     private ScheduledFuture<?> scheduledFuture;
 
@@ -134,7 +135,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private String linePrefix;
 
 
-    private Pipeline pipeline;
+    private final Pipeline pipeline;
 
     public ChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
                               ChannelDefine channelDefine, FilterChain chain, Pipeline pipeline) {
@@ -478,7 +479,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
         RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
-        if (pipeline.invoke(requestContext)) {
+        if (!pipeline.invoke(requestContext)) {
             return;
         }
         LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ct);
@@ -704,11 +705,11 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
             long current = System.currentTimeMillis();
             msgExporter.export(subList);
-            logCounts += subList.size();
+            logCounts.addAndGet(subList.size());
             lastSendTime = System.currentTimeMillis();
             channelMemory.setCurrentTime(lastSendTime);
 
-            log.info("doExport channelId:{}, send {} message, cost:{}, total send:{}, instanceId:{},", channelDefine.getChannelId(), subList.size(), lastSendTime - current, logCounts, instanceId());
+            log.info("doExport channelId:{}, send {} message, cost:{}, total send:{}, instanceId:{},", channelDefine.getChannelId(), subList.size(), lastSendTime - current, logCounts.get(), instanceId());
         } catch (Exception e) {
             log.error("doExport Exception:{}", e);
         } finally {
@@ -969,7 +970,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public Long getLogCounts() {
-        return this.logCounts;
+        return this.logCounts.get();
     }
 
 

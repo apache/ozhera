@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -71,7 +72,7 @@ import static org.apache.ozhera.log.common.PathUtils.*;
 @Slf4j
 public class WildcardChannelServiceImpl extends AbstractChannelService {
 
-    private AgentMemoryService memoryService;
+    private final AgentMemoryService memoryService;
 
     private MsgExporter msgExporter;
 
@@ -79,41 +80,41 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private ChannelMemory channelMemory;
 
-    private FilterChain chain;
+    private final FilterChain chain;
 
     private String logPattern;
 
     private String linePrefix;
 
-    private String memoryBasePath;
+    private final String memoryBasePath;
 
     private static final String POINTER_FILENAME_PREFIX = ".ozhera_pointer";
 
-    private List<LineMessage> lineMessageList = new ArrayList<>();
+    private final List<LineMessage> lineMessageList = new ArrayList<>();
 
     private ScheduledFuture<?> scheduledFuture;
 
     private ScheduledFuture<?> lastFileLineScheduledFuture;
 
-    private List<Future<?>> fileCollFutures = Lists.newArrayList();
+    private final List<Future<?>> fileCollFutures = Lists.newArrayList();
 
     private volatile long lastSendTime = System.currentTimeMillis();
 
-    private volatile long logCounts = 0;
+    private final AtomicLong logCounts = new AtomicLong();
 
-    private ReentrantLock reentrantLock = new ReentrantLock();
+    private final ReentrantLock reentrantLock = new ReentrantLock();
 
     private DefaultMonitorListener defaultMonitorListener;
 
     private HeraFileMonitor fileMonitor;
-    
+
     /**
      * Track file truncation check time to avoid duplicate handling
      */
     private final Map<String, Long> fileTruncationCheckMap = new ConcurrentHashMap<>();
 
 
-    private Pipeline pipeline;
+    private final Pipeline pipeline;
 
     public WildcardChannelServiceImpl(MsgExporter msgExporter, AgentMemoryService memoryService,
                                       ChannelDefine channelDefine, FilterChain chain,
@@ -217,7 +218,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                 FileInfoCache.ins().remove(cacheKey);
                 continue;
             }
-            
+
             // Check for file truncation (handles copytruncate log rotation)
             checkFileTruncation(filePath);
         }
@@ -236,29 +237,29 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
                     savedPointer = fileProgress.getPointer();
                 }
             }
-            
+
             if (savedPointer <= 0) {
                 return;
             }
-            
+
             File file = new File(filePath);
             if (!file.exists() || savedPointer <= file.length()) {
                 return;
             }
-            
+
             long lastCheckTime = fileTruncationCheckMap.getOrDefault(filePath, 0L);
             long currentTime = System.currentTimeMillis();
             long currentFileLength = file.length();
             boolean isImmediateTruncation = currentFileLength == 0 || currentFileLength < savedPointer * 0.1;
-            
+
             if (isImmediateTruncation || (lastCheckTime > 0 && (currentTime - lastCheckTime) > 15000)) {
                 log.warn("File truncation detected: pointer {} > length {} for file:{}, restarting read",
                         savedPointer, currentFileLength, filePath);
-                
+
                 // Shutdown and restart ReadListener for this file
                 for (ReadListener readListener : defaultMonitorListener.getReadListenerList()) {
                     if (readListener instanceof com.xiaomi.mone.file.listener.OzHeraReadListener) {
-                        com.xiaomi.mone.file.LogFile2 logFile = 
+                        com.xiaomi.mone.file.LogFile2 logFile =
                                 ((com.xiaomi.mone.file.listener.OzHeraReadListener) readListener).getLogFile();
                         if (logFile != null && filePath.equals(logFile.getFile())) {
                             logFile.shutdown();
@@ -273,7 +274,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
             log.debug("Error checking file truncation for path:{}", filePath, e);
         }
     }
-    
+
     // Check for inode changes: when a file with the same path is deleted and recreated with a new inode
     // DefaultMonitorListener handles file deletion, but may not detect inode changes for files with the same path
     private void checkAndShutdownInodeChangedReadListeners() {
@@ -445,7 +446,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String patternCode, long ct) {
         RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
-        if (pipeline.invoke(requestContext)) {
+        if (!pipeline.invoke(requestContext)) {
             return;
         }
         String filePathName = readResult.get().getFilePathName();
@@ -472,11 +473,11 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
             long current = System.currentTimeMillis();
             msgExporter.export(subList);
-            logCounts += subList.size();
+            logCounts.addAndGet(subList.size());
             lastSendTime = System.currentTimeMillis();
             channelMemory.setCurrentTime(lastSendTime);
 
-            log.info("doExport channelId:{}, send {} message, cost:{}, total send:{}, instanceId:{},", channelDefine.getChannelId(), subList.size(), lastSendTime - current, logCounts, instanceId());
+            log.info("doExport channelId:{}, send {} message, cost:{}, total send:{}, instanceId:{},", channelDefine.getChannelId(), subList.size(), lastSendTime - current, logCounts.get(), instanceId());
         } catch (Exception e) {
             log.error("doExport Exception", e);
         } finally {
@@ -522,7 +523,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     @Override
     public Long getLogCounts() {
-        return logCounts;
+        return logCounts.get();
     }
 
     @Override

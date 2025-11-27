@@ -25,8 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import static org.apache.ozhera.log.common.Constant.GSON;
-
 /**
  * @author wtt
  * @date 2025/11/21 15:07
@@ -42,7 +40,7 @@ public class Pipeline {
             valves.add(valve);
         }
         valves.sort(Comparator.naturalOrder());
-        log.info("Pipeline valves: {}", GSON.toJson(valves));
+        log.info("pipeline valves: {}", valves);
     }
 
 

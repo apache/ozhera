@@ -17,12 +17,10 @@
  * under the License.
  */
 
-package org.apache.ozhera.log.cache.util;
+package org.apache.ozhera.log.manager.config.redis;
 
-import java.util.List;
+public interface Node {
+    String getHostname();
 
-public interface CachePool {
-    String getName();
-
-    List<Node> getNodes();
+    int getPort();
 }

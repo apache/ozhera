@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.ozhera.log.cache.redis;
+package org.apache.ozhera.log.manager.config.redis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

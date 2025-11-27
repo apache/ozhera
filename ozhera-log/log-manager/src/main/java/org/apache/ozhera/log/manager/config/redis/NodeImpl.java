@@ -18,7 +18,7 @@
  */
 
 
-package org.apache.ozhera.log.cache.util;
+package org.apache.ozhera.log.manager.config.redis;
 
 public class NodeImpl implements Node {
 

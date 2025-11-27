@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.ozhera.log.cache.redis;
+package org.apache.ozhera.log.manager.config.redis;
 
 import org.apache.ozhera.log.cache.util.CachePool;
 import org.apache.ozhera.log.cache.util.Node;

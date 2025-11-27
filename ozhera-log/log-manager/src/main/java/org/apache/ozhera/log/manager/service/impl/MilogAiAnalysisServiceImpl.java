@@ -18,21 +18,20 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
-import cn.hutool.core.thread.ThreadUtil;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingType;
-import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ozhera.log.cache.redis.RedisClientFactory;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
+import org.apache.ozhera.log.manager.config.redis.RedisClientFactory;
 import org.apache.ozhera.log.manager.mapper.MilogAiConversationMapper;
 import org.apache.ozhera.log.manager.model.bo.BotQAParam;
 import org.apache.ozhera.log.manager.model.dto.AiAnalysisHistoryDTO;
@@ -185,7 +184,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
                 List<BotQAParam.QAParam> compressedModelHistory = analysisResult.getCompressedModelHistory();
                 compressedModelHistory.add(conversation);
                 cache.put(MODEL_KEY, compressedModelHistory);
-            }else {
+            } else {
                 modelHistory.add(conversation);
                 cache.put(MODEL_KEY, modelHistory);
             }
@@ -243,7 +242,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         AtomicReference<List<BotQAParam.QAParam>> newModelHistory = new AtomicReference<>(modelHistory);
         Future<?> compressionFuture = executor.submit(() -> {
             int index = compressIndex(modelHistory, originalHistory);
-            if (index <= 0){
+            if (index <= 0) {
                 newModelHistory.set(modelHistory);
                 return;
             }
@@ -254,7 +253,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             //Compress the content that needs to be compressed to have the same number of tokens as the content that does not need to be compressed, as much as possible.
 
             int currentTokenCount = TOKENIZER.countTokens(needCompressJson);
-            int targetTokenCount = TOKENIZER.countTokens( gson.toJson(unchangeList));
+            int targetTokenCount = TOKENIZER.countTokens(gson.toJson(unchangeList));
 
             Map<MetaKey, MetaValue> meta = new HashMap<>();
             MetaKey currentKey = MetaKey.builder().key("currentCount").desc("currentCount").build();
@@ -438,8 +437,6 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         int maxCompress = originalList.size() - 20;
         return Math.max(index, maxCompress);
     }
-
-
 
 
     @Override

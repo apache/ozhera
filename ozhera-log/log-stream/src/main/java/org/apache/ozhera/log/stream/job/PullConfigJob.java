@@ -19,7 +19,6 @@
 package org.apache.ozhera.log.stream.job;
 
 import cn.hutool.core.thread.ThreadUtil;
-import com.xiaomi.youpin.docean.Ioc;
 import org.apache.ozhera.log.stream.config.ConfigManager;
 import com.xiaomi.youpin.docean.anno.Component;
 import lombok.extern.slf4j.Slf4j;
@@ -54,9 +53,6 @@ public class PullConfigJob {
         long intervalTime = 5;
         scheduledExecutor.scheduleAtFixedRate(() -> {
             try {
-                if (configManager == null){
-                    configManager = Ioc.ins().getBean(ConfigManager.class);
-                }
                 configManager.initializeStreamConfig();
             } catch (Exception e) {
                 log.error("PullConfigJob execute error", e);

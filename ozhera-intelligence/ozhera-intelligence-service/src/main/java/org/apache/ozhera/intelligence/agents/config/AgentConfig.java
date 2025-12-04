@@ -27,9 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import run.mone.hive.mcp.function.ChatFunction;
 import run.mone.hive.mcp.service.RoleMeta;
 import run.mone.hive.roles.tool.*;
-import run.mone.mcp.git.tool.GitCloneTool;
-import run.mone.mcp.git.tool.GitCommitTool;
-import run.mone.mcp.git.tool.GitPushTool;
+import run.mone.mcp.git.tool.*;
 import run.mone.mcp.hera.analysis.tool.LogQueryTool;
 import run.mone.mcp.miline.tools.GetPipelineDetailTool;
 import run.mone.mcp.miline.tools.RunPipelineTool;
@@ -50,6 +48,10 @@ public class AgentConfig {
     private GitCommitTool gitCommitTool;
     @Autowired
     private GitPushTool gitPushTool;
+    @Autowired
+    private GitCheckoutNewBranchTool gitCheckoutNewBranchTool;
+    @Autowired
+    private GitCreateMergeRequestTool gitCreateMergeRequestTool;
     @Autowired
     private LogQueryTool logQueryTool;
 
@@ -86,6 +88,8 @@ public class AgentConfig {
                         gitCloneTool,
                         gitCommitTool,
                         gitPushTool,
+                        gitCheckoutNewBranchTool,
+                        gitCreateMergeRequestTool,
                         logQueryTool
                 ))
                 //mcp工具
@@ -96,9 +100,12 @@ public class AgentConfig {
                         2、查询对应project和流水线（env）endTime前后半小时的该traceId的全部日志
                         2、根据根因节点的projectId和envId（就是pipelineId）获取流水线详情 
                         3、根据流水线详情中的gitUrl、gitBranch、gitCommitId调用git_clone工具进行git clone\s
-                        4、根据trace链路上的异常信息或者是日志中的信息，结合项目代码进行异常修复\s
-                        5、修复完成后，将本地代码使用git_commit工具进行git commit，commit信息是自动代码修复, 使用git_push进行git push\s
-                        6、根据projectId和envId调用RunPipelineTool进行发布
+                        4、基于gitBranch和localPath创建一个新的分支，这个分支用于代码修复分支
+                        5、根据trace链路上的异常信息或者是日志中的信息，结合项目代码进行异常修复\s
+                        6、修复完成后，将本地代码使用git_commit工具进行git commit，commit信息是自动代码修复, 使用git_push进行git push\s
+                        7、根据流水线详情中的gitUrl、代码修复分支、gitBranch创建MR，将代码修复分支的代码合并到gitBranch中
+                        8、使用ask工具询问用户是否能够发布
+                        9、如果能够发布，根据projectId和envId调用RunPipelineTool进行发布，如果不能够发布，则直接结束流程
                 """)
                 .build();
     }

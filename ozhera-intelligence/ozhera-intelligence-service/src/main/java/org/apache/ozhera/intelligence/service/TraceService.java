@@ -57,7 +57,7 @@ public class TraceService {
     /**
      * Trace span sectional API URL
      */
-    @Value("${trace.span.sectional.url}")
+    @Value("${trace.query.section.api.url}")
     private String traceSpanSectionalUrl;
 
     /**

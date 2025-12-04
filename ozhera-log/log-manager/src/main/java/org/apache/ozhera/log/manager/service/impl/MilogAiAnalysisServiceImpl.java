@@ -18,15 +18,20 @@
  */
 package org.apache.ozhera.log.manager.service.impl;
 
-import cn.hutool.core.thread.ThreadUtil;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.xiaomi.data.push.common.SafeRun;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingType;
 import com.xiaomi.youpin.docean.anno.Service;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
+import org.apache.ozhera.log.manager.config.redis.RedisClientFactory;
 import org.apache.ozhera.log.manager.mapper.MilogAiConversationMapper;
 import org.apache.ozhera.log.manager.model.bo.BotQAParam;
 import org.apache.ozhera.log.manager.model.dto.AiAnalysisHistoryDTO;
@@ -37,10 +42,14 @@ import org.apache.ozhera.log.manager.service.MilogAiAnalysisService;
 import org.apache.ozhera.log.manager.service.bot.ContentSimplifyBot;
 import org.apache.ozhera.log.manager.service.bot.LogAnalysisBot;
 import org.apache.ozhera.log.manager.user.MoneUser;
+import redis.clients.jedis.*;
+import redis.clients.jedis.params.SetParams;
 import run.mone.hive.configs.LLMConfig;
 import run.mone.hive.llm.LLM;
 import run.mone.hive.llm.LLMProvider;
 import run.mone.hive.schema.Message;
+import run.mone.hive.schema.MetaKey;
+import run.mone.hive.schema.MetaValue;
 
 
 import javax.annotation.Resource;
@@ -49,12 +58,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static run.mone.hive.llm.ClaudeProxy.*;
 
 @Slf4j
 @Service
@@ -69,33 +75,37 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
     @Resource
     private MilogAiConversationMapper milogAiConversationMapper;
 
-    private static final ConcurrentHashMap<Long, Map<String, List<BotQAParam.QAParam>>> QA_CACHE = new ConcurrentHashMap<>();
-
-    private static final ConcurrentHashMap<Long, Object> LOCK = new ConcurrentHashMap<>();
-
     private static final String MODEL_KEY = "model";
     private static final String ORIGINAL_KEY = "original";
 
-    private static final ConcurrentHashMap<Long, Long> CONVERSATION_TIME = new ConcurrentHashMap<>();
-    private static final long CONVERSATION_TIMEOUT = 10 * 60 * 1000;
+    private static final String MILOG_AI_KEY_PREFIX = "milog.ai.conversation:";
+
+    private static final String LOCK_PREFIX = "milog.ai.lock:";
+
+    private static final String GLOBAL_CHECK_LOCK_KEY = "milog.ai.checkTokenLength:global";
+
+    private static final String GLOBAL_SHUTDOWN_LOCK_KEY = "milog.ai.shutdown:global";
 
     private static final Gson gson = new Gson();
 
-    private ScheduledExecutorService scheduledExecutor;
+    private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    private static final JedisCluster jedisCluster = RedisClientFactory.getJedisCluster();
+
+    private static final Encoding TOKENIZER = Encodings.newDefaultEncodingRegistry().getEncoding(EncodingType.CL100K_BASE);
 
     public void init() {
+        String llmUrl = Config.ins().get("llm.url", "");
+        String llmToken = Config.ins().get("llm.token", "");
         LLMConfig config = LLMConfig.builder()
-                .llmProvider(LLMProvider.CLAUDE_COMPANY)
-                .url(getClaudeUrl())
-                .version(getClaudeVersion())
-                .maxTokens(getClaudeMaxToekns())
+                .url(llmUrl)
+                .token(llmToken)
+                .llmProvider(LLMProvider.MIFY_GATEWAY)
                 .build();
         LLM llm = new LLM(config);
+        llm.setConfigFunction(llmProvider -> Optional.of(config));
         analysisBot.setLlm(llm);
         contentSimplifyBot.setLlm(llm);
-        scheduledExecutor = Executors.newScheduledThreadPool(2, ThreadUtil.newNamedThreadFactory("manager-ai-conversation", false));
-        scheduledExecutor.scheduleAtFixedRate(() -> SafeRun.run(this::processTask), 0, 2, TimeUnit.MINUTES);
-        scheduledExecutor.scheduleAtFixedRate(() -> SafeRun.run(this::checkTokenLength), 0, 1, TimeUnit.MINUTES);
     }
 
 
@@ -117,9 +127,9 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             String answer = "";
             try {
                 BotQAParam param = new BotQAParam();
-                param.setLatestQuestion(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
-                String text = formatString(param);
-                analysisBot.getRc().news.put(Message.builder().content(text).build());
+                param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+                String paramJson = gson.toJson(param);
+                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
                 answer = result.getContent();
             } catch (Exception e) {
@@ -131,7 +141,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             long timestamp = System.currentTimeMillis();
             String nowTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             conversation.setTime(nowTimeStr);
-            conversation.setUser(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
             conversation.setBot(answer);
 
             List<BotQAParam.QAParam> ModelHistory = new ArrayList<>();
@@ -153,48 +163,34 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             Map<String, List<BotQAParam.QAParam>> cache = new HashMap<>();
             cache.put(MODEL_KEY, ModelHistory);
             cache.put(ORIGINAL_KEY, OriginalHistory);
-            QA_CACHE.put(conversationId, cache);
+            putCache(conversationId, cache);
             response.setConversationId(conversationId);
             response.setContent(answer);
-            CONVERSATION_TIME.put(conversationId, timestamp);
             return Result.success(response);
         } else {
-            String answer = "";
             conversationId = tailLogAiAnalysisDTO.getConversationId();
             //This is not first request, need lock
-            Object lock = LOCK.computeIfAbsent(conversationId, k -> new Object());
-            synchronized (lock) {
-                Map<String, List<BotQAParam.QAParam>> cache = QA_CACHE.get(conversationId);
-                if (cache == null || cache.isEmpty()) {
-                    cache = getHistoryFromDb(conversationId);
-                }
-                List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
-                List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
-                try {
-                    BotQAParam param = new BotQAParam();
-                    param.setHistoryConversation(modelHistory);
-                    param.setLatestQuestion(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
-                    String text = formatString(param);
-                    analysisBot.getRc().news.put(Message.builder().content(gson.toJson(text)).build());
-                    Message result = analysisBot.run().join();
-                    answer = result.getContent();
 
-                } catch (InterruptedException e) {
-                    log.error("An error occurred in the request for the large model， err: {}", e.getMessage());
-                    return Result.fail(CommonError.SERVER_ERROR.getCode(), "An error occurred in the request for the large model");
-                }
-                BotQAParam.QAParam conversation = new BotQAParam.QAParam();
-                conversation.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                conversation.setUser(gson.toJson(tailLogAiAnalysisDTO.getLogs()));
-                conversation.setBot(answer);
+            Map<String, List<BotQAParam.QAParam>> cache = getConversation(conversationId);
+            List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
+            List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
+            AnalysisResult analysisResult = processHistoryConversation(conversationId, cache, tailLogAiAnalysisDTO);
+            String answer = analysisResult.getAnswer();
+            BotQAParam.QAParam conversation = new BotQAParam.QAParam();
+            conversation.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setBot(answer);
+            if (analysisResult.getCompressedModelHistory() != null) {
+                List<BotQAParam.QAParam> compressedModelHistory = analysisResult.getCompressedModelHistory();
+                compressedModelHistory.add(conversation);
+                cache.put(MODEL_KEY, compressedModelHistory);
+            } else {
                 modelHistory.add(conversation);
-                originalHistory.add(conversation);
                 cache.put(MODEL_KEY, modelHistory);
-                cache.put(ORIGINAL_KEY, originalHistory);
-                QA_CACHE.put(conversationId, cache);
-                CONVERSATION_TIME.put(conversationId, System.currentTimeMillis());
             }
-            LOCK.remove(conversationId);
+            originalHistory.add(conversation);
+            cache.put(ORIGINAL_KEY, originalHistory);
+            putCache(conversationId, cache);
             response.setConversationId(conversationId);
             response.setContent(answer);
             return Result.success(response);
@@ -202,125 +198,237 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     }
 
-
-    private Map<String, List<BotQAParam.QAParam>> getHistoryFromDb(Long conversationId) {
-        MilogAiConversationDO milogAiConversationDO = milogAiConversationMapper.selectById(conversationId);
-        String conversationContext = milogAiConversationDO.getConversationContext();
-
-        if (conversationContext == null || conversationContext.isBlank()) {
-            return Collections.emptyMap();
+    private AnalysisResult processHistoryConversation(Long conversationId, Map<String, List<BotQAParam.QAParam>> cache, LogAiAnalysisDTO tailLogAiAnalysisDTO) {
+        List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
+        List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
+        AnalysisResult res = new AnalysisResult();
+        try {
+            BotQAParam param = new BotQAParam();
+            param.setHistoryConversation(modelHistory);
+            param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            String paramJson = gson.toJson(param);
+            if (TOKENIZER.countTokens(paramJson) < 70000) {
+                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
+                Message result = analysisBot.run().join();
+                String answer = result.getContent();
+                res.setAnswer(answer);
+                return res;
+            } else {
+                return analysisAndCompression(modelHistory, originalHistory, tailLogAiAnalysisDTO.getLogs(), conversationId);
+            }
+        } catch (InterruptedException e) {
+            log.error("An error occurred in the request for the large model， err: {}", e.getMessage());
         }
-
-        List<BotQAParam.QAParam> modelConversation = gson.fromJson(conversationContext, new TypeToken<List<BotQAParam.QAParam>>() {
-        }.getType());
-        List<BotQAParam.QAParam> originalConversation = gson.fromJson(milogAiConversationDO.getOriginalConversation(), new TypeToken<List<BotQAParam.QAParam>>() {
-        }.getType());
-
-        Map<String, List<BotQAParam.QAParam>> res = new HashMap<>();
-        res.put(MODEL_KEY, modelConversation);
-        res.put(ORIGINAL_KEY, originalConversation);
         return res;
     }
 
+    private AnalysisResult analysisAndCompression(List<BotQAParam.QAParam> modelHistory, List<BotQAParam.QAParam> originalHistory, List<String> latestConversation, Long conversationId) {
+        AnalysisResult analysisResult = new AnalysisResult();
 
-    private void processTask() {
-        for (Map.Entry<Long, Long> entry : CONVERSATION_TIME.entrySet()) {
-            Long conversationId = entry.getKey();
-            Object lock = LOCK.computeIfAbsent(conversationId, k -> new Object());
-            synchronized (lock) {
-                saveHistory(conversationId);
-                //It has not been operated for a long time
-                if (System.currentTimeMillis() - entry.getValue() > CONVERSATION_TIMEOUT) {
-                    CONVERSATION_TIME.remove(entry.getKey());
-                    log.info("clean timeout conversation: {}", entry.getKey());
-                }
+        AtomicReference<String> answer = new AtomicReference<>("");
+        Future<?> analysisFuture = executor.submit(() -> {
+            try {
+                BotQAParam param = new BotQAParam();
+                param.setHistoryConversation(modelHistory);
+                param.setLatestQuestion(gson.toJson(latestConversation));
+                String paramJson = gson.toJson(param);
+                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
+                Message result = analysisBot.run().join();
+                answer.set(result.getContent());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            LOCK.remove(conversationId);
+        });
+        AtomicReference<List<BotQAParam.QAParam>> newModelHistory = new AtomicReference<>(modelHistory);
+        Future<?> compressionFuture = executor.submit(() -> {
+            int index = compressIndex(modelHistory, originalHistory);
+            if (index <= 0) {
+                newModelHistory.set(modelHistory);
+                return;
+            }
+            List<BotQAParam.QAParam> needCompress = new ArrayList<>(originalHistory.subList(0, index));
+            List<BotQAParam.QAParam> unchangeList = new ArrayList<>(originalHistory.subList(index, originalHistory.size()));
+
+            String needCompressJson = gson.toJson(needCompress);
+            //Compress the content that needs to be compressed to have the same number of tokens as the content that does not need to be compressed, as much as possible.
+
+            int currentTokenCount = TOKENIZER.countTokens(needCompressJson);
+            int targetTokenCount = TOKENIZER.countTokens(gson.toJson(unchangeList));
+
+            Map<MetaKey, MetaValue> meta = new HashMap<>();
+            MetaKey currentKey = MetaKey.builder().key("currentCount").desc("currentCount").build();
+            MetaValue currentValue = MetaValue.builder().value(currentTokenCount).desc("currentCount").build();
+            meta.put(currentKey, currentValue);
+
+            MetaKey targetKey = MetaKey.builder().key("targetCount").desc("targetCount").build();
+            MetaValue targetValue = MetaValue.builder().value(targetTokenCount).desc("targetCount").build();
+            meta.put(targetKey, targetValue);
+            String res;
+            try {
+                contentSimplifyBot.getRc().news.put(
+                        Message.builder().content(needCompressJson).meta(meta).build());
+                Message result = contentSimplifyBot.run().join();
+                res = result.getContent();
+            } catch (Exception e) {
+                log.error("An error occurred when requesting the large model to compress data, error: {}", e.getMessage());
+                return;
+            }
+            if (res == null || res.isBlank()) {
+                return;
+            }
+
+            List<BotQAParam.QAParam> compressedList = gson.fromJson(
+                    res,
+                    new TypeToken<List<BotQAParam.QAParam>>() {
+                    }.getType()
+            );
+            if (compressedList == null || compressedList.isEmpty()) {
+                return;
+            }
+            compressedList.addAll(unchangeList);
+            newModelHistory.set(compressedList);
+        });
+        try {
+            analysisFuture.get();
+            compressionFuture.get();
+            String s = answer.get();
+            List<BotQAParam.QAParam> paramList = newModelHistory.get();
+            analysisResult.setAnswer(s);
+            analysisResult.setCompressedModelHistory(paramList);
+        } catch (Exception e) {
+            log.error("analysis and compression of task execution error: {}", e.getMessage());
         }
+        return analysisResult;
     }
-
-    private void saveHistory(Long conversationId) {
-        log.info("开始存入数据库, id : {}", conversationId);
-        MilogAiConversationDO milogAiConversationDO = milogAiConversationMapper.selectById(conversationId);
-        Map<String, List<BotQAParam.QAParam>> map = QA_CACHE.get(conversationId);
-        List<BotQAParam.QAParam> modelHistory = map.get(MODEL_KEY);
-        List<BotQAParam.QAParam> originalHistory = map.get(ORIGINAL_KEY);
-        milogAiConversationDO.setUpdateTime(System.currentTimeMillis());
-        milogAiConversationDO.setConversationContext(gson.toJson(modelHistory));
-        milogAiConversationDO.setOriginalConversation(gson.toJson(originalHistory));
-        milogAiConversationMapper.updateById(milogAiConversationDO);
-    }
-
 
     private void checkTokenLength() {
-        for (Map.Entry<Long, Map<String, List<BotQAParam.QAParam>>> entry : QA_CACHE.entrySet()) {
-            Long conversationId = entry.getKey();
-            Object lock = LOCK.computeIfAbsent(conversationId, k -> new Object());
-            synchronized (lock) {
-                List<BotQAParam.QAParam> originalHistory = entry.getValue().get(ORIGINAL_KEY);
-                Integer index = compressIndex(entry.getValue());
-                if (index > 0) {
-                    List<BotQAParam.QAParam> needCompress = originalHistory.subList(0, index);
-                    List<BotQAParam.QAParam> unchangeList = originalHistory.subList(index, originalHistory.size());
-                    String res = "";
+        if (!trySimpleLock(GLOBAL_CHECK_LOCK_KEY, 50L)) {
+            return;
+        }
+
+        Set<String> allCacheKey = getAllCacheKey();
+        if (allCacheKey.isEmpty()) {
+            return;
+        }
+        for (String key : allCacheKey) {
+            executor.submit(() -> {
+                String[] split = key.split(":");
+                String uuid = UUID.randomUUID().toString();
+                if (split.length == 0) {
+                    return;
+                }
+                Long conversationId;
+                try {
+                    conversationId = Long.valueOf(split[split.length - 1]);
+                } catch (NumberFormatException e) {
+                    log.warn("invalid conversation key: {}", key);
+                    return;
+                }
+                if (!tryLock(conversationId, uuid, 300L)) {
+                    return;
+                }
+
+                try {
+                    String value = jedisCluster.get(key);
+                    if (value == null || value.isEmpty()) {
+                        return;
+                    }
+                    Map<String, List<BotQAParam.QAParam>> map = gson.fromJson(value, new TypeToken<Map<String, List<BotQAParam.QAParam>>>() {
+                    }.getType());
+                    if (map == null || map.isEmpty()) {
+                        return;
+                    }
+                    int index = compressIndex(map);
+                    if (index <= 0) {
+                        return;
+                    }
+                    List<BotQAParam.QAParam> originalHistory = map.get(ORIGINAL_KEY);
+                    if (originalHistory == null || originalHistory.size() <= index) {
+                        return;
+                    }
+                    List<BotQAParam.QAParam> needCompress = new ArrayList<>(originalHistory.subList(0, index));
+                    List<BotQAParam.QAParam> unchangeList = new ArrayList<>(originalHistory.subList(index, originalHistory.size()));
+
+                    String res;
                     try {
-                        contentSimplifyBot.getRc().news.put(Message.builder().content(gson.toJson(needCompress)).build());
+                        contentSimplifyBot.getRc().news.put(
+                                Message.builder().content(gson.toJson(needCompress)).build());
                         Message result = contentSimplifyBot.run().join();
                         res = result.getContent();
                     } catch (Exception e) {
-                        log.error("An error occurred when requesting the large model to compress data");
+                        log.error("An error occurred when requesting the large model to compress data, key: {}, error: {}", key, e.getMessage());
+                        return;
                     }
-                    if (!res.isBlank()) {
-                        List<BotQAParam.QAParam> compressedList = gson.fromJson(res, new TypeToken<List<BotQAParam.QAParam>>() {
-                        }.getType());
-                        compressedList.addAll(unchangeList);
-                        entry.getValue().put(MODEL_KEY, compressedList);
-                        QA_CACHE.put(entry.getKey(), entry.getValue());
+                    if (res == null || res.isBlank()) {
+                        return;
                     }
-                }
-            }
-            LOCK.remove(conversationId);
-        }
-    }
 
-    private static String formatString(BotQAParam param) {
-        StringBuilder sb = new StringBuilder();
-        List<BotQAParam.QAParam> historyConversation = param.getHistoryConversation();
-        if (historyConversation != null && !historyConversation.isEmpty()) {
-            sb.append("历史对话:\n");
-            historyConversation.forEach(h -> {
-                sb.append(String.format("[%s] ###用户: %s  ###助手: %s\n", h.getTime(), h.getUser(), h.getBot()));
+                    List<BotQAParam.QAParam> compressedList = gson.fromJson(
+                            res,
+                            new TypeToken<List<BotQAParam.QAParam>>() {
+                            }.getType()
+                    );
+                    if (compressedList == null || compressedList.isEmpty()) {
+                        return;
+                    }
+                    compressedList.addAll(unchangeList);
+                    map.put(MODEL_KEY, compressedList);
+                    jedisCluster.setex(key, 60 * 60, gson.toJson(map));
+                } catch (Exception e) {
+                    log.error("checkTokenLength error for key: {}, error: {}", key, e.getMessage());
+                } finally {
+                    unLock(conversationId, uuid);
+                }
+
             });
         }
-        sb.append("最新问题: \n ###用户: ").append(param.getLatestQuestion());
-        return sb.toString()
-                .replaceAll("[\u0000-\u001F]", "")
-                .replaceAll("[\\\\\"]", "");
 
     }
 
-
     private static Boolean requestExceedLimit(List<String> logs) {
-        String request = gson.toJson(logs);
-        if (request.length() >= 20000) {
-            return true;
-        }
-        return false;
+        String formatLog = formatLogs(logs);
+        int count = TOKENIZER.countTokens(formatLog);
+        return count > 20000;
     }
 
     private static Integer compressIndex(Map<String, List<BotQAParam.QAParam>> map) {
         List<BotQAParam.QAParam> paramList = map.get(MODEL_KEY);
-        if (gson.toJson(paramList).length() <= 40000) {
+        String modelJson = gson.toJson(paramList);
+        int count = TOKENIZER.countTokens(modelJson);
+        if (count <= 70000) {
             return 0;
         }
-       int limit = 20000;
+        int limit = 20000;
         List<BotQAParam.QAParam> originalList = map.get(ORIGINAL_KEY);
         int sum = 0;
         int index = originalList.size();
         for (int i = originalList.size() - 1; i >= 0; i--) {
             BotQAParam.QAParam param = originalList.get(i);
             String str = gson.toJson(param);
-            sum += str.length();
+            sum += TOKENIZER.countTokens(str);
+            ;
+            index = i;
+            if (sum >= limit) {
+                break;
+            }
+        }
+        int maxCompress = originalList.size() - 20;
+        return Math.max(index, maxCompress);
+    }
+
+    private static Integer compressIndex(List<BotQAParam.QAParam> paramList, List<BotQAParam.QAParam> originalList) {
+        String modelJson = gson.toJson(paramList);
+        int count = TOKENIZER.countTokens(modelJson);
+        if (count <= 50000) {
+            return 0;
+        }
+        int limit = 20000;
+        int sum = 0;
+        int index = originalList.size();
+        for (int i = originalList.size() - 1; i >= 0; i--) {
+            BotQAParam.QAParam param = originalList.get(i);
+            String str = gson.toJson(param);
+            sum += TOKENIZER.countTokens(str);
             index = i;
             if (sum >= limit) {
                 break;
@@ -333,16 +441,36 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     @Override
     public void shutdown() {
-        if (!QA_CACHE.isEmpty()){
-            log.info("The project is closed and the cache is flushed to the disk");
-            for (Map.Entry<Long, Map<String, List<BotQAParam.QAParam>>> entry : QA_CACHE.entrySet()) {
-                MilogAiConversationDO milogAiConversationDO = milogAiConversationMapper.selectById(entry.getKey());
-                List<BotQAParam.QAParam> modelHistory = entry.getValue().get(MODEL_KEY);
-                List<BotQAParam.QAParam> originalHistory = entry.getValue().get(ORIGINAL_KEY);
-                milogAiConversationDO.setUpdateTime(System.currentTimeMillis());
-                milogAiConversationDO.setConversationContext(gson.toJson(modelHistory));
-                milogAiConversationDO.setOriginalConversation(gson.toJson(originalHistory));
-                milogAiConversationMapper.updateById(milogAiConversationDO);
+        if (!trySimpleLock(GLOBAL_SHUTDOWN_LOCK_KEY, 120L)) {
+            return;
+        }
+        Set<String> allCacheKey = getAllCacheKey();
+        if (!allCacheKey.isEmpty()) {
+            List<Future<?>> futures = new ArrayList<>();
+            for (String key : allCacheKey) {
+                Future<?> future = executor.submit(() -> {
+                    String[] split = key.split(":");
+                    Long conversationId = Long.valueOf(split[split.length - 1]);
+                    String value = jedisCluster.get(key);
+                    Map<String, List<BotQAParam.QAParam>> map = gson.fromJson(value, new TypeToken<Map<String, List<BotQAParam.QAParam>>>() {
+                    }.getType());
+                    List<BotQAParam.QAParam> modelHistory = map.get(MODEL_KEY);
+                    List<BotQAParam.QAParam> originalHistory = map.get(ORIGINAL_KEY);
+                    MilogAiConversationDO conversationDO = milogAiConversationMapper.selectById(conversationId);
+                    if (conversationDO != null) {
+                        conversationDO.setOriginalConversation(gson.toJson(originalHistory));
+                        conversationDO.setConversationContext(gson.toJson(modelHistory));
+                        milogAiConversationMapper.updateById(conversationDO);
+                    }
+                });
+                futures.add(future);
+            }
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (Exception e) {
+                    log.error("A future task execute failed: {}", e.getMessage());
+                }
             }
         }
     }
@@ -352,7 +480,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         MoneUser user = MoneUserContext.getCurrentUser();
         List<MilogAiConversationDO> historyList = milogAiConversationMapper.getListByUserAndStore(storeId, user.getUser());
         List<AiAnalysisHistoryDTO> result = new ArrayList<>();
-        if(!historyList.isEmpty()){
+        if (!historyList.isEmpty()) {
             result = historyList.stream().map(h -> {
                 AiAnalysisHistoryDTO dto = new AiAnalysisHistoryDTO();
                 dto.setId(h.getId());
@@ -366,21 +494,22 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     @Override
     public Result<List<BotQAParam.QAParam>> getAiConversation(Long id) {
-        Map<String, List<BotQAParam.QAParam>> stringListMap = QA_CACHE.get(id);
+        Map<String, List<BotQAParam.QAParam>> stringListMap = getCache(id);
         if (stringListMap != null && !stringListMap.isEmpty()) {
             List<BotQAParam.QAParam> paramList = stringListMap.get(ORIGINAL_KEY);
             return Result.success(paramList);
         }
         MilogAiConversationDO conversationDO = milogAiConversationMapper.selectById(id);
         String originalConversationStr = conversationDO.getOriginalConversation();
-        List<BotQAParam.QAParam> res =  gson.fromJson(originalConversationStr, new TypeToken<List<BotQAParam.QAParam>>() {}.getType());
+        List<BotQAParam.QAParam> res = gson.fromJson(originalConversationStr, new TypeToken<List<BotQAParam.QAParam>>() {
+        }.getType());
         return Result.success(res);
     }
 
     @Override
     public Result<Boolean> deleteAiConversation(Long id) {
         milogAiConversationMapper.deleteById(id);
-        QA_CACHE.remove(id);
+        removeCache(id);
         return Result.success(true);
     }
 
@@ -395,14 +524,14 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     @Override
     public Result<Boolean> closeAiAnalysis(Long id) {
-        Map<String, List<BotQAParam.QAParam>> stringListMap = QA_CACHE.get(id);
+        Map<String, List<BotQAParam.QAParam>> stringListMap = getCache(id);
         if (stringListMap != null && !stringListMap.isEmpty()) {
             MilogAiConversationDO conversationDO = milogAiConversationMapper.selectById(id);
             conversationDO.setUpdateTime(System.currentTimeMillis());
             conversationDO.setConversationContext(gson.toJson(stringListMap.get(MODEL_KEY)));
             conversationDO.setOriginalConversation(gson.toJson(stringListMap.get(ORIGINAL_KEY)));
             milogAiConversationMapper.updateById(conversationDO);
-            QA_CACHE.remove(id);
+            removeCache(id);
         }
         return Result.success(true);
     }
@@ -413,4 +542,129 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         return dateTime.format(formatter);
     }
+
+    private Map<String, List<BotQAParam.QAParam>> getConversation(Long conversationId) {
+        String redisKey = MILOG_AI_KEY_PREFIX + conversationId;
+        String value = jedisCluster.get(redisKey);
+        if (value != null && !value.isEmpty()) {
+            Map<String, List<BotQAParam.QAParam>> map = gson.fromJson(value, new TypeToken<Map<String, List<BotQAParam.QAParam>>>() {
+            }.getType());
+            return map;
+        }
+
+        MilogAiConversationDO conversationDO = milogAiConversationMapper.selectById(conversationId);
+        if (conversationDO != null) {
+            Map<String, List<BotQAParam.QAParam>> conversationMap = new HashMap<>();
+            String conversationContext = conversationDO.getConversationContext();
+            List<BotQAParam.QAParam> modelConversation = gson.fromJson(conversationContext, new TypeToken<List<BotQAParam.QAParam>>() {
+            }.getType());
+            String originalConversationStr = conversationDO.getOriginalConversation();
+            List<BotQAParam.QAParam> originalConversation = gson.fromJson(originalConversationStr, new TypeToken<List<BotQAParam.QAParam>>() {
+            }.getType());
+
+            conversationMap.put(MODEL_KEY, modelConversation);
+            conversationMap.put(ORIGINAL_KEY, originalConversation);
+
+            putCache(conversationId, conversationMap);
+            return conversationMap;
+        }
+
+        return new HashMap<>();
+    }
+
+    private static boolean putCache(Long conversationId, Map<String, List<BotQAParam.QAParam>> map) {
+        if (map == null || map.isEmpty()) {
+            return false;
+        }
+        String redisKey = MILOG_AI_KEY_PREFIX + conversationId;
+        String res = jedisCluster.setex(redisKey, 60 * 60, gson.toJson(map));
+        return true;
+    }
+
+    private Map<String, List<BotQAParam.QAParam>> getCache(Long conversationId) {
+        String redisKey = MILOG_AI_KEY_PREFIX + conversationId;
+        String value = jedisCluster.get(redisKey);
+        if (value != null && !value.isEmpty()) {
+            Map<String, List<BotQAParam.QAParam>> map = gson.fromJson(value, new TypeToken<Map<String, List<BotQAParam.QAParam>>>() {
+            }.getType());
+            return map;
+        }
+        return new HashMap<>();
+    }
+
+
+    private static void removeCache(Long conversationId) {
+        String redisKey = MILOG_AI_KEY_PREFIX + conversationId;
+        jedisCluster.del(redisKey);
+    }
+
+    private static String formatLogs(List<String> logs) {
+        return String.join("\n", logs);
+    }
+
+    private Set<String> getAllCacheKey() {
+        Set<String> keys = new HashSet<>();
+        Map<String, JedisPool> clusterNodes = jedisCluster.getClusterNodes();
+        for (Map.Entry<String, JedisPool> entry : clusterNodes.entrySet()) {
+            try (Jedis jedis = entry.getValue().getResource()) {
+                String cursor = "0";
+                do {
+                    ScanResult<String> scanResult = jedis.scan(cursor, new ScanParams().match(MILOG_AI_KEY_PREFIX + "*").count(1000));
+                    keys.addAll(scanResult.getResult());
+                    cursor = scanResult.getCursor();
+                } while (!cursor.equals("0"));
+            } catch (Exception e) {
+                log.error("Failed to retrieve all conversation keys from Redis!");
+            }
+        }
+        return keys;
+    }
+
+    private boolean tryLock(Long conversationId, String value, Long expireSeconds) {
+        String lockKey = LOCK_PREFIX + conversationId;
+        SetParams params = new SetParams();
+        params.nx();
+        params.px(expireSeconds * 1000);
+        String res = jedisCluster.set(lockKey, value, params);
+        return "OK".equals(res);
+    }
+
+    private boolean trySimpleLock(String key, Long expireSeconds) {
+        SetParams params = new SetParams();
+        params.nx();
+        params.px(expireSeconds * 1000);
+        String res = jedisCluster.set(key, "1", params);
+        return "OK".equals(res);
+    }
+
+    private static final String UNLOCK_LUA =
+            "if redis.call('get', KEYS[1]) == ARGV[1] then " +
+                    "   return redis.call('del', KEYS[1]) " +
+                    "else " +
+                    "   return 0 " +
+                    "end";
+
+    private void unLock(Long conversationId, String value) {
+        String lockKey = LOCK_PREFIX + conversationId;
+        try {
+            jedisCluster.eval(UNLOCK_LUA, Collections.singletonList(lockKey), Collections.singletonList(value));
+
+        } catch (Exception e) {
+            log.error("failed to unlock key: {}, error:{}", lockKey, e.getMessage());
+        }
+    }
+
+    @Data
+    static class AnalysisResult {
+        private String answer;
+        private List<BotQAParam.QAParam> compressedModelHistory;
+    }
+
+    @Data
+    static class CompressionIndex {
+        private Integer index;
+        private Integer currentTokenCount;
+        private Integer targetTokenCount;
+    }
+
 }

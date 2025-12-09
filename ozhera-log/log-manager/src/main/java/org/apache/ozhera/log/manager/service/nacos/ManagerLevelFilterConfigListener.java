@@ -22,9 +22,11 @@ import cn.hutool.core.thread.ThreadUtil;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.xiaomi.data.push.common.SafeRun;
 import com.xiaomi.youpin.docean.anno.Component;
+import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
 import com.xiaomi.youpin.docean.plugin.nacos.NacosConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.service.PublishConfigService;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.mapper.MilogLogTemplateMapper;
@@ -67,6 +69,9 @@ public class ManagerLevelFilterConfigListener {
 
     @Resource
     private MilogLogstoreDao logStoreDao;
+
+    @Reference(interfaceClass = PublishConfigService.class, group = "$dubbo.env.group", check = false, timeout = 14000)
+    private PublishConfigService publishConfigService;
 
     private TailExtensionService tailExtensionService;
 
@@ -136,41 +141,13 @@ public class ManagerLevelFilterConfigListener {
             if (config != null && config.getEnableGlobalFilter() && areElementsSameIgnoreCase(newConfig.getLogLevelList(), config.getLogLevelList())) {
                 return;
             }
-//            globalUpdateSendMsg();
+            globalUpdateSendMsg();
         }
         config = newConfig;
     }
 
     public void globalUpdateSendMsg() {
-        AtomicLong lastId = new AtomicLong(0L);
-        ConcurrentLinkedQueue<MilogLogTailDo> failedTailList = new ConcurrentLinkedQueue<>();
-        List<CompletableFuture<Void>> futureList = new ArrayList<>();
-        try {
-            while (true) {
-                List<MilogLogTailDo> logTailByLastIdList = logtailDao.getLogTailByLastId(lastId.get(), BATCH_SIZE);
-                if (logTailByLastIdList.isEmpty()) break;
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    logTailByLastIdList.forEach(tail -> {
-                        try {
-                            updateSingleTail(tail);
-                        } catch (Exception e) {
-                            failedTailList.offer(tail);
-                            log.error("Failed to update tail: {}", tail.getId(), e);
-                        }
-                    });
-                }, logUpdateExecutor);
-                futureList.add(future);
-                lastId.set(logTailByLastIdList.get(logTailByLastIdList.size() - 1).getId());
-            }
-
-            CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
-
-            if (!failedTailList.isEmpty()) {
-                handleFailedTails(failedTailList);
-            }
-        } catch (Exception e) {
-            log.error("Global log config update failed", e);
-        }
+        log.info("global update，skip！");
     }
 
     private void handleFailedTails(Queue<MilogLogTailDo> failedTailList) {

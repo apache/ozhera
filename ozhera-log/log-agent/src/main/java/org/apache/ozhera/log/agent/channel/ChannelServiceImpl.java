@@ -479,7 +479,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
         RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
-        if (!pipeline.invoke(requestContext)) {
+        if (pipeline.invoke(requestContext)) {
             return;
         }
         LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ct);

@@ -446,7 +446,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String patternCode, long ct) {
         RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
-        if (!pipeline.invoke(requestContext)) {
+        if (pipeline.invoke(requestContext)) {
             return;
         }
         String filePathName = readResult.get().getFilePathName();

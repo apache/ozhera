@@ -89,12 +89,12 @@ public class ChannelServiceImpl extends AbstractChannelService {
     private final Map<String, Long> fileReadMap = new ConcurrentHashMap<>();
 
     private final Map<String, Pair<MLog, AtomicReference<ReadResult>>> resultMap = new ConcurrentHashMap<>();
-    
+
     /**
      * Track file read exceptions for retry mechanism
      */
     private final Map<String, Integer> fileExceptionCountMap = new ConcurrentHashMap<>();
-    
+
     /**
      * Track last file truncation check time
      */
@@ -282,13 +282,13 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     reOpen(path);
                     continue;
                 }
-                
+
                 // Check for file truncation during runtime (handles copytruncate rotation)
                 checkFileTruncation(path);
             }
         }), 15, 15, TimeUnit.SECONDS);
     }
-    
+
     /**
      * Check if file has been truncated during runtime (handles copytruncate log rotation)
      */
@@ -298,27 +298,27 @@ public class ChannelServiceImpl extends AbstractChannelService {
             if (fileProgress == null || fileProgress.getPointer() <= 0) {
                 return;
             }
-            
+
             java.io.File file = new java.io.File(filePath);
             if (!file.exists()) {
                 return;
             }
-            
+
             long savedPointer = fileProgress.getPointer();
             long currentFileLength = file.length();
-            
+
             if (savedPointer > currentFileLength) {
                 long lastCheckTime = fileTruncationCheckMap.getOrDefault(filePath, 0L);
                 long currentTime = System.currentTimeMillis();
                 boolean isImmediateTruncation = currentFileLength == 0 || currentFileLength < savedPointer * 0.1;
-                
+
                 // For immediate truncation, handle immediately; for gradual, reduce confirmation time to 15 seconds
                 if (isImmediateTruncation || (lastCheckTime > 0 && (currentTime - lastCheckTime) > 15000)) {
                     log.warn("File truncation detected: pointer {} > length {} for file:{}, resetting to 0",
                             savedPointer, currentFileLength, filePath);
                     fileProgress.setPointer(0L);
                     fileProgress.setCurrentRowNum(0L);
-                    
+
                     ILogFile logFile = logFileMap.get(filePath);
                     if (logFile != null && !logFile.getExceptionFinish()) {
                         handleFileTruncationReopen(filePath);
@@ -332,7 +332,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             log.debug("Error checking file truncation for path:{}", filePath, e);
         }
     }
-    
+
     /**
      * Handle file reopen for truncation cases, bypassing frequency limit
      * Optimized for fast rotation scenarios
@@ -479,12 +479,14 @@ public class ChannelServiceImpl extends AbstractChannelService {
 
     private void wrapDataToSend(String lineMsg, AtomicReference<ReadResult> readResult, String pattern, String patternCode, long ct) {
         RequestContext requestContext = RequestContext.builder().channelDefine(channelDefine).readResult(readResult.get()).lineMsg(lineMsg).build();
-        if (pipeline.invoke(requestContext)) {
-            return;
-        }
+
         LineMessage lineMessage = createLineMessage(lineMsg, readResult, pattern, patternCode, ct);
 
         updateChannelMemory(channelMemory, pattern, logTypeEnum, ct, readResult);
+
+        if (pipeline.invoke(requestContext)) {
+            return;
+        }
         lineMessageList.add(lineMessage);
 
         fileReadMap.put(pattern, ct);
@@ -545,7 +547,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             log.warn("file not exist,file:{}, will monitor for file creation", filePath);
         }
     }
-    
+
     /**
      * Check if exception is related to file truncation
      */
@@ -568,22 +570,22 @@ public class ChannelServiceImpl extends AbstractChannelService {
         }
         return false;
     }
-    
+
     /**
      * Handle file read exceptions with retry mechanism and error classification
      */
     private void handleFileReadException(String filePath, Exception e, String patternCode, Long channelId) {
         int exceptionCount = fileExceptionCountMap.getOrDefault(filePath, 0) + 1;
         fileExceptionCountMap.put(filePath, exceptionCount);
-        
+
         String errorMsg = e.getMessage();
-        boolean isPermissionError = e instanceof java.nio.file.AccessDeniedException 
+        boolean isPermissionError = e instanceof java.nio.file.AccessDeniedException
                 || (errorMsg != null && (errorMsg.contains("Permission denied") || errorMsg.contains("access denied")));
-        boolean isFileNotFound = e instanceof java.io.FileNotFoundException 
+        boolean isFileNotFound = e instanceof java.io.FileNotFoundException
                 || (errorMsg != null && errorMsg.contains("No such file"));
-        
+
         if (isPermissionError) {
-            log.error("File permission denied, channelId:{}, file:{}, patternCode:{}, exceptionCount:{}", 
+            log.error("File permission denied, channelId:{}, file:{}, patternCode:{}, exceptionCount:{}",
                     channelId, filePath, patternCode, exceptionCount, e);
             ILogFile logFile = logFileMap.get(filePath);
             if (logFile != null) {
@@ -591,18 +593,18 @@ public class ChannelServiceImpl extends AbstractChannelService {
             }
             return;
         }
-        
+
         if (isFileNotFound) {
-            log.warn("File not found during read, channelId:{}, file:{}, will retry when file is created", 
+            log.warn("File not found during read, channelId:{}, file:{}, will retry when file is created",
                     channelId, filePath, exceptionCount);
             return;
         }
-        
+
         final int MAX_RETRY_COUNT = 5;
         final long RETRY_DELAY_SECONDS = 30;
-        
+
         if (exceptionCount <= MAX_RETRY_COUNT) {
-            log.warn("File read error (retry {}/{}), channelId:{}, file:{}, will retry in {} seconds", 
+            log.warn("File read error (retry {}/{}), channelId:{}, file:{}, will retry in {} seconds",
                     exceptionCount, MAX_RETRY_COUNT, channelId, filePath, RETRY_DELAY_SECONDS, e);
             ExecutorUtil.schedule(() -> SafeRun.run(() -> {
                 if (FileUtil.exist(filePath)) {
@@ -611,7 +613,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
                 }
             }), RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
         } else {
-            log.error("File read error exceeded max retries ({}), channelId:{}, file:{}, marking as finished", 
+            log.error("File read error exceeded max retries ({}), channelId:{}, file:{}, marking as finished",
                     MAX_RETRY_COUNT, channelId, filePath, e);
             ILogFile logFile = logFileMap.get(filePath);
             if (logFile != null) {
@@ -783,11 +785,11 @@ public class ChannelServiceImpl extends AbstractChannelService {
                     isCriticalRotation = fileProgress.getPointer() > file.length();
                 }
             }
-            
+
             // For critical rotation events, bypass frequency limit to avoid data loss
             final long REOPEN_THRESHOLD = isCriticalRotation ? 1000 : 10 * 1000; // 1 second for critical, 10 seconds for normal
 
-            if (!isCriticalRotation && reOpenMap.containsKey(filePath) && 
+            if (!isCriticalRotation && reOpenMap.containsKey(filePath) &&
                     Instant.now().toEpochMilli() - reOpenMap.get(filePath) < REOPEN_THRESHOLD) {
                 log.info("The file has been opened too frequently.Please try again in 10 seconds.fileName:{}," +
                         "last time opening time.:{}", filePath, reOpenMap.get(filePath));
@@ -957,7 +959,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
         for (String delFile : delFiles) {
             resultMap.remove(delFile);
         }
-        
+
         // Clean up exception count and truncation check maps
         delFiles = fileExceptionCountMap.keySet().stream()
                 .filter(filePath -> filter.test(filePath))

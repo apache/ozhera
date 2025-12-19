@@ -216,7 +216,8 @@ public class AlarmService {
 
     public Result addRule(AppMonitor app, AppAlarmRule rule, String user, AlarmRuleData ruleData){
 
-
+        ruleData.setIamId(app.getIamTreeId());
+        ruleData.setProjectId(app.getProjectId());
 
         JsonObject jsonObject = new JsonObject();
 
@@ -395,6 +396,9 @@ public class AlarmService {
     }
 
     public Result editRule(AppAlarmRule rule,AlarmRuleData ruleData,AppMonitor app,String user){
+
+        ruleData.setIamId(app.getIamTreeId());
+        ruleData.setProjectId(app.getProjectId());
 
         /**
          * modifiable field：

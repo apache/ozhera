@@ -18,7 +18,6 @@
  */
 package org.apache.ozhera.log.agent.channel;
 
-import cn.hutool.core.io.FileUtil;
 import com.xiaomi.mone.file.ReadResult;
 import com.xiaomi.mone.file.common.FileInfoCache;
 import com.xiaomi.mone.file.common.FileUtils;
@@ -208,9 +207,12 @@ public abstract class AbstractChannelService implements ChannelService {
         if (null != readResult.get().getFileMaxPointer()) {
             fileProgress.setFileMaxPointer(readResult.get().getFileMaxPointer());
         }
-        if (FileUtil.exist(fileName)) {
+        try {
             fileProgress.setUnixFileNode(ChannelUtil.buildUnixFileNode(fileName));
+        } catch (Throwable e) {
+            log.error("updateChannelMemory error,channelId:{},fileName:{}", channelDefine.getChannelId(), fileName, e);
         }
+
         fileProgress.setPodType(channelDefine.getPodType());
         fileProgress.setCtTime(ct);
     }

@@ -54,10 +54,10 @@ public class Pipeline {
                 continue;
             }
             boolean shouldContinue = valve.invoke(ctx);
-            if (!shouldContinue) {
-                return false;
+            if (shouldContinue) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

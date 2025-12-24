@@ -18,6 +18,8 @@
  */
 package org.apache.ozhera.log.server.porcessor;
 
+import com.google.common.util.concurrent.RateLimiter;
+import com.xiaomi.data.push.rpc.common.CompressionUtil;
 import com.xiaomi.data.push.rpc.netty.NettyRequestProcessor;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.youpin.docean.Ioc;
@@ -48,30 +50,67 @@ import static org.apache.ozhera.log.common.Constant.GSON;
 public class AgentCollectProgressProcessor implements NettyRequestProcessor {
 
     @Resource
-    DefaultLogProcessCollector processService;
+    private DefaultLogProcessCollector processService;
 
-    private static Version version = new Version();
+    private static final RateLimiter ERROR_LIMITER = RateLimiter.create(2);
+
+    private static final Version VERSION = new Version();
 
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws Exception {
-        log.debug("received a message from the agent");
+        log.debug("Received a message from the agent, remote address: {}", getIp(ctx));
+
         RemotingCommand response = RemotingCommand.createResponseCommand(Constant.RPCCMD_AGENT_CODE);
-        String body = new String(request.getBody(), StandardCharsets.UTF_8);
-        try {
-            UpdateLogProcessCmd cmd = GSON.fromJson(body, UpdateLogProcessCmd.class);
-            log.debug("a request from the client sent by the agent:{}", cmd.getIp());
-            if (null == processService && Ioc.ins().containsBean(DefaultLogProcessCollector.class.getCanonicalName())) {
-                processService = Ioc.ins().getBean(DefaultLogProcessCollector.class);
-            }
-            if (null != processService) {
-                processService.collectLogProcess(cmd);
-            }
-        } catch (Exception e) {
-            log.error("processRequest error,ip:{},body:{}", getIp(ctx), body, e);
+        response.setBody((VERSION + Constant.SUCCESS_MESSAGE).getBytes());
+
+        if (request.getBody() == null || request.getBody().length == 0) {
+            return response;
         }
-        response.setBody(version.toString().getBytes());
-        response.setBody(Constant.SUCCESS_MESSAGE.getBytes());
+
+        if (processService == null && Ioc.ins().containsBean(DefaultLogProcessCollector.class.getCanonicalName())) {
+            processService = Ioc.ins().getBean(DefaultLogProcessCollector.class);
+        }
+
+        UpdateLogProcessCmd cmd = parseRequestBody(request.getBody(), ctx);
+        if (cmd == null) {
+            return response;
+        }
+
+        if (processService != null) {
+            processService.collectLogProcess(cmd);
+        }
+
         return response;
+    }
+
+    /**
+     * try to parse the request body
+     */
+    private UpdateLogProcessCmd parseRequestBody(byte[] bodyBytes, ChannelHandlerContext ctx) {
+        String bodyStr = null;
+
+        try {
+            bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
+            UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
+            if (StringUtils.isBlank(cmd.getIp())) {
+                log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
+                return null;
+            }
+            log.debug("Parsed request from agent: ip={}", cmd.getIp());
+            return cmd;
+        } catch (Exception ignored) {
+        }
+
+        try {
+            bodyStr = new String(CompressionUtil.decompress(bodyBytes), StandardCharsets.UTF_8);
+            UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
+            log.debug("Parsed decompressed request from agent: ip={}", cmd.getIp());
+            return cmd;
+        } catch (Exception e) {
+            assert bodyStr != null;
+            log.error("processRequest error, ip={}, body={}", getIp(ctx), brief(bodyStr), e);
+            return null;
+        }
     }
 
     @Override
@@ -89,5 +128,9 @@ public class AgentCollectProgressProcessor implements NettyRequestProcessor {
             return String.format("%s:%d", ip, port);
         }
         return StringUtils.EMPTY;
+    }
+
+    private String brief(String body) {
+        return body.length() > 200 ? body.substring(0, 200) + "..." : body;
     }
 }

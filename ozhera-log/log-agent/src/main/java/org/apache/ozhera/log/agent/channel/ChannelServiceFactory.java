@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.agent.channel.memory.AgentMemoryService;
 import org.apache.ozhera.log.agent.channel.pipeline.Pipeline;
+import org.apache.ozhera.log.agent.config.AgentConfigManager;
 import org.apache.ozhera.log.agent.export.MsgExporter;
 import org.apache.ozhera.log.agent.filter.FilterChain;
 import org.apache.ozhera.log.agent.input.Input;
@@ -57,7 +58,7 @@ public class ChannelServiceFactory {
     public ChannelServiceFactory(AgentMemoryService agentMemoryService, String memoryBasePath) {
         this.agentMemoryService = agentMemoryService;
         this.memoryBasePath = memoryBasePath;
-        String specialFileSuffix = getConfigValue(DEFAULT_SPECIAL_FILE_SUFFIX_KEY);
+        String specialFileSuffix = AgentConfigManager.get(DEFAULT_SPECIAL_FILE_SUFFIX_KEY, getConfigValue(DEFAULT_SPECIAL_FILE_SUFFIX_KEY));
         if (StringUtils.isNotBlank(specialFileSuffix)) {
             multiSpecialFileSuffix = Lists.newArrayList(specialFileSuffix.split(SYMBOL_COMMA));
         }

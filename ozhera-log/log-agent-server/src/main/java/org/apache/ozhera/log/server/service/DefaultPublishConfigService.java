@@ -35,9 +35,10 @@ import org.apache.ozhera.log.utils.NetUtil;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
@@ -60,6 +61,19 @@ public class DefaultPublishConfigService implements PublishConfigService {
 
     private volatile boolean configCompressValue = false;
 
+
+    private static final ExecutorService SEND_CONFIG_EXECUTOR;
+
+    static {
+        SEND_CONFIG_EXECUTOR = Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual()
+                        .name("send-config-vt-", 0)
+                        .uncaughtExceptionHandler((t, e) ->
+                                log.error("send config uncaught exception", e))
+                        .factory()
+        );
+    }
+
     public void init() {
         String raw = System.getenv(CONFIG_COMPRESS_KEY);
         if (StringUtils.isBlank(raw)) {
@@ -80,17 +94,25 @@ public class DefaultPublishConfigService implements PublishConfigService {
      * dubbo interface, the timeout period cannot be too long
      *
      * @param agentIp
-     * @param logCollectMeta
+     * @param meta
      */
     @Override
-    public void sengConfigToAgent(String agentIp, LogCollectMeta logCollectMeta) {
+    public void sengConfigToAgent(String agentIp, LogCollectMeta meta) {
+        if (StringUtils.isBlank(agentIp) || meta == null) {
+            return;
+        }
+        doSendConfig(agentIp, meta);
+//        SEND_CONFIG_EXECUTOR.execute(() -> );
+    }
+
+    private void doSendConfig(String agentIp, LogCollectMeta meta) {
         int count = 1;
-        while (count < 4) {
+        while (count < 3) {
             Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
-            String agentCurrentIp = queryCurrentDockerAgentIP(agentIp, logAgentMap);
+            String agentCurrentIp = getCorrectDockerAgentIP(agentIp, logAgentMap);
             if (logAgentMap.containsKey(agentCurrentIp)) {
-                String sendStr = GSON.toJson(logCollectMeta);
-                if (CollectionUtils.isNotEmpty(logCollectMeta.getAppLogMetaList())) {
+                String sendStr = GSON.toJson(meta);
+                if (CollectionUtils.isNotEmpty(meta.getAppLogMetaList())) {
                     RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
 
@@ -103,17 +125,17 @@ public class DefaultPublishConfigService implements PublishConfigService {
                     RemotingCommand res = rpcServer.sendMessage(logAgentMap.get(agentCurrentIp), req, 10000);
                     started.stop();
                     String response = new String(res.getBody());
-                    log.info("The configuration is sent successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), agentCurrentIp);
+                    log.info("The configuration is send successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), agentCurrentIp);
                     if (Objects.equals(response, "ok")) {
                         break;
                     }
                 }
             } else {
-                log.info("The current agent IP is not connected,ip:{},configuration data:{}", agentIp, GSON.toJson(logCollectMeta));
+                log.info("The current agent IP is not connected,ip:{},configuration data:{}", agentIp, GSON.toJson(meta));
             }
-            //Retry policy - Retry 4 times, sleep 500 ms each time
+            //Retry policy - Retry 4 times, sleep 200 ms each time
             try {
-                TimeUnit.MILLISECONDS.sleep(500L);
+                TimeUnit.MILLISECONDS.sleep(200L);
             } catch (final InterruptedException ignored) {
             }
             count++;
@@ -124,12 +146,10 @@ public class DefaultPublishConfigService implements PublishConfigService {
     public List<String> getAllAgentList() {
         List<String> remoteAddress = Lists.newArrayList();
         List<String> ipAddress = Lists.newArrayList();
-        AgentContext.ins().map.entrySet().forEach(agentChannelEntry -> {
-                    String key = agentChannelEntry.getKey();
-                    remoteAddress.add(key);
-                    ipAddress.add(StringUtils.substringBefore(key, SYMBOL_COLON));
-                }
-        );
+        AgentContext.ins().map.forEach((key, value) -> {
+            remoteAddress.add(key);
+            ipAddress.add(StringUtils.substringBefore(key, SYMBOL_COLON));
+        });
         if (COUNT_INCR.getAndIncrement() % 200 == 0) {
             log.info("The set of remote addresses of the connected agent machine is:{}", GSON.toJson(remoteAddress));
         }
@@ -142,13 +162,13 @@ public class DefaultPublishConfigService implements PublishConfigService {
         return logAgentMap;
     }
 
-    private String queryCurrentDockerAgentIP(String agentIp, Map<String, AgentChannel> logAgentMap) {
+    private String getCorrectDockerAgentIP(String agentIp, Map<String, AgentChannel> logAgentMap) {
         if (Objects.equals(agentIp, NetUtil.getLocalIp())) {
             //for Docker handles the agent on the current machine
             final String tempIp = agentIp;
             List<String> ipList = getAgentChannelMap().keySet()
                     .stream().filter(ip -> ip.startsWith("172"))
-                    .collect(Collectors.toList());
+                    .toList();
             Optional<String> optionalS = ipList.stream()
                     .filter(ip -> Objects.equals(logAgentMap.get(ip).getIp(), tempIp))
                     .findFirst();

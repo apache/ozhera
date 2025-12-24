@@ -16,33 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.ozhera.log.agent.extension.nacos;
-
-import com.alibaba.nacos.api.config.ConfigFactory;
-import com.alibaba.nacos.api.config.ConfigService;
-import com.alibaba.nacos.api.exception.NacosException;
-import lombok.Getter;
-
-import static org.apache.ozhera.log.common.Constant.DEFAULT_GROUP_ID;
-import static org.apache.ozhera.log.common.Constant.DEFAULT_TIME_OUT_MS;
+package org.apache.ozhera.log.agent.config;
 
 /**
  * @author wtt
+ * @date 2025/12/23 14:59
  * @version 1.0
- * @description
- * @date 2025/6/10 16:52
  */
-@Getter
-public class NacosConfigUtil {
+public interface ConfigCenter {
+    /**
+     * get the configuration content (json/yaml/properties are all fine, the Agent does not care)
+     */
+    String getConfig(String dataId) throws Exception;
 
-    private final ConfigService configService;
-
-    public NacosConfigUtil(String nacosAddr) throws NacosException {
-        this.configService = ConfigFactory.createConfigService(nacosAddr);
-    }
-
-    public String getConfig(String dataId) throws NacosException {
-        return configService.getConfig(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
-    }
-
+    /**
+     * listen for configuration changes
+     */
+    void addListener(String dataId, ConfigChangeListener listener);
 }

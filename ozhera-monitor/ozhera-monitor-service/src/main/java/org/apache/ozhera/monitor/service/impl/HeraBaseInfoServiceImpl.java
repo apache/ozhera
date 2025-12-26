@@ -89,7 +89,7 @@ public class HeraBaseInfoServiceImpl implements HeraBaseInfoService {
     }
     
     @Override
-    public Result delRole(Integer id) {
+    public Result delRole(Long id) {
         
         Integer i = hearAppService.delRoleById(id);
         if (i.intValue() > 0) {

@@ -79,6 +79,10 @@ public class RocketMqHeraAppConsumer {
     @NacosValue(value = "${rocketmq.sk}", autoRefreshed = true)
     private String sk;
 
+    //默认为空，根据需要配置
+    @NacosValue(value = "${stop.mq:false}", autoRefreshed = true)
+    private Boolean stopMq;
+
     private DefaultMQPushConsumer heraAppMQPushConsumer;
 
     @Autowired
@@ -207,6 +211,11 @@ public class RocketMqHeraAppConsumer {
     }
 
     private void saveOrUpdateHeraAppRole(List<String> members, String appId, Integer platFormType) {
+
+        if(stopMq){
+            log.info("Mq consumer stop ...");
+            return;
+        }
 
         log.info("RocketMqHeraAppConsumer#saveOrUpdateHeraAppRole appId:{},platFormType:{},members:{}", appId, platFormType, members);
         if (CollectionUtils.isEmpty(members)) {

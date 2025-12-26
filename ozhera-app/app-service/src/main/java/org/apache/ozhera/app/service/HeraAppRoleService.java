@@ -41,7 +41,7 @@ public class HeraAppRoleService {
     @Autowired
     HeraAppRoleDao dao;
 
-    public Integer delById(Integer id){
+    public Integer delById(Long id){
         return dao.delById(id);
     }
 

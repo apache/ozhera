@@ -311,7 +311,7 @@ public class HeraAppServiceImpl implements HeraAppService {
     }
 
     @Override
-    public Integer delRoleById(Integer id) {
+    public Integer delRoleById(Long id) {
         return roleService.delById(id);
     }
 

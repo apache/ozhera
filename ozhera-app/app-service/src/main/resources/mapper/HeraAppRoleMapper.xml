@@ -22,7 +22,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.ozhera.app.dao.mapper.HeraAppRoleMapper">
   <resultMap id="BaseResultMap" type="org.apache.ozhera.app.model.HeraAppRole">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" jdbcType="BIGINT" property="id" />
     <result column="app_id" jdbcType="VARCHAR" property="appId" />
     <result column="app_platform" jdbcType="INTEGER" property="appPlatform" />
     <result column="user" jdbcType="VARCHAR" property="user" />
@@ -109,15 +109,15 @@
       limit #{offset} , #{limit}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from hera_app_role
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from hera_app_role
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.apache.ozhera.app.model.HeraAppRoleExample">
     delete from hera_app_role
@@ -126,7 +126,7 @@
     </if>
   </delete>
   <insert id="insert" parameterType="org.apache.ozhera.app.model.HeraAppRole">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into hera_app_role (app_id, app_platform, user, 
@@ -137,7 +137,7 @@
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="org.apache.ozhera.app.model.HeraAppRole">
-    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into hera_app_role
@@ -198,7 +198,7 @@
     update hera_app_role
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=INTEGER},
+        id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.appId != null">
         app_id = #{record.appId,jdbcType=VARCHAR},
@@ -228,7 +228,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update hera_app_role
-    set id = #{record.id,jdbcType=INTEGER},
+    set id = #{record.id,jdbcType=BIGINT},
       app_id = #{record.appId,jdbcType=VARCHAR},
       app_platform = #{record.appPlatform,jdbcType=INTEGER},
       user = #{record.user,jdbcType=VARCHAR},
@@ -265,7 +265,7 @@
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.apache.ozhera.app.model.HeraAppRole">
     update hera_app_role
@@ -276,7 +276,7 @@
       status = #{status,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
     insert into hera_app_role

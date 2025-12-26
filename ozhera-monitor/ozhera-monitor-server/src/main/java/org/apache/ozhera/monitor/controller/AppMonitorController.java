@@ -130,7 +130,7 @@ public class AppMonitorController {
 
     @ResponseBody
     @GetMapping("/mimonitor/delHeraRole")
-    public Result delHeraRole(Integer id) {
+    public Result delHeraRole(Long id) {
 
         return heraBaseInfoService.delRole(id);
 

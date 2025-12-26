@@ -63,7 +63,7 @@ public interface HeraAppService {
 
     Long getAppCount();
 
-    Integer delRoleById(Integer id);
+    Integer delRoleById(Long id);
 
     Integer addRole(HeraAppRoleModel roleModel);
 

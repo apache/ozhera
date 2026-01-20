@@ -26,7 +26,7 @@ import java.util.Date;
 
 @Data
 public class HeraAppRole {
-    private Integer id;
+    private Long id;
 
     private String appId;
 
@@ -42,11 +42,11 @@ public class HeraAppRole {
 
     private Date updateTime;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -107,7 +107,7 @@ public class HeraAppRole {
     }
 
     public enum Column {
-        id("id", "id", "INTEGER", false),
+        id("id", "id", "LONG", false),
         appId("app_id", "appId", "VARCHAR", false),
         appPlatform("app_platform", "appPlatform", "INTEGER", false),
         user("user", "user", "VARCHAR", false),

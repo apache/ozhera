@@ -38,7 +38,7 @@ public class HeraAppRoleDao {
     @Resource
     private HeraAppRoleMapper heraAppRoleMapper;
 
-    public Integer delById(Integer id) {
+    public Integer delById(Long id) {
         if (id == null) {
             log.error("HeraAppRoleDao.delById invalid param,id is null");
         }

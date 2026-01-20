@@ -252,12 +252,26 @@ public class RocketMqHeraAppConsumer {
 
         List<String> members = membersP.stream().distinct().collect(Collectors.toList());
 
+        log.info("check members size === " + members.size());
+
+        if(members.size() > 100){
+            log.info("more than 100 members found from mq info by appId : {} and platform_type : {}, update members stop! ", appId, platFormType);
+            return;
+        }
+
+
         HeraAppRole role = new HeraAppRole();
         role.setRole(0);
         role.setAppId(appId);
         role.setAppPlatform(platFormType);
         role.setStatus(0);
 //        role.setUser(member);
+
+        Long count = heraAppRoleDao.count(role);
+        if(count != null && count.intValue() > 100){
+            log.info("more than 100 members has existed in db found by appId : {} and platform_type : {}, update members stop! ", appId, platFormType);
+            return;
+        }
 
         List<HeraAppRole> query = heraAppRoleDao.query(role, null, 2000);
 

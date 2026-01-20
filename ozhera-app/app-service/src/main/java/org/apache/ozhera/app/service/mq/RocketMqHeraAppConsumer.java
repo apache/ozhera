@@ -259,6 +259,7 @@ public class RocketMqHeraAppConsumer {
             return;
         }
 
+
         HeraAppRole role = new HeraAppRole();
         role.setRole(0);
         role.setAppId(appId);

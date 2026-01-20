@@ -267,7 +267,7 @@ public class RocketMqHeraAppConsumer {
 //        role.setUser(member);
 
         Long count = heraAppRoleDao.count(role);
-        if(count != null && count.intValue() > 200){
+        if(count != null && count.intValue() > 100){
             log.info("more than 100 members has existed in db found by appId : {} and platform_type : {}, update members stop! ", appId, platFormType);
             return;
         }

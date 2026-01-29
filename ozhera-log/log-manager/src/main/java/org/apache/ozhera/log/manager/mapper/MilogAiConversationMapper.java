@@ -28,4 +28,12 @@ import java.util.List;
 @Mapper
 public interface MilogAiConversationMapper extends BaseMapper<MilogAiConversationDO> {
     List<MilogAiConversationDO> getListByUserAndStore(@Param(value = "storeId") Long storeId, @Param(value = "creator") String creator);
+
+    /**
+     * Delete conversations that have not been updated for more than the specified number of days
+     *
+     * @param expireTime the cutoff timestamp, conversations with update_time before this will be deleted
+     * @return the number of deleted records
+     */
+    int deleteByUpdateTimeBefore(@Param(value = "expireTime") Long expireTime);
 }

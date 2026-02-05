@@ -19,6 +19,7 @@
 package org.apache.ozhera.log.stream.job.extension.impl;
 
 import com.xiaomi.mone.es.EsProcessor;
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.apache.ozhera.log.stream.job.extension.MessageSender;
 import org.apache.ozhera.log.stream.job.extension.MqMessageProduct;
@@ -66,6 +67,15 @@ public class EsMessageSender implements MessageSender {
 
     @Override
     public boolean compensateSend(MqMessageDTO compensateMsg) {
+        if (null != compensateMsgProduct) {
+            compensateMsgProduct.product(compensateMsg);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean compensateSend(EsCompensateLoopDTO compensateMsg) {
         if (null != compensateMsgProduct) {
             compensateMsgProduct.product(compensateMsg);
             return true;

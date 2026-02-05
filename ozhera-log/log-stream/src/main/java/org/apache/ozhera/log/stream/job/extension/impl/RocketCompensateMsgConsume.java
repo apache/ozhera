@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import com.xiaomi.mone.es.EsProcessor;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.parse.LogParser;
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.apache.ozhera.log.stream.job.extension.CompensateMsgConsume;
 import org.apache.ozhera.log.stream.plugin.es.EsPlugin;
@@ -53,6 +54,7 @@ import static org.apache.rocketmq.common.consumer.ConsumeFromWhere.CONSUME_FROM_
 @Slf4j
 public class RocketCompensateMsgConsume implements CompensateMsgConsume {
 
+    private RocketMqMessageProduct rocketMqMessageProduct = new RocketMqMessageProduct();
 
     @Override
     public void consume(String ak, String sk, String serviceUrl, String topic) {
@@ -70,8 +72,28 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
                 byte[] body = ele.getBody();
                 String str = new String(body);
                 log.info("RocketMqMessageConsume.consume:{}", str);
-                MqMessageDTO mqMessageDTO = GSON.fromJson(str, MqMessageDTO.class);
-                sendMessageReply(mqMessageDTO);
+                EsCompensateLoopDTO esCompensateLoopDTO;
+                try {
+                    esCompensateLoopDTO = GSON.fromJson(str, EsCompensateLoopDTO.class);
+                    // Compatible with old data
+                    if (esCompensateLoopDTO.getMqMessageDTO() == null) {
+                        MqMessageDTO mqMessageDTO = GSON.fromJson(str, MqMessageDTO.class);
+                        if (mqMessageDTO.getEsInfo() != null) {
+                            esCompensateLoopDTO = new EsCompensateLoopDTO();
+                            esCompensateLoopDTO.setMqMessageDTO(mqMessageDTO);
+                            esCompensateLoopDTO.setRetryCount(0);
+                            esCompensateLoopDTO.setLastRetryTime(System.currentTimeMillis());
+                        }
+                    }
+                } catch (Exception e) {
+                    MqMessageDTO mqMessageDTO = GSON.fromJson(str, MqMessageDTO.class);
+                    esCompensateLoopDTO = new EsCompensateLoopDTO();
+                    esCompensateLoopDTO.setMqMessageDTO(mqMessageDTO);
+                    esCompensateLoopDTO.setRetryCount(0);
+                    esCompensateLoopDTO.setLastRetryTime(System.currentTimeMillis());
+                }
+
+                sendMessageReply(esCompensateLoopDTO);
             });
             return ConsumeOrderlyStatus.SUCCESS;
         });
@@ -106,8 +128,9 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
         log.info("compensate consume  message succeed");
     }
 
-    private void sendMessageReply(MqMessageDTO mqMessageDTO) {
-        log.info("Compensate Message content: " + GSON.toJson(mqMessageDTO));
+    private void sendMessageReply(EsCompensateLoopDTO esCompensateLoopDTO) {
+        log.info("Compensate Message content: " + GSON.toJson(esCompensateLoopDTO));
+        MqMessageDTO mqMessageDTO = esCompensateLoopDTO.getMqMessageDTO();
         //write directly es no handle
         List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = mqMessageDTO.getCompensateMqDTOS();
         if (CollectionUtils.isNotEmpty(compensateMqDTOS)) {
@@ -124,9 +147,19 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
                 } catch (Exception e) {
                     hashMap.put(LogParser.esKeyMap_timestamp, Instant.now().toEpochMilli());
                 }
+                // Inject retry count for EsPlugin to pick up if this attempt fails
+                hashMap.put("__compensate_retry_count", esCompensateLoopDTO.getRetryCount());
+
                 log.info("mq index timestamp data:{},current timestamp:{}", hashMap.get(LogParser.esKeyMap_timestamp), Instant.now().toEpochMilli());
                 EsProcessor esProcessor = EsPlugin.getEsProcessor(mqMessageDTO.getEsInfo(),
-                        mqMessageDTO1 -> log.error("compensate msg store failed, data size:{}", mqMessageDTO1.getCompensateMqDTOS().size()));
+                        failedDto -> {
+                            log.error("compensate msg store failed again, retryCount:{}", failedDto.getRetryCount());
+                            // Increment retry count
+                            failedDto.setRetryCount(failedDto.getRetryCount() + 1);
+                            failedDto.setLastRetryTime(System.currentTimeMillis());
+                            // Re-send to MQ
+                            rocketMqMessageProduct.product(failedDto);
+                        });
                 esProcessor.bulkInsert(esIndex, hashMap);
             });
         }

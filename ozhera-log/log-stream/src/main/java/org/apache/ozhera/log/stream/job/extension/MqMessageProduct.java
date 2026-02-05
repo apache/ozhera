@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.stream.job.extension;
 
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 
 import java.util.List;
@@ -33,4 +34,6 @@ public interface MqMessageProduct {
     void product(String ak, String sk, String serviceUrl, String topic, List<String> msg);
 
     void product(MqMessageDTO msg);
+
+    void product(EsCompensateLoopDTO msg);
 }

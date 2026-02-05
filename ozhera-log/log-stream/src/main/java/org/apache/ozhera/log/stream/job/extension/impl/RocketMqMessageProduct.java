@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Constant;
 import org.apache.ozhera.log.stream.exception.StreamException;
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.apache.ozhera.log.stream.job.extension.MqMessageProduct;
 import lombok.extern.slf4j.Slf4j;
@@ -92,5 +93,36 @@ public class RocketMqMessageProduct implements MqMessageProduct {
         this.product(ak, sk, serviceUrl, topic, Lists.newArrayList(Constant.GSON.toJson(msg)));
         log.info("compensate send message succeed");
 
+    }
+
+    @Override
+    public void product(EsCompensateLoopDTO msg) {
+        String ak = Config.ins().get("rocketmq_ak", "");
+        String sk = Config.ins().get("rocketmq_sk", "");
+        String serviceUrl = Config.ins().get("rocketmq_service_url", "");
+        String topic = Config.ins().get("rocketmq_producer_topic", "");
+
+        String producerGroup = Config.ins().get("rocketmq_group", "hear_log_stream");
+        DefaultMQProducer producer = getDefaultMQProducer(serviceUrl, producerGroup);
+
+        Message message = new Message();
+        message.setTopic(topic);
+        message.setBody(Constant.GSON.toJson(msg).getBytes(StandardCharsets.UTF_8));
+
+        if (msg.getRetryCount() > 0) {
+            int level = 16 + msg.getRetryCount();
+            if (level > 18) {
+                level = 18;
+            }
+            message.setDelayTimeLevel(level);
+        }
+
+        try {
+            producer.send(message);
+            log.info("compensate send message succeed, retryCount:{}, delayLevel:{}", msg.getRetryCount(), message.getDelayTimeLevel());
+        } catch (Exception e) {
+            log.error("RocketMqMessageProduct send message error, RocketmqConfig: " +
+                    "{},nameSrvAddr:{}", producerGroup, serviceUrl, e);
+        }
     }
 }

@@ -33,6 +33,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.model.StorageInfo;
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -87,7 +88,7 @@ public class EsPlugin {
         return true;
     }
 
-    public static EsProcessor getEsProcessor(StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
+    public static EsProcessor getEsProcessor(StorageInfo esInfo, Consumer<EsCompensateLoopDTO> onFailedConsumer) {
         return getEsProcessor(esInfo, EsPlugin.esConfig, onFailedConsumer);
     }
 
@@ -102,7 +103,7 @@ public class EsPlugin {
      * @param onFailedConsumer
      * @return
      */
-    public static EsProcessor getEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer) {
+    public static EsProcessor getEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<EsCompensateLoopDTO> onFailedConsumer) {
 
         List<Pair<EsProcessor, Integer>> esProcessorList = esProcessorMap.get(cacheKey(esInfo));
         if (CollectionUtils.isEmpty(esProcessorList)) {
@@ -142,7 +143,7 @@ public class EsPlugin {
         return esProcessorIntegerPair.getKey();
     }
 
-    private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<MqMessageDTO> onFailedConsumer) {
+    private static void sendMessageToTopic(BulkRequest request, StorageInfo esInfo, Consumer<EsCompensateLoopDTO> onFailedConsumer) {
         String enable = Config.ins().get("hera.stream.compensate.message.enable", "");
         if (StringUtils.isNotBlank(enable) && StringUtils.equalsIgnoreCase(enable, "false")) {
             log.warn("[EsPlugin.sendMessageToTopic] hera.stream.compensate.message,enable is false,do not send message to topic,enable:{}", enable);
@@ -151,11 +152,22 @@ public class EsPlugin {
         MqMessageDTO MqMessageDTO = new MqMessageDTO();
         MqMessageDTO.setEsInfo(esInfo);
         AtomicInteger count = new AtomicInteger();
+        AtomicInteger maxRetryCount = new AtomicInteger(0);
         List<MqMessageDTO.CompensateMqDTO> compensateMqDTOS = Lists.newArrayList();
         request.requests().stream().filter(x -> x instanceof IndexRequest)
                 .forEach(x -> {
                     int currentNum = count.incrementAndGet();
                     Map source = ((IndexRequest) x).sourceAsMap();
+                    if (source.containsKey("__compensate_retry_count")) {
+                        try {
+                            int rc = Integer.parseInt(source.get("__compensate_retry_count").toString());
+                            if (rc > maxRetryCount.get()) {
+                                maxRetryCount.set(rc);
+                            }
+                            source.remove("__compensate_retry_count");
+                        } catch (Exception e) {
+                        }
+                    }
                     if (currentNum == 1 || currentNum % 600 == 0) {
                         log.error("Failure to handle index:[{}], type:[{}],id:[{}] data:[{}]", x.index(), x.type(), x.id(), JSON.toJSONString(source));
                     }
@@ -170,15 +182,23 @@ public class EsPlugin {
             List<List<MqMessageDTO.CompensateMqDTO>> splitList = ListUtil.partition(compensateMqDTOS, 2);
             for (List<MqMessageDTO.CompensateMqDTO> mqDTOS : splitList) {
                 MqMessageDTO.setCompensateMqDTOS(mqDTOS);
-                onFailedConsumer.accept(MqMessageDTO);
+                EsCompensateLoopDTO loopDTO = new EsCompensateLoopDTO();
+                loopDTO.setMqMessageDTO(MqMessageDTO);
+                loopDTO.setRetryCount(maxRetryCount.get());
+                loopDTO.setLastRetryTime(System.currentTimeMillis());
+                onFailedConsumer.accept(loopDTO);
             }
         } else {
             MqMessageDTO.setCompensateMqDTOS(compensateMqDTOS);
-            onFailedConsumer.accept(MqMessageDTO);
+            EsCompensateLoopDTO loopDTO = new EsCompensateLoopDTO();
+            loopDTO.setMqMessageDTO(MqMessageDTO);
+            loopDTO.setRetryCount(maxRetryCount.get());
+            loopDTO.setLastRetryTime(System.currentTimeMillis());
+            onFailedConsumer.accept(loopDTO);
         }
     }
 
-    private static EsProcessor buildEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<MqMessageDTO> onFailedConsumer, EsService esService) {
+    private static EsProcessor buildEsProcessor(StorageInfo esInfo, EsConfig config, Consumer<EsCompensateLoopDTO> onFailedConsumer, EsService esService) {
         AtomicLong errorCount = new AtomicLong(0);
         EsProcessor esProcessor = esService.getEsProcessor(new EsProcessorConf(config.getBulkActions(), config.getByteSize(), config.getConcurrentRequest(), config.getFlushInterval(),
                 config.getRetryNumber(), config.getRetryInterval(), new BulkProcessor.Listener() {
@@ -204,7 +224,7 @@ public class EsPlugin {
                                     , x.getOpType().getLowercase()
                                     , x.getVersion()
                                     , failure.getCause().getMessage()
-                            );
+                                    );
                             log.error("esInfo:{},Bulk executionId:[{}] has error messages:{}", GSON.toJson(esInfo), executionId, msg, failure.getCause());
                             count.incrementAndGet();
                         }

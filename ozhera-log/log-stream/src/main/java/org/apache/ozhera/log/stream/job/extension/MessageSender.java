@@ -18,6 +18,7 @@
  */
 package org.apache.ozhera.log.stream.job.extension;
 
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 
 import java.util.Map;
@@ -34,5 +35,7 @@ public interface MessageSender {
 
 
     boolean compensateSend(MqMessageDTO compensateMsg);
+
+    boolean compensateSend(EsCompensateLoopDTO compensateMsg);
 
 }

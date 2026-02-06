@@ -20,6 +20,7 @@ package org.apache.ozhera.log.stream.job.extension.impl;
 
 import org.apache.ozhera.log.model.StorageInfo;
 import org.apache.ozhera.log.stream.common.util.StreamUtils;
+import org.apache.ozhera.log.stream.job.compensate.EsCompensateLoopDTO;
 import org.apache.ozhera.log.stream.job.compensate.MqMessageDTO;
 import org.apache.ozhera.log.stream.job.extension.MessageSender;
 import org.apache.ozhera.log.stream.job.extension.MqMessageProduct;
@@ -127,5 +128,10 @@ public class DorisMessageSender implements MessageSender {
 
         return false;
     }
+
+    public boolean compensateSend(EsCompensateLoopDTO compensateMsg) {
+        return false;
+    }
+
 
 }

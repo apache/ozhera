@@ -109,17 +109,9 @@ public class RocketMqMessageProduct implements MqMessageProduct {
         message.setTopic(topic);
         message.setBody(Constant.GSON.toJson(msg).getBytes(StandardCharsets.UTF_8));
 
-        if (msg.getRetryCount() > 0) {
-            int level = 16 + msg.getRetryCount();
-            if (level > 18) {
-                level = 18;
-            }
-            message.setDelayTimeLevel(level);
-        }
-
         try {
             producer.send(message);
-            log.info("compensate send message succeed, retryCount:{}, delayLevel:{}", msg.getRetryCount(), message.getDelayTimeLevel());
+            log.info("compensate send message succeed, retryCount:{}", msg.getRetryCount());
         } catch (Exception e) {
             log.error("RocketMqMessageProduct send message error, RocketmqConfig: " +
                     "{},nameSrvAddr:{}", producerGroup, serviceUrl, e);

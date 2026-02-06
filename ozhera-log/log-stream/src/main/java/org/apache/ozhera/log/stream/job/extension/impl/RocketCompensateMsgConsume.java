@@ -41,6 +41,9 @@ import org.apache.rocketmq.remoting.RPCHook;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.rocketmq.common.consumer.ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET;
@@ -55,6 +58,8 @@ import static org.apache.rocketmq.common.consumer.ConsumeFromWhere.CONSUME_FROM_
 public class RocketCompensateMsgConsume implements CompensateMsgConsume {
 
     private RocketMqMessageProduct rocketMqMessageProduct = new RocketMqMessageProduct();
+    
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void consume(String ak, String sk, String serviceUrl, String topic) {
@@ -93,7 +98,18 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
                     esCompensateLoopDTO.setLastRetryTime(System.currentTimeMillis());
                 }
 
-                sendMessageReply(esCompensateLoopDTO);
+                // Calculate delay logic
+                long delay = calculateDelay(esCompensateLoopDTO.getRetryCount());
+                long alreadyWaited = System.currentTimeMillis() - esCompensateLoopDTO.getLastRetryTime();
+                long remainingDelay = delay - alreadyWaited;
+
+                if (remainingDelay > 0) {
+                    log.info("RocketCompensateMsgConsume schedule retry, count:{}, delay:{}ms", esCompensateLoopDTO.getRetryCount(), remainingDelay);
+                    EsCompensateLoopDTO finalEsCompensateLoopDTO = esCompensateLoopDTO;
+                    scheduledExecutorService.schedule(() -> sendMessageReply(finalEsCompensateLoopDTO), remainingDelay, TimeUnit.MILLISECONDS);
+                } else {
+                    sendMessageReply(esCompensateLoopDTO);
+                }
             });
             return ConsumeOrderlyStatus.SUCCESS;
         });
@@ -102,6 +118,19 @@ public class RocketCompensateMsgConsume implements CompensateMsgConsume {
         } catch (MQClientException e) {
             log.error("【RocketMqMessageConsume】Subscription to Rocket Mq consumption exception", e);
         }
+    }
+
+    private long calculateDelay(int retryCount) {
+        if (retryCount <= 0) {
+            return 0;
+        }
+        // Retry 1: 30m, Retry 2: 1h, Retry 3: 1.5h...
+        long delay = retryCount * 30 * 60 * 1000L;
+        // Cap at 24 hours
+        if (delay > 2 * 60 * 60 * 1000L) {
+            delay = 2 * 60 * 60 * 1000L;
+        }
+        return delay;
     }
 
     public DefaultMQPushConsumer initDefaultMQPushConsumer(String ak, String sk, String consumerGroup, String address) {

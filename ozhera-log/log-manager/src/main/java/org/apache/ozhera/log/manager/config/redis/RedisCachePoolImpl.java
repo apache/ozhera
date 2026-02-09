@@ -19,8 +19,7 @@
 
 package org.apache.ozhera.log.manager.config.redis;
 
-import org.apache.ozhera.log.cache.util.CachePool;
-import org.apache.ozhera.log.cache.util.Node;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

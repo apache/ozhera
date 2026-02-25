@@ -28,9 +28,12 @@ import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ozhera.log.api.model.meta.AppLogMeta;
 import org.apache.ozhera.log.api.model.meta.LogCollectMeta;
+import org.apache.ozhera.log.api.model.meta.LogPattern;
 import org.apache.ozhera.log.api.model.vo.LogCmd;
 import org.apache.ozhera.log.api.service.PublishConfigService;
+import org.apache.ozhera.log.server.metrics.AgentServerMetrics;
 import org.apache.ozhera.log.utils.NetUtil;
 
 import javax.annotation.Resource;
@@ -106,6 +109,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
     }
 
     private void doSendConfig(String agentIp, LogCollectMeta meta) {
+        List<String> tailIds = extractTailIds(meta);
         int count = 1;
         while (count < 3) {
             Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
@@ -127,6 +131,10 @@ public class DefaultPublishConfigService implements PublishConfigService {
                     String response = new String(res.getBody());
                     log.info("The configuration is send successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), agentCurrentIp);
                     if (Objects.equals(response, "ok")) {
+                        for (String tailId : tailIds) {
+                            AgentServerMetrics.incrementStrategySendTotal(
+                                    AgentServerMetrics.STATUS_SUCCESS, agentCurrentIp, tailId);
+                        }
                         break;
                     }
                 }
@@ -139,6 +147,12 @@ public class DefaultPublishConfigService implements PublishConfigService {
             } catch (final InterruptedException ignored) {
             }
             count++;
+        }
+        if (count >= 3) {
+            for (String tailId : tailIds) {
+                AgentServerMetrics.incrementStrategySendTotal(
+                        AgentServerMetrics.STATUS_FAIL, agentIp, tailId);
+            }
         }
     }
 
@@ -154,6 +168,27 @@ public class DefaultPublishConfigService implements PublishConfigService {
             log.info("The set of remote addresses of the connected agent machine is:{}", GSON.toJson(remoteAddress));
         }
         return remoteAddress;
+    }
+
+    private List<String> extractTailIds(LogCollectMeta meta) {
+        try {
+            List<String> tailIds = new ArrayList<>();
+            if (meta != null && CollectionUtils.isNotEmpty(meta.getAppLogMetaList())) {
+                for (AppLogMeta appLogMeta : meta.getAppLogMetaList()) {
+                    if (CollectionUtils.isNotEmpty(appLogMeta.getLogPatternList())) {
+                        for (LogPattern logPattern : appLogMeta.getLogPatternList()) {
+                            if (logPattern.getLogtailId() != null) {
+                                tailIds.add(String.valueOf(logPattern.getLogtailId()));
+                            }
+                        }
+                    }
+                }
+            }
+            return tailIds;
+        } catch (Exception e) {
+            log.warn("extractTailIds error", e);
+            return Collections.emptyList();
+        }
     }
 
     private Map<String, AgentChannel> getAgentChannelMap() {

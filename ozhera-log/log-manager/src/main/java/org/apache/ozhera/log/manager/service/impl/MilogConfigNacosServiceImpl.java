@@ -243,8 +243,55 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         Assert.notNull(spaceId, "logSpaceId not empty");
         Assert.notNull(storeId, "storeId not empty");
         //send msg
-        getSpaceConfigNacosPublisher(motorRoomEn).publish(spaceId,
-                dealSpaceConfigByRule(motorRoomEn, spaceId, storeId, tailId, type, changeType));
+        MilogSpaceData spaceData = dealSpaceConfigByRule(motorRoomEn, spaceId, storeId, tailId, type, changeType);
+        getSpaceConfigNacosPublisher(motorRoomEn).publish(spaceId, spaceData);
+
+        // Publish split configs
+        if (spaceData != null) {
+            publishSplitSpaceData(motorRoomEn, spaceId, spaceData);
+        }
+    }
+
+    private void publishSplitSpaceData(String motorRoomEn, Long spaceId, MilogSpaceData spaceData) {
+        String baseDataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
+        try {
+            // Clone spaceData for type 0
+            MilogSpaceData spaceData0 = copySpaceData(spaceData);
+            filterLogtailConfigs(spaceData0, 0);
+            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":0", spaceData0);
+
+            // Clone spaceData for type 1 (non-0)
+            MilogSpaceData spaceData1 = copySpaceData(spaceData);
+            filterLogtailConfigs(spaceData1, 1);
+            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":1", spaceData1);
+        } catch (Exception e) {
+            log.error("publishSplitSpaceData error, spaceId:{}", spaceId, e);
+        }
+    }
+
+    private MilogSpaceData copySpaceData(MilogSpaceData source) {
+        String json = GSON.toJson(source);
+        return GSON.fromJson(json, MilogSpaceData.class);
+    }
+
+    private void filterLogtailConfigs(MilogSpaceData data, int type) {
+        if (data.getSpaceConfig() != null) {
+            for (SinkConfig sinkConfig : data.getSpaceConfig()) {
+                if (sinkConfig.getLogtailConfigs() != null) {
+                    List<LogtailConfig> filtered = sinkConfig.getLogtailConfigs().stream()
+                            .filter(config -> {
+                                if (config.getAppType() == null) return false;
+                                if (type == 0) {
+                                    return config.getAppType() == 0;
+                                } else {
+                                    return config.getAppType() != 0;
+                                }
+                            })
+                            .collect(Collectors.toList());
+                    sinkConfig.setLogtailConfigs(filtered);
+                }
+            }
+        }
     }
 
     /**

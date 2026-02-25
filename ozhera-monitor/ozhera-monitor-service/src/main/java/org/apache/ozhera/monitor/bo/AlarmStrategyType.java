@@ -32,6 +32,7 @@ public enum AlarmStrategyType {
     PAOMQL(2,"自定义PromQL", "Custom PromQL"),
     TESLA(3,"TESLA监控", "TESLA Monitoring"),
     BUSINESS_METRIC(4,"业务指标监控", "BUSINESS_METRIC Monitoring"),
+    NODE_ALERT(5,"节点监控", "NODE Monitoring"),
     ;
     private Integer code;
     private String label;

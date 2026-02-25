@@ -31,4 +31,9 @@ http://www.apache.org/licenses/LICENSE-2.0
         ORDER BY update_time DESC
     </select>
 
+    <delete id="deleteByUpdateTimeBefore">
+        DELETE FROM milog_ai_conversation
+        WHERE update_time &lt; #{expireTime}
+    </delete>
+
 </mapper>

@@ -22,8 +22,6 @@ package org.apache.ozhera.log.manager.config.redis;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.ozhera.log.cache.util.Node;
-import org.apache.ozhera.log.cache.util.NodeImpl;
 import org.apache.ozhera.log.common.Config;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;

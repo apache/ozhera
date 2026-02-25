@@ -42,4 +42,10 @@ public interface MilogAiAnalysisService {
 
     Result<Boolean> closeAiAnalysis(Long id);
 
+    /**
+     * Clean up expired AI conversation records
+     * Deletes conversations that have not been updated for more than 7 days
+     */
+    void cleanExpiredConversations();
+
 }

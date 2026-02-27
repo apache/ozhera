@@ -263,7 +263,7 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             // Clone spaceData for type 1 (non-0)
             MilogSpaceData spaceData1 = copySpaceData(spaceData);
             filterLogtailConfigs(spaceData1, 1);
-            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":1", spaceData1);
+            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":!0", spaceData1);
         } catch (Exception e) {
             log.error("publishSplitSpaceData error, spaceId:{}", spaceId, e);
         }

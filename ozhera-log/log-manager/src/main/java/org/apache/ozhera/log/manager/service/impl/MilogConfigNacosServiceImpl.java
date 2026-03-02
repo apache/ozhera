@@ -259,13 +259,17 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
             MilogSpaceData spaceData0 = copySpaceData(spaceData);
             filterLogtailConfigs(spaceData0, 0);
             getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":0", spaceData0);
+        } catch (Exception e) {
+            log.error("publishSplitSpaceData type 0 error, spaceId:{}", spaceId, e);
+        }
 
+        try {
             // Clone spaceData for type 1 (non-0)
             MilogSpaceData spaceData1 = copySpaceData(spaceData);
             filterLogtailConfigs(spaceData1, 1);
             getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":!0", spaceData1);
         } catch (Exception e) {
-            log.error("publishSplitSpaceData error, spaceId:{}", spaceId, e);
+            log.error("publishSplitSpaceData type 1 error, spaceId:{}", spaceId, e);
         }
     }
 
@@ -280,11 +284,11 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                 if (sinkConfig.getLogtailConfigs() != null) {
                     List<LogtailConfig> filtered = sinkConfig.getLogtailConfigs().stream()
                             .filter(config -> {
-                                if (config.getAppType() == null) return false;
+                                Integer appType = config.getAppType() == null ? 0 : config.getAppType();
                                 if (type == 0) {
-                                    return config.getAppType() == 0;
+                                    return appType == 0;
                                 } else {
-                                    return config.getAppType() != 0;
+                                    return appType != 0;
                                 }
                             })
                             .collect(Collectors.toList());

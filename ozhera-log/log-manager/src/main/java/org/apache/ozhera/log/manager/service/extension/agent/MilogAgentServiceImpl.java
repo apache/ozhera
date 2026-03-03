@@ -184,8 +184,8 @@ public class MilogAgentServiceImpl implements MilogAgentService {
             AppLogMeta appLogMeta = assembleSingleConfig(milogAppId, queryLogPattern(milogAppId, ip, appBaseInfo.getPlatformType()));
             LogCollectMeta logCollectMeta = new LogCollectMeta();
             logCollectMeta.setAgentIp(ip);
-            logCollectMeta.setAgentMachine(logStore.getMachineRoom());
-            logCollectMeta.setAppLogMetaList(Arrays.asList(appLogMeta));
+            logCollectMeta.setAgentMachine(null != logStore && StringUtils.isNotEmpty(logStore.getMachineRoom()) ? logStore.getMachineRoom() : StringUtils.EMPTY);
+            logCollectMeta.setAppLogMetaList(List.of(appLogMeta));
             AgentDefine agentDefine = new AgentDefine();
             agentDefine.setFilters(new ArrayList<>());
             logCollectMeta.setAgentDefine(agentDefine);
@@ -226,7 +226,7 @@ public class MilogAgentServiceImpl implements MilogAgentService {
         ips.forEach(ip -> {
             LogCollectMeta logCollectMeta = new LogCollectMeta();
             logCollectMeta.setAgentIp(ip);
-            logCollectMeta.setAgentMachine("");
+            logCollectMeta.setAgentMachine(StringUtils.EMPTY);
             logCollectMeta.setAgentId("");
             logCollectMeta.setAppLogMetaList(Arrays.asList(appLogMeta));
             sengConfigToAgent(ip, logCollectMeta);
@@ -300,7 +300,7 @@ public class MilogAgentServiceImpl implements MilogAgentService {
     private LogCollectMeta buildLogCollectMeta(String agentIp) {
         LogCollectMeta logCollectMeta = new LogCollectMeta();
         logCollectMeta.setAgentIp(agentIp);
-        logCollectMeta.setAgentMachine("");
+        logCollectMeta.setAgentMachine(StringUtils.EMPTY);
         logCollectMeta.setAgentId("");
         return logCollectMeta;
     }

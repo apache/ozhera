@@ -121,9 +121,17 @@ public class DefaultPublishConfigService implements PublishConfigService {
         if (StringUtils.isBlank(agentIp) || meta == null) {
             return;
         }
-//        doSendConfig(agentIp, meta);
+//        doSendConfigSync(agentIp, meta);
         doSendConfigAsync(agentIp, meta);
 //        SEND_CONFIG_EXECUTOR.execute(() -> );
+    }
+
+    @Override
+    public void sengConfigToAgentSync(String agentIp, LogCollectMeta logCollectMeta) {
+        if (StringUtils.isBlank(agentIp) || logCollectMeta == null) {
+            return;
+        }
+        doSendConfigSync(agentIp, logCollectMeta);
     }
 
     /**
@@ -133,7 +141,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
      */
     private void doSendConfigSync(String agentIp, LogCollectMeta meta) {
         int count = 1;
-        while (count < 3) {
+        while (count < 2) {
             Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
             String agentCurrentIp = getCorrectDockerAgentIP(agentIp, logAgentMap);
             if (logAgentMap.containsKey(agentCurrentIp)) {
@@ -142,8 +150,11 @@ public class DefaultPublishConfigService implements PublishConfigService {
                     RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
 
-                    if (configCompressValue) {
+                    if (configCompressValue || (StringUtils.isNotBlank(configCompressMachine) &&
+                            StringUtils.isNotBlank(meta.getAgentMachine()) &&
+                            configCompressMachine.contains(meta.getAgentMachine()))) {
                         req.enableCompression();
+                        log.info("The configuration is compressed,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
                     }
 
                     log.info("Send the configuration,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
@@ -159,9 +170,9 @@ public class DefaultPublishConfigService implements PublishConfigService {
             } else {
                 log.info("The current agent IP is not connected,ip:{},configuration data:{}", agentIp, GSON.toJson(meta));
             }
-            //Retry policy - Retry 4 times, sleep 200 ms each time
+            //Retry policy - Retry 2 times, sleep 100 ms each time
             try {
-                TimeUnit.MILLISECONDS.sleep(200L);
+                TimeUnit.MILLISECONDS.sleep(100L);
             } catch (final InterruptedException ignored) {
             }
             count++;
@@ -185,7 +196,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
                     return false;
                 });
         try {
-            Thread.sleep(random.nextInt(800, 8000));
+            Thread.sleep(random.nextInt(800, 1000));
         } catch (InterruptedException e) {
             log.error("sleep interrupted, agentIp:{}", agentIp, e);
         }

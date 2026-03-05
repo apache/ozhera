@@ -26,6 +26,7 @@ import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Result;
+import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 import org.apache.ozhera.log.manager.model.bo.BatchQueryParam;
 import org.apache.ozhera.log.manager.model.bo.LogTailParam;
@@ -40,6 +41,8 @@ import org.apache.ozhera.log.manager.service.impl.LogProcessServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogSpaceServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogStoreServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogTailServiceImpl;
+import org.apache.ozhera.log.manager.user.MoneUser;
+import org.apache.ozhera.log.manager.user.MoneUtil;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -70,7 +73,8 @@ public class MilogConfigController {
 
     @RequestMapping(path = "/milog/space/new")
     public Result<String> newMilogSpace(MilogSpaceParam cmd) {
-        return logSpaceService.newMilogSpace(cmd);
+        String user = MoneUserContext.getCurrentUser().getUser();
+        return logSpaceService.newMilogSpace(cmd, user);
     }
 
     @RequestMapping(path = "/milog/space/getbyid", method = "get")
@@ -81,7 +85,8 @@ public class MilogConfigController {
     @RequestMapping(path = "/milog/space/getall", method = "get")
     public Result<List<MapDTO<String, Long>>> getMilogSpaces(@RequestParam("tenantId") Long tenantId,
                                                              @RequestParam("spaceName") String spaceName) {
-        return logSpaceService.getMilogSpaces(tenantId, spaceName);
+        String user = MoneUserContext.getCurrentUser().getUser();
+        return logSpaceService.getMilogSpaces(tenantId, spaceName, user);
     }
 
     @RequestMapping(path = "/milog/space/getbypage", method = "get")
@@ -94,12 +99,14 @@ public class MilogConfigController {
 
     @RequestMapping(path = "/milog/space/delete", method = "get")
     public Result<String> deleteMilogSpace(@RequestParam("id") Long id) {
-        return logSpaceService.deleteMilogSpace(id);
+        MoneUser currentUser = MoneUserContext.getCurrentUser();
+        return logSpaceService.deleteMilogSpace(id, currentUser);
     }
 
     @RequestMapping(path = "/milog/space/update")
     public Result<String> updateMilogSpace(@RequestParam("param") MilogSpaceParam param) {
-        return logSpaceService.updateMilogSpace(param);
+        MoneUser currentUser = MoneUserContext.getCurrentUser();
+        return logSpaceService.updateMilogSpace(param, currentUser);
     }
 
     /**
@@ -107,12 +114,15 @@ public class MilogConfigController {
      */
     @RequestMapping(path = "/milog/store/new")
     public Result<String> newLogStore(@RequestParam("param") LogStoreParam param) {
-        return logStoreService.newLogStore(param);
+
+        MoneUser user = MoneUserContext.getCurrentUser();
+        return logStoreService.newLogStore(param, user.getUser());
     }
 
     @RequestMapping(path = "/milog/store/getbyid", method = "get")
     public Result<LogStoreDTO> getLogStoreById(@RequestParam("id") Long id) {
-        return logStoreService.getLogStoreById(id);
+        MoneUser user = MoneUserContext.getCurrentUser();
+        return logStoreService.getLogStoreById(id, user.getUser(), user.getIsAdmin());
     }
 
     @RequestMapping(path = "/milog/store/getbyids")
@@ -135,11 +145,14 @@ public class MilogConfigController {
 
     @RequestMapping(path = "/milog/store/getall", method = "get")
     public Result<Map<String, Object>> getAllLogStore() {
-        return logStoreService.getAllLogStore();
+        String zone = MoneUserContext.getCurrentUser().getZone();
+        return logStoreService.getAllLogStore(zone);
     }
 
     @RequestMapping(path = "/milog/store/delete", method = "get")
     public Result<Void> deleteLogStore(@RequestParam("id") Long id) {
+
+        String user = MoneUserContext.getCurrentUser().getUser();
         return logStoreService.deleteLogStore(id);
     }
 

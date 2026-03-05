@@ -24,27 +24,28 @@ import org.apache.ozhera.log.manager.model.dto.MapDTO;
 import org.apache.ozhera.log.manager.model.dto.MenuDTO;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.vo.LogStoreParam;
+import org.apache.ozhera.log.manager.user.MoneUser;
 
 import java.util.List;
 import java.util.Map;
 
 public interface LogStoreService {
 
-    Result<String> newLogStore(LogStoreParam cmd);
+    Result<String> newLogStore(LogStoreParam cmd, String user);
 
     MilogLogStoreDO buildLogStoreEsInfo(LogStoreParam cmd, String creator);
 
-    Result<LogStoreDTO> getLogStoreById(Long id);
+    Result<LogStoreDTO> getLogStoreById(Long id, String user, boolean isAdmin);
 
     Result<List<MapDTO<String, Long>>> getLogStoreBySpaceId(Long spaceId);
 
     Result<Map<String, Object>> getLogStoreByPage(String logstoreName, Long spaceId, int page, int pagesize);
 
-    Result<Map<String, Object>> getAllLogStore();
+    Result<Map<String, Object>> getAllLogStore(String zone);
 
     Result<List<MilogLogStoreDO>> getLogStoreByIds(List<Long> ids);
 
-    Result<String> updateLogStore(LogStoreParam cmd);
+    Result<String> updateLogStore(LogStoreParam cmd, String user);
 
     Result<Void> deleteLogStore(Long id);
 

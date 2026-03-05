@@ -37,7 +37,6 @@ import org.apache.ozhera.log.api.enums.OperateEnum;
 import org.apache.ozhera.log.api.enums.ProjectSourceEnum;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
-import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.common.exception.MilogManageException;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.dao.MilogSpaceDao;
@@ -92,7 +91,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
      * @return
      */
     @Override
-    public Result<String> newMilogSpace(MilogSpaceParam param) {
+    public Result<String> newMilogSpace(MilogSpaceParam param, String user) {
         if (Objects.isNull(param) || StringUtils.isBlank(param.getSpaceName())) {
             return Result.failParam("Parameter error");
         }
@@ -103,24 +102,23 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         }
 
         MilogSpaceDO milogSpaceDO = wrapMilogSpaceDO(param);
-        wrapBaseCommon(milogSpaceDO, OperateEnum.ADD_OPERATE);
+        wrapBaseCommon(milogSpaceDO, OperateEnum.ADD_OPERATE, user);
 
         MilogSpaceDO dbDO = milogSpaceDao.newMilogSpace(milogSpaceDO);
         if (Objects.isNull(dbDO.getId())) {
             return Result.failParam("Space is not saved successfully, please try again");
         }
-        String creator = MoneUserContext.getCurrentUser().getUser();
         List<String> otherAdmins = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(param.getAdmins())) {
-            creator = param.getAdmins().get(0);
+            user = param.getAdmins().get(0);
             if (param.getAdmins().size() > 1) {
                 otherAdmins = CollectionUtil.sub(param.getAdmins(), 1, param.getAdmins().size());
             }
         }
-        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
+        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, user);
         addMemberAsync(dbDO.getId(), otherAdmins);
 
-        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
+        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), "", user));
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
             milogSpaceDao.deleteMilogSpace(dbDO.getId());
@@ -128,7 +126,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.failParam("Space is not associated with a permission system");
         }
 
-        return Result.success();
+        return Result.success(String.valueOf(dbDO.getId()));
     }
 
     private void addMemberAsync(Long spaceId, List<String> otherAdmins) {
@@ -191,10 +189,10 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     }
 
     @Override
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName) {
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName, String user) {
         int pageNum = 1;
         int defaultPageSize = 300;
-        String defaultSpaceKey = buildCacheKey(tenantId, spaceName);
+        String defaultSpaceKey = buildCacheKey(tenantId, spaceName, user);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
         // return cached result if available
         if (CollectionUtils.isNotEmpty(cachedResult)) {
@@ -215,9 +213,9 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
     }
 
-    private static String buildCacheKey(Long tenantId, String spaceName) {
-        MoneUser currentUser = MoneUserContext.getCurrentUser();
-        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
+    private static String buildCacheKey(Long tenantId, String spaceName, String user) {
+
+        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), user);
         if (spaceName !=null && !spaceName.isEmpty()){
             cacheKey = cacheKey + "-" + spaceName;
         }
@@ -254,11 +252,12 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
      * update
      *
      * @param param
+     * @param currentUser current user info for permission check and audit
      * @return
      */
     @Transactional
     @Override
-    public Result<String> updateMilogSpace(MilogSpaceParam param) {
+    public Result<String> updateMilogSpace(MilogSpaceParam param, MoneUser currentUser) {
         if (null == param || StringUtils.isBlank(param.getSpaceName())) {
             return new Result<>(CommonError.ParamsError.getCode(), "Parameter error", "");
         }
@@ -277,16 +276,16 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.success("the logSpace data has not changed");
         }
 
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
+        if (!tpc.hasPerm(currentUser, param.getId())) {
             return Result.fail(CommonError.UNAUTHORIZED);
         }
-        wrapMilogSpace(milogSpace, param);
-        wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE);
+        wrapMilogSpace(milogSpace, param, currentUser.getZone());
+        wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE, currentUser.getUser());
 
         if (milogSpaceDao.update(milogSpace)) {
-            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
+            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, currentUser.getUser());
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), "", currentUser.getUser()));
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Modify the space permission system not associated with it,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.success("To modify the unassociated permission system of space, contact the server-side performance group");
@@ -300,11 +299,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
     @Transactional
     @Override
-    public Result<String> deleteMilogSpace(Long id) {
+    public Result<String> deleteMilogSpace(Long id, MoneUser currentUser) {
         if (null == id) {
             return new Result<>(CommonError.ParamsError.getCode(), "ID cannot be empty", "");
         }
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
+        if (!tpc.hasPerm(currentUser, id)) {
             return Result.fail(CommonError.UNAUTHORIZED);
         }
         MilogSpaceDO milogSpace = milogSpaceDao.getMilogSpaceById(id);
@@ -318,8 +317,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(),""));
-            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(), "", currentUser.getUser()));
+            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, currentUser.getUser(), currentUser.getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.failParam("To delete a space system that is not associated with it, contact the server performance group");

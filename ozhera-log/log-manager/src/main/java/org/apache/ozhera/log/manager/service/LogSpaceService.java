@@ -24,6 +24,7 @@ import org.apache.ozhera.log.manager.model.dto.MapDTO;
 import org.apache.ozhera.log.manager.model.dto.MilogSpaceDTO;
 import org.apache.ozhera.log.manager.model.page.PageInfo;
 import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
+import org.apache.ozhera.log.manager.user.MoneUser;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public interface LogSpaceService {
      * @param cmd
      * @return
      */
-    Result<String> newMilogSpace(MilogSpaceParam cmd);
+    Result<String> newMilogSpace(MilogSpaceParam cmd, String user);
 
     /**
      * getById
@@ -56,17 +57,18 @@ public interface LogSpaceService {
     Result<PageInfo<MilogSpaceDTO>> getMilogSpaceByPage(String spaceName, Long tenantId, Integer page, Integer pagesize);
 
 
-    Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName);
+    Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName, String user);
 
     /**
      * update
      *
      * @param cmd
+     * @param currentUser current user info for permission check and audit
      * @return
      */
-    Result<String> updateMilogSpace(MilogSpaceParam cmd);
+    Result<String> updateMilogSpace(MilogSpaceParam cmd, MoneUser currentUser);
 
-    Result<String> deleteMilogSpace(Long id);
+    Result<String> deleteMilogSpace(Long id, MoneUser currentUser);
 
     Result<String> setSpacePermission(Long spaceId, String permDeptIds);
 

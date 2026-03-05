@@ -27,7 +27,6 @@ import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
-import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.common.validation.StoreValidation;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
@@ -111,15 +110,15 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
     }
 
     @Override
-    public Result<String> newLogStore(LogStoreParam cmd) {
+    public Result<String> newLogStore(LogStoreParam cmd, String user) {
         if (null != cmd.getId()) {
-            return updateLogStore(cmd);
+            return updateLogStore(cmd, user);
         } else {
-            return createLogStore(cmd);
+            return createLogStore(cmd, user);
         }
     }
 
-    private Result<String> createLogStore(LogStoreParam cmd) {
+    private Result<String> createLogStore(LogStoreParam cmd, String user) {
         String errorInfos = storeValidation.logStoreParamValid(cmd);
         if (StringUtils.isNotEmpty(errorInfos)) {
             return Result.failParam(errorInfos);
@@ -132,7 +131,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
             return Result.failParam("The store name is duplicated, please fill in the name again");
         }
         MilogLogStoreDO storeDO = MilogLogstoreConvert.INSTANCE.fromCommand(cmd);
-        wrapBaseCommon(storeDO, OperateEnum.ADD_OPERATE);
+        wrapBaseCommon(storeDO, OperateEnum.ADD_OPERATE, user);
         // Bind resources
         storeExtensionService.storeResourceBinding(storeDO, cmd, OperateEnum.ADD_OPERATE);
         checkRequiredFieldExist(storeDO, cmd);
@@ -175,7 +174,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
     }
 
     @Override
-    public Result<LogStoreDTO> getLogStoreById(Long id) {
+    public Result<LogStoreDTO> getLogStoreById(Long id, String user, boolean isAdmin) {
         if (null == id) {
             return Result.failParam("id can not be empty");
         }
@@ -183,7 +182,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         LogStoreDTO logStoreDTO = new LogStoreDTO();
         if (null != milogLogStoreDO) {
             BeanUtil.copyProperties(milogLogStoreDO, logStoreDTO);
-            if (MoneUserContext.getCurrentUser().getIsAdmin()) {
+            if (isAdmin) {
                 logStoreDTO.setSelectCustomIndex(Boolean.TRUE);
             }
             logStoreDTO.setEsResourceId(milogLogStoreDO.getEsClusterId());
@@ -207,8 +206,8 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), ret);
     }
 
-    public Result<Map<String, Object>> getAllLogStore() {
-        Map<String, Object> ret = logStoreDao.getAllMilogLogstore(MoneUserContext.getCurrentUser().getZone());
+    public Result<Map<String, Object>> getAllLogStore(String zone) {
+        Map<String, Object> ret = logStoreDao.getAllMilogLogstore(zone);
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), ret);
     }
 
@@ -217,7 +216,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         return new Result<>(CommonError.Success.getCode(), CommonError.Success.getMessage(), ret);
     }
 
-    public Result<String> updateLogStore(LogStoreParam param) {
+    public Result<String> updateLogStore(LogStoreParam param, String user) {
         MilogLogStoreDO milogLogstoreDO = logStoreDao.queryById(param.getId());
         if (null == milogLogstoreDO) {
             return new Result<>(CommonError.ParamsError.getCode(), "logstore not found ");
@@ -240,7 +239,7 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         ml.setCreator(milogLogstoreDO.getCreator());
         // Select the corresponding index
         storeExtensionService.storeResourceBinding(ml, param, OperateEnum.UPDATE_OPERATE);
-        wrapBaseCommon(ml, OperateEnum.UPDATE_OPERATE);
+        wrapBaseCommon(ml, OperateEnum.UPDATE_OPERATE, user);
         checkRequiredFieldExist(ml, param);
         boolean updateRes = storeExtensionService.updateLogStore(ml);
         if (updateRes && storeExtensionService.sendConfigSwitch(param)) {

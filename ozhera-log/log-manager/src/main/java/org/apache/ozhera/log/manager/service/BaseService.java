@@ -34,6 +34,9 @@ import static org.apache.ozhera.log.common.Constant.DEFAULT_OPERATOR;
  */
 public class BaseService {
 
+    /**
+     * For HTTP calls where ThreadLocal is available
+     */
     public void wrapMilogSpace(MilogSpaceDO ms, MilogSpaceParam param) {
         ms.setSpaceName(param.getSpaceName());
         ms.setTenantId(param.getTenantId());
@@ -41,6 +44,9 @@ public class BaseService {
         ms.setDescription(param.getDescription());
     }
 
+    /**
+     * For Dubbo calls where source is passed as parameter
+     */
     public void wrapMilogSpace(MilogSpaceDO ms, MilogSpaceParam param, String source) {
         ms.setSpaceName(param.getSpaceName());
         ms.setTenantId(param.getTenantId());

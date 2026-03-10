@@ -321,7 +321,14 @@ public class DefaultPublishConfigService implements PublishConfigService {
 
     private Map<String, AgentChannel> getAgentChannelMap() {
         Map<String, AgentChannel> logAgentMap = new HashMap<>();
-        AgentContext.ins().map.forEach((k, v) -> logAgentMap.put(StringUtils.substringBefore(k, SYMBOL_COLON), v));
+        AgentContext.ins().map.forEach((k, v) -> {
+            String ip = v.getIp();
+            if (StringUtils.isNotBlank(ip)) {
+                logAgentMap.put(ip, v);
+            } else {
+                logAgentMap.put(StringUtils.substringBefore(k, SYMBOL_COLON), v);
+            }
+        });
         return logAgentMap;
     }
 

@@ -182,7 +182,8 @@ public class MilogConfigController {
      */
     @RequestMapping(path = "/milog/tail/new")
     public Result<LogTailDTO> newLogTail(@RequestParam("param") LogTailParam param) {
-        return logTailService.newMilogLogTail(param);
+        String user = MoneUserContext.getCurrentUser().getUser();
+        return logTailService.newMilogLogTail(param, user);
     }
 
     @RequestMapping(path = "/milog/tail/getbyid", method = "get")
@@ -215,7 +216,8 @@ public class MilogConfigController {
 
     @RequestMapping(path = "/milog/tail/update")
     public Result<Void> updateLogTail(LogTailParam param) {
-        return logTailService.updateMilogLogTail(param);
+        String user = MoneUserContext.getCurrentUser().getUser();
+        return logTailService.updateMilogLogTail(param, user);
     }
 
     @RequestMapping(path = "/milog/tail/delete", method = "get")

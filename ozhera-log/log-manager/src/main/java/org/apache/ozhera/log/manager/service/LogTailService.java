@@ -34,7 +34,7 @@ import java.util.Map;
 
 public interface LogTailService {
 
-    Result<LogTailDTO> newMilogLogTail(LogTailParam param);
+    Result<LogTailDTO> newMilogLogTail(LogTailParam param, String user);
 
     void sengMessageNewTail(LogTailParam param, MilogLogTailDo milogLogtailDo, MilogLogStoreDO milogLogStore);
 
@@ -65,7 +65,7 @@ public interface LogTailService {
 
     Result<List<LogTailDTO>> getMilogLogtailByIds(List<Long> ids);
 
-    Result<Void> updateMilogLogTail(LogTailParam param);
+    Result<Void> updateMilogLogTail(LogTailParam param, String user);
 
     Result<Void> deleteLogTail(Long id);
 

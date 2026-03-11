@@ -1,10 +1,10 @@
 package org.apache.ozhera.log.manager.service.impl;
 
 
-import com.google.gson.Gson;
 import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.api.model.agent.AgentApiResult;
 import org.apache.ozhera.log.api.model.agent.SpaceInfo;
 import org.apache.ozhera.log.api.model.agent.StoreInfo;
 import org.apache.ozhera.log.api.model.agent.TailInfo;
@@ -32,8 +32,6 @@ import java.util.List;
 @Service(interfaceClass = HeraLogApiService.class, group = "$dubbo.group", timeout = 10000)
 public class LogAgentApiServiceImpl implements LogAgentApiService {
 
-    private static final String SUCCESS = "success";
-
     @Resource
     private LogSpaceServiceImpl logSpaceService;
 
@@ -49,20 +47,17 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
     @Resource
     private Tpc tpc;
 
-    private static final Gson GSON = new Gson();
-
     @Override
     public String createSpace(SpaceInfo info) {
         if (info.getSpaceName() == null || info.getSpaceName().isEmpty()) {
-            return "The space name cannot be empty!";
+            return AgentApiResult.fail("The space name cannot be empty!");
         }
         if (info.getSpaceDescription() == null || info.getSpaceDescription().isEmpty()) {
-            return "The space description cannot be empty!";
+            return AgentApiResult.fail("The space description cannot be empty!");
         }
         if (info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
-
 
         MilogSpaceParam param = new MilogSpaceParam();
         param.setSpaceName(info.getSpaceName());
@@ -70,32 +65,31 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         try {
             Result<String> result = logSpaceService.newMilogSpace(param, info.getUserInfo().getUser());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Create space failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Create space failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.successBuilder()
+                    .addData("spaceId", result.getData())
+                    .build();
         } catch (Exception e) {
             log.error("create space failed, name: {}, description: {}, error msg: {}", info.getSpaceName(), info.getSpaceDescription(), e.getMessage());
-            return "Create space failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Create space failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String updateSpace(SpaceInfo info) {
         if (info.getSpaceId() == null || info.getSpaceId() < 0) {
-            return "The space id cannot be empty!";
+            return AgentApiResult.fail("The space id cannot be empty!");
         }
-
         if (info.getSpaceName() == null || info.getSpaceName().isEmpty()) {
-            return "The space name cannot be empty!";
+            return AgentApiResult.fail("The space name cannot be empty!");
         }
         if (info.getSpaceDescription() == null || info.getSpaceDescription().isEmpty()) {
-            return "The space description cannot be empty!";
+            return AgentApiResult.fail("The space description cannot be empty!");
         }
         if (info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
-
 
         MilogSpaceParam param = new MilogSpaceParam();
         param.setId(info.getSpaceId());
@@ -110,24 +104,22 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         try {
             Result<String> result = logSpaceService.updateMilogSpace(param, currentUser);
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Update space failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Update space failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Update space failed, name: {}, description: {}, error msg: {}", info.getSpaceName(), info.getSpaceDescription(), e.getMessage());
-            return "Update space failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Update space failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String deleteSpace(SpaceInfo info) {
-
         if (info.getSpaceId() == null || info.getSpaceId() < 0) {
-            return "The space id cannot be empty!";
+            return AgentApiResult.fail("The space id cannot be empty!");
         }
         if (info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty() || info.getUserInfo().getUserType() == null) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
 
         MoneUser currentUser = MoneUser.builder()
@@ -137,27 +129,28 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         try {
             Result<String> result = logSpaceService.deleteMilogSpace(info.getSpaceId(), currentUser);
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Delete space failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Delete space failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Delete space failed, space id: {}, error msg: {}", info.getSpaceId(), e.getMessage());
-            return "Delete space failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Delete space failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String getSpaceById(Long spaceId) {
-        try{
+        try {
             Result<MilogSpaceDTO> result = logSpaceService.getMilogSpaceById(spaceId);
-            if(result.getCode() != CommonError.Success.getCode()) {
-                return "Get space failed, the reason for the failure is " + result.getMessage();
+            if (result.getCode() != CommonError.Success.getCode()) {
+                return AgentApiResult.fail("Get space failed, the reason for the failure is " + result.getMessage());
             }
-            return GSON.toJson(result.getData());
+            return AgentApiResult.successBuilder()
+                    .addData("space", result.getData())
+                    .build();
         } catch (Exception e) {
             log.error("Get space failed! space id: {}, message: {}", spaceId, e.getMessage());
-            return "Get space failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Get space failed, the reason for the failure is " + e.getMessage());
         }
     }
 
@@ -165,93 +158,96 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
     public String getStoresInSpace(Long spaceId) {
         try {
             Result<List<MilogSpaceTreeDTO>> tree = heralogHomePageService.getMilogSpaceTree(spaceId);
-            if(tree.getCode() != CommonError.Success.getCode()) {
-                return "Failed to obtain the list of stores in the current space, the reason is " + tree.getMessage();
+            if (tree.getCode() != CommonError.Success.getCode()) {
+                return AgentApiResult.fail("Failed to obtain the list of stores in the current space, the reason is " + tree.getMessage());
             }
-            return GSON.toJson(tree.getData());
+            return AgentApiResult.successBuilder()
+                    .addData("stores", tree.getData())
+                    .build();
         } catch (Exception e) {
             log.error("Failed to obtain the list of stores in the current space, spaceId: {}, the reason is {}", spaceId, e.getMessage());
-            return "Failed to obtain the list of stores in the current space, the reason is " + e.getMessage();
+            return AgentApiResult.fail("Failed to obtain the list of stores in the current space, the reason is " + e.getMessage());
         }
     }
 
     @Override
     public String getStoreInfoById(StoreInfo info) {
         if (info.getStoreId() == null || info.getStoreId() < 0) {
-            return "The store id cannot be empty!";
+            return AgentApiResult.fail("The store id cannot be empty!");
         }
         if (info.getUserInfo() == null || info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
         String account = info.getUserInfo().getUser();
         boolean admin = tpc.isAdmin(account, UserTypeEnum.CAS_TYPE.getCode());
-        Result<LogStoreDTO> logStoreById = logStoreService.getLogStoreById(info.getStoreId(), account, admin);
-
-        return "";
+        Result<LogStoreDTO> result = logStoreService.getLogStoreById(info.getStoreId(), account, admin);
+        if (result.getCode() != CommonError.Success.getCode()) {
+            return AgentApiResult.fail("Get store failed, the reason for the failure is " + result.getMessage());
+        }
+        return AgentApiResult.successBuilder()
+                .addData("store", result.getData())
+                .build();
     }
 
     @Override
     public String createStore(StoreInfo info) {
         String validationResult = info.isValidParam(true);
         if (validationResult != null) {
-            return validationResult;
+            return AgentApiResult.fail(validationResult);
         }
 
         LogStoreParam param = buildLogStoreParam(info, true);
         try {
             Result<String> result = logStoreService.newLogStore(param, info.getUserInfo().getUser());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Create store failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Create store failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Create store failed, name: {}, spaceId: {}, error msg: {}", info.getStoreName(), info.getSpaceId(), e.getMessage());
-            return "Create store failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Create store failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String updateStore(StoreInfo info) {
         String validationResult = info.isValidParam(false);
         if (validationResult != null) {
-            return validationResult;
+            return AgentApiResult.fail(validationResult);
         }
 
         LogStoreParam param = buildLogStoreParam(info, false);
         try {
             Result<String> result = logStoreService.newLogStore(param, info.getUserInfo().getUser());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Update store failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Update store failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Update store failed, name: {}, storeId: {}, error msg: {}", info.getStoreName(), info.getStoreId(), e.getMessage());
-            return "Update store failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Update store failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String deleteStore(StoreInfo info) {
         if (info.getStoreId() == null || info.getStoreId() < 0) {
-            return "The store id cannot be empty!";
+            return AgentApiResult.fail("The store id cannot be empty!");
         }
         if (info.getUserInfo() == null || info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
 
         try {
             Result<Void> result = logStoreService.deleteLogStore(info.getStoreId());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Delete store failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Delete store failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Delete store failed, storeId: {}, error msg: {}", info.getStoreId(), e.getMessage());
-            return "Delete store failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Delete store failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     private LogStoreParam buildLogStoreParam(StoreInfo info, boolean isCreate) {
@@ -284,81 +280,82 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
     public String createTail(TailInfo info) {
         String validationResult = info.isValidParam(true);
         if (validationResult != null) {
-            return validationResult;
+            return AgentApiResult.fail(validationResult);
         }
 
         LogTailParam param = buildLogTailParam(info, true);
         try {
-            Result<LogTailDTO> result = logTailService.newMilogLogTail(param);
+            Result<LogTailDTO> result = logTailService.newMilogLogTail(param, info.getUserInfo().getUser());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Create tail failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Create tail failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.successBuilder()
+                    .addData("tailId", result.getData().getId())
+                    .build();
         } catch (Exception e) {
             log.error("Create tail failed, tail: {}, storeId: {}, error msg: {}", info.getTail(), info.getStoreId(), e.getMessage());
-            return "Create tail failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Create tail failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String updateTail(TailInfo info) {
         String validationResult = info.isValidParam(false);
         if (validationResult != null) {
-            return validationResult;
+            return AgentApiResult.fail(validationResult);
         }
 
         LogTailParam param = buildLogTailParam(info, false);
         try {
-            Result<Void> result = logTailService.updateMilogLogTail(param);
+            Result<Void> result = logTailService.updateMilogLogTail(param, info.getUserInfo().getUser());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Update tail failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Update tail failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Update tail failed, tail: {}, tailId: {}, error msg: {}", info.getTail(), info.getId(), e.getMessage());
-            return "Update tail failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Update tail failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String deleteTail(TailInfo info) {
         if (info.getId() == null || info.getId() < 0) {
-            return "The tail id cannot be empty!";
+            return AgentApiResult.fail("The tail id cannot be empty!");
         }
         if (info.getUserInfo() == null || info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
-            return "The user information is empty. Please provide the correct user information!";
+            return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
 
         try {
             Result<Void> result = logTailService.deleteLogTail(info.getId());
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Delete tail failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Delete tail failed, the reason for the failure is " + result.getMessage());
             }
+            return AgentApiResult.success();
         } catch (Exception e) {
             log.error("Delete tail failed, tailId: {}, error msg: {}", info.getId(), e.getMessage());
-            return "Delete tail failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Delete tail failed, the reason for the failure is " + e.getMessage());
         }
-
-        return SUCCESS;
     }
 
     @Override
     public String getTailById(Long tailId) {
         if (tailId == null || tailId < 0) {
-            return "The tail id cannot be empty!";
+            return AgentApiResult.fail("The tail id cannot be empty!");
         }
 
         try {
             Result<LogTailDTO> result = logTailService.getMilogLogtailById(tailId);
             if (result.getCode() != CommonError.Success.getCode()) {
-                return "Get tail failed, the reason for the failure is " + result.getMessage();
+                return AgentApiResult.fail("Get tail failed, the reason for the failure is " + result.getMessage());
             }
-            return GSON.toJson(result.getData());
+            return AgentApiResult.successBuilder()
+                    .addData("tail", result.getData())
+                    .build();
         } catch (Exception e) {
             log.error("Get tail failed, tailId: {}, error msg: {}", tailId, e.getMessage());
-            return "Get tail failed, the reason for the failure is " + e.getMessage();
+            return AgentApiResult.fail("Get tail failed, the reason for the failure is " + e.getMessage());
         }
     }
 

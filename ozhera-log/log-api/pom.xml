@@ -28,9 +28,7 @@ http://www.apache.org/licenses/LICENSE-2.0
     </parent>
 
     <artifactId>log-api</artifactId>
-    <version>3.0.0-AGENT-SNAPSHOT</version>
-    <modelVersion>4.0.0</modelVersion>
-
+    <version>2.2.8-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

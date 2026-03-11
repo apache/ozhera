@@ -31,21 +31,21 @@ import java.util.Map;
 
 public interface LogStoreService {
 
-    Result<String> newLogStore(LogStoreParam cmd, String user);
+    Result<String> newLogStore(LogStoreParam cmd);
 
     MilogLogStoreDO buildLogStoreEsInfo(LogStoreParam cmd, String creator);
 
-    Result<LogStoreDTO> getLogStoreById(Long id, String user, boolean isAdmin);
+    Result<LogStoreDTO> getLogStoreById(Long id);
 
     Result<List<MapDTO<String, Long>>> getLogStoreBySpaceId(Long spaceId);
 
     Result<Map<String, Object>> getLogStoreByPage(String logstoreName, Long spaceId, int page, int pagesize);
 
-    Result<Map<String, Object>> getAllLogStore(String zone);
+    Result<Map<String, Object>> getAllLogStore();
 
     Result<List<MilogLogStoreDO>> getLogStoreByIds(List<Long> ids);
 
-    Result<String> updateLogStore(LogStoreParam cmd, String user);
+    Result<String> updateLogStore(LogStoreParam cmd);
 
     Result<Void> deleteLogStore(Long id);
 

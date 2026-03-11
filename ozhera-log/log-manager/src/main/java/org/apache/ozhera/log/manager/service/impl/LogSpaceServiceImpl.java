@@ -37,6 +37,7 @@ import org.apache.ozhera.log.api.enums.OperateEnum;
 import org.apache.ozhera.log.api.enums.ProjectSourceEnum;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
+import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.common.exception.MilogManageException;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.dao.MilogSpaceDao;
@@ -91,7 +92,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
      * @return
      */
     @Override
-    public Result<String> newMilogSpace(MilogSpaceParam param, String user) {
+    public Result<String> newMilogSpace(MilogSpaceParam param) {
         if (Objects.isNull(param) || StringUtils.isBlank(param.getSpaceName())) {
             return Result.failParam("Parameter error");
         }
@@ -102,23 +103,24 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         }
 
         MilogSpaceDO milogSpaceDO = wrapMilogSpaceDO(param);
-        wrapBaseCommon(milogSpaceDO, OperateEnum.ADD_OPERATE, user);
+        wrapBaseCommon(milogSpaceDO, OperateEnum.ADD_OPERATE);
 
         MilogSpaceDO dbDO = milogSpaceDao.newMilogSpace(milogSpaceDO);
         if (Objects.isNull(dbDO.getId())) {
             return Result.failParam("Space is not saved successfully, please try again");
         }
+        String creator = MoneUserContext.getCurrentUser().getUser();
         List<String> otherAdmins = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(param.getAdmins())) {
-            user = param.getAdmins().get(0);
+            creator = param.getAdmins().get(0);
             if (param.getAdmins().size() > 1) {
                 otherAdmins = CollectionUtil.sub(param.getAdmins(), 1, param.getAdmins().size());
             }
         }
-        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, user);
+        com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.saveSpacePerm(dbDO, creator);
         addMemberAsync(dbDO.getId(), otherAdmins);
 
-        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), "", user));
+        SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
 
         if (tpcResult == null || tpcResult.getCode() != 0) {
             milogSpaceDao.deleteMilogSpace(dbDO.getId());
@@ -189,10 +191,10 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     }
 
     @Override
-    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName, String user) {
+    public Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName) {
         int pageNum = 1;
         int defaultPageSize = 300;
-        String defaultSpaceKey = buildCacheKey(tenantId, spaceName, user);
+        String defaultSpaceKey = buildCacheKey(tenantId, spaceName);
         List<MapDTO<String, Long>> cachedResult = SPACE_ALL_CACHE.getIfPresent(defaultSpaceKey);
         // return cached result if available
         if (CollectionUtils.isNotEmpty(cachedResult)) {
@@ -213,9 +215,9 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
     }
 
-    private static String buildCacheKey(Long tenantId, String spaceName, String user) {
-
-        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), user);
+    private static String buildCacheKey(Long tenantId, String spaceName) {
+        MoneUser currentUser = MoneUserContext.getCurrentUser();
+        String cacheKey = String.format("%s-%s", (tenantId == null) ? "local-key" : tenantId.toString(), currentUser.getUser());
         if (spaceName !=null && !spaceName.isEmpty()){
             cacheKey = cacheKey + "-" + spaceName;
         }
@@ -252,12 +254,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
      * update
      *
      * @param param
-     * @param currentUser current user info for permission check and audit
      * @return
      */
     @Transactional
     @Override
-    public Result<String> updateMilogSpace(MilogSpaceParam param, MoneUser currentUser) {
+    public Result<String> updateMilogSpace(MilogSpaceParam param) {
         if (null == param || StringUtils.isBlank(param.getSpaceName())) {
             return new Result<>(CommonError.ParamsError.getCode(), "Parameter error", "");
         }
@@ -276,16 +277,16 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.success("the logSpace data has not changed");
         }
 
-        if (!tpc.hasPerm(currentUser, param.getId())) {
+        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
             return Result.fail(CommonError.UNAUTHORIZED);
         }
-        wrapMilogSpace(milogSpace, param, currentUser.getZone());
-        wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE, currentUser.getUser());
+        wrapMilogSpace(milogSpace, param);
+        wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE);
 
         if (milogSpaceDao.update(milogSpace)) {
-            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, currentUser.getUser());
+            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.updateSpaceTpc(param, MoneUserContext.getCurrentUser().getUser());
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), "", currentUser.getUser()));
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(param.getTenantId(), ""));
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Modify the space permission system not associated with it,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.success("To modify the unassociated permission system of space, contact the server-side performance group");
@@ -299,11 +300,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
 
     @Transactional
     @Override
-    public Result<String> deleteMilogSpace(Long id, MoneUser currentUser) {
+    public Result<String> deleteMilogSpace(Long id) {
         if (null == id) {
             return new Result<>(CommonError.ParamsError.getCode(), "ID cannot be empty", "");
         }
-        if (!tpc.hasPerm(currentUser, id)) {
+        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
             return Result.fail(CommonError.UNAUTHORIZED);
         }
         MilogSpaceDO milogSpace = milogSpaceDao.getMilogSpaceById(id);
@@ -317,8 +318,8 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(), "", currentUser.getUser()));
-            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, currentUser.getUser(), currentUser.getUserType());
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(), ""));
+            com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);
                 return Result.failParam("To delete a space system that is not associated with it, contact the server performance group");

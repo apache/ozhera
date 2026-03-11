@@ -36,7 +36,7 @@ public interface LogSpaceService {
      * @param cmd
      * @return
      */
-    Result<String> newMilogSpace(MilogSpaceParam cmd, String user);
+    Result<String> newMilogSpace(MilogSpaceParam cmd);
 
     /**
      * getById
@@ -57,7 +57,7 @@ public interface LogSpaceService {
     Result<PageInfo<MilogSpaceDTO>> getMilogSpaceByPage(String spaceName, Long tenantId, Integer page, Integer pagesize);
 
 
-    Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName, String user);
+    Result<List<MapDTO<String, Long>>> getMilogSpaces(Long tenantId, String spaceName);
 
     /**
      * update
@@ -66,9 +66,9 @@ public interface LogSpaceService {
      * @param currentUser current user info for permission check and audit
      * @return
      */
-    Result<String> updateMilogSpace(MilogSpaceParam cmd, MoneUser currentUser);
+    Result<String> updateMilogSpace(MilogSpaceParam cmd);
 
-    Result<String> deleteMilogSpace(Long id, MoneUser currentUser);
+    Result<String> deleteMilogSpace(Long id);
 
     Result<String> setSpacePermission(Long spaceId, String permDeptIds);
 

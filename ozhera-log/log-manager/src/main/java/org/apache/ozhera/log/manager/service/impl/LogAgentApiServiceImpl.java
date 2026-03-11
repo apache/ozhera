@@ -1,17 +1,19 @@
 package org.apache.ozhera.log.manager.service.impl;
 
 
-import com.xiaomi.mone.tpc.common.enums.UserTypeEnum;
+import com.xiaomi.mone.tpc.login.vo.AuthUserVo;
 import com.xiaomi.youpin.docean.plugin.dubbo.anno.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.api.model.agent.AgentApiResult;
 import org.apache.ozhera.log.api.model.agent.SpaceInfo;
 import org.apache.ozhera.log.api.model.agent.StoreInfo;
 import org.apache.ozhera.log.api.model.agent.TailInfo;
+import org.apache.ozhera.log.api.model.agent.UserInfo;
 import org.apache.ozhera.log.api.service.HeraLogApiService;
 import org.apache.ozhera.log.api.service.LogAgentApiService;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
+import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.domain.Tpc;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 import org.apache.ozhera.log.manager.model.bo.LogTailParam;
@@ -22,7 +24,6 @@ import org.apache.ozhera.log.manager.model.dto.MilogSpaceTreeDTO;
 import org.apache.ozhera.log.manager.model.dto.MotorRoomDTO;
 import org.apache.ozhera.log.manager.model.vo.LogStoreParam;
 import org.apache.ozhera.log.manager.service.HeralogHomePageService;
-import org.apache.ozhera.log.manager.user.MoneUser;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -63,7 +64,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         param.setSpaceName(info.getSpaceName());
         param.setDescription(info.getSpaceDescription());
         try {
-            Result<String> result = logSpaceService.newMilogSpace(param, info.getUserInfo().getUser());
+            setMoneUserContext(info.getUserInfo());
+            Result<String> result = logSpaceService.newMilogSpace(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Create space failed, the reason for the failure is " + result.getMessage());
             }
@@ -73,6 +75,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("create space failed, name: {}, description: {}, error msg: {}", info.getSpaceName(), info.getSpaceDescription(), e.getMessage());
             return AgentApiResult.fail("Create space failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -96,13 +100,9 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         param.setSpaceName(info.getSpaceName());
         param.setDescription(info.getSpaceDescription());
 
-        MoneUser currentUser = MoneUser.builder()
-                .user(info.getUserInfo().getUser())
-                .zone(info.getUserInfo().getZone())
-                .userType(info.getUserInfo().getUserType())
-                .build();
         try {
-            Result<String> result = logSpaceService.updateMilogSpace(param, currentUser);
+            setMoneUserContext(info.getUserInfo());
+            Result<String> result = logSpaceService.updateMilogSpace(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Update space failed, the reason for the failure is " + result.getMessage());
             }
@@ -110,6 +110,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Update space failed, name: {}, description: {}, error msg: {}", info.getSpaceName(), info.getSpaceDescription(), e.getMessage());
             return AgentApiResult.fail("Update space failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -122,12 +124,9 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
             return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
 
-        MoneUser currentUser = MoneUser.builder()
-                .user(info.getUserInfo().getUser())
-                .userType(info.getUserInfo().getUserType())
-                .build();
         try {
-            Result<String> result = logSpaceService.deleteMilogSpace(info.getSpaceId(), currentUser);
+            setMoneUserContext(info.getUserInfo());
+            Result<String> result = logSpaceService.deleteMilogSpace(info.getSpaceId());
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Delete space failed, the reason for the failure is " + result.getMessage());
             }
@@ -135,6 +134,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Delete space failed, space id: {}, error msg: {}", info.getSpaceId(), e.getMessage());
             return AgentApiResult.fail("Delete space failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -178,15 +179,18 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         if (info.getUserInfo() == null || info.getUserInfo().getUser() == null || info.getUserInfo().getUser().isEmpty()) {
             return AgentApiResult.fail("The user information is empty. Please provide the correct user information!");
         }
-        String account = info.getUserInfo().getUser();
-        boolean admin = tpc.isAdmin(account, UserTypeEnum.CAS_TYPE.getCode());
-        Result<LogStoreDTO> result = logStoreService.getLogStoreById(info.getStoreId(), account, admin);
-        if (result.getCode() != CommonError.Success.getCode()) {
-            return AgentApiResult.fail("Get store failed, the reason for the failure is " + result.getMessage());
+        try {
+            setMoneUserContext(info.getUserInfo());
+            Result<LogStoreDTO> result = logStoreService.getLogStoreById(info.getStoreId());
+            if (result.getCode() != CommonError.Success.getCode()) {
+                return AgentApiResult.fail("Get store failed, the reason for the failure is " + result.getMessage());
+            }
+            return AgentApiResult.successBuilder()
+                    .addData("store", result.getData())
+                    .build();
+        } finally {
+            MoneUserContext.clear();
         }
-        return AgentApiResult.successBuilder()
-                .addData("store", result.getData())
-                .build();
     }
 
     @Override
@@ -198,7 +202,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
 
         LogStoreParam param = buildLogStoreParam(info, true);
         try {
-            Result<String> result = logStoreService.newLogStore(param, info.getUserInfo().getUser());
+            setMoneUserContext(info.getUserInfo());
+            Result<String> result = logStoreService.newLogStore(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Create store failed, the reason for the failure is " + result.getMessage());
             }
@@ -206,6 +211,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Create store failed, name: {}, spaceId: {}, error msg: {}", info.getStoreName(), info.getSpaceId(), e.getMessage());
             return AgentApiResult.fail("Create store failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -218,7 +225,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
 
         LogStoreParam param = buildLogStoreParam(info, false);
         try {
-            Result<String> result = logStoreService.newLogStore(param, info.getUserInfo().getUser());
+            setMoneUserContext(info.getUserInfo());
+            Result<String> result = logStoreService.newLogStore(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Update store failed, the reason for the failure is " + result.getMessage());
             }
@@ -226,6 +234,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Update store failed, name: {}, storeId: {}, error msg: {}", info.getStoreName(), info.getStoreId(), e.getMessage());
             return AgentApiResult.fail("Update store failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -239,6 +249,7 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         }
 
         try {
+            setMoneUserContext(info.getUserInfo());
             Result<Void> result = logStoreService.deleteLogStore(info.getStoreId());
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Delete store failed, the reason for the failure is " + result.getMessage());
@@ -247,6 +258,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Delete store failed, storeId: {}, error msg: {}", info.getStoreId(), e.getMessage());
             return AgentApiResult.fail("Delete store failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -285,7 +298,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
 
         LogTailParam param = buildLogTailParam(info, true);
         try {
-            Result<LogTailDTO> result = logTailService.newMilogLogTail(param, info.getUserInfo().getUser());
+            setMoneUserContext(info.getUserInfo());
+            Result<LogTailDTO> result = logTailService.newMilogLogTail(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Create tail failed, the reason for the failure is " + result.getMessage());
             }
@@ -295,6 +309,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Create tail failed, tail: {}, storeId: {}, error msg: {}", info.getTail(), info.getStoreId(), e.getMessage());
             return AgentApiResult.fail("Create tail failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -307,7 +323,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
 
         LogTailParam param = buildLogTailParam(info, false);
         try {
-            Result<Void> result = logTailService.updateMilogLogTail(param, info.getUserInfo().getUser());
+            setMoneUserContext(info.getUserInfo());
+            Result<Void> result = logTailService.updateMilogLogTail(param);
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Update tail failed, the reason for the failure is " + result.getMessage());
             }
@@ -315,6 +332,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Update tail failed, tail: {}, tailId: {}, error msg: {}", info.getTail(), info.getId(), e.getMessage());
             return AgentApiResult.fail("Update tail failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -328,6 +347,7 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         }
 
         try {
+            setMoneUserContext(info.getUserInfo());
             Result<Void> result = logTailService.deleteLogTail(info.getId());
             if (result.getCode() != CommonError.Success.getCode()) {
                 return AgentApiResult.fail("Delete tail failed, the reason for the failure is " + result.getMessage());
@@ -336,6 +356,8 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         } catch (Exception e) {
             log.error("Delete tail failed, tailId: {}, error msg: {}", info.getId(), e.getMessage());
             return AgentApiResult.fail("Delete tail failed, the reason for the failure is " + e.getMessage());
+        } finally {
+            MoneUserContext.clear();
         }
     }
 
@@ -359,6 +381,14 @@ public class LogAgentApiServiceImpl implements LogAgentApiService {
         }
     }
 
+
+    private void setMoneUserContext(UserInfo userInfo) {
+        AuthUserVo authUserVo = new AuthUserVo();
+        authUserVo.setAccount(userInfo.getUser());
+        authUserVo.setUserType(userInfo.getUserType());
+        boolean isAdmin = tpc.isAdmin(userInfo.getUser(), userInfo.getUserType());
+        MoneUserContext.setCurrentUser(authUserVo, isAdmin);
+    }
 
     private LogTailParam buildLogTailParam(TailInfo info, boolean isCreate) {
         LogTailParam param = new LogTailParam();

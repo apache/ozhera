@@ -201,7 +201,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     @Override
-    public Result<LogTailDTO> newMilogLogTail(LogTailParam param, String user) {
+    public Result<LogTailDTO> newMilogLogTail(LogTailParam param) {
         // Parameter validation
         String errorMsg = heraConfigValid.verifyLogTailParam(param);
         if (StringUtils.isNotEmpty(errorMsg)) {
@@ -226,7 +226,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
 
         AppBaseInfo appBaseInfo = getAppBaseInfo(param);
 
-        MilogLogTailDo mt = buildLogTailDo(param, logStore, appBaseInfo, user);
+        MilogLogTailDo mt = buildLogTailDo(param, logStore, appBaseInfo, MoneUserContext.getCurrentUser().getUser());
         MilogLogTailDo milogLogtailDo = milogLogtailDao.add(mt);
         boolean supportedConsume = logTypeProcessor.supportedConsume(logStore.getLogType());
         try {
@@ -389,7 +389,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
     }
 
     @Override
-    public Result<Void> updateMilogLogTail(LogTailParam param, String user) {
+    public Result<Void> updateMilogLogTail(LogTailParam param) {
         if (null == param || null == param.getId()) {
             return Result.failParam("parameter error,param:" + param);
         }
@@ -433,7 +433,7 @@ public class LogTailServiceImpl extends BaseService implements LogTailService {
         }
 
         MilogLogTailDo milogLogtailDo = convertLogTailParamToDo(ret, param, logStoreDO, appBaseInfo);
-        wrapBaseCommon(milogLogtailDo, OperateEnum.UPDATE_OPERATE, user);
+        wrapBaseCommon(milogLogtailDo, OperateEnum.UPDATE_OPERATE);
         boolean isSucceed = milogLogtailDao.update(milogLogtailDo);
 
         if (isSucceed) {

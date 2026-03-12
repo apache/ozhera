@@ -30,6 +30,7 @@ http://www.apache.org/licenses/LICENSE-2.0
     <artifactId>log-manager</artifactId>
     <version>2.3.1-SNAPSHOT</version>
 
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -306,11 +307,13 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.knuddels</groupId>
             <artifactId>jtokkit</artifactId>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 

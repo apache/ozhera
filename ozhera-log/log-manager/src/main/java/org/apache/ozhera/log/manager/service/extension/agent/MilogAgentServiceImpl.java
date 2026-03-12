@@ -22,6 +22,12 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.xiaomi.data.push.context.AgentContext;
 import com.xiaomi.data.push.rpc.netty.AgentChannel;
+import com.xiaomi.youpin.docean.anno.Service;
+import com.xiaomi.youpin.docean.common.NamedThreadFactory;
+import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.app.api.response.AppBaseInfo;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.enums.MQSourceEnum;
@@ -48,12 +54,6 @@ import org.apache.ozhera.log.manager.service.impl.HeraAppServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogTailServiceImpl;
 import org.apache.ozhera.log.manager.service.path.LogPathMapping;
 import org.apache.ozhera.log.manager.service.path.LogPathMappingFactory;
-import com.xiaomi.youpin.docean.anno.Service;
-import com.xiaomi.youpin.docean.common.NamedThreadFactory;
-import com.xiaomi.youpin.docean.plugin.dubbo.anno.Reference;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Resource;
@@ -178,11 +178,14 @@ public class MilogAgentServiceImpl implements MilogAgentService {
         }
         printMangerInfo();
         AppBaseInfo appBaseInfo = heraAppService.queryById(milogAppId);
+        MilogLogTailDo milogLogTailDo = milogLogtailDao.queryById(tailId);
+        MilogLogStoreDO logStore = logstoreDao.queryById(milogLogTailDo.getStoreId());
         ips.forEach(ip -> {
             AppLogMeta appLogMeta = assembleSingleConfig(milogAppId, queryLogPattern(milogAppId, ip, appBaseInfo.getPlatformType()));
             LogCollectMeta logCollectMeta = new LogCollectMeta();
             logCollectMeta.setAgentIp(ip);
-            logCollectMeta.setAppLogMetaList(Arrays.asList(appLogMeta));
+            logCollectMeta.setAgentMachine(null != logStore && StringUtils.isNotEmpty(logStore.getMachineRoom()) ? logStore.getMachineRoom() : StringUtils.EMPTY);
+            logCollectMeta.setAppLogMetaList(List.of(appLogMeta));
             AgentDefine agentDefine = new AgentDefine();
             agentDefine.setFilters(new ArrayList<>());
             logCollectMeta.setAgentDefine(agentDefine);
@@ -199,8 +202,8 @@ public class MilogAgentServiceImpl implements MilogAgentService {
     }
 
     private void printMangerInfo() {
-        List<String> remoteAddress = publishConfigService.getAllAgentList();
         if (COUNT_INCR.getAndIncrement() % 200 == 0) {
+            List<String> remoteAddress = publishConfigService.getAllAgentList();
             log.info("The set of remote addresses for the connected agent machine is:{}", gson.toJson(remoteAddress));
         }
     }
@@ -223,7 +226,7 @@ public class MilogAgentServiceImpl implements MilogAgentService {
         ips.forEach(ip -> {
             LogCollectMeta logCollectMeta = new LogCollectMeta();
             logCollectMeta.setAgentIp(ip);
-            logCollectMeta.setAgentMachine("");
+            logCollectMeta.setAgentMachine(StringUtils.EMPTY);
             logCollectMeta.setAgentId("");
             logCollectMeta.setAppLogMetaList(Arrays.asList(appLogMeta));
             sengConfigToAgent(ip, logCollectMeta);
@@ -297,7 +300,7 @@ public class MilogAgentServiceImpl implements MilogAgentService {
     private LogCollectMeta buildLogCollectMeta(String agentIp) {
         LogCollectMeta logCollectMeta = new LogCollectMeta();
         logCollectMeta.setAgentIp(agentIp);
-        logCollectMeta.setAgentMachine("");
+        logCollectMeta.setAgentMachine(StringUtils.EMPTY);
         logCollectMeta.setAgentId("");
         return logCollectMeta;
     }

@@ -24,7 +24,6 @@ import org.apache.ozhera.log.manager.model.dto.MapDTO;
 import org.apache.ozhera.log.manager.model.dto.MilogSpaceDTO;
 import org.apache.ozhera.log.manager.model.page.PageInfo;
 import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
-import org.apache.ozhera.log.manager.user.MoneUser;
 
 import java.util.List;
 
@@ -63,7 +62,6 @@ public interface LogSpaceService {
      * update
      *
      * @param cmd
-     * @param currentUser current user info for permission check and audit
      * @return
      */
     Result<String> updateMilogSpace(MilogSpaceParam cmd);

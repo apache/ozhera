@@ -24,7 +24,6 @@ import org.apache.ozhera.log.manager.model.dto.MapDTO;
 import org.apache.ozhera.log.manager.model.dto.MenuDTO;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.vo.LogStoreParam;
-import org.apache.ozhera.log.manager.user.MoneUser;
 
 import java.util.List;
 import java.util.Map;

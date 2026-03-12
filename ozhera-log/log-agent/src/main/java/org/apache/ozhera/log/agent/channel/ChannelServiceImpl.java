@@ -530,6 +530,7 @@ public class ChannelServiceImpl extends AbstractChannelService {
             Future<?> future = getExecutorServiceByType(logTypeEnum).submit(() -> {
                 try {
                     log.info("filePath:{},is VirtualThread {}, thread:{},id:{}", filePath, Thread.currentThread().isVirtual(), Thread.currentThread(), Thread.currentThread().threadId());
+                    logFile.setStop(false);
                     logFile.readLine();
                     // Reset exception count on successful read
                     fileExceptionCountMap.remove(filePath);

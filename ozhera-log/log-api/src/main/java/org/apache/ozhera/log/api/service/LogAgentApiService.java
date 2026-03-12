@@ -1,10 +1,8 @@
 package org.apache.ozhera.log.api.service;
 
-import org.apache.ozhera.log.api.model.agent.LogAgentBaseDTO;
 import org.apache.ozhera.log.api.model.agent.SpaceInfo;
 import org.apache.ozhera.log.api.model.agent.StoreInfo;
 import org.apache.ozhera.log.api.model.agent.TailInfo;
-import org.apache.ozhera.log.api.model.agent.UserInfo;
 
 public interface LogAgentApiService {
 

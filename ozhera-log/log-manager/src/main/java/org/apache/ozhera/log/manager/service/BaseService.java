@@ -33,7 +33,7 @@ import static org.apache.ozhera.log.common.Constant.DEFAULT_OPERATOR;
  * @date 2021/12/20 15:56
  */
 public class BaseService {
-
+    
     public void wrapMilogSpace(MilogSpaceDO ms, MilogSpaceParam param) {
         ms.setSpaceName(param.getSpaceName());
         ms.setTenantId(param.getTenantId());

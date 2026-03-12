@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
+import org.apache.ozhera.log.manager.common.utils.LogStackTruncator;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.config.redis.RedisClientFactory;
 import org.apache.ozhera.log.manager.mapper.MilogAiConversationMapper;
@@ -136,8 +137,21 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             return Result.failParam("Store id is null");
         }
 
-        if (requestExceedLimit(tailLogAiAnalysisDTO.getLogs())) {
-            return Result.failParam("The length of the input information reaches the maximum limit");
+        // Smart truncation for long stack traces instead of rejecting
+        List<String> processedLogs = tailLogAiAnalysisDTO.getLogs();
+        if (requestExceedLimit(processedLogs)) {
+            LogStackTruncator.TruncationResult truncationResult = LogStackTruncator.truncate(processedLogs);
+            if (truncationResult.wasTruncated()) {
+                processedLogs = truncationResult.getTruncatedLogs();
+                log.info("Logs truncated for AI analysis: originalTokens={}, truncatedTokens={}, language={}",
+                        truncationResult.getOriginalTokenCount(),
+                        truncationResult.getTruncatedTokenCount(),
+                        truncationResult.getDetectedLanguage());
+            }
+            // Check again after truncation
+            if (requestExceedLimit(processedLogs)) {
+                return Result.failParam("The length of the input information reaches the maximum limit even after truncation");
+            }
         }
 
         MoneUser user = MoneUserContext.getCurrentUser();
@@ -147,7 +161,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             String answer = "";
             try {
                 BotQAParam param = new BotQAParam();
-                param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+                param.setLatestQuestion(formatLogs(processedLogs));
                 String paramJson = gson.toJson(param);
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
@@ -161,7 +175,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             long timestamp = System.currentTimeMillis();
             String nowTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             conversation.setTime(nowTimeStr);
-            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setUser(formatLogs(processedLogs));
             conversation.setBot(answer);
 
             List<BotQAParam.QAParam> ModelHistory = new ArrayList<>();
@@ -194,11 +208,11 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             Map<String, List<BotQAParam.QAParam>> cache = getConversation(conversationId);
             List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
             List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
-            AnalysisResult analysisResult = processHistoryConversation(conversationId, cache, tailLogAiAnalysisDTO);
+            AnalysisResult analysisResult = processHistoryConversation(conversationId, cache, processedLogs);
             String answer = analysisResult.getAnswer();
             BotQAParam.QAParam conversation = new BotQAParam.QAParam();
             conversation.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setUser(formatLogs(processedLogs));
             conversation.setBot(answer);
             if (analysisResult.getCompressedModelHistory() != null) {
                 List<BotQAParam.QAParam> compressedModelHistory = analysisResult.getCompressedModelHistory();
@@ -218,14 +232,14 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     }
 
-    private AnalysisResult processHistoryConversation(Long conversationId, Map<String, List<BotQAParam.QAParam>> cache, LogAiAnalysisDTO tailLogAiAnalysisDTO) {
+    private AnalysisResult processHistoryConversation(Long conversationId, Map<String, List<BotQAParam.QAParam>> cache, List<String> logs) {
         List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
         List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
         AnalysisResult res = new AnalysisResult();
         try {
             BotQAParam param = new BotQAParam();
             param.setHistoryConversation(modelHistory);
-            param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            param.setLatestQuestion(formatLogs(logs));
             String paramJson = gson.toJson(param);
             if (TOKENIZER.countTokens(paramJson) < 70000) {
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
@@ -234,7 +248,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
                 res.setAnswer(answer);
                 return res;
             } else {
-                return analysisAndCompression(modelHistory, originalHistory, tailLogAiAnalysisDTO.getLogs(), conversationId);
+                return analysisAndCompression(modelHistory, originalHistory, logs, conversationId);
             }
         } catch (InterruptedException e) {
             log.error("An error occurred in the request for the large model， err: {}", e.getMessage());

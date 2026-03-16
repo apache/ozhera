@@ -92,17 +92,15 @@ public class AgentCollectProgressProcessor implements NettyRequestProcessor {
 
         try {
             bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
-            if (!JSONUtil.isTypeJSON(bodyStr)) {
-                log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
-                return null;
+            if (JSONUtil.isTypeJSON(bodyStr)) {
+                UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
+                if (StringUtils.isBlank(cmd.getIp())) {
+                    log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
+                    return null;
+                }
+                log.debug("Parsed request from agent: ip={}", cmd.getIp());
+                return cmd;
             }
-            UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
-            if (StringUtils.isBlank(cmd.getIp())) {
-                log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
-                return null;
-            }
-            log.debug("Parsed request from agent: ip={}", cmd.getIp());
-            return cmd;
         } catch (Exception ignored) {
         }
         try {

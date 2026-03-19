@@ -243,8 +243,60 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
         Assert.notNull(spaceId, "logSpaceId not empty");
         Assert.notNull(storeId, "storeId not empty");
         //send msg
-        getSpaceConfigNacosPublisher(motorRoomEn).publish(spaceId,
-                dealSpaceConfigByRule(motorRoomEn, spaceId, storeId, tailId, type, changeType));
+        MilogSpaceData spaceData = dealSpaceConfigByRule(motorRoomEn, spaceId, storeId, tailId, type, changeType);
+        getSpaceConfigNacosPublisher(motorRoomEn).publish(spaceId, spaceData);
+
+        // Publish split configs
+        if (spaceData != null) {
+            publishSplitSpaceData(motorRoomEn, spaceId, spaceData);
+        }
+    }
+
+    private void publishSplitSpaceData(String motorRoomEn, Long spaceId, MilogSpaceData spaceData) {
+        String baseDataId = CommonExtensionServiceFactory.getCommonExtensionService().getLogManagePrefix() + TAIL_CONFIG_DATA_ID + spaceId;
+        try {
+            // Clone spaceData for type 0
+            MilogSpaceData spaceData0 = copySpaceData(spaceData);
+            filterLogtailConfigs(spaceData0, 0);
+            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":0", spaceData0);
+        } catch (Exception e) {
+            log.error("publishSplitSpaceData type 0 error, spaceId:{}", spaceId, e);
+        }
+
+        try {
+            // Clone spaceData for type 1 (non-0)
+            MilogSpaceData spaceData1 = copySpaceData(spaceData);
+            filterLogtailConfigs(spaceData1, 1);
+            getSpaceConfigNacosPublisher(motorRoomEn).publish(baseDataId + ":not0", spaceData1);
+        } catch (Exception e) {
+            log.error("publishSplitSpaceData type 1 error, spaceId:{}", spaceId, e);
+        }
+    }
+
+    private MilogSpaceData copySpaceData(MilogSpaceData source) {
+        String json = GSON.toJson(source);
+        return GSON.fromJson(json, MilogSpaceData.class);
+    }
+
+    private void filterLogtailConfigs(MilogSpaceData data, int type) {
+        if (data.getSpaceConfig() != null) {
+            for (SinkConfig sinkConfig : data.getSpaceConfig()) {
+                if (sinkConfig.getLogtailConfigs() != null) {
+                    List<LogtailConfig> filtered = sinkConfig.getLogtailConfigs().stream()
+                            .filter(config -> {
+                                Integer appType = config.getAppType() == null ? 0 : config.getAppType();
+                                if (type == 0) {
+                                    return appType == 0;
+                                } else {
+                                    return appType != 0;
+                                }
+                            })
+                            .collect(Collectors.toList());
+                    sinkConfig.setLogtailConfigs(filtered);
+                }
+            }
+            data.getSpaceConfig().removeIf(sinkConfig -> CollectionUtils.isEmpty(sinkConfig.getLogtailConfigs()));
+        }
     }
 
     /**
@@ -329,7 +381,9 @@ public class MilogConfigNacosServiceImpl implements MilogConfigNacosService {
                     if (CollectionUtils.isEmpty(logtailConfigs)) {
                         logtailConfigs = Lists.newArrayList();
                     }
-                    logtailConfigs.add(assembleLogTailConfigs(tailId));
+                    if (null != tailId) {
+                        logtailConfigs.add(assembleLogTailConfigs(tailId));
+                    }
                     currentStoreConfig.setLogtailConfigs(logtailConfigs);
                 } else {
                     //New addition to the log Store

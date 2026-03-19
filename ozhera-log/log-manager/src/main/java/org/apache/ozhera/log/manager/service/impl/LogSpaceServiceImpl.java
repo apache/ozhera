@@ -128,7 +128,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.failParam("Space is not associated with a permission system");
         }
 
-        return Result.success();
+        return Result.success(String.valueOf(dbDO.getId()));
     }
 
     private void addMemberAsync(Long spaceId, List<String> otherAdmins) {
@@ -318,7 +318,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (milogSpaceDao.deleteMilogSpace(id)) {
             logTailService.deleteConfigRemote(id, id, MachineRegionEnum.CN_MACHINE.getEn(), LogStructureEnum.SPACE);
 
-            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(),""));
+            SPACE_ALL_CACHE.invalidate(buildCacheKey(milogSpace.getTenantId(), ""));
             com.xiaomi.youpin.infra.rpc.Result tpcResult = spaceAuthService.deleteSpaceTpc(id, MoneUserContext.getCurrentUser().getUser(), MoneUserContext.getCurrentUser().getUserType());
             if (tpcResult == null || tpcResult.getCode() != 0) {
                 log.error("Remove the space without associated permission system,space:[{}], tpcResult:[{}]", milogSpace, tpcResult);

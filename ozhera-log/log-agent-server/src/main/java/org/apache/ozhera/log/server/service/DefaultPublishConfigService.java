@@ -19,6 +19,9 @@
 package org.apache.ozhera.log.server.service;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.xiaomi.data.push.context.AgentContext;
 import com.xiaomi.data.push.rpc.RpcServer;
@@ -34,12 +37,15 @@ import org.apache.ozhera.log.api.service.PublishConfigService;
 import org.apache.ozhera.log.utils.NetUtil;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
+import static org.apache.ozhera.log.server.common.Utils.getConfig;
 
 /**
  * @author wtt
@@ -65,6 +71,23 @@ public class DefaultPublishConfigService implements PublishConfigService {
     private final Random random = new Random();
 
     private static final ExecutorService SEND_CONFIG_EXECUTOR;
+
+    /**
+     * Rate limit cache using Guava: key=agentIp:configMd5, value=lastSendTime
+     * Only send once within 2 minutes for the same configuration
+     * Configured with max size and expire time to prevent memory explosion
+     */
+    private static final LoadingCache<String, Long> CONFIG_SEND_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(20000) // Maximum 10k entries to prevent memory explosion
+            .expireAfterWrite(3, TimeUnit.MINUTES) // Auto expire after 3 minutes (longer than rate limit window)
+            .build(new CacheLoader<String, Long>() {
+                @Override
+                public Long load(String key) {
+                    return 0L; // Default value if not present
+                }
+            });
+
+    private static final long RATE_LIMIT_WINDOW_MS = 2 * 60 * 1000L; // 2 minutes
 
     static {
         int corePoolSize = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
@@ -100,15 +123,6 @@ public class DefaultPublishConfigService implements PublishConfigService {
             }
         }
     }
-
-    private String getConfig(String key) {
-        String raw = System.getenv(key);
-        if (StringUtils.isBlank(raw)) {
-            raw = System.getProperty(key);
-        }
-        return raw;
-    }
-
 
     /**
      * dubbo interface, the timeout period cannot be too long
@@ -180,7 +194,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
     }
 
     /**
-     * Send configuration to agent asynchronously
+     * Send configuration to agent asynchronously with rate limiting
      *
      * @param agentIp agent IP address
      * @param meta    log collection metadata
@@ -190,15 +204,51 @@ public class DefaultPublishConfigService implements PublishConfigService {
             return;
         }
 
+        // Generate config MD5 as rate limit key
+        String configMd5 = generateConfigMd5(meta);
+        String rateLimitKey = agentIp + ":" + configMd5;
+
+        // Check rate limit: only send once within 2 minutes for same config
+        long currentTime = System.currentTimeMillis();
+        Long lastSendTime = CONFIG_SEND_CACHE.getUnchecked(rateLimitKey);
+
+        if (null != lastSendTime && lastSendTime > 0 && currentTime - lastSendTime < RATE_LIMIT_WINDOW_MS) {
+            log.info("Rate limit hit, skip sending config. agentIp:{}, configMd5:{}, lastSendTime:{}ms ago,config:{}",
+                    agentIp, configMd5, currentTime - lastSendTime, GSON.toJson(meta));
+            return;
+        }
+
+        // Update cache and send config
+        CONFIG_SEND_CACHE.put(rateLimitKey, currentTime);
+
         sendWithRetry(agentIp, meta, 1)
                 .exceptionally(ex -> {
                     log.error("send config failed after retry, agentIp:{}", agentIp, ex);
                     return false;
                 });
+//        try {
+//            Thread.sleep(random.nextInt(800, 1000));
+//        } catch (InterruptedException e) {
+//            log.error("sleep interrupted, agentIp:{}", agentIp, e);
+//        }
+    }
+
+    /**
+     * Generate MD5 hash of configuration content
+     */
+    private String generateConfigMd5(LogCollectMeta meta) {
         try {
-            Thread.sleep(random.nextInt(800, 1000));
-        } catch (InterruptedException e) {
-            log.error("sleep interrupted, agentIp:{}", agentIp, e);
+            String configJson = GSON.toJson(meta);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(configJson.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            log.error("generate config md5 failed, use hashCode instead", e);
+            return String.valueOf(meta.hashCode());
         }
     }
 

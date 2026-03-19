@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
+import static org.apache.ozhera.log.server.common.Utils.getConfig;
 
 /**
  * @author wtt
@@ -63,15 +64,17 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
 
     private final Map<String, List<UpdateLogProcessCmd.CollectDetail>> tailProgressMap = new ConcurrentHashMap<>(256);
 
+    private static final String CONFIG_COUNT_KEY = "CONFIG_MAX_IP_COUNT";
+
     // Maximum number of stored IPs to prevent unlimited memory growth
-    private static final int MAX_IP_COUNT = 200000;
+    private volatile int maxIpCount = 80000;
 
     // The maximum number of CollectDetails under each IP to prevent excessive data for a single IP
     private static final int MAX_COLLECT_DETAIL_PER_IP = 5000;
 
     private static final Integer MAX_INTERRUPT_TIME = 10;
 
-    private static final Integer MAX_STATIC_INTERRUPT_TIME_HOUR = 4;
+    private static final Integer MAX_STATIC_INTERRUPT_TIME_HOUR = 1;
 
     private static final String PROCESS_SEPARATOR = "%";
 
@@ -85,6 +88,11 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
             t.setDaemon(true);
             return t;
         });
+
+        String maxIpCountStr = getConfig(CONFIG_COUNT_KEY);
+        if (StringUtils.isNotEmpty(maxIpCountStr)) {
+            maxIpCount = NumberUtil.parseInt(maxIpCountStr);
+        }
 
         // Every 2 minutes, perform cleanup of expired data
         scheduledExecutorService.scheduleWithFixedDelay(this::cleanupExpiredData, 2, 2, TimeUnit.MINUTES);
@@ -103,8 +111,8 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
         List<UpdateLogProcessCmd.CollectDetail> deduplicatedCollectList = deduplicateCollectList(cmd.getCollectList());
 
         // Control the size of the map to prevent memory overflow
-        if (tailProgressMap.size() >= MAX_IP_COUNT) {
-            log.warn("tailProgressMap size reaches limit {}, removing oldest entries", MAX_IP_COUNT);
+        if (tailProgressMap.size() >= maxIpCount) {
+            log.warn("tailProgressMap size reaches limit {}, removing oldest entries", maxIpCount);
             // Remove some old entries, keep the latest
             removeOldestEntries();
         }
@@ -236,7 +244,7 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
     private void removeOldestEntries() {
         // Get all keys and remove a part of them according to some strategy
         List<String> allKeys = new ArrayList<>(tailProgressMap.keySet());
-        if (allKeys.size() <= MAX_IP_COUNT / 2) {
+        if (allKeys.size() <= maxIpCount / 2) {
             return; // If the number doesn't exceed half the limit, no removal is needed
         }
 
@@ -308,7 +316,7 @@ public class DefaultLogProcessCollector implements LogProcessCollector {
                 log.info("Cleaned up {} expired entries from tailProgressMap", removedCount);
             }
 
-            if (tailProgressMap.size() > MAX_IP_COUNT) {
+            if (tailProgressMap.size() > maxIpCount) {
                 removeOldestEntries();
             }
         } catch (Exception e) {

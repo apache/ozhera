@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@Service(interfaceClass = HeraLogApiService.class, group = "$dubbo.group", timeout = 10000)
+@Service(interfaceClass = LogAgentApiService.class, group = "$dubbo.group", timeout = 10000)
 public class LogAgentApiServiceImpl implements LogAgentApiService {
 
     @Resource

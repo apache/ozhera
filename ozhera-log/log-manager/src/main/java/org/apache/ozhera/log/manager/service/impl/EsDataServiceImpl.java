@@ -605,8 +605,8 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         MilogSpaceDO spaceDO = spaceDao.queryById(storeDO.getSpaceId());
         Long startTime = (query.getTimestamp() / 1000) - (1000 * 60 * 10);
         Long endTime = (query.getTimestamp() / 1000) + (1000 * 60 * 10);
+        String url = commonExtensionService.getTraceAppLogUrl(heraUrl, spaceDO.getId(), query.getTraceId(), storeDO.getId(), tailName, startTime, endTime);
 
-        String url = String.format("%s/project-milog/user/space-tree?spaceId=%s&inputV=\"%s\"&storeId=%s&tailName=%s&type=search&startTime=%s&endTime=%s", heraUrl, spaceDO.getId(), query.getTraceId(), storeDO.getId(), tailName, startTime, endTime);
         return Result.success(url);
     }
 

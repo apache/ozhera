@@ -110,6 +110,31 @@ public class HeraAppServiceImpl implements HeraAppService {
     }
 
     @Override
+    public List<AppBaseInfo> queryAppInfoWithLogLatest(String appName, Integer type, Integer count){
+        Integer platformType = null;
+        Integer appType = null;
+        if (Objects.nonNull(type)) {
+            appType = appTypeServiceExtension.getAppTypeLog(type);
+            platformType = appTypeServiceExtension.getAppPlatForm(type);
+        }
+        List<AppBaseInfo> appBaseInfos;
+        if(appName != null && appName.isBlank()){
+            appBaseInfos = heraAppBaseInfoMapper.queryAppInfo(appName, platformType, appType);
+        }else{
+            appBaseInfos = heraAppBaseInfoMapper.queryLatestAppInfo(count, platformType, appType);
+        }
+
+        if (CollectionUtils.isNotEmpty(appBaseInfos)) {
+            appBaseInfos = appBaseInfos.parallelStream().map(appBaseInfo -> {
+                appBaseInfo.setPlatformName(appTypeServiceExtension.getPlatformName(appBaseInfo.getPlatformType()));
+                appBaseInfo.setAppTypeName(appTypeServiceExtension.getAppTypeName(appBaseInfo.getAppType()));
+                return appBaseInfo;
+            }).collect(Collectors.toList());
+        }
+        return appBaseInfos;
+    }
+
+    @Override
     public List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit, Integer type) {
         List<AppBaseInfo> appBaseInfos;
         Integer platformType = null;

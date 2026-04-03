@@ -112,6 +112,11 @@ public class DefaultCommonExtensionService implements CommonExtensionService {
         return true;
     }
 
+    @Override
+    public String getTraceAppLogUrl(String heraUrl, Long spaceId, String traceId, Long storeId, String tailName, Long startTime, Long endTime) {
+        return String.format("%s/project-milog/user/space-tree?spaceId=%s&inputV=traceId:%s&storeId=%s&tailName=%s&type=search&startTime=%s&endTime=%s", heraUrl, spaceId, traceId, storeId, tailName, startTime, endTime);
+    }
+
     @Getter
     public static enum QueryTypeEnum {
         ID,

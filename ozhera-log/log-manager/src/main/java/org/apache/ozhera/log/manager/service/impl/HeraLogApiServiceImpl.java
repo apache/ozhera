@@ -68,7 +68,7 @@ import static org.apache.ozhera.log.manager.user.MoneUserDetailService.GSON;
  * @date 2024/3/6 16:17
  */
 @Slf4j
-@Service(interfaceClass = HeraLogApiService.class, group = "$dubbo.group", timeout = 10000)
+@Service(interfaceClass = HeraLogApiService.class, group = "$dubbo.api.group", timeout = 10000)
 public class HeraLogApiServiceImpl implements HeraLogApiService {
 
     private static final int QUERY_LIMIT = 20;

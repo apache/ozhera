@@ -750,87 +750,100 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
         final int rowsPerSheet = 5000; //each sheet is fixed at 5000 rows
         final int maxPage = 100; //max pages, the upper limit of the number of rows: 5000*100
         int page = 1;
-        Workbook workbook = new SXSSFWorkbook();
-        String title = generateTitle(logQuery);
-        List<String> headers = null;
-        Object[] lastSortValues = null;
-        logQuery.setIsDownload(true);
-        while(page <= maxPage) {
-            logQuery.setPageSize(rowsPerSheet);
-            logQuery.setPage(page);
-            //Prevent errors when performing deep paging in the ES database
-            logQuery.setSearchAfter(lastSortValues);
+        SXSSFWorkbook workbook = new SXSSFWorkbook();
+        try {
+            String title = generateTitle(logQuery);
+            List<String> headers = null;
+            Object[] lastSortValues = null;
+            logQuery.setIsDownload(true);
+            while (page <= maxPage) {
+                logQuery.setPageSize(rowsPerSheet);
+                logQuery.setPage(page);
+                //Prevent errors when performing deep paging in the ES database
+                logQuery.setSearchAfter(lastSortValues);
 
-            Result<LogDTO> logDTOResult = this.logQuery(logQuery);
-            if (logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData() == null || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty()) {
-                break;
-            }
-            List<Map<String, Object>> list = logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());
+                Result<LogDTO> logDTOResult = this.logQuery(logQuery);
+                if (logDTOResult.getCode() != CommonError.Success.getCode() || logDTOResult.getData() == null || logDTOResult.getData().getLogDataDTOList() == null || logDTOResult.getData().getLogDataDTOList().isEmpty()) {
+                    break;
+                }
+                List<Map<String, Object>> list = logDTOResult.getData().getLogDataDTOList().stream().map(logDataDto -> ExportUtils.SplitTooLongContent(logDataDto)).collect(Collectors.toList());
 
-            if (list == null || list.isEmpty()) {
-                break;
-            }
-
-            if (page == 1){
-                headers = new ArrayList<>(list.getFirst().keySet());
-            }
-
-            //If the table header is empty, then obtain the header from the current page.
-            if (headers == null || headers.isEmpty()) {
-                headers = new ArrayList<>(list.getFirst().keySet());
-            }
-
-            Sheet sheet = workbook.createSheet("Sheet" + page);
-            int dataBeginRow;
-
-            if (title != null && !title.isEmpty() && page == 1) {  //only the first sheet has a title
-                Row titleRow = sheet.createRow(0);
-                Cell cell = titleRow.createCell(0);
-                cell.setCellValue(title);
-                CellStyle titleStyle = workbook.createCellStyle();
-                titleStyle.setAlignment((short)2);
-                titleStyle.setVerticalAlignment((short)1);
-                Font titleFont = workbook.createFont();
-                titleFont.setBoldweight((short)700);
-                titleStyle.setFont(titleFont);
-                cell.setCellStyle(titleStyle);
-                titleRow.setHeight((short)450);
-                dataBeginRow = list != null && !list.isEmpty() ? ((Map)list.get(0)).size() - 1 : 5;
-                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, dataBeginRow));
-            }
-
-            if (list != null && !list.isEmpty()) {
-                CellStyle headerStyle = workbook.createCellStyle();
-                headerStyle.setAlignment((short)2);
-                headerStyle.setBorderBottom((short)2);
-                headerStyle.setBorderTop((short)2);
-                int headRowIndex = title != null && !title.isEmpty() && page == 1 ? 1 : 0;
-                Row headRow = sheet.createRow(headRowIndex);
-                int i = 0;
-                for (String h : headers){
-                    Cell cell = headRow.createCell(i++);
-                    cell.setCellValue(h);
-                    cell.setCellStyle(headerStyle);
+                if (list == null || list.isEmpty()) {
+                    break;
                 }
 
-                dataBeginRow = title != null && !title.isEmpty() && page == 1 ? 2 : 1;
+                if (page == 1) {
+                    headers = new ArrayList<>(list.getFirst().keySet());
+                }
 
-                for(int j = 0; j < list.size(); ++j) {
-                    Row row = sheet.createRow(dataBeginRow++);
-                    Map<String, Object> rowMap = list.get(j);
-                    for (int k = 0; k < headers.size(); k++){
-                        Cell cell = row.createCell(k);
-                        Object val = rowMap.get(headers.get(k));
-                        cell.setCellValue(val == null ? "" : val.toString());
+                //If the table header is empty, then obtain the header from the current page.
+                if (headers == null || headers.isEmpty()) {
+                    headers = new ArrayList<>(list.getFirst().keySet());
+                }
+
+                Sheet sheet = workbook.createSheet("Sheet" + page);
+                int dataBeginRow;
+
+                if (title != null && !title.isEmpty() && page == 1) {  //only the first sheet has a title
+                    Row titleRow = sheet.createRow(0);
+                    Cell cell = titleRow.createCell(0);
+                    cell.setCellValue(title);
+                    CellStyle titleStyle = workbook.createCellStyle();
+                    titleStyle.setAlignment((short) 2);
+                    titleStyle.setVerticalAlignment((short) 1);
+                    Font titleFont = workbook.createFont();
+                    titleFont.setBoldweight((short) 700);
+                    titleStyle.setFont(titleFont);
+                    cell.setCellStyle(titleStyle);
+                    titleRow.setHeight((short) 450);
+                    dataBeginRow = list != null && !list.isEmpty() ? ((Map) list.get(0)).size() - 1 : 5;
+                    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, dataBeginRow));
+                }
+
+                if (list != null && !list.isEmpty()) {
+                    CellStyle headerStyle = workbook.createCellStyle();
+                    headerStyle.setAlignment((short) 2);
+                    headerStyle.setBorderBottom((short) 2);
+                    headerStyle.setBorderTop((short) 2);
+                    int headRowIndex = title != null && !title.isEmpty() && page == 1 ? 1 : 0;
+                    Row headRow = sheet.createRow(headRowIndex);
+                    int i = 0;
+                    for (String h : headers) {
+                        Cell cell = headRow.createCell(i++);
+                        cell.setCellValue(h);
+                        cell.setCellStyle(headerStyle);
+                    }
+
+                    dataBeginRow = title != null && !title.isEmpty() && page == 1 ? 2 : 1;
+
+                    for (int j = 0; j < list.size(); ++j) {
+                        Row row = sheet.createRow(dataBeginRow++);
+                        Map<String, Object> rowMap = list.get(j);
+                        for (int k = 0; k < headers.size(); k++) {
+                            Cell cell = row.createCell(k);
+                            Object val = rowMap.get(headers.get(k));
+                            cell.setCellValue(val == null ? "" : val.toString());
+                        }
                     }
                 }
+                lastSortValues = logDTOResult.getData().getThisSortValue();
+                page++;
             }
-            lastSortValues = logDTOResult.getData().getThisSortValue();
-            page++;
+            // Download
+            String fileName = String.format("%s_log.xlsx", logQuery.getLogstore());
+            searchLog.downLogFileV2(workbook, fileName);
+        } finally {
+            // Ensure temporary files are cleaned up even if an exception occurs
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (Exception e) {
+                    log.error("Error closing workbook", e);
+                } finally {
+                    workbook.dispose();
+                }
+            }
         }
-        // Download
-        String fileName = String.format("%s_log.xlsx", logQuery.getLogstore());
-        searchLog.downLogFileV2(workbook, fileName);
     }
 
     private String generateTitle(LogQuery logQuery) {

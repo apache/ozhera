@@ -63,6 +63,11 @@ public class HeraAppServiceImpl implements HeraAppService {
     }
 
     @Override
+    public List<AppBaseInfo> queryAppInfoWithLogLatest(String appName, Integer type, Integer limit){
+        return heraAppService.queryAppInfoWithLogLatest(appName, type, limit);
+    }
+
+    @Override
     public List<AppBaseInfo> querySpecifiedAppInfoWithLog(String appName, Integer limit, Integer type) {
         return heraAppService.querySpecifiedAppInfoWithLog(appName, limit, type);
     }

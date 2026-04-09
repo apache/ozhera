@@ -227,8 +227,20 @@ public class EsPlugin {
                     return;
                 }
                 if (failure.getMessage().contains("I/O reactor status: STOPPED")) {
-                    esServiceMap.remove(cacheKey(esInfo));
+                    EsService staleService = esServiceMap.remove(cacheKey(esInfo));
                     esProcessorMap.remove(cacheKey(esInfo));
+                    // Close the stale EsService in a background thread to release I/O dispatcher
+                    // threads. Without this, every reactor-stopped event leaks a set of threads
+                    // (visible as "I/O dispatcher N" in thread dumps).
+                    if (staleService != null) {
+                        Thread.ofVirtual().start(() -> {
+                            try {
+                                staleService.getEsClient().close();
+                            } catch (Exception ex) {
+                                log.warn("[EsPlugin] close stale EsClient error, addr:{}", esInfo.getAddr(), ex);
+                            }
+                        });
+                    }
                 }
                 log.error(String.format("fail send %s message to es,desc:%s,es addr:%s", request.numberOfActions(), request.getDescription(), esInfo.getAddr()), new RuntimeException(failure));
                 Class clazz = failure.getClass();

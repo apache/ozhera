@@ -19,8 +19,14 @@
 
 package org.apache.ozhera.log.manager.service.extension.space;
 
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 
+import static org.apache.ozhera.log.manager.service.extension.space.SpaceExtensionService.DEFAULT_SPACE_EXTENSION_SERVICE_KEY;
+
+@Service(name = DEFAULT_SPACE_EXTENSION_SERVICE_KEY)
+@Slf4j
 public class DefaultSpaceExtensionService implements SpaceExtensionService {
 
     @Override

@@ -77,6 +77,11 @@ public class AppController {
         return heraAppService.queryAppInfoWithLog(appName, type);
     }
 
+    @GetMapping("query/app/log/latest")
+    public List<AppBaseInfo> queryAppInfoWithLog(String appName, Integer type, Integer limit) {
+        return heraAppService.queryAppInfoWithLogLatest(appName, type, limit);
+    }
+
     @PostMapping("/hera/app/add")
     public Result heraAppAdd(@RequestBody HeraAppBaseInfo heraAppBaseInfo) {
         if (StringUtils.isBlank(heraAppBaseInfo.getBindId()) || StringUtils.isBlank(heraAppBaseInfo.getAppName())) {

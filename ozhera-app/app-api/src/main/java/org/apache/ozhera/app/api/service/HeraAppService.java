@@ -35,6 +35,8 @@ public interface HeraAppService {
 
     List<AppBaseInfo> queryAppInfoWithLog(String appName, Integer type);
 
+    List<AppBaseInfo> queryAppInfoWithLogLatest(String appName, Integer type, Integer count);
+
     List<AppBaseInfo> queryAllExistsApp();
 
     AppBaseInfo queryById(Long id);

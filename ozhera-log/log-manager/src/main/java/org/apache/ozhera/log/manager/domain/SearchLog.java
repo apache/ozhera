@@ -354,19 +354,19 @@ public class SearchLog {
             Down.down(fileName);
         } catch (Exception e) {
             log.error("downLogFile error,fileName:{}", fileName, e);
+            throw e;
         } finally {
-            if (excel != null) {
-                excel.close();
-                if (excel instanceof SXSSFWorkbook sxssf) {
-                    sxssf.dispose();
-                }
-            }
             if (fos != null) {
-                fos.close();
+                try {
+                    fos.close();
+                } catch (Exception e) {
+                    log.error("Error closing FileOutputStream", e);
+                }
             }
             if (file != null) {
                 file.delete();
             }
+            // Note: Workbook cleanup (close/dispose) is handled by the caller
         }
     }
 

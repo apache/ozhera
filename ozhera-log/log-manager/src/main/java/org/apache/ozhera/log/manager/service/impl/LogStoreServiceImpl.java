@@ -131,6 +131,12 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         if (CollectionUtils.isNotEmpty(logStoreDOS)) {
             return Result.failParam("The store name is duplicated, please fill in the name again");
         }
+
+        Result<String> checkResult = storeExtensionService.checkCreatePermission(cmd);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
+        }
+
         MilogLogStoreDO storeDO = MilogLogstoreConvert.INSTANCE.fromCommand(cmd);
         wrapBaseCommon(storeDO, OperateEnum.ADD_OPERATE);
         // Bind resources
@@ -233,6 +239,11 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
             return new Result(CommonError.UnknownError.getCode(), "There is a store name with the same name", "");
         }
 
+        Result<String> checkResult = storeExtensionService.checkUpdatePermission(param);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
+        }
+
         MilogLogStoreDO ml = MilogLogstoreConvert.INSTANCE.fromCommand(param);
         ml.setEsClusterId(milogLogstoreDO.getEsClusterId());
         ml.setEsIndex(milogLogstoreDO.getEsIndex());
@@ -260,6 +271,10 @@ public class LogStoreServiceImpl extends BaseService implements LogStoreService 
         List<MilogLogTailDo> tails = milogLogtailDao.getMilogLogtailByStoreId(id);
         if (tails != null && tails.size() != 0) {
             return new Result<>(CommonError.ParamsError.getCode(), "There is a tail under the log store and cannot be deleted");
+        }
+        Result<String> checkResult = storeExtensionService.checkDeletePermission(id);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return new Result<>(checkResult.getCode(), checkResult.getMessage());
         }
         storeExtensionService.deleteStorePostProcessing(logStore);
         if (logStoreDao.deleteMilogSpace(id)) {

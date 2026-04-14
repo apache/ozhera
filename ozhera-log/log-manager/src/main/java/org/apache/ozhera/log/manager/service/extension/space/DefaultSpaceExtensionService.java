@@ -21,6 +21,7 @@ package org.apache.ozhera.log.manager.service.extension.space;
 
 import com.xiaomi.youpin.docean.anno.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 
 import static org.apache.ozhera.log.manager.service.extension.space.SpaceExtensionService.DEFAULT_SPACE_EXTENSION_SERVICE_KEY;
@@ -30,17 +31,17 @@ import static org.apache.ozhera.log.manager.service.extension.space.SpaceExtensi
 public class DefaultSpaceExtensionService implements SpaceExtensionService {
 
     @Override
-    public String checkCreatePermission(Long tenantId) {
-        return "";
+    public Result<String> checkCreatePermission(Long tenantId) {
+        return Result.success();
     }
 
     @Override
-    public String checkUpdatePermission(MilogSpaceParam param) {
-        return "";
+    public Result<String> checkUpdatePermission(MilogSpaceParam param) {
+        return Result.success();
     }
 
     @Override
-    public String checkDeletePermission(Long id) {
-        return "";
+    public Result<String> checkDeletePermission(Long id) {
+        return Result.success();
     }
 }

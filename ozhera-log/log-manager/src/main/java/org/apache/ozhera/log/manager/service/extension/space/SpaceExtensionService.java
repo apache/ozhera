@@ -19,6 +19,7 @@
 
 package org.apache.ozhera.log.manager.service.extension.space;
 
+import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 
 public interface SpaceExtensionService {
@@ -26,9 +27,9 @@ public interface SpaceExtensionService {
 
     String DEFAULT_SPACE_EXTENSION_SERVICE_KEY = "defaultSpaceExtensionService";
 
-    String checkCreatePermission(Long tenantId);
+    Result<String> checkCreatePermission(Long tenantId);
 
-    String checkUpdatePermission(MilogSpaceParam param);
+    Result<String> checkUpdatePermission(MilogSpaceParam param);
 
-    String checkDeletePermission(Long id);
+    Result<String> checkDeletePermission(Long id);
 }

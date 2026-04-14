@@ -113,9 +113,9 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.failParam("There is a space name of the same name");
         }
 
-        String errMessage = spaceExtensionService.checkCreatePermission(param.getTenantId());
-        if (StringUtils.isNotEmpty(errMessage)) {
-            return Result.failParam(errMessage);
+        Result<String> checkResult = spaceExtensionService.checkCreatePermission(param.getTenantId());
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
 
         MilogSpaceDO milogSpaceDO = wrapMilogSpaceDO(param);
@@ -295,9 +295,9 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.success("the logSpace data has not changed");
         }
 
-        String errMessage = spaceExtensionService.checkUpdatePermission(param);
-        if (StringUtils.isNotEmpty(errMessage)) {
-            return Result.failParam(errMessage);
+        Result<String> checkResult = spaceExtensionService.checkUpdatePermission(param);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
 
         if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
@@ -334,9 +334,9 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (null == milogSpace) {
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
         }
-        String errMessage = spaceExtensionService.checkDeletePermission(id);
-        if (StringUtils.isNotEmpty(errMessage)) {
-            return Result.failParam(errMessage);
+        Result<String> checkResult = spaceExtensionService.checkDeletePermission(id);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
         List<MilogLogStoreDO> stores = milogLogstoreDao.getMilogLogstoreBySpaceId(id);
         if (stores != null && stores.size() != 0) {

@@ -51,6 +51,8 @@ import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.pojo.MilogSpaceDO;
 import org.apache.ozhera.log.manager.service.BaseService;
 import org.apache.ozhera.log.manager.service.LogSpaceService;
+import org.apache.ozhera.log.manager.service.extension.space.SpaceExtensionService;
+import org.apache.ozhera.log.manager.service.extension.space.SpaceExtensionServiceFactory;
 import org.apache.ozhera.log.manager.user.MoneUser;
 
 import javax.annotation.Resource;
@@ -80,10 +82,19 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
     @Resource
     private Tpc tpc;
 
+    private SpaceExtensionService spaceExtensionService;
+
     private static final Cache<String, List<MapDTO<String, Long>>> SPACE_ALL_CACHE = CacheBuilder.newBuilder()
             .maximumSize(100)
             .expireAfterWrite(3, TimeUnit.MINUTES)
             .build();
+
+    /**
+     * init method
+     */
+    public void init() {
+        spaceExtensionService = SpaceExtensionServiceFactory.getSpaceExtensionService();
+    }
 
     /**
      * new
@@ -100,6 +111,11 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         String spaceName = param.getSpaceName();
         if (milogSpaceDao.verifyExistByName(spaceName)) {
             return Result.failParam("There is a space name of the same name");
+        }
+
+        Result<String> checkResult = spaceExtensionService.checkCreatePermission(param.getTenantId());
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
 
         MilogSpaceDO milogSpaceDO = wrapMilogSpaceDO(param);
@@ -145,6 +161,7 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         MilogSpaceDO milogSpaceDO = new MilogSpaceDO();
         milogSpaceDO.setSpaceName(param.getSpaceName());
         milogSpaceDO.setDescription(param.getDescription());
+        milogSpaceDO.setTenantId(param.getTenantId());
         return milogSpaceDO;
     }
 
@@ -272,14 +289,23 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
         }
 
-        if (Objects.equals(param.getSpaceName(), milogSpace.getSpaceName()) &&
-                Objects.equals(param.getDescription(), milogSpace.getDescription())) {
+        if (Objects.equals(param.getSpaceName(), milogSpace.getSpaceName())
+                && Objects.equals(param.getDescription(), milogSpace.getDescription())
+                && Objects.equals(param.getTenantId(), milogSpace.getTenantId())) {
             return Result.success("the logSpace data has not changed");
         }
 
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
-            return Result.fail(CommonError.UNAUTHORIZED);
+        Result<String> checkResult = spaceExtensionService.checkUpdatePermission(param);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
+
+        if (param.getTenantId() == null) {
+            if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
+                return Result.fail(CommonError.UNAUTHORIZED);
+            }
+        }
+
         wrapMilogSpace(milogSpace, param);
         wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE);
 
@@ -304,12 +330,18 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (null == id) {
             return new Result<>(CommonError.ParamsError.getCode(), "ID cannot be empty", "");
         }
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
-            return Result.fail(CommonError.UNAUTHORIZED);
-        }
         MilogSpaceDO milogSpace = milogSpaceDao.getMilogSpaceById(id);
         if (null == milogSpace) {
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
+        }
+        if (milogSpace.getTenantId() == null) {
+            if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
+                return Result.fail(CommonError.UNAUTHORIZED);
+            }
+        }
+        Result<String> checkResult = spaceExtensionService.checkDeletePermission(id);
+        if (checkResult.getCode() != CommonError.Success.getCode()) {
+            return Result.failParam(checkResult.getMessage());
         }
         List<MilogLogStoreDO> stores = milogLogstoreDao.getMilogLogstoreBySpaceId(id);
         if (stores != null && stores.size() != 0) {

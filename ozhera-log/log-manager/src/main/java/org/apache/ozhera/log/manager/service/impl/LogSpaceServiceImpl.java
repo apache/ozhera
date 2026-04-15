@@ -300,9 +300,12 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
             return Result.failParam(checkResult.getMessage());
         }
 
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
-            return Result.fail(CommonError.UNAUTHORIZED);
+        if (param.getTenantId() == null) {
+            if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), param.getId())) {
+                return Result.fail(CommonError.UNAUTHORIZED);
+            }
         }
+
         wrapMilogSpace(milogSpace, param);
         wrapBaseCommon(milogSpace, OperateEnum.UPDATE_OPERATE);
 
@@ -327,12 +330,14 @@ public class LogSpaceServiceImpl extends BaseService implements LogSpaceService 
         if (null == id) {
             return new Result<>(CommonError.ParamsError.getCode(), "ID cannot be empty", "");
         }
-        if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
-            return Result.fail(CommonError.UNAUTHORIZED);
-        }
         MilogSpaceDO milogSpace = milogSpaceDao.getMilogSpaceById(id);
         if (null == milogSpace) {
             return new Result<>(CommonError.ParamsError.getCode(), "logSpace does not exist", "");
+        }
+        if (milogSpace.getTenantId() == null) {
+            if (!tpc.hasPerm(MoneUserContext.getCurrentUser(), id)) {
+                return Result.fail(CommonError.UNAUTHORIZED);
+            }
         }
         Result<String> checkResult = spaceExtensionService.checkDeletePermission(id);
         if (checkResult.getCode() != CommonError.Success.getCode()) {

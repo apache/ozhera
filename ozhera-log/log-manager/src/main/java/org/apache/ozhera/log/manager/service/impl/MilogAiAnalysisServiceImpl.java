@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.exception.CommonError;
+import org.apache.ozhera.log.manager.common.utils.LogStackTruncator;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.config.redis.RedisClientFactory;
 import org.apache.ozhera.log.manager.mapper.MilogAiConversationMapper;
@@ -57,9 +58,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 
 @Slf4j
@@ -86,9 +90,15 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     private static final String GLOBAL_SHUTDOWN_LOCK_KEY = "milog.ai.shutdown:global";
 
+    private static final String GLOBAL_CLEAN_EXPIRED_LOCK_KEY = "milog.ai.cleanExpired:global";
+
+    private static final int CONVERSATION_EXPIRE_DAYS = 7;
+
     private static final Gson gson = new Gson();
 
     private static final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    private static final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
     private static final JedisCluster jedisCluster = RedisClientFactory.getJedisCluster();
 
@@ -106,6 +116,17 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         llm.setConfigFunction(llmProvider -> Optional.of(config));
         analysisBot.setLlm(llm);
         contentSimplifyBot.setLlm(llm);
+
+        // Schedule cleanup task to run at 3:00 AM every day
+        long initialDelay = calculateDelayToTargetHour(3);
+        cleanupScheduler.scheduleAtFixedRate(() -> {
+            try {
+                cleanExpiredConversations();
+            } catch (Exception e) {
+                log.error("Scheduled cleanup task failed", e);
+            }
+        }, initialDelay, 24 * 60, MINUTES);
+        log.info("Scheduled AI conversation cleanup task initialized, will run at 3:00 AM every day, initial delay: {} minutes", initialDelay);
     }
 
 
@@ -116,8 +137,21 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             return Result.failParam("Store id is null");
         }
 
-        if (requestExceedLimit(tailLogAiAnalysisDTO.getLogs())) {
-            return Result.failParam("The length of the input information reaches the maximum limit");
+        // Smart truncation for long stack traces instead of rejecting
+        List<String> processedLogs = tailLogAiAnalysisDTO.getLogs();
+        if (requestExceedLimit(processedLogs)) {
+            LogStackTruncator.TruncationResult truncationResult = LogStackTruncator.truncate(processedLogs);
+            if (truncationResult.wasTruncated()) {
+                processedLogs = truncationResult.getTruncatedLogs();
+                log.info("Logs truncated for AI analysis: originalTokens={}, truncatedTokens={}, language={}",
+                        truncationResult.getOriginalTokenCount(),
+                        truncationResult.getTruncatedTokenCount(),
+                        truncationResult.getDetectedLanguage());
+            }
+            // Check again after truncation
+            if (requestExceedLimit(processedLogs)) {
+                return Result.failParam("The length of the input information reaches the maximum limit even after truncation");
+            }
         }
 
         MoneUser user = MoneUserContext.getCurrentUser();
@@ -127,7 +161,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             String answer = "";
             try {
                 BotQAParam param = new BotQAParam();
-                param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+                param.setLatestQuestion(formatLogs(processedLogs));
                 String paramJson = gson.toJson(param);
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
                 Message result = analysisBot.run().join();
@@ -141,7 +175,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             long timestamp = System.currentTimeMillis();
             String nowTimeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             conversation.setTime(nowTimeStr);
-            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setUser(formatLogs(processedLogs));
             conversation.setBot(answer);
 
             List<BotQAParam.QAParam> ModelHistory = new ArrayList<>();
@@ -174,11 +208,11 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             Map<String, List<BotQAParam.QAParam>> cache = getConversation(conversationId);
             List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
             List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
-            AnalysisResult analysisResult = processHistoryConversation(conversationId, cache, tailLogAiAnalysisDTO);
+            AnalysisResult analysisResult = processHistoryConversation(conversationId, cache, processedLogs);
             String answer = analysisResult.getAnswer();
             BotQAParam.QAParam conversation = new BotQAParam.QAParam();
             conversation.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            conversation.setUser(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            conversation.setUser(formatLogs(processedLogs));
             conversation.setBot(answer);
             if (analysisResult.getCompressedModelHistory() != null) {
                 List<BotQAParam.QAParam> compressedModelHistory = analysisResult.getCompressedModelHistory();
@@ -198,14 +232,14 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
     }
 
-    private AnalysisResult processHistoryConversation(Long conversationId, Map<String, List<BotQAParam.QAParam>> cache, LogAiAnalysisDTO tailLogAiAnalysisDTO) {
+    private AnalysisResult processHistoryConversation(Long conversationId, Map<String, List<BotQAParam.QAParam>> cache, List<String> logs) {
         List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
         List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
         AnalysisResult res = new AnalysisResult();
         try {
             BotQAParam param = new BotQAParam();
             param.setHistoryConversation(modelHistory);
-            param.setLatestQuestion(formatLogs(tailLogAiAnalysisDTO.getLogs()));
+            param.setLatestQuestion(formatLogs(logs));
             String paramJson = gson.toJson(param);
             if (TOKENIZER.countTokens(paramJson) < 70000) {
                 analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
@@ -214,7 +248,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
                 res.setAnswer(answer);
                 return res;
             } else {
-                return analysisAndCompression(modelHistory, originalHistory, tailLogAiAnalysisDTO.getLogs(), conversationId);
+                return analysisAndCompression(modelHistory, originalHistory, logs, conversationId);
             }
         } catch (InterruptedException e) {
             log.error("An error occurred in the request for the large model， err: {}", e.getMessage());
@@ -536,11 +570,51 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         return Result.success(true);
     }
 
+    @Override
+    public void cleanExpiredConversations() {
+        // Use distributed lock to ensure only one instance executes the cleanup
+        if (!trySimpleLock(GLOBAL_CLEAN_EXPIRED_LOCK_KEY, 300L)) {
+            log.info("Another instance is already running cleanExpiredConversations, skipping...");
+            return;
+        }
+
+        try {
+            // Calculate the expiration timestamp (7 days ago)
+            long expireTime = Instant.now().minus(CONVERSATION_EXPIRE_DAYS, ChronoUnit.DAYS).toEpochMilli();
+
+            // Delete expired conversations from database
+            int deletedCount = milogAiConversationMapper.deleteByUpdateTimeBefore(expireTime);
+
+            log.info("Cleaned up {} expired AI conversation records (update_time before {})",
+                    deletedCount, timestampToStr(expireTime));
+        } catch (Exception e) {
+            log.error("Failed to clean expired AI conversations", e);
+        }
+    }
+
     private static String timestampToStr(long timestamp) {
         Instant instant = Instant.ofEpochMilli(timestamp);
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
         return dateTime.format(formatter);
+    }
+
+    /**
+     * Calculate the delay in minutes from now to the target hour (e.g., 3:00 AM)
+     *
+     * @param targetHour the target hour (0-23)
+     * @return delay in minutes
+     */
+    private static long calculateDelayToTargetHour(int targetHour) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime targetTime = now.withHour(targetHour).withMinute(0).withSecond(0).withNano(0);
+
+        // If the target time has already passed today, schedule for tomorrow
+        if (now.isAfter(targetTime)) {
+            targetTime = targetTime.plusDays(1);
+        }
+
+        return ChronoUnit.MINUTES.between(now, targetTime);
     }
 
     private Map<String, List<BotQAParam.QAParam>> getConversation(Long conversationId) {

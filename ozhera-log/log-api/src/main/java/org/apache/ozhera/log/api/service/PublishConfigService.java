@@ -32,5 +32,7 @@ public interface PublishConfigService {
 
     void sengConfigToAgent(final String agentIp, LogCollectMeta logCollectMeta);
 
+    void sengConfigToAgentSync(final String agentIp, LogCollectMeta logCollectMeta);
+
     List<String> getAllAgentList();
 }

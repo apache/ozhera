@@ -22,15 +22,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.xiaomi.data.push.bo.ClientInfo;
 import com.xiaomi.data.push.rpc.RpcClient;
-import org.apache.ozhera.log.agent.common.Version;
-import org.apache.ozhera.log.agent.rpc.task.PingTask;
-import org.apache.ozhera.log.common.Config;
-import org.apache.ozhera.log.utils.NetUtil;
 import com.xiaomi.youpin.docean.Aop;
 import com.xiaomi.youpin.docean.Ioc;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
+import org.apache.ozhera.log.agent.common.Version;
+import org.apache.ozhera.log.agent.config.AgentConfigManager;
+import org.apache.ozhera.log.agent.config.ConfigCenter;
+import org.apache.ozhera.log.agent.config.nacos.NacosConfigCenter;
+import org.apache.ozhera.log.agent.rpc.task.PingTask;
+import org.apache.ozhera.log.common.Config;
+import org.apache.ozhera.log.utils.NetUtil;
 
 import static org.apache.ozhera.log.utils.ConfigUtils.getConfigValue;
 import static org.apache.ozhera.log.utils.ConfigUtils.getDataHashKey;
@@ -42,7 +43,7 @@ import static org.apache.ozhera.log.utils.ConfigUtils.getDataHashKey;
 @Slf4j
 public class MiLogAgentBootstrap {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         String nacosAddr = getConfigValue("nacosAddr");
         String serviceName = getConfigValue("serviceName");
         log.info("nacosAddr:{},serviceName:{},version:{}", nacosAddr, serviceName, new Version());
@@ -63,10 +64,22 @@ public class MiLogAgentBootstrap {
         client.waitStarted();
         log.info("create rpc client finish");
         Aop.ins().init(Maps.newLinkedHashMap());
+        bootstrapAgentConfig(Ioc.ins());
         Ioc.ins().putBean(client).init("org.apache.ozhera.log.agent", "com.xiaomi.youpin.docean");
         //Because the client life cycle is advanced, the processor needs to be re-registered here
         client.registerProcessor();
         System.in.read();
     }
+
+    private static void bootstrapAgentConfig(Ioc ioc) throws Exception {
+        ConfigCenter agentConfigCenter =
+                new NacosConfigCenter(Config.ins().get("config.address", ""));
+
+        AgentConfigManager agentConfigManager =
+                new AgentConfigManager(agentConfigCenter);
+
+        ioc.putBean(agentConfigManager);
+    }
+
 
 }

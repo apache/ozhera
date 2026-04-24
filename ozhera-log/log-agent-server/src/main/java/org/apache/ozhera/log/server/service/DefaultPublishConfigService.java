@@ -19,6 +19,9 @@
 package org.apache.ozhera.log.server.service;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.xiaomi.data.push.context.AgentContext;
 import com.xiaomi.data.push.rpc.RpcServer;
@@ -34,13 +37,15 @@ import org.apache.ozhera.log.api.service.PublishConfigService;
 import org.apache.ozhera.log.utils.NetUtil;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
+import static org.apache.ozhera.log.server.common.Utils.getConfig;
 
 /**
  * @author wtt
@@ -57,45 +62,113 @@ public class DefaultPublishConfigService implements PublishConfigService {
     private RpcServer rpcServer;
 
     private static final String CONFIG_COMPRESS_KEY = "CONFIG_COMPRESS_ENABLED";
+    private static final String CONFIG_COMPRESS_MACHINE_KEY = "CONFIG_COMPRESS_MACHINE";
 
     private volatile boolean configCompressValue = false;
 
+    private volatile String configCompressMachine;
+
+    private final Random random = new Random();
+
+    private static final ExecutorService SEND_CONFIG_EXECUTOR;
+
+    /**
+     * Rate limit cache using Guava: key=agentIp:configMd5, value=lastSendTime
+     * Only send once within 2 minutes for the same configuration
+     * Configured with max size and expire time to prevent memory explosion
+     */
+    private static final LoadingCache<String, Long> CONFIG_SEND_CACHE = CacheBuilder.newBuilder()
+            .maximumSize(20000) // Maximum 10k entries to prevent memory explosion
+            .expireAfterWrite(3, TimeUnit.MINUTES) // Auto expire after 3 minutes (longer than rate limit window)
+            .build(new CacheLoader<String, Long>() {
+                @Override
+                public Long load(String key) {
+                    return 0L; // Default value if not present
+                }
+            });
+
+    private static final long RATE_LIMIT_WINDOW_MS = 2 * 60 * 1000L; // 2 minutes
+
+    static {
+        int corePoolSize = Math.max(2, Runtime.getRuntime().availableProcessors() / 2);
+        int maximumPoolSize = Runtime.getRuntime().availableProcessors();
+        int queueCapacity = 2000;
+
+        SEND_CONFIG_EXECUTOR = new ThreadPoolExecutor(
+                corePoolSize,
+                maximumPoolSize,
+                60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(queueCapacity),
+                r -> {
+                    Thread t = new Thread(r, "send-config-pool-" + COUNT_INCR.getAndIncrement());
+                    t.setDaemon(true);
+                    t.setUncaughtExceptionHandler((thread, e) ->
+                            log.error("send config uncaught exception in thread: {}", thread.getName(), e));
+                    return t;
+                },
+                (r, executor) -> log.warn("send config task rejected due to full queue, task will be dropped")
+        );
+    }
+
     public void init() {
-        String raw = System.getenv(CONFIG_COMPRESS_KEY);
-        if (StringUtils.isBlank(raw)) {
-            raw = System.getProperty(CONFIG_COMPRESS_KEY);
-        }
-        if (StringUtils.isNotBlank(raw)) {
+        String compressRaw = getConfig(CONFIG_COMPRESS_KEY);
+        configCompressMachine = getConfig(CONFIG_COMPRESS_MACHINE_KEY);
+        log.info("init configCompressValue {},configCompressMachine {}", configCompressValue, configCompressMachine);
+        if (StringUtils.isNotBlank(compressRaw)) {
             try {
-                configCompressValue = Boolean.parseBoolean(raw);
-                log.info("configCompressValue {}", configCompressValue);
+                configCompressValue = Boolean.parseBoolean(compressRaw);
+                log.info("configCompressValue {},configCompressMachine{}", configCompressValue, configCompressMachine);
             } catch (Exception e) {
-                log.error("parse {} error,use default value:{},config value:{}", CONFIG_COMPRESS_KEY, configCompressValue, raw);
+                log.error("parse {} error,use default value:{},config value:{}", CONFIG_COMPRESS_KEY, configCompressValue, compressRaw);
             }
         }
     }
-
 
     /**
      * dubbo interface, the timeout period cannot be too long
      *
      * @param agentIp
-     * @param logCollectMeta
+     * @param meta
      */
     @Override
-    public void sengConfigToAgent(String agentIp, LogCollectMeta logCollectMeta) {
+    public void sengConfigToAgent(String agentIp, LogCollectMeta meta) {
+        if (StringUtils.isBlank(agentIp) || meta == null) {
+            return;
+        }
+//        doSendConfigSync(agentIp, meta);
+        doSendConfigAsync(agentIp, meta);
+//        SEND_CONFIG_EXECUTOR.execute(() -> );
+    }
+
+    @Override
+    public void sengConfigToAgentSync(String agentIp, LogCollectMeta logCollectMeta) {
+        if (StringUtils.isBlank(agentIp) || logCollectMeta == null) {
+            return;
+        }
+        doSendConfigSync(agentIp, logCollectMeta);
+    }
+
+    /**
+     * Send configuration to agent synchronously
+     * @param agentIp
+     * @param meta
+     */
+    private void doSendConfigSync(String agentIp, LogCollectMeta meta) {
         int count = 1;
-        while (count < 4) {
+        while (count < 2) {
             Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
-            String agentCurrentIp = queryCurrentDockerAgentIP(agentIp, logAgentMap);
+            String agentCurrentIp = getCorrectDockerAgentIP(agentIp, logAgentMap);
             if (logAgentMap.containsKey(agentCurrentIp)) {
-                String sendStr = GSON.toJson(logCollectMeta);
-                if (CollectionUtils.isNotEmpty(logCollectMeta.getAppLogMetaList())) {
+                String sendStr = GSON.toJson(meta);
+                if (CollectionUtils.isNotEmpty(meta.getAppLogMetaList())) {
                     RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
 
-                    if (configCompressValue) {
+                    if (configCompressValue || (StringUtils.isNotBlank(configCompressMachine) &&
+                            StringUtils.isNotBlank(meta.getAgentMachine()) &&
+                            configCompressMachine.contains(meta.getAgentMachine()))) {
                         req.enableCompression();
+                        log.info("The configuration is compressed,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
                     }
 
                     log.info("Send the configuration,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
@@ -103,34 +176,194 @@ public class DefaultPublishConfigService implements PublishConfigService {
                     RemotingCommand res = rpcServer.sendMessage(logAgentMap.get(agentCurrentIp), req, 10000);
                     started.stop();
                     String response = new String(res.getBody());
-                    log.info("The configuration is sent successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), agentCurrentIp);
+                    log.info("The configuration is send successfully---->{},duration：{}s,agentIp:{}", response, started.elapsed().getSeconds(), agentCurrentIp);
                     if (Objects.equals(response, "ok")) {
                         break;
                     }
                 }
             } else {
-                log.info("The current agent IP is not connected,ip:{},configuration data:{}", agentIp, GSON.toJson(logCollectMeta));
+                log.info("The current agent IP is not connected,ip:{},configuration data:{}", agentIp, GSON.toJson(meta));
             }
-            //Retry policy - Retry 4 times, sleep 500 ms each time
+            //Retry policy - Retry 2 times, sleep 100 ms each time
             try {
-                TimeUnit.MILLISECONDS.sleep(500L);
+                TimeUnit.MILLISECONDS.sleep(100L);
             } catch (final InterruptedException ignored) {
             }
             count++;
         }
     }
 
+    /**
+     * Send configuration to agent asynchronously with rate limiting
+     *
+     * @param agentIp agent IP address
+     * @param meta    log collection metadata
+     */
+    public void doSendConfigAsync(String agentIp, LogCollectMeta meta) {
+        if (StringUtils.isBlank(agentIp) || meta == null) {
+            return;
+        }
+
+        // Generate config MD5 as rate limit key
+        String configMd5 = generateConfigMd5(meta);
+        String rateLimitKey = agentIp + ":" + configMd5;
+
+        // Check rate limit: only send once within 2 minutes for same config
+        long currentTime = System.currentTimeMillis();
+        Long lastSendTime = CONFIG_SEND_CACHE.getUnchecked(rateLimitKey);
+
+        if (null != lastSendTime && lastSendTime > 0 && currentTime - lastSendTime < RATE_LIMIT_WINDOW_MS) {
+            log.info("Rate limit hit, skip sending config. agentIp:{}, configMd5:{}, lastSendTime:{}ms ago,config:{}",
+                    agentIp, configMd5, currentTime - lastSendTime, GSON.toJson(meta));
+            return;
+        }
+
+        // Update cache and send config
+        CONFIG_SEND_CACHE.put(rateLimitKey, currentTime);
+
+        sendWithRetry(agentIp, meta, 1)
+                .exceptionally(ex -> {
+                    log.error("send config failed after retry, agentIp:{}", agentIp, ex);
+                    return false;
+                });
+//        try {
+//            Thread.sleep(random.nextInt(800, 1000));
+//        } catch (InterruptedException e) {
+//            log.error("sleep interrupted, agentIp:{}", agentIp, e);
+//        }
+    }
+
+    /**
+     * Generate MD5 hash of configuration content
+     */
+    private String generateConfigMd5(LogCollectMeta meta) {
+        try {
+            String configJson = GSON.toJson(meta);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(configJson.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            log.error("generate config md5 failed, use hashCode instead", e);
+            return String.valueOf(meta.hashCode());
+        }
+    }
+
+    private CompletableFuture<Boolean> sendWithRetry(String agentIp,
+                                                     LogCollectMeta meta,
+                                                     int attempt) {
+        return trySendOnce(agentIp, meta)
+                .thenCompose(success -> {
+
+                    if (success) {
+                        return CompletableFuture.completedFuture(true);
+                    }
+
+                    if (attempt > 2) {
+                        return CompletableFuture.completedFuture(false);
+                    }
+
+                    long delay = (long) Math.pow(2, attempt) * 200L;
+                    log.warn("send config retry attempt:{}, delay:{}ms, agentIp:{}",
+                            attempt, delay, agentIp);
+
+                    return CompletableFuture
+                            .runAsync(() -> {
+                            }, CompletableFuture.delayedExecutor(
+                                    delay,
+                                    TimeUnit.MILLISECONDS,
+                                    SEND_CONFIG_EXECUTOR))
+                            .thenCompose(v ->
+                                    sendWithRetry(agentIp, meta, attempt + 1));
+                });
+    }
+
+    private CompletableFuture<Boolean> trySendOnce(String agentIp,
+                                                   LogCollectMeta meta) {
+
+        Map<String, AgentChannel> logAgentMap = getAgentChannelMap();
+        String agentCurrentIp = getCorrectDockerAgentIP(agentIp, logAgentMap);
+
+        if (!logAgentMap.containsKey(agentCurrentIp)) {
+            log.warn("agent not connected, ip:{}", agentIp);
+            return CompletableFuture.completedFuture(false);
+        }
+
+        if (CollectionUtils.isEmpty(meta.getAppLogMetaList())) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        String sendStr = GSON.toJson(meta);
+
+        RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
+        req.setBody(sendStr.getBytes());
+
+        if (configCompressValue || (StringUtils.isNotBlank(configCompressMachine) &&
+                StringUtils.isNotBlank(meta.getAgentMachine()) &&
+                configCompressMachine.contains(meta.getAgentMachine()))) {
+            req.enableCompression();
+            log.info("The configuration is compressed,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
+        }
+
+        Stopwatch started = Stopwatch.createStarted();
+
+        log.info("Send the configuration asynchronously,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
+
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        try {
+
+            rpcServer.send(
+                    logAgentMap.get(agentCurrentIp).getChannel(),
+                    req,
+                    10000,
+                    response -> {
+
+                        started.stop();
+
+                        if (response == null
+                                || response.getResponseCommand() == null) {
+
+                            future.complete(false);
+                            return;
+                        }
+
+                        String resp = new String(
+                                response.getResponseCommand().getBody());
+
+                        log.info("async send result:{}, cost:{}ms, ip:{}",
+                                resp,
+                                started.elapsed().toMillis(),
+                                agentCurrentIp);
+
+                        future.complete(Objects.equals(resp, "ok"));
+                    });
+
+        } catch (Exception e) {
+
+            log.error("send exception, agentIp:{}", agentIp, e);
+            future.complete(false);
+        }
+
+        return future;
+    }
+
     @Override
     public List<String> getAllAgentList() {
         List<String> remoteAddress = Lists.newArrayList();
-        List<String> ipAddress = Lists.newArrayList();
-        AgentContext.ins().map.entrySet().forEach(agentChannelEntry -> {
-                    String key = agentChannelEntry.getKey();
-                    remoteAddress.add(key);
-                    ipAddress.add(StringUtils.substringBefore(key, SYMBOL_COLON));
-                }
-        );
-        if (COUNT_INCR.getAndIncrement() % 200 == 0) {
+//        List<String> ipAddress = Lists.newArrayList();
+        List<String> finalRemoteAddress = remoteAddress;
+        AgentContext.ins().map.forEach((key, value) -> {
+            finalRemoteAddress.add(key);
+//            ipAddress.add(StringUtils.substringBefore(key, SYMBOL_COLON));
+        });
+        if (remoteAddress.size() > 1000) {
+            remoteAddress = remoteAddress.subList(0, 600);
+        }
+        if (COUNT_INCR.getAndIncrement() % 1000 == 0) {
             log.info("The set of remote addresses of the connected agent machine is:{}", GSON.toJson(remoteAddress));
         }
         return remoteAddress;
@@ -138,17 +371,24 @@ public class DefaultPublishConfigService implements PublishConfigService {
 
     private Map<String, AgentChannel> getAgentChannelMap() {
         Map<String, AgentChannel> logAgentMap = new HashMap<>();
-        AgentContext.ins().map.forEach((k, v) -> logAgentMap.put(StringUtils.substringBefore(k, SYMBOL_COLON), v));
+        AgentContext.ins().map.forEach((k, v) -> {
+            String ip = v.getIp();
+            if (StringUtils.isNotBlank(ip)) {
+                logAgentMap.put(ip, v);
+            } else {
+                logAgentMap.put(StringUtils.substringBefore(k, SYMBOL_COLON), v);
+            }
+        });
         return logAgentMap;
     }
 
-    private String queryCurrentDockerAgentIP(String agentIp, Map<String, AgentChannel> logAgentMap) {
+    private String getCorrectDockerAgentIP(String agentIp, Map<String, AgentChannel> logAgentMap) {
         if (Objects.equals(agentIp, NetUtil.getLocalIp())) {
             //for Docker handles the agent on the current machine
             final String tempIp = agentIp;
             List<String> ipList = getAgentChannelMap().keySet()
                     .stream().filter(ip -> ip.startsWith("172"))
-                    .collect(Collectors.toList());
+                    .toList();
             Optional<String> optionalS = ipList.stream()
                     .filter(ip -> Objects.equals(logAgentMap.get(ip).getIp(), tempIp))
                     .findFirst();

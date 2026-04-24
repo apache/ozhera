@@ -59,4 +59,6 @@ public interface CommonExtensionService {
     List<String> queryMachineRegions();
 
     Boolean matchesCondition(Long space, FilterIdEnum idEnum, Long id);
+
+    String getTraceAppLogUrl(String heraUrl, Long spaceId, String traceId, Long storeId, String tailName, Long startTime, Long endTime);
 }

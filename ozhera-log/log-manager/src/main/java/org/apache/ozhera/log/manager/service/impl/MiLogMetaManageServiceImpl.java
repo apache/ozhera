@@ -19,6 +19,9 @@
 package org.apache.ozhera.log.manager.service.impl;
 
 import com.google.common.collect.Lists;
+import com.xiaomi.youpin.docean.anno.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.api.model.meta.AppLogMeta;
 import org.apache.ozhera.log.api.model.meta.LogCollectMeta;
 import org.apache.ozhera.log.api.model.meta.LogPattern;
@@ -26,8 +29,6 @@ import org.apache.ozhera.log.manager.dao.MilogAppTopicRelDao;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogTailDo;
 import org.apache.ozhera.log.manager.service.MiLogMetaManageService;
-import com.xiaomi.youpin.docean.anno.Service;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class MiLogMetaManageServiceImpl implements MiLogMetaManageService {
         LogCollectMeta meta = new LogCollectMeta();
         meta.setAgentId(agentId);
         meta.setAgentIp(agentIp);
-        meta.setAgentMachine(null);
+        meta.setAgentMachine(StringUtils.EMPTY);
         List<AppLogMeta> metaList = new ArrayList<>();
         for (Map.Entry<Long, List<MilogLogTailDo>> entry : miLogTailMap.entrySet()) {
             AppLogMeta appLogMeta = new AppLogMeta();

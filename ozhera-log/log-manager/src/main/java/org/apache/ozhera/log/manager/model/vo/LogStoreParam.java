@@ -56,6 +56,8 @@ public class LogStoreParam {
 
     private String storageType;
 
+    private Long tenantId;
+
     private Boolean nameSameStatus = Boolean.FALSE;
 
     public boolean isPlatformResourceStore() {

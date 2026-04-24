@@ -33,7 +33,7 @@ public interface HeraAppRoleMapper extends BaseMapper<HeraAppRole> {
 
     int deleteByExample(HeraAppRoleExample example);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(HeraAppRole record);
 
@@ -41,7 +41,7 @@ public interface HeraAppRoleMapper extends BaseMapper<HeraAppRole> {
 
     List<HeraAppRole> selectByExample(HeraAppRoleExample example);
 
-    HeraAppRole selectByPrimaryKey(Integer id);
+    HeraAppRole selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") HeraAppRole record, @Param("example") HeraAppRoleExample example);
 

@@ -452,7 +452,7 @@ public class AppAlarmServiceImpl implements AppAlarmService {
             BeanUtils.copyProperties(ruleData, rule);
             StringBuilder cname = new StringBuilder();
             cname.append(param.getIamId() != null ? param.getIamId() : param.getProjectId());
-            if (param.getStrategyType().intValue() == AlarmStrategyType.PAOMQL.getCode()) {
+            if (param.getStrategyType().intValue() == AlarmStrategyType.PROMQL.getCode()) {
                 if (rule.getMetricType() == null) {
                     rule.setMetricType(AlarmRuleMetricType.customer_promql.getCode());
                 }

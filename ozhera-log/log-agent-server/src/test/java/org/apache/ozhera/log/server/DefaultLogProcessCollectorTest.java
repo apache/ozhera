@@ -44,7 +44,7 @@ public class DefaultLogProcessCollectorTest {
 
     @Before
     public void buildBean() {
-        Ioc.ins().init("com.xiaomi");
+        Ioc.ins().init("com.xiaomi", "org.apache.ozhera.log");
         processCollector = Ioc.ins().getBean(DefaultLogProcessCollector.class);
         gson = new GsonBuilder().create();
     }
@@ -59,7 +59,9 @@ public class DefaultLogProcessCollectorTest {
         progressDetail.setPattern("/home/work/log/test/server.log");
         progressDetail.setCollectPercentage("98%");
         fileProgressDetails.add(progressDetail);
+        fileProgressDetails.add(progressDetail);
         collectDetail.setFileProgressDetails(fileProgressDetails);
+        collectList.add(collectDetail);
         collectList.add(collectDetail);
         updateLogProcessCmd.setCollectList(collectList);
         updateLogProcessCmd.setIp("127.0.0.1");

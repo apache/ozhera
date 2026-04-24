@@ -34,7 +34,7 @@ public interface HeraBaseInfoService {
     
     Result addRole(HeraAppRoleModel model);
     
-    Result delRole(Integer id);
+    Result delRole(Long id);
     
     Result queryRole(HeraAppRoleModel model, Integer pageNo, Integer pageCount);
     

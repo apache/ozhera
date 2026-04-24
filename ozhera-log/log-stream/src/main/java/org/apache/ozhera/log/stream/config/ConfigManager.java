@@ -62,6 +62,9 @@ public class ConfigManager {
     @Value("$hera.stream.type")
     private String streamType;
 
+    @Value("$hera.stream.config.suffix")
+    private String configSuffix;
+
     //final String spaceDataId = LOG_MANAGE_PREFIX + NAMESPACE_CONFIG_DATA_ID;
 
     /**
@@ -84,6 +87,13 @@ public class ConfigManager {
     ;
 
     private final ReentrantLock spaceLock = new ReentrantLock();
+
+    private String resolveDataId(String originalDataId) {
+        if (StringUtils.isNotEmpty(configSuffix)) {
+            return originalDataId + configSuffix;
+        }
+        return originalDataId;
+    }
 
     /**
      * Executed once when the service starts
@@ -109,7 +119,8 @@ public class ConfigManager {
                     Map<Long, String> milogStreamDataMap = config.get(uniqueMark);
                     log.info("[ConfigManager.initConfigManager] uniqueMark:{},data:{}", uniqueMark, objectMapper.writeValueAsString(milogStreamDataMap));
                     for (Long spaceId : milogStreamDataMap.keySet()) {
-                        final String dataId = milogStreamDataMap.get(spaceId);
+                        final String originalDataId = milogStreamDataMap.get(spaceId);
+                        final String dataId = resolveDataId(originalDataId);
                         // init spaceData config
                         String logSpaceDataStr = nacosConfig.getConfigStr(dataId, DEFAULT_GROUP_ID, DEFAULT_TIME_OUT_MS);
                         if (StringUtils.isNotEmpty(logSpaceDataStr)) {
@@ -119,6 +130,10 @@ public class ConfigManager {
                                 addListener(spaceId, configListener);
                                 milogSpaceDataMap.put(spaceId, milogSpaceData);
                                 log.info("[ConfigManager.initStream] added log config listener for spaceId:{},dataId:{}", spaceId, dataId);
+                            }
+                        } else {
+                            if (StringUtils.isNotEmpty(configSuffix)) {
+                                log.info("[ConfigManager.initStream] config not found for dataId:{}, skipping", dataId);
                             }
                         }
                     }
@@ -291,13 +306,21 @@ public class ConfigManager {
      *
      */
     public void startNewListenerAndJob(Map<Long, String> milogStreamDataMap) {
-        milogStreamDataMap.forEach((spaceId, dataId) -> {
+        milogStreamDataMap.forEach((spaceId, originalDataId) -> {
             // there is no listener corresponding to the spaceId in memory
             try {
                 if (!milogSpaceDataMap.containsKey(spaceId)) {
                     log.info("startNewListenerAndJob for spaceId start:{}", spaceId);
                     // Get a copy of the spaceData configuration through the dataID and put it in the configListener cache
+                    final String dataId = resolveDataId(originalDataId);
                     MilogSpaceData milogSpaceData = getMilogSpaceData(dataId);
+
+                    if (milogSpaceData == null || milogSpaceData.getMilogSpaceId() == null) {
+                        if (StringUtils.isNotEmpty(configSuffix)) {
+                            log.info("startNewListenerAndJob config not found for dataId:{}, skipping", dataId);
+                            return;
+                        }
+                    }
 
                     // Listen configuration
                     MilogConfigListener configListener = new MilogConfigListener(spaceId, dataId, DEFAULT_GROUP_ID, milogSpaceData, nacosConfig);

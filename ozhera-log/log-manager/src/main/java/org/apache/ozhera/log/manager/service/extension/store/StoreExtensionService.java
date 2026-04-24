@@ -19,6 +19,7 @@
 package org.apache.ozhera.log.manager.service.extension.store;
 
 import org.apache.ozhera.log.api.enums.OperateEnum;
+import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.model.pojo.MilogLogStoreDO;
 import org.apache.ozhera.log.manager.model.vo.LogStoreParam;
 
@@ -31,6 +32,12 @@ import org.apache.ozhera.log.manager.model.vo.LogStoreParam;
 public interface StoreExtensionService {
 
     String DEFAULT_STORE_EXTENSION_SERVICE_KEY = "defaultStoreExtensionService";
+
+    Result<String> checkCreatePermission(LogStoreParam param);
+
+    Result<String> checkUpdatePermission(LogStoreParam param);
+
+    Result<String> checkDeletePermission(Long id);
 
     boolean storeInfoCheck(LogStoreParam param);
 

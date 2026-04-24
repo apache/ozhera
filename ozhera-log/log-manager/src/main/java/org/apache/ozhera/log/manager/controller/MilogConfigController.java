@@ -26,6 +26,7 @@ import org.apache.ozhera.log.api.model.meta.NodeCollInfo;
 import org.apache.ozhera.log.api.model.vo.TailLogProcessDTO;
 import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.common.Result;
+import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.model.MilogSpaceParam;
 import org.apache.ozhera.log.manager.model.bo.BatchQueryParam;
 import org.apache.ozhera.log.manager.model.bo.LogTailParam;
@@ -40,6 +41,7 @@ import org.apache.ozhera.log.manager.service.impl.LogProcessServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogSpaceServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogStoreServiceImpl;
 import org.apache.ozhera.log.manager.service.impl.LogTailServiceImpl;
+
 
 import javax.annotation.Resource;
 import java.io.IOException;

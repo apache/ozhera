@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.apache.ozhera.log.api.enums.LogStorageTypeEnum;
 import org.apache.ozhera.log.api.enums.OperateEnum;
 import org.apache.ozhera.log.api.model.vo.ResourceUserSimple;
+import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.common.ManagerConstant;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.domain.EsIndexTemplate;
@@ -70,6 +71,21 @@ public class DefaultStoreExtensionService implements StoreExtensionService {
 
     @Resource
     private DorisLogStorageService dorisLogStorageService;
+
+    @Override
+    public Result<String> checkCreatePermission(LogStoreParam param) {
+        return Result.success();
+    }
+
+    @Override
+    public Result<String> checkUpdatePermission(LogStoreParam param) {
+        return Result.success();
+    }
+
+    @Override
+    public Result<String> checkDeletePermission(Long id) {
+        return Result.success();
+    }
 
     @Override
     public boolean storeInfoCheck(LogStoreParam param) {

@@ -84,6 +84,11 @@ public class MilogLogStoreDO extends BaseCommon {
     @Default("false")
     private Boolean usePlatformResource;
 
+    @Column(value = "tenant_id")
+    @ColDefine(customType = "bigint")
+    @Comment("Tenant ID")
+    private Long tenantId;
+
     @Column(value = "es_index")
     @ColDefine(type = ColType.VARCHAR, width = 256)
     @Comment("es index:milog_logstoreName")

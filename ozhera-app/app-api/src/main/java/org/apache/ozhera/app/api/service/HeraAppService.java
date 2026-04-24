@@ -35,6 +35,8 @@ public interface HeraAppService {
 
     List<AppBaseInfo> queryAppInfoWithLog(String appName, Integer type);
 
+    List<AppBaseInfo> queryAppInfoWithLogLatest(String appName, Integer type, Integer count);
+
     List<AppBaseInfo> queryAllExistsApp();
 
     AppBaseInfo queryById(Long id);
@@ -63,7 +65,7 @@ public interface HeraAppService {
 
     Long getAppCount();
 
-    Integer delRoleById(Integer id);
+    Integer delRoleById(Long id);
 
     Integer addRole(HeraAppRoleModel roleModel);
 

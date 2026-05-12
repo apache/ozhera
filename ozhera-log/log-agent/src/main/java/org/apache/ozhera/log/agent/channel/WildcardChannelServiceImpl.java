@@ -45,10 +45,12 @@ import org.apache.ozhera.log.agent.input.Input;
 import org.apache.ozhera.log.api.enums.LogTypeEnum;
 import org.apache.ozhera.log.api.model.meta.FilterConf;
 import org.apache.ozhera.log.api.model.msg.LineMessage;
+import org.apache.ozhera.log.common.Config;
 import org.apache.ozhera.log.common.PathUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
@@ -62,6 +64,7 @@ import static org.apache.ozhera.log.agent.channel.memory.AgentMemoryService.MEMO
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_MULTI;
 import static org.apache.ozhera.log.common.PathUtils.*;
+
 
 /**
  * @author wtt
@@ -89,6 +92,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
     private final String memoryBasePath;
 
     private static final String POINTER_FILENAME_PREFIX = ".ozhera_pointer";
+
+    private static final String OPENCLAW_LOG_TYPE_KEY = "openclaw.log.type";
+    private static final String OPENCLAW_DIR_PREFIX_KEY = "openclaw.directory.prefix";
 
     private final List<LineMessage> lineMessageList = new ArrayList<>();
 
@@ -135,8 +141,11 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         this.logPattern = input.getLogPattern();
         this.linePrefix = input.getLinePrefix();
 
-        List<String> patterns = PathUtils.parseLevel5Directory(logPattern);
-        log.info("channel start, logPattern:{}，fileList:{}, channelId:{}, instanceId:{}", logPattern, GSON.toJson(patterns), channelId, instanceId());
+        String effectiveLogPattern = expandOpenclawIfNeeded(logPattern, input);
+
+        List<String> patterns = PathUtils.parseLevel5Directory(effectiveLogPattern);
+        log.info("channel start, logPattern:{}, effectiveLogPattern:{}, fileList:{}, channelId:{}, instanceId:{}",
+                logPattern, effectiveLogPattern, GSON.toJson(patterns), channelId, instanceId());
 
         channelMemory = memoryService.getMemory(channelId);
         if (null == channelMemory) {
@@ -144,7 +153,7 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
         }
         memoryService.cleanChannelMemoryContent(channelId, patterns);
 
-        startCollectFile(channelId, input);
+        startCollectFile(channelId, input, effectiveLogPattern);
 
         startExportQueueDataThread();
         memoryService.refreshMemory(channelMemory);
@@ -152,7 +161,71 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
     }
 
-    private void startCollectFile(Long channelId, Input input) {
+    private String expandOpenclawIfNeeded(String logPattern, Input input) {
+        String openclawLogType = Config.ins().get(OPENCLAW_LOG_TYPE_KEY, "");
+        String openclawDirPrefix = Config.ins().get(OPENCLAW_DIR_PREFIX_KEY, "");
+        if (StringUtils.isBlank(openclawLogType) || StringUtils.isBlank(openclawDirPrefix)) {
+            return logPattern;
+        }
+        if (!openclawLogType.trim().equals(input.getType())) {
+            return logPattern;
+        }
+        List<String> expanded = expandOpenclawWildcardPaths(logPattern, openclawDirPrefix);
+        if (expanded.isEmpty()) {
+            return logPattern;
+        }
+        String result = String.join(",", expanded);
+        log.info("OPENCLAW path expanded: {} -> {}", logPattern, result);
+        return result;
+    }
+
+    private List<String> expandOpenclawWildcardPaths(String origPath, String dirPrefix) {
+        List<String> result = Lists.newArrayList();
+        String[] pathArray = origPath.split(",");
+        for (String path : pathArray) {
+            path = path.replaceAll("//", "/").trim();
+            String[] segments = path.split(SEPARATOR);
+            int wildcardIndex = -1;
+            for (int i = 0; i < segments.length; i++) {
+                if (PATH_WILDCARD.equals(segments[i])) {
+                    wildcardIndex = i;
+                    break;
+                }
+            }
+            if (wildcardIndex < 1) {
+                result.add(path);
+                continue;
+            }
+            String baseDir = String.join(SEPARATOR, Arrays.copyOfRange(segments, 0, wildcardIndex));
+            File baseDirFile = new File(baseDir);
+            if (!baseDirFile.isDirectory()) {
+                log.warn("OPENCLAW baseDir not found: {}", baseDir);
+                result.add(path);
+                continue;
+            }
+            String[] subDirs = baseDirFile.list();
+            if (subDirs == null || subDirs.length == 0) {
+                log.warn("OPENCLAW baseDir is empty: {}", baseDir);
+                result.add(path);
+                continue;
+            }
+            String suffix = String.join(SEPARATOR, Arrays.copyOfRange(segments, wildcardIndex + 1, segments.length));
+            boolean matched = false;
+            for (String subDir : subDirs) {
+                if (subDir.startsWith(dirPrefix) && new File(baseDir + SEPARATOR + subDir).isDirectory()) {
+                    result.add(baseDir + SEPARATOR + subDir + SEPARATOR + suffix);
+                    matched = true;
+                }
+            }
+            if (!matched) {
+                log.warn("OPENCLAW no directory matched prefix '{}' under {}", dirPrefix, baseDir);
+                result.add(path);
+            }
+        }
+        return result;
+    }
+
+    private void startCollectFile(Long channelId, Input input, String effectiveLogPattern) {
         try {
             // Load the restart file
             String restartFile = buildRestartFilePath();
@@ -160,9 +233,9 @@ public class WildcardChannelServiceImpl extends AbstractChannelService {
 
             fileMonitor = createFileMonitor(input.getPatternCode());
 
-            String fileExpression = buildFileExpression(input.getLogPattern());
+            String fileExpression = buildFileExpression(effectiveLogPattern);
 
-            List<String> monitorPaths = buildMonitorPaths(input.getLogPattern());
+            List<String> monitorPaths = buildMonitorPaths(effectiveLogPattern);
 
             wildcardGraceShutdown(monitorPaths, fileExpression);
 

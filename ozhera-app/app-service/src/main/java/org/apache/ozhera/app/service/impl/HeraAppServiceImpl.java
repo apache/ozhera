@@ -118,7 +118,7 @@ public class HeraAppServiceImpl implements HeraAppService {
             platformType = appTypeServiceExtension.getAppPlatForm(type);
         }
         List<AppBaseInfo> appBaseInfos;
-        if(appName != null && appName.isBlank()){
+        if(appName != null && !appName.isBlank()){
             appBaseInfos = heraAppBaseInfoMapper.queryAppInfo(appName, platformType, appType);
         }else{
             appBaseInfos = heraAppBaseInfoMapper.queryLatestAppInfo(count, platformType, appType);

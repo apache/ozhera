@@ -103,6 +103,9 @@ public class LogDataTransfer {
             messageLifecycleManager.beforeProcess(sinkJobConfig, lineMessage);
 
             Map<String, Object> dataMap = parseMessage(lineMessage);
+            if (dataMap == null) {
+                return;
+            }
 
             messageLifecycleManager.afterProcess(sinkJobConfig, lineMessage, dataMap);
 
@@ -132,6 +135,9 @@ public class LogDataTransfer {
         String ip = lineMessage.getProperties(LineMessage.KEY_IP);
         Long lineNumber = lineMessage.getLineNumber();
         Map<String, Object> dataMap = logParser.parse(lineMessage.getMsgBody(), ip, lineNumber, lineMessage.extractTimestamp(), lineMessage.getFileName());
+        if (dataMap == null) {
+            return null;
+        }
         putCommonData(dataMap);
         return dataMap;
     }

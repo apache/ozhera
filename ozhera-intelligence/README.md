@@ -19,6 +19,14 @@
 
 -->
 
+> ⚠️ **Work In Progress**
+>
+> This module (ozhera-intelligence) is still **under construction (Work In Progress)**. It has not been fully open-sourced yet and **cannot be compiled or run on its own**.
+>
+> At this stage we are only releasing a few of its **most important prompts** (the agent role definitions, the vulnerability-fixing workflow, etc. — see classes such as `AgentConfig`) so that the community can study and reflect on how intelligent operations can be implemented.
+>
+> Some dependencies (such as the MCP tools from Xiaomi's open-source agent platform hive/m78) are still being opened up. The complete functionality will be filled in gradually in subsequent releases — stay tuned.
+
 # Overview
 + Apache OzHera(incubating) Intelligence Platform is responsible for generating intelligent-related functionalities.
 + Currently, features are under development.

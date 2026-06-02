@@ -41,16 +41,11 @@ import org.apache.ozhera.log.manager.model.pojo.MilogAiConversationDO;
 import org.apache.ozhera.log.manager.model.vo.LogAiAnalysisResponse;
 import org.apache.ozhera.log.manager.service.MilogAiAnalysisService;
 import org.apache.ozhera.log.manager.service.bot.ContentSimplifyBot;
+import org.apache.ozhera.log.manager.service.bot.LlmClient;
 import org.apache.ozhera.log.manager.service.bot.LogAnalysisBot;
 import org.apache.ozhera.log.manager.user.MoneUser;
 import redis.clients.jedis.*;
 import redis.clients.jedis.params.SetParams;
-import run.mone.hive.configs.LLMConfig;
-import run.mone.hive.llm.LLM;
-import run.mone.hive.llm.LLMProvider;
-import run.mone.hive.schema.Message;
-import run.mone.hive.schema.MetaKey;
-import run.mone.hive.schema.MetaValue;
 
 
 import javax.annotation.Resource;
@@ -107,15 +102,12 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
     public void init() {
         String llmUrl = Config.ins().get("llm.url", "");
         String llmToken = Config.ins().get("llm.token", "");
-        LLMConfig config = LLMConfig.builder()
-                .url(llmUrl)
-                .token(llmToken)
-                .llmProvider(LLMProvider.MIFY_GATEWAY)
-                .build();
-        LLM llm = new LLM(config);
-        llm.setConfigFunction(llmProvider -> Optional.of(config));
-        analysisBot.setLlm(llm);
-        contentSimplifyBot.setLlm(llm);
+        String llmModel = Config.ins().get("llm.model", "gpt-5");
+        String llmProviderId = Config.ins().get("llm.provider.id", "azure_openai");
+
+        LlmClient llmClient = new LlmClient(llmUrl, llmToken, llmModel, llmProviderId);
+        analysisBot.setLlmClient(llmClient);
+        contentSimplifyBot.setLlmClient(llmClient);
 
         // Schedule cleanup task to run at 3:00 AM every day
         long initialDelay = calculateDelayToTargetHour(3);
@@ -162,10 +154,7 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             try {
                 BotQAParam param = new BotQAParam();
                 param.setLatestQuestion(formatLogs(processedLogs));
-                String paramJson = gson.toJson(param);
-                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
-                Message result = analysisBot.run().join();
-                answer = result.getContent();
+                answer = analysisBot.analyze(param);
             } catch (Exception e) {
                 log.error("An error occurred in the request for the large model， err: {}", e.getMessage());
                 return Result.fail(CommonError.SERVER_ERROR.getCode(), "An error occurred in the request for the large model");
@@ -236,24 +225,17 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
         List<BotQAParam.QAParam> modelHistory = cache.get(MODEL_KEY);
         List<BotQAParam.QAParam> originalHistory = cache.get(ORIGINAL_KEY);
         AnalysisResult res = new AnalysisResult();
-        try {
-            BotQAParam param = new BotQAParam();
-            param.setHistoryConversation(modelHistory);
-            param.setLatestQuestion(formatLogs(logs));
-            String paramJson = gson.toJson(param);
-            if (TOKENIZER.countTokens(paramJson) < 70000) {
-                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
-                Message result = analysisBot.run().join();
-                String answer = result.getContent();
-                res.setAnswer(answer);
-                return res;
-            } else {
-                return analysisAndCompression(modelHistory, originalHistory, logs, conversationId);
-            }
-        } catch (InterruptedException e) {
-            log.error("An error occurred in the request for the large model， err: {}", e.getMessage());
+        BotQAParam param = new BotQAParam();
+        param.setHistoryConversation(modelHistory);
+        param.setLatestQuestion(formatLogs(logs));
+        String paramJson = gson.toJson(param);
+        if (TOKENIZER.countTokens(paramJson) < 70000) {
+            String answer = analysisBot.analyze(param);
+            res.setAnswer(answer);
+            return res;
+        } else {
+            return analysisAndCompression(modelHistory, originalHistory, logs, conversationId);
         }
-        return res;
     }
 
     private AnalysisResult analysisAndCompression(List<BotQAParam.QAParam> modelHistory, List<BotQAParam.QAParam> originalHistory, List<String> latestConversation, Long conversationId) {
@@ -261,17 +243,10 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
 
         AtomicReference<String> answer = new AtomicReference<>("");
         Future<?> analysisFuture = executor.submit(() -> {
-            try {
-                BotQAParam param = new BotQAParam();
-                param.setHistoryConversation(modelHistory);
-                param.setLatestQuestion(gson.toJson(latestConversation));
-                String paramJson = gson.toJson(param);
-                analysisBot.getRc().news.put(Message.builder().content(paramJson).build());
-                Message result = analysisBot.run().join();
-                answer.set(result.getContent());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            BotQAParam param = new BotQAParam();
+            param.setHistoryConversation(modelHistory);
+            param.setLatestQuestion(gson.toJson(latestConversation));
+            answer.set(analysisBot.analyze(param));
         });
         AtomicReference<List<BotQAParam.QAParam>> newModelHistory = new AtomicReference<>(modelHistory);
         Future<?> compressionFuture = executor.submit(() -> {
@@ -284,29 +259,11 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
             List<BotQAParam.QAParam> unchangeList = new ArrayList<>(originalHistory.subList(index, originalHistory.size()));
 
             String needCompressJson = gson.toJson(needCompress);
-            //Compress the content that needs to be compressed to have the same number of tokens as the content that does not need to be compressed, as much as possible.
 
             int currentTokenCount = TOKENIZER.countTokens(needCompressJson);
             int targetTokenCount = TOKENIZER.countTokens(gson.toJson(unchangeList));
 
-            Map<MetaKey, MetaValue> meta = new HashMap<>();
-            MetaKey currentKey = MetaKey.builder().key("currentCount").desc("currentCount").build();
-            MetaValue currentValue = MetaValue.builder().value(currentTokenCount).desc("currentCount").build();
-            meta.put(currentKey, currentValue);
-
-            MetaKey targetKey = MetaKey.builder().key("targetCount").desc("targetCount").build();
-            MetaValue targetValue = MetaValue.builder().value(targetTokenCount).desc("targetCount").build();
-            meta.put(targetKey, targetValue);
-            String res;
-            try {
-                contentSimplifyBot.getRc().news.put(
-                        Message.builder().content(needCompressJson).meta(meta).build());
-                Message result = contentSimplifyBot.run().join();
-                res = result.getContent();
-            } catch (Exception e) {
-                log.error("An error occurred when requesting the large model to compress data, error: {}", e.getMessage());
-                return;
-            }
+            String res = contentSimplifyBot.compress(needCompressJson, currentTokenCount, targetTokenCount);
             if (res == null || res.isBlank()) {
                 return;
             }
@@ -383,16 +340,8 @@ public class MilogAiAnalysisServiceImpl implements MilogAiAnalysisService {
                     List<BotQAParam.QAParam> needCompress = new ArrayList<>(originalHistory.subList(0, index));
                     List<BotQAParam.QAParam> unchangeList = new ArrayList<>(originalHistory.subList(index, originalHistory.size()));
 
-                    String res;
-                    try {
-                        contentSimplifyBot.getRc().news.put(
-                                Message.builder().content(gson.toJson(needCompress)).build());
-                        Message result = contentSimplifyBot.run().join();
-                        res = result.getContent();
-                    } catch (Exception e) {
-                        log.error("An error occurred when requesting the large model to compress data, key: {}, error: {}", key, e.getMessage());
-                        return;
-                    }
+                    String needCompressJson = gson.toJson(needCompress);
+                    String res = contentSimplifyBot.compress(needCompressJson, 0, 0);
                     if (res == null || res.isBlank()) {
                         return;
                     }

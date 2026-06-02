@@ -67,7 +67,6 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>rpc</artifactId>
-            <version>1.6.5-jdk21-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>

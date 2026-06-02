@@ -27,7 +27,7 @@ Bold **Important** content is key, please read carefully.
 
 Download the open-source code:
 
-https://github.com/apache/ozhera/tree/master/prometheus-starter-all
+https://github.com/apache/ozhera/tree/master/ozhera-metrics-all
 
 After a successful compilation, push the pom to the company's Maven repository, or refer to the local Maven repository for debugging.
 
@@ -35,7 +35,7 @@ After a successful compilation, push the pom to the company's Maven repository, 
 
 `mione.app.name`: Used to record the application id and application name, the format is appId-appName. e.g., 1-test, where 1 is the appId, and test is the appName. If it's empty, the program defaults to using none. The application is very important metadata in OzHera, and all observable data displays are related to the application.
 
-`TESLA_HOST`: Used to record the current physical machine IP, displayed in the trace's process.tags. In k8s, it gets the pod's IP.
+`POD_IP`: Used to record the current pod IP. If it is empty, the SDK falls back to the `otel.service.ip` system property.
 
 `PROMETHEUS_PORT`: Used to expose the Prometheus metric pulling HttpServer port number, defaulting to 5555.
 
@@ -43,9 +43,9 @@ After a successful compilation, push the pom to the company's Maven repository, 
 
 ```xml
     <dependency>
-      <groupId>run.mone</groupId>
-      <artifactId>prometheus-diy-starter</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <groupId>org.apache.ozhera</groupId>
+      <artifactId>ozhera-metrics-sdk</artifactId>
+      <version>2.2.6-incubating</version>
     </dependency>
 ```
 
@@ -53,18 +53,14 @@ After a successful compilation, push the pom to the company's Maven repository, 
 
 1. For custom monitoring data, do NOT record non-enumerable values like traceId and timestamp. Excessive logging of this data can cause performance issues.
 
-2. During the project initialization phase, directly call the `PrometheusConfigure.init(nacosAddr, serverType)` method for initialization.
+2. The SDK initializes when the `Metrics` class is loaded. To start the metrics HTTP server and registration during application startup, call `Metrics.getRegistry()` before recording metrics.
 
-   `nacosAddr`: nacos address, ip:port
-
-   `serverType`: either `staging` or `online`, used for generating metric name prefixes
-
-   Just ensure that the initialization of the `PrometheusConfigure.init()` method is called before any monitoring points.
+   `nacos_addr`: nacos address environment variable, `ip:port`. If it is empty, the SDK uses `nacos:80`.
 
    ```java
-   import config.org.apache.ozhera.prometheus.starter.all.PrometheusConfigure;
+   import org.apache.ozhera.metrics.api.Metrics;
 
-   PrometheusConfigure.init(nacosAddr, serverType);
+   Metrics.getRegistry();
     ```
    For example:
 
@@ -91,12 +87,12 @@ Counter: An always-increasing counter. We can use it to record the frequency of 
 #### 2) Code Example
 
 ```java
-import org.apache.ozhera.prometheus.all.client.Metrics;
+import org.apache.ozhera.metrics.api.Metrics;
 
-Metrics.getInstance().newCounter("testCounter","methodName","url").with("ok","/test/ok").add(1, "ok","/test/ok");
+Metrics.counter("testCounter").tags("methodName", "ok", "url", "/test/ok").inc();
 ```
 
-In this context, "testCounter" is the metric name, "methodName" and "url" are label names, "ok" and "/test/ok" are the respective label values, and `add(1)` records this metric data once.
+In this context, "testCounter" is the metric name, "methodName" and "url" are label names, "ok" and "/test/ok" are the respective label values, and `inc()` records this metric data once.
 
 ### 2. Gauge
 
@@ -109,7 +105,7 @@ Unlike Counter, the Gauge type of metric emphasizes reflecting the current state
 #### 2) Code Example
 
 ```java
-Metrics.getInstance().newGauge("testGauge","methodName","url").with("gauge","/test/gauge").set(12, "gauge","/test/gauge")
+Metrics.gauge("testGauge").tags("methodName", "gauge", "url", "/test/gauge").set(12);
 ```
 
 In this context, "testGauge" is the metric name, "methodName" and "url" are label names, "gauge" and "/test/gauge" are the respective label values, and `set(12)` sets this metric's value to 12.
@@ -132,7 +128,7 @@ long begin = System.currentTimeMillis();
 // 你的业务代码
 long now = System.currentTimeMillis();
 
-Metrics.getInstance().newHistogram("testHistogram", buckets, "methodName","url").with("histogram","/test/histogram").observe(now-begin, "histogram","/test/histogram");
+Metrics.histogram("testHistogram", buckets).tags("methodName", "histogram", "url", "/test/histogram").observe(now - begin);
 ```
 
 Firstly, you need to create a distribution "bucket". In the example, it's a time-consuming bucket. "testHistogram" is the metric name, "methodName" and "url" are label names, and "histogram" and "/test/histogram" are the corresponding label values. The `observe()` function can be simply understood as the value falling into the bucket. For example, if `now-begin=11`, it would fall into the "10.0 ~ 20.0" corresponding bucket.
@@ -149,15 +145,11 @@ Once successful, based on your own logging method, create some logging data (e.g
 
 After successful local verification, once deployed to testing or production, you can first search for your metrics on the prometheus dashboard to verify whether the metrics are normal.
 
-The metric name structure is:
+The metric name is the custom metric name passed to `Metrics.counter`, `Metrics.gauge`, or `Metrics.histogram`.
 
-`${serverType}_${appName}_${custom_metric_name}`
+The SDK automatically attaches common tags such as `application`, `serverIp`, and `serverEnv`. `application` is read from the `mione.app.name` environment variable with hyphens replaced by underscores.
 
-`${serverType}`: Is the value of the `serverType` argument when calling `PrometheusConfigure.init(nacosAddr, serverType);`.
-
-`${appName}`: Is the value of the environment variable `mione.app.name` with hyphens replaced by underscores.
-
-`${custom_metric_name}`: Is the first argument when custom logging, calling `Metrics.getInstance().newHistogram`, `Metrics.getInstance().newCounter`, `Metrics.getInstance().newGauge`. If it's of Counter type, append `_total`; if it's of Histogram type, append `_bucket`.
+For Prometheus output, Counter metrics are exposed with the `_total` suffix, and Histogram buckets are exposed with the `_bucket` suffix.
 
 For example:
 

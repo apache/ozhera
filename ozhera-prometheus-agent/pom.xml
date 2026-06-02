@@ -212,26 +212,6 @@
                 </executions>
             </plugin>
 
-         <!--   <plugin>
-                <groupId>run.mone</groupId>
-                <artifactId>codecheck-maven-plugin</artifactId>
-                <version>1.4-jdk20-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>pmd</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <checkConfigurationFile>false</checkConfigurationFile>
-                    <ipWhite>
-                        <param>172.17.0.1</param>
-                    </ipWhite>
-                </configuration>
-            </plugin>-->
-
         </plugins>
     </build>
 

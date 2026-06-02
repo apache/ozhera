@@ -79,7 +79,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.ozhera</groupId>
-                <artifactId>prometheus-diy-starter</artifactId>
+                <artifactId>ozhera-metrics-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

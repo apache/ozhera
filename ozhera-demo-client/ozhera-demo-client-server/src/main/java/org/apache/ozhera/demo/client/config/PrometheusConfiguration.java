@@ -19,8 +19,7 @@
 
 package org.apache.ozhera.demo.client.config;
 
-import org.apache.ozhera.prometheus.starter.all.config.PrometheusConfigure;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.ozhera.metrics.api.Metrics;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
@@ -32,14 +31,9 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class PrometheusConfiguration {
 
-    @Value("${app.nacos}")
-    private String nacosAddr;
-
-    @Value("${server.type}")
-    private String serverType;
-
     @PostConstruct
     public void init(){
-        PrometheusConfigure.init(nacosAddr, serverType);
+        // Trigger metrics SDK initialization during application startup.
+        Metrics.getRegistry();
     }
 }

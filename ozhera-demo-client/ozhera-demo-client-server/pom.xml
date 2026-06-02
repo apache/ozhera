@@ -125,13 +125,7 @@
 
         <dependency>
             <groupId>org.apache.ozhera</groupId>
-            <artifactId>prometheus-diy-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.alibaba.nacos</groupId>
-                    <artifactId>nacos-client</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>ozhera-metrics-sdk</artifactId>
         </dependency>
 
         <dependency>

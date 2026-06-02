@@ -19,56 +19,43 @@
 package org.apache.ozhera.log.manager.service.bot;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.xiaomi.youpin.docean.anno.Service;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ozhera.log.manager.model.bo.BotQAParam;
 import org.apache.ozhera.log.manager.model.bo.LogAiMessage;
-import org.nutz.log.Log;
-import run.mone.hive.Environment;
-import run.mone.hive.llm.CustomConfig;
-import run.mone.hive.llm.LLM;
-import run.mone.hive.llm.LLMProvider;
-import run.mone.hive.roles.Role;
-import run.mone.hive.schema.AiMessage;
-import run.mone.hive.schema.Message;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
-public class LogAnalysisBot extends Role {
+public class LogAnalysisBot {
     private static String baseText = """
-            ## 角色
-            你是一个AI日志解释助手，负责分析、解释日志数据，为用户提供清晰的概要和易懂的解释。
-            
-            ### 技能
-            - 多格式日志分析：能够解析和理解不同来源和格式的日志文件。
-            - 关键信息提取：能够从繁杂的日志数据中提取重要信息和发现模式。
-            - 异常检测与诊断：根据日志内容快速识别系统的潜在问题或异常行为。
-            - 翻译技术语言：将复杂的技术日志信息转换为用户易于理解的解释。
-            - 实时数据处理：具备实时监控和分析日志数据流的能力。
-            - 自我学习与优化：通过机器学习不断提升分析和解释的准确性及效率。
-            - 多轮问答处理：能够理解并利用历史问答数据，准确回答用户当前的问题。
-            
-            ### 约束
-            - 严格保密：在分析和解释日志时，严格保护用户数据的隐私和安全。
-            - 高度准确：确保提供的解释和概要准确反映日志数据的实际内容。
-            - 快速响应：在用户提出需求时能够迅速提供所需的日志解释和支持。
-            - 广泛兼容：能够兼容并支持分析多种来源和格式的日志文件。
-            - 用户友好性：确保解释结果简洁明了，即使非技术用户也能轻松理解。
-            - 可扩展性强：随着日志数据量和复杂性的增长，能够持续适应并提供有效分析。
-            
-            下面是你需要分析的日志内容或用户问题：
-            """;
+            ## Role
+            You are an AI log analysis assistant responsible for analyzing and interpreting log data, providing users with clear summaries and easy-to-understand explanations.
 
-    public LogAnalysisBot() {
-        super("LogAnalysisBot", "分析用户日志");
-        setEnvironment(new Environment());
-    }
+            ### Skills
+            - Multi-format log analysis: capable of parsing and understanding log files from various sources and formats.
+            - Key information extraction: able to extract important information and discover patterns from complex log data.
+            - Anomaly detection and diagnosis: quickly identify potential system issues or abnormal behavior based on log content.
+            - Technical language translation: convert complex technical log information into user-friendly explanations.
+            - Real-time data processing: capable of monitoring and analyzing log data streams in real time.
+            - Self-learning and optimization: continuously improve analysis accuracy and efficiency through machine learning.
+            - Multi-turn Q&A handling: able to understand and leverage historical Q&A data to accurately answer the user's current question.
+
+            ### Constraints
+            - Strict confidentiality: strictly protect user data privacy and security when analyzing and interpreting logs.
+            - High accuracy: ensure the explanations and summaries accurately reflect the actual content of the log data.
+            - Fast response: promptly provide the required log interpretation and support when users make requests.
+            - Broad compatibility: support analysis of log files from multiple sources and formats.
+            - User-friendliness: ensure results are concise and clear, understandable even by non-technical users.
+            - Scalability: continuously adapt and provide effective analysis as log data volume and complexity grow.
+            - **Respond in the same language as the user's question or input**.
+
+            Below is the log content or user question to analyze:
+            """;
 
     private static final int MAX_RETRY_COUNT = 3;
     private static final int INITIAL_RETRY_DELAY_MS = 1000;
@@ -76,23 +63,14 @@ public class LogAnalysisBot extends Role {
 
     private static final Gson GSON = new Gson();
 
-    @Override
-    public CompletableFuture<Message> run() {
-        Message msg = this.rc.getNews().poll();
-        String content = msg.getContent();
+    @Setter
+    private LlmClient llmClient;
 
-        List<LogAiMessage> reqList = getReq(llm, content);
-
-        if (reqList == null || reqList.isEmpty()) {
-            return null;
+    public String analyze(BotQAParam param) {
+        List<LogAiMessage> messages = buildMessages(param);
+        if (messages == null || messages.isEmpty()) {
+            return "";
         }
-        List<AiMessage> messages = reqList.stream().map(m -> {
-            AiMessage aiMessage = new AiMessage();
-            LogAiMessage.Role role = m.getRole();
-            aiMessage.setRole(role.name());
-            aiMessage.setContent(m.getContent());
-            return aiMessage;
-        }).toList();
 
         int retryCount = 0;
         String result = null;
@@ -107,15 +85,7 @@ public class LogAnalysisBot extends Role {
                     Thread.sleep(delayMs);
                 }
 
-                CustomConfig customConfig = new CustomConfig();
-                customConfig.setModel("gpt-5");
-                customConfig.addCustomHeader(CustomConfig.X_MODEL_PROVIDER_ID, "azure_openai");
-
-                StringBuilder responseBuilder = new StringBuilder();
-                llm.call(messages, "你是一个ai日志分析助手", customConfig).doOnNext(x -> {
-                    responseBuilder.append(x);
-                }).blockLast();
-                result = responseBuilder.toString().trim();
+                result = llmClient.chat(messages);
 
                 if (StringUtils.isNotBlank(result)) {
                     break;
@@ -141,41 +111,25 @@ public class LogAnalysisBot extends Role {
             log.error("After {} attempts, the LLM still failed to be called: {}", MAX_RETRY_COUNT, errorMsg);
             result = "";
         }
-        return CompletableFuture.completedFuture(Message.builder().content(result).build());
+        return result;
     }
 
-    private List<LogAiMessage> getReq(LLM llm, String content) {
-        if(llm.getConfig().getLlmProvider() == LLMProvider.MIFY_GATEWAY){
-            List<LogAiMessage> logAiMessages = initMessageList();
-            BotQAParam botQAParam = GSON.fromJson(content, BotQAParam.class);
-            if (botQAParam.getHistoryConversation() != null && !botQAParam.getHistoryConversation().isEmpty()){
-                botQAParam.getHistoryConversation().forEach(history -> {
-                    if (history.getUser() != null && !history.getUser().isBlank()){
-                        LogAiMessage userMessage = LogAiMessage.user(history.getUser());
-                        logAiMessages.add(userMessage);
-                    }
-                    if (history.getBot() != null && !history.getBot().isBlank()){
-                        LogAiMessage assistantMessage = LogAiMessage.assistant(history.getBot());
-                        logAiMessages.add(assistantMessage);
-                    }
-
-                });
-            }
-            String latestQuestion = botQAParam.getLatestQuestion();
-            LogAiMessage userMessage = LogAiMessage.user(latestQuestion);
-            logAiMessages.add(userMessage);
-            return logAiMessages;
-        }
-        return null;
-    }
-
-    private List<LogAiMessage> initMessageList(){
+    private List<LogAiMessage> buildMessages(BotQAParam param) {
         List<LogAiMessage> messages = new ArrayList<>();
-        LogAiMessage userMessage = LogAiMessage.user(baseText);
-        messages.add(userMessage);
+        messages.add(LogAiMessage.user(baseText));
+
+        if (param.getHistoryConversation() != null && !param.getHistoryConversation().isEmpty()) {
+            param.getHistoryConversation().forEach(history -> {
+                if (history.getUser() != null && !history.getUser().isBlank()) {
+                    messages.add(LogAiMessage.user(history.getUser()));
+                }
+                if (history.getBot() != null && !history.getBot().isBlank()) {
+                    messages.add(LogAiMessage.assistant(history.getBot()));
+                }
+            });
+        }
+
+        messages.add(LogAiMessage.user(param.getLatestQuestion()));
         return messages;
     }
-
-
-
 }

@@ -28,7 +28,8 @@ import run.mone.hive.mcp.function.ChatFunction;
 import run.mone.hive.mcp.service.RoleMeta;
 import run.mone.hive.roles.tool.*;
 import run.mone.mcp.git.tool.*;
-import run.mone.mcp.hera.analysis.tool.LogQueryTool;
+// TODO: dependency under construction - module not yet open-sourced
+// import run.mone.mcp.hera.analysis.tool.LogQueryTool;
 import run.mone.mcp.miline.tools.GetPipelineDetailTool;
 import run.mone.mcp.miline.tools.RunPipelineTool;
 
@@ -52,8 +53,9 @@ public class AgentConfig {
     private GitCheckoutNewBranchTool gitCheckoutNewBranchTool;
     @Autowired
     private GitCreateMergeRequestTool gitCreateMergeRequestTool;
-    @Autowired
-    private LogQueryTool logQueryTool;
+    // TODO: dependency under construction - module not yet open-sourced
+//    @Autowired
+//    private LogQueryTool logQueryTool;
 
     private boolean isRemoteFile = false;
 
@@ -89,8 +91,9 @@ public class AgentConfig {
                         gitCommitTool,
                         gitPushTool,
                         gitCheckoutNewBranchTool,
-                        gitCreateMergeRequestTool,
-                        logQueryTool
+                        gitCreateMergeRequestTool
+                        // TODO: dependency under construction - module not yet open-sourced
+                        // logQueryTool
                 ))
                 //mcp工具
                 .mcpTools(Lists.newArrayList(chat))

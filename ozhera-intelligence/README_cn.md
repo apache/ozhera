@@ -23,9 +23,7 @@
 >
 > 本模块（ozhera-intelligence）目前仍处于**建设中（Work In Progress）**阶段，尚未完整开源，**无法独立编译运行**。
 >
-> 当前阶段我们仅把其中**最关键的几个 Prompt**（智能体角色设定、漏洞修复工作流等，见 `AgentConfig` 等类）发布出来，供社区参考与思考智能化运维的实现思路。
->
-> 部分依赖（如小米开源 Agent 平台 hive/m78 的相关 MCP 工具）仍在持续开放中，完整功能将在后续版本陆续补齐，敬请期待。
+> 当前阶段我们仅把其中**最关键的几个 Prompt**（Trace / 日志 / 指标的根因分析 Prompt、结果汇总 Prompt、代码修复分析 Prompt，见 `ozhera-intelligence-domain` 下的 `Prompts` 类）发布出来，供社区参考与思考智能化运维的实现思路。
 
 # 概述
 + Apache OzHera(incubating)智能化平台，负责产生智能化相关功能。
@@ -45,16 +43,14 @@
 + MetricsService，取监控指标数据
 + TraceService，取链路数据
 
-# 重要依赖
-会依赖小米开源的一款[Agent平台——hive](https://github.com/XiaoMi/mone/tree/master/m78-all)
-
-
 # 智能化工作流程（时序图）
 ![ozhera-intelligence](../readme/images/ozhera-intelligence.png)
 
 # 启动依赖
 ## LLM环境变量
-目前使用LLM类进行大模型调用，它所需要的env都在LLMProvider类中，首先需要一个基础的LLM_PROVIDER的env，来指定使用的LLMProvider。
+> 说明：大模型调用层不在当前开源代码范围内（见上方"正在建设中"提示），以下内容描述的是规划中实现的设计思路。
+
+规划中的实现会通过可配置的 Provider 来调用大模型，所需环境变量由 `LLM_PROVIDER` 配置驱动，首先需要一个基础的 `LLM_PROVIDER` env 来指定使用的 Provider。
 
 **示例**：
 比如想要使用DEEPSEEK

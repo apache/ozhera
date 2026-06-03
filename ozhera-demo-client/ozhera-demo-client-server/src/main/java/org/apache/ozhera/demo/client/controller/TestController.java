@@ -23,7 +23,7 @@ import com.xiaomi.hera.trace.annotation.Trace;
 import org.apache.ozhera.demo.client.api.service.DubboHealthService;
 import org.apache.ozhera.demo.client.grpc.GrpcClientService;
 import org.apache.ozhera.demo.client.util.HttpClientUtil;
-import org.apache.ozhera.prometheus.all.client.Metrics;
+import org.apache.ozhera.metrics.api.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -114,15 +114,15 @@ public class TestController {
 
     @GetMapping("/customizedMetrics")
     public Object customizedMetrics() {
-        Metrics.getInstance().newCounter("test_counter").add(1);
+        Metrics.counter("test_counter").inc();
         long l = System.currentTimeMillis();
         try {
             TimeUnit.MILLISECONDS.sleep(20);
         } catch (InterruptedException e) {
         }
         long duration = System.currentTimeMillis() - l;
-        Metrics.getInstance().newHistogram("test_histogram",buckets).observe(duration);
-        Metrics.getInstance().newGauge("test_gauge").set(duration);
+        Metrics.histogram("test_histogram", buckets).observe(duration);
+        Metrics.gauge("test_gauge").set(duration);
         return "ok";
     }
 

@@ -20,7 +20,6 @@ package org.apache.ozhera.log.server.porcessor;
 
 import cn.hutool.json.JSONUtil;
 import com.google.common.util.concurrent.RateLimiter;
-import com.xiaomi.data.push.rpc.common.CompressionUtil;
 import com.xiaomi.data.push.rpc.netty.NettyRequestProcessor;
 import com.xiaomi.data.push.rpc.protocol.RemotingCommand;
 import com.xiaomi.youpin.docean.Ioc;
@@ -88,32 +87,20 @@ public class AgentCollectProgressProcessor implements NettyRequestProcessor {
      * try to parse the request body
      */
     private UpdateLogProcessCmd parseRequestBody(byte[] bodyBytes, ChannelHandlerContext ctx) {
-        String bodyStr = null;
-
+        String bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
         try {
-            bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
-            if (JSONUtil.isTypeJSON(bodyStr)) {
-                UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
-                if (StringUtils.isBlank(cmd.getIp())) {
-                    log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
-                    return null;
-                }
-                log.debug("Parsed request from agent: ip={}", cmd.getIp());
-                return cmd;
-            }
-        } catch (Exception ignored) {
-        }
-        try {
-            bodyStr = new String(CompressionUtil.decompress(bodyBytes), StandardCharsets.UTF_8);
             if (!JSONUtil.isTypeJSON(bodyStr)) {
                 log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
                 return null;
             }
             UpdateLogProcessCmd cmd = GSON.fromJson(bodyStr, UpdateLogProcessCmd.class);
-            log.debug("Parsed decompressed request from agent: ip={}", cmd.getIp());
+            if (StringUtils.isBlank(cmd.getIp())) {
+                log.warn("Invalid agent request, ip={}, body={}", getIp(ctx), brief(bodyStr));
+                return null;
+            }
+            log.debug("Parsed request from agent: ip={}", cmd.getIp());
             return cmd;
         } catch (Exception e) {
-            assert bodyStr != null;
             log.error("processRequest error, ip={}, body={}", getIp(ctx), brief(bodyStr), e);
             return null;
         }

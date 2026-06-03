@@ -101,11 +101,7 @@ public class ChannelEngine {
 
     private static final String PROGRESS_ENV_KEY = "CHANNEL_STATE_PERIOD_SECONDS";
 
-    private static final String COMPRESS_KEY = "CHANNEL_STATE_COMPRESS_ENABLED";
-
     private static final long DEFAULT_PERIOD_SECONDS = 10L;
-
-    private volatile boolean progressCompressValue = false;
 
     @Getter
     private volatile boolean initComplete;
@@ -153,23 +149,10 @@ public class ChannelEngine {
             log.info("current channelDefineList:{},current channelServiceList:{}", gson.toJson(this.channelDefineList), gson.toJson(this.channelServiceList.stream().map(ChannelService::instanceId).collect(Collectors.toList())));
             monitorFilesClean();
             executorFileClean();
-            resolveCompressEnabled();
         } catch (Exception e) {
             log.error("ChannelEngine init exception", e);
         } finally {
             initComplete = true;
-        }
-    }
-
-    private void resolveCompressEnabled() {
-        String raw = ChannelUtil.getConfig(COMPRESS_KEY, config);
-        if (StringUtils.isNotBlank(raw)) {
-            try {
-                progressCompressValue = Boolean.parseBoolean(raw);
-                log.info("progressCompressValue {}", progressCompressValue);
-            } catch (Exception e) {
-                log.error("parse {} error,use default value:{},config value:{}", COMPRESS_KEY, progressCompressValue, raw);
-            }
         }
     }
 
@@ -679,11 +662,6 @@ public class ChannelEngine {
         UpdateLogProcessCmd processCmd = assembleLogProcessData(channelStateList);
         RpcClient rpcClient = Ioc.ins().getBean(RpcClient.class);
         RemotingCommand req = RemotingCommand.createRequestCommand(Constant.RPCCMD_AGENT_CODE);
-
-        if (progressCompressValue) {
-            // enable collection progress compression
-            req.enableCompression();
-        }
 
         req.setBody(GSON.toJson(processCmd).getBytes());
         rpcClient.sendToAllMessage(req);

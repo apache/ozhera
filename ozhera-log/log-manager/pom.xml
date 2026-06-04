@@ -50,7 +50,7 @@ http://www.apache.org/licenses/LICENSE-2.0
         <dependency>
             <groupId>run.mone</groupId>
             <artifactId>excel</artifactId>
-            <version>1.5.0-jdk21</version>
+            <version>1.6.2-jdk21</version>
         </dependency>
 
         <dependency>

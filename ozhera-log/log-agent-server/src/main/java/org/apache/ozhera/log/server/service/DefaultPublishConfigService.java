@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.ozhera.log.common.Constant.GSON;
 import static org.apache.ozhera.log.common.Constant.SYMBOL_COLON;
-import static org.apache.ozhera.log.server.common.Utils.getConfig;
 
 /**
  * @author wtt
@@ -60,13 +59,6 @@ public class DefaultPublishConfigService implements PublishConfigService {
     private static final AtomicInteger COUNT_INCR = new AtomicInteger(0);
     @Resource
     private RpcServer rpcServer;
-
-    private static final String CONFIG_COMPRESS_KEY = "CONFIG_COMPRESS_ENABLED";
-    private static final String CONFIG_COMPRESS_MACHINE_KEY = "CONFIG_COMPRESS_MACHINE";
-
-    private volatile boolean configCompressValue = false;
-
-    private volatile String configCompressMachine;
 
     private final Random random = new Random();
 
@@ -110,20 +102,6 @@ public class DefaultPublishConfigService implements PublishConfigService {
         );
     }
 
-    public void init() {
-        String compressRaw = getConfig(CONFIG_COMPRESS_KEY);
-        configCompressMachine = getConfig(CONFIG_COMPRESS_MACHINE_KEY);
-        log.info("init configCompressValue {},configCompressMachine {}", configCompressValue, configCompressMachine);
-        if (StringUtils.isNotBlank(compressRaw)) {
-            try {
-                configCompressValue = Boolean.parseBoolean(compressRaw);
-                log.info("configCompressValue {},configCompressMachine{}", configCompressValue, configCompressMachine);
-            } catch (Exception e) {
-                log.error("parse {} error,use default value:{},config value:{}", CONFIG_COMPRESS_KEY, configCompressValue, compressRaw);
-            }
-        }
-    }
-
     /**
      * dubbo interface, the timeout period cannot be too long
      *
@@ -163,13 +141,6 @@ public class DefaultPublishConfigService implements PublishConfigService {
                 if (CollectionUtils.isNotEmpty(meta.getAppLogMetaList())) {
                     RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
                     req.setBody(sendStr.getBytes());
-
-                    if (configCompressValue || (StringUtils.isNotBlank(configCompressMachine) &&
-                            StringUtils.isNotBlank(meta.getAgentMachine()) &&
-                            configCompressMachine.contains(meta.getAgentMachine()))) {
-                        req.enableCompression();
-                        log.info("The configuration is compressed,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
-                    }
 
                     log.info("Send the configuration,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
                     Stopwatch started = Stopwatch.createStarted();
@@ -301,13 +272,6 @@ public class DefaultPublishConfigService implements PublishConfigService {
         RemotingCommand req = RemotingCommand.createRequestCommand(LogCmd.LOG_REQ);
         req.setBody(sendStr.getBytes());
 
-        if (configCompressValue || (StringUtils.isNotBlank(configCompressMachine) &&
-                StringUtils.isNotBlank(meta.getAgentMachine()) &&
-                configCompressMachine.contains(meta.getAgentMachine()))) {
-            req.enableCompression();
-            log.info("The configuration is compressed,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
-        }
-
         Stopwatch started = Stopwatch.createStarted();
 
         log.info("Send the configuration asynchronously,agent ip:{},Configuration information:{}", agentCurrentIp, sendStr);
@@ -317,7 +281,7 @@ public class DefaultPublishConfigService implements PublishConfigService {
         try {
 
             rpcServer.send(
-                    logAgentMap.get(agentCurrentIp).getChannel(),
+                    agentCurrentIp,
                     req,
                     10000,
                     response -> {

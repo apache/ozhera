@@ -789,10 +789,10 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                     Cell cell = titleRow.createCell(0);
                     cell.setCellValue(title);
                     CellStyle titleStyle = workbook.createCellStyle();
-                    titleStyle.setAlignment((short) 2);
-                    titleStyle.setVerticalAlignment((short) 1);
+                    titleStyle.setAlignment(HorizontalAlignment.CENTER);
+                    titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
                     Font titleFont = workbook.createFont();
-                    titleFont.setBoldweight((short) 700);
+                    titleFont.setBold(true);
                     titleStyle.setFont(titleFont);
                     cell.setCellStyle(titleStyle);
                     titleRow.setHeight((short) 450);
@@ -802,9 +802,9 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
                 if (list != null && !list.isEmpty()) {
                     CellStyle headerStyle = workbook.createCellStyle();
-                    headerStyle.setAlignment((short) 2);
-                    headerStyle.setBorderBottom((short) 2);
-                    headerStyle.setBorderTop((short) 2);
+                    headerStyle.setAlignment(HorizontalAlignment.CENTER);
+                    headerStyle.setBorderBottom(BorderStyle.MEDIUM);
+                    headerStyle.setBorderTop(BorderStyle.MEDIUM);
                     int headRowIndex = title != null && !title.isEmpty() && page == 1 ? 1 : 0;
                     Row headRow = sheet.createRow(headRowIndex);
                     int i = 0;

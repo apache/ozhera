@@ -418,7 +418,7 @@ public class AppMonitorController {
 
         heraBaseInfoService.deleAppById(id);
 
-        return Result.success("sucess");
+        return Result.success("success");
     }
 
     @GetMapping("/mimonitor/appMembers")

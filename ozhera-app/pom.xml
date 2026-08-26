@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>ozhera-app</artifactId>
-    <version>2.2.7-incubating</version>
+    <version>2.2.8-incubating</version>
     <packaging>pom</packaging>
 
     <modules>

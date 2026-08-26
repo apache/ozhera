@@ -144,14 +144,14 @@ ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 * 如果需要k8s⾃动搭建⼀个RocketMQ
   1. 需要开启“基于yaml创建资源”按钮；
   2. 使⽤默认yaml创建的RocketMQ没有accessKey\secretKey，如果需要设置accessKey\secretKey，则需要修改右侧“连接信息”中的ozhera.rocketmq.ak与ozhera.rocketmq.sk的值；
-  3. 如果需要更换RocketMQ broker的service，需要同时替换yaml中的service，以及ozhera-operator代码中的run.mone.ozhera.operator.service.RocketMQSerivce类的成员变量"brokerAddr"的值。
+  3. 如果需要更换RocketMQ broker的service，需要同时替换yaml中的service，以及ozhera-operator代码中的org.apache.ozhera.operator.service.RocketMQService类的成员变量"brokerAddr"的值。
 
 ![ozhera-rocketmq.jpg](images%2Fozhera-rocketmq.jpg)
 
 * 如果已有RocketMQ，⽆需k8s搭建
   1. 关闭"基于yaml创建资源"按钮；
   2. 填写正确的已有RocketMQ集群的url、accessKey、secretKey；
-  3. 默认operator执⾏时会⾃动创建OzHera所需要的topic。**如果填写的url、ak、sk没有权限创建topic，或者已有RocketMQ集群不允许通过API创建topic，则需要提前⼿动创建好topic**。OzHera需要的topic在operator源码run.mone.ozhera.operator.service.RocketMQSerivce类的成员变量"topics"中存储。
+  3. 默认operator执⾏时会⾃动创建OzHera所需要的topic。**如果填写的url、ak、sk没有权限创建topic，或者已有RocketMQ集群不允许通过API创建topic，则需要提前⼿动创建好topic**。OzHera需要的topic在operator源码org.apache.ozhera.operator.service.RocketMQService类的成员变量"topics"中存储。
 
 ![ozhera-rocketmq2.jpg](images%2Fozhera-rocketmq2.jpg)
 

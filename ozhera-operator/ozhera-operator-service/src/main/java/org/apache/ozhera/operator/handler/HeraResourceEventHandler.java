@@ -79,7 +79,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
     private ESService esService;
 
     @javax.annotation.Resource
-    private RocketMQService rocketMQSerivce;
+    private RocketMQService rocketMQService;
 
     @javax.annotation.Resource
     private K8sUtilBean k8sUtilBean;
@@ -376,7 +376,7 @@ public class HeraResourceEventHandler implements ResourceEventHandler<HeraBootst
     }
 
     private void initRocketMQ(String nameserver) {
-        rocketMQSerivce.createTopic(nameserver);
+        rocketMQService.createTopic(nameserver);
     }
 
     @Override

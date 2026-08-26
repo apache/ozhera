@@ -644,7 +644,7 @@
         <where>
             status = 0
             <if test="appName != null and appName != ''">
-                AND app_name LIKE concat('%',#{appName},'%')
+                AND app_name LIKE concat(#{appName},'%')
             </if>
             <if test="platformType != null">
                 AND platform_type = #{platformType}

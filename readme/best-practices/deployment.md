@@ -41,7 +41,7 @@
 ```yaml
    containers:
      - name: trace-etl-es-container
-       command: ["java","-Xms512M","-Xmx512M","-Xss512k","-XX:MetaspaceSize=128m","-XX:MaxMetaspaceSize=256m","-XX:MaxDirectMemorySize=512M"," -XX:+PrintReferenceGC","-XX:+PrintGCDetails","-XX:+PrintGCDateStamps","-XX:+PrintHeapAtGC","-Xloggc:/home/work/log/gc.log","-Duser .timezone=Asia/Shanghai","-XX:+HeapDumpOnOutOfMemoryError","-XX:HeapDumpPath=/home/rocksdb/dum/oom.dump","-jar","/home/work/trace-etl-es /trace-etl-es-1.0.0-SNAPSHOT.jar","&&","tail","-f","/dev/null"]
+       command: ["java","-Xms512M","-Xmx512M","-Xss512k","-XX:MetaspaceSize=128m","-XX:MaxMetaspaceSize=256m","-XX:MaxDirectMemorySize=512M"," -XX:+PrintReferenceGC","-XX:+PrintGCDetails","-XX:+PrintGCDateStamps","-XX:+PrintHeapAtGC","-Xloggc:/home/work/log/gc.log","-Duser.timezone=Asia/Shanghai","-XX:+HeapDumpOnOutOfMemoryError","-XX:HeapDumpPath=/home/rocksdb/dum/oom.dump","-jar","/home/work/trace-etl-es/trace-etl-es-1.0.0-SNAPSHOT.jar","&&","tail","-f","/dev/null"]
 ```
 
 ### nacos
@@ -49,7 +49,7 @@
 ```yaml
    containers:
      - name: nacos-container
-       command: ["java", "-Xms512m", "-Xmx512m", "-XX:MetaspaceSize=512M", "-XX:+UseG1GC", "-XX:+PrintReferenceGC", "-XX:+PrintGCDetails", "-XX:+PrintGCDateStamps", "-XX:+PrintHeapAtGC", "-verbose:gc", "-Xloggc:/home/work/log/nacos/gc.log", "-jar", "-Dnacos. standalone=true", "/home/work/nacos/nacos-server.jar", "--server.port=80"]
+       command: ["java", "-Xms512m", "-Xmx512m", "-XX:MetaspaceSize=512M", "-XX:+UseG1GC", "-XX:+PrintReferenceGC", "-XX:+PrintGCDetails", "-XX:+PrintGCDateStamps", "-XX:+PrintHeapAtGC", "-verbose:gc", "-Xloggc:/home/work/log/nacos/gc.log", "-jar", "-Dnacos.standalone=true", "/home/work/nacos/nacos-server.jar", "--server.port=80"]
 ```
 
 ## Steps to redeploy

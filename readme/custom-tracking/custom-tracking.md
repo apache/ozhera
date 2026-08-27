@@ -163,9 +163,9 @@ On OzHera's Dashboard page, there is a custom monitoring dashboard on the right.
 
 After collapsing all the directories, there is a custom metric directory at the bottom. Please create your custom monitoring charts in this directory.
 
-![custome-dashboard.png](images%2Fcustome-dashboard.png)
+![custom-dashboard.png](images%2Fcustom-dashboard.png)
 
-![custome-dashboard2.png](images%2Fcustome-dashboard2.png)
+![custom-dashboard2.png](images%2Fcustom-dashboard2.png)
 
 In the custom monitoring chart, first select the OzHera Prometheus data source and input your own promql statement.
 

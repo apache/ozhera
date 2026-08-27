@@ -112,7 +112,7 @@ ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/operator/
 * 如果已有数据库，⽆需k8s创建
   1. 关闭"基于yaml创建资源"按钮；
   2. 填写正确的已有数据库url、⽤⼾名、密码；
-  3. 默认operator执⾏时会⾃动去改数据库进⾏创建ozhera数据库及表，**如果填写的账号⽆建库、建表权限，则需提前⼿动去⽬标库中建好ozhera数据库和表**，建表语句在operator源码ozhera/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql ⽬录下。
+  3. 默认operator执⾏时会⾃动去改数据库进⾏创建ozhera数据库及表，**如果填写的账号⽆建库、建表权限，则需提前⼿动去⽬标库中建好ozhera数据库和表**，建表语句在operator源码ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/ozhera_init/mysql/sql ⽬录下。
 
 ![ozhera-mysql2.jpg](images%2Fozhera-mysql2.jpg)
 

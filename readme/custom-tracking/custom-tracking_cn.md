@@ -164,9 +164,9 @@ Prometheus输出时，Counter类型指标会带有`_total`后缀，Histogram类�
 
 将目录都合上之后，在最下方有一个自定义指标目录，请在该目录下，创建自定义的监控图表。
 
-![custome-dashboard.png](images%2Fcustome-dashboard.png)
+![custom-dashboard.png](images%2Fcustom-dashboard.png)
 
-![custome-dashboard2.png](images%2Fcustome-dashboard2.png)
+![custom-dashboard2.png](images%2Fcustom-dashboard2.png)
 
 在自定义的监控图表中，请先选择OzHera的Prometheus数据源，并填入你自己的promql语句。
 

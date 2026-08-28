@@ -16,7 +16,20 @@
 #
 
 github:
-  description: Apache OzHera is an About Application Observable Platform in the Cloud Native Era. 
+  description: Apache OzHera is an About Application Observable Platform in the Cloud Native Era.
   homepage: https://ozhera.apache.org/
   labels:
     - apm
+  rulesets:
+    - name: "Default Branch Protection"
+      type: branch
+      branches:
+        includes:
+          - "~DEFAULT_BRANCH"
+          - "release/*"
+          - "rel/*"
+        excludes: []
+      bypass_teams:
+        - root
+      restrict_deletion: true
+      restrict_force_push: true

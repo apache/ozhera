@@ -108,7 +108,7 @@ The purpose is to select a usable mysql database for ozhera.
 - If you already have a database and don't need k8s to create it:
   1. Turn off the "Create resources based on yaml" button;
   2. Fill in the correct existing database url, username, and password;
-  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql directory.
+  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/ozhera_init/mysql/sql directory.
 
 ![ozhera-mysql2.jpg](images%2Fozhera-mysql2.jpg)
 

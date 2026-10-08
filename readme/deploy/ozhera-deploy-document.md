@@ -108,7 +108,7 @@ The purpose is to select a usable mysql database for ozhera.
 - If you already have a database and don't need k8s to create it:
   1. Turn off the "Create resources based on yaml" button;
   2. Fill in the correct existing database url, username, and password;
-  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera/ozhera-operator/ozheraoperator-server/src/main/resources/ozhera_init/mysql/sql directory.
+  3. By default, the operator will automatically modify the database to create the ozhera database and table. **If the account you entered does not have permission to create a library or table, you need to manually create the ozhera database and table in the target library in advance.** The create table statement is in the operator source code ozhera/ozhera-operator/ozhera-operator-server/src/main/resources/ozhera_init/mysql/sql directory.
 
 ![ozhera-mysql2.jpg](images%2Fozhera-mysql2.jpg)
 
@@ -139,14 +139,14 @@ The purpose is to select a RocketMQ available for ozhera.
 - If you need k8s to automatically set up a RocketMQ:
   1. You need to turn on the "Create resources based on yaml" button;
   2. The RocketMQ created by the default yaml has no accessKey or secretKey. If you need to set up accessKey or secretKey, you need to modify the values of ozhera.rocketmq.ak and ozhera.rocketmq.sk on the right "Connection Information";
-  3. If you need to change the service of the RocketMQ broker, you need to replace the service in the yaml and the "brokerAddr" member variable value of the run.mone.ozhera.operator.service.RocketMQSerivce class in the ozhera-operator code.
+  3. If you need to change the service of the RocketMQ broker, you need to replace the service in the yaml and the "brokerAddr" member variable value of the org.apache.ozhera.operator.service.RocketMQService class in the ozhera-operator code.
 
 ![ozhera-rocketmq.jpg](images%2Fozhera-rocketmq.jpg)
 
 - If you already have RocketMQ, you don't need k8s to set it up:
   1. Turn off the "Create resources based on yaml" button;
   2. Fill in the correct url, accessKey, and secretKey of the existing RocketMQ cluster;
-  3. By default, the operator will automatically create the topics required by OzHera. **If the url, ak, and sk you entered do not have permission to create topics, or if the existing RocketMQ cluster does not allow topic creation through the API, you need to manually create the required topics in advance**. The topics required by OzHera are stored in the "topics" member variable of the run.mone.ozhera.operator.service.RocketMQSerivce class.
+  3. By default, the operator will automatically create the topics required by OzHera. **If the url, ak, and sk you entered do not have permission to create topics, or if the existing RocketMQ cluster does not allow topic creation through the API, you need to manually create the required topics in advance**. The topics required by OzHera are stored in the "topics" member variable of the org.apache.ozhera.operator.service.RocketMQService class.
 
 ![ozhera-rocketmq2.jpg](images%2Fozhera-rocketmq2.jpg)
 

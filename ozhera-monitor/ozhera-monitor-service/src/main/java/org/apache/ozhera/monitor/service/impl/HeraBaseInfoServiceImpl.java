@@ -201,7 +201,7 @@ public class HeraBaseInfoServiceImpl implements HeraBaseInfoService {
             for (HeraAppRole roleTmp : roles) {
                 Integer integer1 = heraAppRoleDao.delById(roleTmp.getId());
                 if (integer1.intValue() > 0) {
-                    log.info("del HeraAppRole AppById sucess!dataId:{}", id);
+                    log.info("del HeraAppRole AppById success!dataId:{}", id);
                 } else {
                     log.info("del HeraAppRole AppById fail!dataId:{}", id);
                 }

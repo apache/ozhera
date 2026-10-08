@@ -28,7 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriUtils;
 
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,16 +72,19 @@ public class RestTemplateService {
         String result = null;
         try {
             if (!CollectionUtils.isEmpty(map)) {
-                url = expandURLByMap(url, map);
+                url = buildEncodedUrl(url, map);
             }
+            // The url has already been query-encoded exactly once; use the URI overload so that
+            // RestTemplate does not expand/encode it again (prevents double encoding).
+            URI uri = URI.create(url);
             if (prometheusClusterType.equals("ali")) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Authorization", prometheusHeaderToken);
                 HttpEntity<String> entity = new HttpEntity<>(headers);
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+                ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
                 result = response.getBody();
             } else {
-                result = restTemplate.getForObject(url, String.class, map);
+                result = restTemplate.getForObject(uri, String.class);
             }
             log.info("RestTemplateService.getHttp url : {}, map : {},result : {} ", url, map, result);
         } catch (RestClientException e) {
@@ -86,6 +92,27 @@ public class RestTemplateService {
         }
 
         return result;
+    }
+
+    /**
+     * Build the full URL by manually encoding each parameter value.
+     * UriUtils.encode encodes every character that is not unreserved, so '+' becomes %2B and a
+     * space becomes %20. This is required because UriUtils.encodeQueryParam treats '+' as a legal
+     * query character and leaves it as-is, in which case the server (e.g. Prometheus) would decode
+     * the literal '+' into a space per the application/x-www-form-urlencoded rule. As a result a
+     * label value such as serverEnv containing '+' would fail exact matching and return no data.
+     */
+    private static String buildEncodedUrl(String url, Map<String, Object> map) {
+        StringBuilder sb = new StringBuilder(url);
+        sb.append("?");
+        Set<Map.Entry<String, Object>> entries = map.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            sb.append(entry.getKey())
+                    .append("=")
+                    .append(UriUtils.encode(String.valueOf(entry.getValue()), StandardCharsets.UTF_8))
+                    .append("&");
+        }
+        return sb.deleteCharAt(sb.length() - 1).toString();
     }
 
     public String getHttpMPost(String url, com.alibaba.fastjson.JSONObject param, MediaType mediaType){

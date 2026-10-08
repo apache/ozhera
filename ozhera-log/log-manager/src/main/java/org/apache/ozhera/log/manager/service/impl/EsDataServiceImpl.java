@@ -41,6 +41,8 @@ import org.apache.ozhera.log.exception.CommonError;
 import org.apache.ozhera.log.manager.common.context.MoneUserContext;
 import org.apache.ozhera.log.manager.common.exception.MilogManageException;
 import org.apache.ozhera.log.manager.common.utils.ExportUtils;
+import org.apache.ozhera.log.manager.common.utils.LogQuerySqlBuilder;
+import org.apache.ozhera.log.manager.common.utils.LogQuerySqlBuilder.SqlWithArgs;
 import org.apache.ozhera.log.manager.dao.MilogLogTailDao;
 import org.apache.ozhera.log.manager.dao.MilogLogstoreDao;
 import org.apache.ozhera.log.manager.dao.MilogSpaceDao;
@@ -82,10 +84,10 @@ import org.springframework.util.StopWatch;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -337,61 +339,93 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
     private List<Map<String, Object>> queryResult(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO, DataSource dataSource) throws SQLException {
         List<Map<String, Object>> columns = new ArrayList<>();
 
-        String querySql = buildQuerySql(logQuery, milogLogstoreDO);
+        SqlWithArgs querySql = buildQuerySql(logQuery, milogLogstoreDO);
 
-        try (Statement statement = dataSource.getConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(querySql)) {
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(querySql.getSql())) {
+            bindArgs(statement, querySql.getArgs());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
 
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (resultSet.next()) {
-                Map<String, Object> dataMap = new HashMap<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    dataMap.put(metaData.getColumnName(i), resultSet.getObject(i));
+                while (resultSet.next()) {
+                    Map<String, Object> dataMap = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        dataMap.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    }
+                    columns.add(dataMap);
                 }
-                columns.add(dataMap);
             }
         }
         return columns;
     }
 
-    private static String buildQuerySql(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
-        String sqlPrefix = getConditional(logQuery);
-        String sortSql = StringUtils.isNotEmpty(logQuery.getSortKey()) ? String.format("ORDER BY %s", logQuery.getSortKey()) : "";
-        if (StringUtils.isNotEmpty(sortSql) && !logQuery.getAsc()) {
-            sortSql += " DESC";
-        }
-        String limitSql = String.format("LIMIT %s, %s", (logQuery.getPage() - 1) * logQuery.getPageSize(), logQuery.getPageSize());
-        if (StringUtils.isNotEmpty(logQuery.getFullTextSearch())) {
-            return String.format("SELECT * FROM %s WHERE %s AND %s %s %s",
-                    milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch(), sortSql, limitSql);
-        } else {
-            return String.format("SELECT * FROM %s WHERE %s %s %s",
-                    milogLogstoreDO.getEsIndex(), sqlPrefix, sortSql, limitSql);
+    /**
+     * Bind the ordered parameters produced by {@link LogQuerySqlBuilder} onto a
+     * {@link PreparedStatement}. Keeping user input in bind parameters (instead of
+     * concatenating it into the statement text) is what prevents SQL injection.
+     */
+    private static void bindArgs(PreparedStatement statement, List<Object> args) throws SQLException {
+        for (int i = 0; i < args.size(); i++) {
+            statement.setObject(i + 1, args.get(i));
         }
     }
 
-    private static String buildQuerySqlConditional(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
-        String sqlPrefix = getConditional(logQuery);
-        if (StringUtils.isNotEmpty(logQuery.getFullTextSearch())) {
-            return String.format("SELECT * FROM %s WHERE %s AND %s",
-                    milogLogstoreDO.getEsIndex(), sqlPrefix, logQuery.getFullTextSearch());
+    private static SqlWithArgs buildQuerySql(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+        String table = LogQuerySqlBuilder.safeIndexName(milogLogstoreDO.getEsIndex());
+        SqlWithArgs conditional = getConditional(logQuery);
+        List<Object> args = new ArrayList<>(conditional.getArgs());
+
+        StringBuilder sql = new StringBuilder();
+        SqlWithArgs fullText = LogQuerySqlBuilder.buildFullTextSearch(logQuery.getFullTextSearch());
+        if (fullText != null) {
+            sql.append(String.format("SELECT * FROM %s WHERE %s AND %s", table, conditional.getSql(), fullText.getSql()));
+            args.addAll(fullText.getArgs());
         } else {
-            return String.format("SELECT * FROM %s WHERE %s ",
-                    milogLogstoreDO.getEsIndex(), sqlPrefix);
+            sql.append(String.format("SELECT * FROM %s WHERE %s", table, conditional.getSql()));
         }
+
+        if (StringUtils.isNotEmpty(logQuery.getSortKey())) {
+            sql.append(" ORDER BY ").append(LogQuerySqlBuilder.safeIdentifier(logQuery.getSortKey(), "sortKey"));
+            if (!logQuery.getAsc()) {
+                sql.append(" DESC");
+            }
+        }
+
+        sql.append(" LIMIT ?, ?");
+        args.add((logQuery.getPage() - 1) * logQuery.getPageSize());
+        args.add(logQuery.getPageSize());
+        return new SqlWithArgs(sql.toString(), args);
     }
 
-    private static String getConditional(LogQuery logQuery) {
-        String sqlPrefix = String.format("timestamp >= %s AND timestamp <= %s", logQuery.getStartTime(), logQuery.getEndTime());
+    private static SqlWithArgs buildQuerySqlConditional(LogQuery logQuery, MilogLogStoreDO milogLogstoreDO) {
+        String table = LogQuerySqlBuilder.safeIndexName(milogLogstoreDO.getEsIndex());
+        SqlWithArgs conditional = getConditional(logQuery);
+        List<Object> args = new ArrayList<>(conditional.getArgs());
+
+        SqlWithArgs fullText = LogQuerySqlBuilder.buildFullTextSearch(logQuery.getFullTextSearch());
+        String sql;
+        if (fullText != null) {
+            sql = String.format("SELECT * FROM %s WHERE %s AND %s", table, conditional.getSql(), fullText.getSql());
+            args.addAll(fullText.getArgs());
+        } else {
+            sql = String.format("SELECT * FROM %s WHERE %s ", table, conditional.getSql());
+        }
+        return new SqlWithArgs(sql, args);
+    }
+
+    private static SqlWithArgs getConditional(LogQuery logQuery) {
+        List<Object> args = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("timestamp >= ? AND timestamp <= ?");
+        args.add(logQuery.getStartTime());
+        args.add(logQuery.getEndTime());
 
         if (StringUtils.isNotEmpty(logQuery.getTail())) {
-            String tailIdFields = Arrays.stream(logQuery.getTail().split(",")).map(tail -> org.apache.commons.lang3.StringUtils.wrap(tail, "\"")).collect(Collectors.joining(","));
-            String tailSql = String.format(" AND tail IN (%s)", tailIdFields);
-            sqlPrefix += tailSql;
+            String[] tails = logQuery.getTail().split(",");
+            String placeholders = Arrays.stream(tails).map(tail -> "?").collect(Collectors.joining(","));
+            sql.append(String.format(" AND tail IN (%s)", placeholders));
+            Collections.addAll(args, tails);
         }
-        return sqlPrefix;
+        return new SqlWithArgs(sql.toString(), args);
     }
 
 
@@ -501,11 +535,11 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
 
     private void handleDorisStat(EsStatisticResult result, LogQuery logQuery, MilogLogStoreDO logStore) throws SQLException {
         DataSource dataSource = Ioc.ins().getBean(Constant.LOG_STORAGE_SERV_BEAN_PRE + logStore.getEsClusterId());
-        String querySql = buildQuerySqlConditional(logQuery, logStore);
-        String staticSql = buildDorisStatSql(querySql);
+        SqlWithArgs querySql = buildQuerySqlConditional(logQuery, logStore);
+        String staticSql = buildDorisStatSql(querySql.getSql());
         log.info("staticSql:{}", staticSql);
         List<String> timestamps = Lists.newArrayList();
-        List<Long> counts = executeDorisStatQuery(dataSource, staticSql, timestamps);
+        List<Long> counts = executeDorisStatQuery(dataSource, staticSql, querySql.getArgs(), timestamps);
 
         result.setCounts(counts);
         result.setTimestamps(timestamps);
@@ -521,14 +555,15 @@ public class EsDataServiceImpl implements EsDataService, LogDataService, EsDataB
                 "ORDER BY time_bucket";
     }
 
-    private List<Long> executeDorisStatQuery(DataSource dataSource, String staticSql, List<String> timestamps) throws SQLException {
+    private List<Long> executeDorisStatQuery(DataSource dataSource, String staticSql, List<Object> args, List<String> timestamps) throws SQLException {
         List<Long> counts = new ArrayList<>();
-        try (Statement statement = dataSource.getConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(staticSql)) {
-
-            while (resultSet.next()) {
-                timestamps.add(resultSet.getString("time_bucket"));
-                counts.add(resultSet.getLong("data_count"));
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(staticSql)) {
+            bindArgs(statement, args);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    timestamps.add(resultSet.getString("time_bucket"));
+                    counts.add(resultSet.getLong("data_count"));
+                }
             }
         }
         return counts;

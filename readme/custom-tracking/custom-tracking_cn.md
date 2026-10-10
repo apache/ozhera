@@ -45,7 +45,7 @@ https://github.com/apache/ozhera/tree/master/ozhera-metrics-all
     <dependency>
       <groupId>org.apache.ozhera</groupId>
       <artifactId>ozhera-metrics-sdk</artifactId>
-      <version>2.2.6-incubating</version>
+      <version>2.2.7-incubating</version>
     </dependency>
 ```
 

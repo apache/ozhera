@@ -45,7 +45,7 @@ After a successful compilation, push the pom to the company's Maven repository, 
     <dependency>
       <groupId>org.apache.ozhera</groupId>
       <artifactId>ozhera-metrics-sdk</artifactId>
-      <version>2.2.6-incubating</version>
+      <version>2.2.7-incubating</version>
     </dependency>
 ```
 

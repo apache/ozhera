@@ -23,10 +23,12 @@ import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Ignore("Requires a fully wired IoC environment with external services (Elasticsearch/Doris/Nacos)")
 public class LogProcessTest {
     private LogProcess logProcess;
 

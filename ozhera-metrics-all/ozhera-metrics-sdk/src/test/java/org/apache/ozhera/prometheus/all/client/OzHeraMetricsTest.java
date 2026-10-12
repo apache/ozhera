@@ -22,6 +22,7 @@ package org.apache.ozhera.prometheus.all.client;
 import org.apache.ozhera.metrics.api.BusinessMetrics;
 import org.apache.ozhera.metrics.api.Metrics;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import java.util.stream.IntStream;
  * Metrics unit test class
  * Test functionality of the new Metrics API
  */
+@Ignore("Requires a reachable Nacos server (Metrics static init registers to nacos:80); run manually against a real environment")
 public class OzHeraMetricsTest {
 
     @Before

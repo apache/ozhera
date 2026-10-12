@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ozhera.log.server.service.DefaultAgentConfigAcquirer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * @author wtt
@@ -33,6 +34,7 @@ import org.junit.Test;
  * @date 2022/12/21 10:56
  */
 @Slf4j
+@Ignore("Requires a running Dubbo environment (registry/config center)")
 public class DefaultAgentConfigAcquirerTest {
 
     DefaultAgentConfigAcquirer configAcquirer;

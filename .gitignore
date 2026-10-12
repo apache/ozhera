@@ -4,6 +4,8 @@ build_info.properties
 dependency-reduced-pom.xml
 *.diff
 .DS_Store
+._*
+__MACOSX/
 
 # IDEA
 .idea/

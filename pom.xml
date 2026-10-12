@@ -1043,7 +1043,6 @@
                         </goals>
                         <configuration>
                             <executable>gpg</executable>
-                            <keyname>C962B99B87C5B41E79940E4BE72ADFA74291C3C0</keyname>
                         </configuration>
                     </execution>
                 </executions>
@@ -1103,6 +1102,8 @@
                         <exclude>**/*.jpg</exclude>
                         <exclude>**/*.jpeg</exclude>
                         <exclude>dist/licenses/**/*</exclude>
+                        <exclude>**/target/**</exclude>
+                        <exclude>**/dependency-reduced-pom.xml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

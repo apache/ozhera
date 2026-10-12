@@ -45,8 +45,10 @@ public class MonitorFile {
     private String monitorFileExpress;
     /**
      * Generate a regular expression interpreter based on the expression for subsequent matching.
+     * Derived from {@link #monitorFileExpress} in the constructor; transient so reflective
+     * serializers (Gson logging) skip it — Pattern internals are strongly encapsulated on JDK 16+.
      */
-    private Pattern filePattern;
+    private transient Pattern filePattern;
     /**
      * The collection of individual files is completed and then ends.
      */

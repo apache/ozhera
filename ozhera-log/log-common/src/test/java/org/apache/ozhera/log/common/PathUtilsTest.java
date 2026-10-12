@@ -52,8 +52,7 @@ public class PathUtilsTest {
         System.out.println(new Gson().toJson(watches));
 
         Assert.assertEquals(1, watches.size());
-        Assert.assertEquals("/home/work/log/log-test/info-1.log", logPattern);
-        Assert.assertEquals("/home/work/logs/neo-logs/b/applogs", logPattern);
+        Assert.assertEquals("/home/work/log/log-test", watches.get(0));
     }
 
     @Test

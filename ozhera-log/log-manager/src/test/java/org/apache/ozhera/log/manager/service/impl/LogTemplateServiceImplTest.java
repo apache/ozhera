@@ -24,9 +24,11 @@ import org.apache.ozhera.log.manager.model.dto.LogTemplateDTO;
 import org.apache.ozhera.log.manager.model.dto.LogTemplateDetailDTO;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.List;
 
+@Ignore("Requires a fully wired IoC environment with external services (Elasticsearch/Doris/Nacos)")
 public class LogTemplateServiceImplTest {
     private LogTemplateServiceImpl logTemplateService;
 

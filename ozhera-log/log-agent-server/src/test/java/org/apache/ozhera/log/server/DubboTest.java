@@ -25,6 +25,7 @@ import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.utils.ReferenceConfigCache;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * @author wtt
@@ -33,6 +34,7 @@ import org.junit.Test;
  * @date 2022/12/21 16:08
  */
 @Slf4j
+@Ignore("Requires a running Dubbo environment (registry/config center)")
 public class DubboTest {
 
     @Test

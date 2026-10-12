@@ -27,6 +27,7 @@ import org.apache.ozhera.log.manager.service.bind.LogTypeProcessor;
 import org.apache.ozhera.log.manager.service.bind.LogTypeProcessorFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
  * @date 2022/3/28 20:47
  */
 @Slf4j
+@Ignore("Requires a fully wired IoC environment with external services (Elasticsearch/Doris/Nacos)")
 public class MilogLogTailServiceTest {
 
     private Gson gson = new Gson();

@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,6 +37,7 @@ import java.time.Instant;
  * @date 2023/11/7 10:25
  */
 @Slf4j
+@Ignore("Requires a running Doris database and the MariaDB JDBC driver on the classpath")
 public class DorisTest {
 
     private String driverUrl = "org.mariadb.jdbc.Driver";

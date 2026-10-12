@@ -27,6 +27,7 @@ import org.apache.ozhera.log.manager.model.vo.LogQuery;
 import org.apache.ozhera.log.manager.service.impl.StatisticsServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ import static org.apache.ozhera.log.manager.user.MoneUserDetailService.GSON;
  * @date 2023/6/9 14:38
  */
 @Slf4j
+@Ignore("Requires a fully wired IoC environment with external services (Elasticsearch/Doris/Nacos)")
 public class StatisticsServiceTest {
 
     private StatisticsServiceImpl statisticsService;

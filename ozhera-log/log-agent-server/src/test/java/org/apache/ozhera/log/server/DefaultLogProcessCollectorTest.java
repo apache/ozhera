@@ -27,6 +27,7 @@ import org.apache.ozhera.log.api.model.vo.UpdateLogProcessCmd;
 import org.apache.ozhera.log.server.service.DefaultLogProcessCollector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ import java.util.List;
  * @date 2023/1/4 11:14
  */
 @Slf4j
+@Ignore("Requires a running Dubbo environment (registry/config center)")
 public class DefaultLogProcessCollectorTest {
 
     DefaultLogProcessCollector processCollector;

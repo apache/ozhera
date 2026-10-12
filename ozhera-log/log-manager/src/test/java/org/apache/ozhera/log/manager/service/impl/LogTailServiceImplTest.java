@@ -26,6 +26,7 @@ import org.apache.ozhera.log.common.Result;
 import org.apache.ozhera.log.manager.model.bo.MlogParseParam;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import static org.apache.ozhera.log.manager.common.utils.ManagerUtil.getConfigFromNanos;
 
@@ -37,6 +38,7 @@ import static org.apache.ozhera.log.manager.common.utils.ManagerUtil.getConfigFr
  * @date 2023/6/13 15:06
  */
 @Slf4j
+@Ignore("Requires a fully wired IoC environment with external services (Elasticsearch/Doris/Nacos)")
 public class LogTailServiceImplTest {
 
     private LogTailServiceImpl logTailService;
